@@ -683,13 +683,18 @@ function renderMonthlyLearningCalendar() {
 
   const user = AppState.currentUser;
   const userActivity = (user && AppState.activity && AppState.activity[user.email]) ? AppState.activity[user.email] : null;
-  let studiedDates = userActivity ? (userActivity.studiedDates || []) : ['2026-10-02', '2026-10-04', '2026-10-07', '2026-10-09', '2026-10-11', '2026-10-12'];
+  let studiedDates = (userActivity && Array.isArray(userActivity.studiedDates)) ? userActivity.studiedDates : [];
 
   for (let empty = 0; empty < 3; empty++) {
     const emptyCell = document.createElement('div');
     emptyCell.className = 'calendar-day-empty';
     container.appendChild(emptyCell);
   }
+
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth(); // 9 = October (0-indexed)
+  const currentDate = now.getDate();
 
   const activeInOct = studiedDates.filter(d => d.startsWith('2026-10')).length;
   if (countBadge) {
@@ -703,7 +708,7 @@ function renderMonthlyLearningCalendar() {
     const dayStr = String(day).padStart(2, '0');
     const dateStr = `2026-10-${dayStr}`;
     const isStudied = studiedDates.includes(dateStr);
-    const isToday = (day === 12);
+    const isToday = (currentYear === 2026 && currentMonth === 9 && currentDate === day);
 
     const cell = document.createElement('div');
     cell.className = `calendar-day-cell cursor-pointer ${isStudied ? 'calendar-day-active' : ''} ${isToday ? 'calendar-day-today' : ''}`;
@@ -1029,7 +1034,11 @@ function toggleLessonCompletion(lessonId) {
     list.push(lessonId);
     showToast('Materi berhasil diselesaikan', 'success');
 
-    const todayStr = '2026-10-12';
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    const todayStr = `${yyyy}-${mm}-${dd}`;
     if (!AppState.activity) AppState.activity = {};
     if (!AppState.activity[user.email]) {
       AppState.activity[user.email] = { studiedDates: [] };
@@ -1386,7 +1395,7 @@ function renderFavorites() {
 
         <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between mt-auto">
           <div class="flex items-center gap-1.5">
-            <button onclick="navigator.clipboard.writeText(${JSON.stringify(item.content)}).then(() => showToast('Kode disalin ke clipboard', 'success'))" class="px-2.5 py-1 rounded-md text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1 transition-colors">
+            <button onclick="copyFavoriteSnippet('${item.id}')" class="fav-copy-btn px-2.5 py-1 rounded-md text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1 transition-colors">
               <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
               <span>Salin</span>
             </button>
@@ -1408,6 +1417,22 @@ function renderFavorites() {
 }
 
 // Global window bindings
+window.copyFavoriteSnippet = function(favId) {
+  const user = AppState.currentUser;
+  const userFavs = (user && AppState.favorites && AppState.favorites[user.email]) ? AppState.favorites[user.email] : [];
+  const fav = userFavs.find(f => f.id === favId);
+  if (fav && fav.content) {
+    navigator.clipboard.writeText(fav.content).then(() => {
+      showToast('Kode disalin ke clipboard', 'success');
+    }).catch(err => {
+      console.error('Copy snippet error:', err);
+      showToast('Gagal menyalin kode', 'error');
+    });
+  } else {
+    showToast('Snippet tidak ditemukan', 'error');
+  }
+};
+
 window.renderHome = renderHome;
 window.renderUserDashboard = renderUserDashboard;
 window.renderMonthlyLearningCalendar = renderMonthlyLearningCalendar;

@@ -2041,3 +2041,177 @@ html.light .sidebar-drawer-panel #drawer-theme-label {
   border-color: #FCD34D !important;
 }
 
+/* ==========================================================================
+   REVISI 46: LIGHT MODE COMPONENT PERFECTION & ADMIN NOTION EDITOR
+   ========================================================================== */
+
+/* 1. Mini Progress Widget in Home Welcome Bar (Gambar 1) */
+html.light .dash-progress-mini-card {
+  background-color: #F8FAFC !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+html.light .dash-progress-mini-card .text-slate-400 {
+  color: #64748B !important;
+}
+html.light .dash-progress-mini-card #dash-progress-percent {
+  color: #059669 !important;
+}
+html.light .dash-progress-mini-card #dash-completed-count {
+  color: #64748B !important;
+}
+html.light .dash-progress-mini-card .bg-slate-900 {
+  background-color: #E2E8F0 !important;
+  border-color: #CBD5E1 !important;
+}
+html.light .dash-progress-mini-card button {
+  color: #0891B2 !important;
+}
+html.light .dash-progress-mini-card button:hover {
+  background-color: #E0F2FE !important;
+  color: #0369A1 !important;
+}
+
+/* 2. Favorit & Saved Items Styling (Gambar 3) */
+html.light .fav-badge-saved,
+html.light #view-favorites .bg-amber-950\/80 {
+  background-color: #FEF3C7 !important;
+  color: #92400E !important;
+  border-color: #FDE68A !important;
+}
+html.light #view-favorites .bg-amber-950\/80 svg {
+  color: #D97706 !important;
+}
+html.light #view-favorites .bg-purple-950 {
+  background-color: #F3E8FF !important;
+  color: #7E22CE !important;
+  border-color: #DDD6FE !important;
+}
+html.light #view-favorites pre {
+  background-color: #F8FAFC !important;
+  border-color: #E2E8F0 !important;
+  color: #059669 !important;
+}
+html.light #view-favorites .fav-copy-btn,
+html.light #view-favorites button[onclick*="copyFavoriteSnippet"] {
+  background-color: #F1F5F9 !important;
+  border-color: #CBD5E1 !important;
+  color: #0F172A !important;
+}
+html.light #view-favorites .fav-copy-btn:hover,
+html.light #view-favorites button[onclick*="copyFavoriteSnippet"]:hover {
+  background-color: #E2E8F0 !important;
+  color: #000000 !important;
+}
+
+/* 3. Admin Curriculum Inputs & Notion Block Editor (Gambar 4) */
+html.light #tab-pane-curriculum input,
+html.light #tab-pane-curriculum select {
+  background-color: #FFFFFF !important;
+  color: #0F172A !important;
+  border-color: #CBD5E1 !important;
+}
+html.light #tab-pane-curriculum input:focus,
+html.light #tab-pane-curriculum select:focus {
+  border-color: #059669 !important;
+  box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.15) !important;
+}
+
+/* Notion Block Cards & Containers in Light Mode */
+html.light #notion-editor-root .group {
+  background-color: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}
+html.light #notion-editor-root .group:hover {
+  border-color: #CBD5E1 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) !important;
+}
+html.light #notion-editor-root select {
+  background-color: #F8FAFC !important;
+  color: #0F172A !important;
+  border-color: #CBD5E1 !important;
+}
+html.light #notion-editor-root input,
+html.light #notion-editor-root textarea {
+  color: #0F172A !important;
+}
+html.light #notion-editor-root input::placeholder,
+html.light #notion-editor-root textarea::placeholder {
+  color: #94A3B8 !important;
+}
+html.light #notion-editor-root .border-slate-800,
+html.light #notion-editor-root .border-slate-800\/80 {
+  border-color: #E2E8F0 !important;
+}
+html.light #notion-editor-root .bg-slate-950 {
+  background-color: #F8FAFC !important;
+  border-color: #E2E8F0 !important;
+}
+html.light #notion-editor-root .bg-slate-950 textarea {
+  background-color: #F8FAFC !important;
+  color: #059669 !important;
+}
+html.light #notion-editor-root button.bg-slate-800 {
+  background-color: #F1F5F9 !important;
+  color: #334155 !important;
+  border-color: #CBD5E1 !important;
+}
+html.light #notion-editor-root button.bg-slate-800:hover {
+  background-color: #E2E8F0 !important;
+  color: #0F172A !important;
+}
+html.light #notion-editor-root .btn-add-quick {
+  background-color: #F1F5F9 !important;
+  color: #334155 !important;
+  border-color: #CBD5E1 !important;
+}
+html.light #notion-editor-root .btn-add-quick:hover {
+  background-color: #E2E8F0 !important;
+  color: #0F172A !important;
+}
+html.light #notion-editor-root .bg-emerald-950\/25 {
+  background-color: #ECFDF5 !important;
+  border-color: #A7F3D0 !important;
+  color: #065F46 !important;
+}
+html.light #notion-editor-root .bg-emerald-950\/25 textarea {
+  color: #065F46 !important;
+}
+html.light #notion-editor-root .bg-emerald-950\/25 textarea::placeholder {
+  color: #059669 !important;
+}
+
+/* 4. Live Preview Window in Admin Editor (Gambar 4 & 5) */
+html.light #editor-live-preview-box {
+  background-color: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05) !important;
+}
+html.light #editor-live-preview,
+html.light #lesson-blocks-root {
+  color: #334155 !important;
+}
+html.light #editor-live-preview h1,
+html.light #lesson-blocks-root h1,
+html.light #editor-live-preview h2,
+html.light #lesson-blocks-root h2,
+html.light #editor-live-preview h3,
+html.light #lesson-blocks-root h3,
+html.light #editor-live-preview strong,
+html.light #lesson-blocks-root strong {
+  color: #0F172A !important;
+}
+html.light #editor-live-preview p,
+html.light #lesson-blocks-root p,
+html.light #editor-live-preview .prose-reading,
+html.light #lesson-blocks-root .prose-reading {
+  color: #334155 !important;
+}
+html.light #editor-live-preview .bg-emerald-950\/30,
+html.light #lesson-blocks-root .bg-emerald-950\/30 {
+  background-color: #ECFDF5 !important;
+  border-color: #A7F3D0 !important;
+  color: #065F46 !important;
+}
+

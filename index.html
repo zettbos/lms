@@ -40,7 +40,7 @@
   </script>
 
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="css/style.css?v=45" />
+  <link rel="stylesheet" href="css/style.css?v=46" />
 </head>
 <body class="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--fg)] selection:bg-emerald-500/30 selection:text-emerald-300 transition-colors duration-150">
 
@@ -588,7 +588,7 @@
         </div>
 
         <!-- Global Progress Metric Mini Widget -->
-        <div class="flex items-center gap-3 bg-slate-950/70 border border-slate-800/80 px-3.5 py-2 rounded-xl flex-shrink-0 self-start sm:self-auto">
+        <div class="dash-progress-mini-card flex items-center gap-3 bg-slate-950/70 border border-slate-800/80 px-3.5 py-2 rounded-xl flex-shrink-0 self-start sm:self-auto">
           <div class="text-right">
             <div class="text-[10px] text-slate-400 font-medium">Progres Belajar:</div>
             <div class="flex items-center gap-1.5">
@@ -971,7 +971,7 @@
     <!-- Favorites Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
       <div>
-        <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-[11px] font-bold bg-amber-950/80 text-amber-300 border border-amber-800/80 mb-2 tracking-caps">
+        <div class="fav-badge-saved inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-[11px] font-bold bg-amber-950/80 text-amber-300 border border-amber-800/80 mb-2 tracking-caps">
           <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
           ITEM TERSIMPAN
         </div>
@@ -1265,10 +1265,6 @@
             <label for="admin-edit-duration" class="block text-xs font-semibold text-slate-400 mb-1">Estimasi Durasi (Menit)</label>
             <input id="admin-edit-duration" type="number" min="1" value="15" class="w-full bg-slate-950 text-white border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm focus:border-emerald-500 focus:outline-none">
           </div>
-          <div class="md:col-span-4">
-            <label for="admin-edit-youtube" class="block text-xs font-semibold text-slate-400 mb-1">Link URL Video YouTube Unlisted (Video Pembelajaran)</label>
-            <input id="admin-edit-youtube" type="text" placeholder="https://www.youtube.com/watch?v=..." class="w-full bg-slate-950 text-emerald-400 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm focus:border-emerald-500 focus:outline-none font-mono text-xs">
-          </div>
         </div>
 
         <!-- 2 Columns: Notion Block Editor (Left) & Live Preview (Right) -->
@@ -1288,8 +1284,8 @@
             </div>
           </div>
 
-          <!-- Live Preview Window -->
-          <div>
+          <!-- Live Preview Window (Sticky Viewport Follower) -->
+          <div class="lg:sticky lg:top-20 self-start">
             <div class="flex items-center justify-between mb-3">
               <span class="text-xs font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
@@ -1297,7 +1293,7 @@
               </span>
             </div>
 
-            <div class="p-5 rounded-2xl bg-slate-950/80 border border-slate-800 min-h-[320px] max-h-[600px] overflow-y-auto">
+            <div id="editor-live-preview-box" class="p-5 rounded-2xl bg-slate-950/80 border border-slate-800 min-h-[320px] max-h-[calc(100vh-140px)] overflow-y-auto custom-scrollbar">
               <div id="editor-live-preview">
                 <!-- Injected live preview -->
               </div>
@@ -2859,18 +2855,18 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- Application Scripts (Modular Architecture with Cache Buster) -->
-  <script src="js/whitelist-data.js?v=45"></script>
-  <script src="js/mock-data.js?v=45"></script>
-  <script src="js/editor.js?v=45"></script>
-  <script src="js/core/state.js?v=45"></script>
-  <script src="js/core/supabase.js?v=45"></script>
-  <script src="js/core/router.js?v=45"></script>
-  <script src="js/core/particles.js?v=45"></script>
-  <script src="js/controllers/auth.js?v=45"></script>
-  <script src="js/controllers/landing.js?v=45"></script>
-  <script src="js/controllers/classroom.js?v=45"></script>
-  <script src="js/controllers/resources.js?v=45"></script>
-  <script src="js/controllers/admin.js?v=45"></script>
-  <script src="js/app.js?v=45"></script>
+  <script src="js/whitelist-data.js?v=46"></script>
+  <script src="js/mock-data.js?v=46"></script>
+  <script src="js/editor.js?v=46"></script>
+  <script src="js/core/state.js?v=46"></script>
+  <script src="js/core/supabase.js?v=46"></script>
+  <script src="js/core/router.js?v=46"></script>
+  <script src="js/core/particles.js?v=46"></script>
+  <script src="js/controllers/auth.js?v=46"></script>
+  <script src="js/controllers/landing.js?v=46"></script>
+  <script src="js/controllers/classroom.js?v=46"></script>
+  <script src="js/controllers/resources.js?v=46"></script>
+  <script src="js/controllers/admin.js?v=46"></script>
+  <script src="js/app.js?v=46"></script>
 </body>
 </html>

@@ -418,3 +418,21 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
     4. Cloud Wipe di Panel Admin:
        - Fungsi `resetResourcesToDefault()` dan `resetAllDataToZero()` kini ikut mengeksekusi penghapusan baris di cloud Supabase (`shared_resources`).
     5. Cache Buster: Menaikkan seluruh query string script dan stylesheet di `index.html` ke versi `?v=45`.
+  - [2026-10-13] Implementasi Revisi 46: Fix Visual Light Mode, Pembersihan Dummy Kalender Belajar, Perbaikan Copy Snippet Favorit, Hapus Field Input YouTube, dan Sticky Live Preview Admin.
+    1. Light Mode Mini Progress Widget (`.dash-progress-mini-card`):
+       - Memperbaiki kotak hitam kotor di welcome bar Beranda saat Light Mode.
+       - Menerapkan background `#F8FAFC`, border `#E2E8F0`, teks label `#64748B`, angka progress emerald `#059669`, dan tombol Detail cyan `#0891B2` yang kontras dan bersih.
+    2. Purge Dummy Kalender Belajar Bulanan (`js/controllers/classroom.js`):
+       - Menghapus total array fallback tanggal statis `['2026-10-02', '2026-10-04', ...]` dan hardcoded `isToday = (day === 12)`.
+       - Menghitung tanggal hari ini secara dinamis real-time menggunakan `new Date()`. Kalender menampilkan data murni dari aktivitas riil pengguna (0 hari aktif jika belum ada materi tuntas).
+       - Menghilangkan hardcoded `'2026-10-12'` pada pencatatan tanggal tuntas materi di `markLessonComplete()`.
+    3. Perbaikan Render & Copy Snippet Favorit (`js/controllers/classroom.js`, `css/style.css`):
+       - Memperbaiki bug quote collision pada atribut `onclick` saat menyalin kode snippet favorit dengan membuat fungsi terisolasi `window.copyFavoriteSnippet(favId)`.
+       - Menerapkan Light Mode styling untuk badge "ITEM TERSIMPAN" (`#FEF3C7`, `#B45309`), tag snippet (`#F3E8FF`, `#7E22CE`), dan pre code box.
+    4. Hapus Input YouTube Unlisted & Light Mode Notion Editor (`index.html`, `js/controllers/admin.js`, `css/style.css`):
+       - Menghapus kolom input terpisah `#admin-edit-youtube` di editor admin karena video dimasukkan sebagai blok modular di konten.
+       - Menambahkan styling Light Mode menyeluruh untuk `#notion-editor-root` (blok putih `#FFFFFF`, border `#E2E8F0`, text `#0F172A`, placeholder `#94A3B8`, dropdown `#F8FAFC`, callout box `#ECFDF5`).
+    5. Sticky Scrolling Live Preview (`index.html`, `css/style.css`):
+       - Memasang sticky layout `lg:sticky lg:top-20 self-start` dan `max-h-[calc(100vh-140px)] overflow-y-auto custom-scrollbar` pada panel Live Preview siswa di editor admin.
+       - Live Preview kini tetap menempel di viewport saat admin scrolling ke bawah menyusun blok materi panjang.
+    6. Cache Buster: Menaikkan seluruh query string script dan stylesheet di `index.html` ke versi `?v=46`.

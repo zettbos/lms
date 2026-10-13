@@ -943,10 +943,8 @@ window.handleAdminLessonChange = handleAdminLessonChange;
 
 function clearEditorFields() {
   const titleInp = document.getElementById('admin-edit-title');
-  const ytInp = document.getElementById('admin-edit-youtube');
   const durInp = document.getElementById('admin-edit-duration');
   if (titleInp) titleInp.value = '';
-  if (ytInp) ytInp.value = '';
   if (durInp) durInp.value = '15';
 }
 
@@ -973,12 +971,10 @@ function showEditorEmptyState(title, subtitle) {
 function loadLessonToEditor(lesson) {
   AppState.adminSelectedLessonId = lesson.id;
   const titleInp = document.getElementById('admin-edit-title');
-  const ytInp = document.getElementById('admin-edit-youtube');
   const durInp = document.getElementById('admin-edit-duration');
   const moduleSelect = document.getElementById('admin-edit-module');
 
   if (titleInp) titleInp.value = lesson.title || '';
-  if (ytInp) ytInp.value = lesson.youtubeUrl || '';
   if (durInp) durInp.value = lesson.durationMinutes || 15;
   if (moduleSelect) moduleSelect.value = lesson.moduleId;
 
@@ -1028,7 +1024,7 @@ function saveLessonFromEditor(publishToCloud = true) {
   }
 
   lesson.title = titleVal;
-  lesson.youtubeUrl = document.getElementById('admin-edit-youtube')?.value.trim() || '';
+  lesson.youtubeUrl = lesson.youtubeUrl || '';
   lesson.durationMinutes = parseInt(document.getElementById('admin-edit-duration')?.value) || 15;
   
   const moduleMoveSelect = document.getElementById('admin-edit-module');
