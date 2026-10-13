@@ -54,27 +54,24 @@ function initStorage() {
   try { storedQuickActions = JSON.parse(localStorage.getItem('zett_quick_actions')); } catch (e) {}
   try { storedUser = JSON.parse(localStorage.getItem('zett_current_user')); } catch (e) {}
 
-  const DATA_CLEAN_VERSION = 'v28_hardened_security';
+  const DATA_CLEAN_VERSION = 'v30_whitelist_imported';
   const storedVersion = localStorage.getItem('zett_data_clean_version');
   
-  // Clean-slate migration: Bersihkan data dummy & update admin ke zettbos2025@gmail.com
+  // Whitelist import migration: Import 1.736 siswa unik & pertahankan hash password yang sudah diset
   if (storedVersion !== DATA_CLEAN_VERSION) {
-    localStorage.removeItem('zett_modules');
-    localStorage.removeItem('zett_lessons');
-    localStorage.removeItem('zett_progress');
-    localStorage.removeItem('zett_favorites');
-    localStorage.removeItem('zett_resources');
-    localStorage.removeItem('zett_activity');
-    localStorage.removeItem('zett_quick_actions');
-    localStorage.removeItem('zett_current_user');
-    
-    let cms = null;
-    try { cms = JSON.parse(localStorage.getItem('zett_landing_cms')); } catch(e) {}
-    if (cms && Array.isArray(cms.testimonials)) {
-      cms.testimonials = [];
-      localStorage.setItem('zett_landing_cms', JSON.stringify(cms));
+    const existingPasswordMap = {};
+    if (Array.isArray(storedWhitelist)) {
+      storedWhitelist.forEach(item => {
+        if (item.email && item.passwordHash) {
+          existingPasswordMap[item.email.toLowerCase()] = item.passwordHash;
+        }
+      });
     }
-    
+
+    const studentList = (typeof WHITELIST_STUDENT_EMAILS !== 'undefined' && Array.isArray(WHITELIST_STUDENT_EMAILS))
+      ? WHITELIST_STUDENT_EMAILS
+      : [];
+
     const cleanWhitelist = [
       {
         id: 'owner-1',
@@ -82,22 +79,22 @@ function initStorage() {
         fullName: 'Owner Zettbos (Super Admin)',
         role: 'admin',
         isActive: true,
-        passwordHash: null,
+        passwordHash: existingPasswordMap['zettbos2025@gmail.com'] || null,
         registeredAt: '2026-10-13'
-      }
+      },
+      ...studentList.map((email, idx) => ({
+        id: 'wl-' + (idx + 1),
+        email: email,
+        fullName: 'Siswa Zettbos',
+        role: 'member',
+        isActive: true,
+        passwordHash: existingPasswordMap[email.toLowerCase()] || null,
+        registeredAt: '2026-10-13'
+      }))
     ];
     localStorage.setItem('zett_whitelist', JSON.stringify(cleanWhitelist));
     localStorage.setItem('zett_data_clean_version', DATA_CLEAN_VERSION);
-    
-    storedModules = [];
-    storedLessons = [];
-    storedProgress = {};
-    storedFavorites = {};
-    storedResources = [];
-    storedActivity = {};
-    storedQuickActions = [];
     storedWhitelist = cleanWhitelist;
-    storedUser = null;
   }
 
   const zData = window.ZettData || {};

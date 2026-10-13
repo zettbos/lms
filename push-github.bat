@@ -15,8 +15,7 @@ echo 2. Menambahkan file ke staging...
 git add .
 
 echo.
-echo 3. Membuat Commit...
-git commit -m "security: lock admin to zettbos2025@gmail.com, remove backdoors, add native email OTP, sha256 password hashing, anti-inspect"
+git commit -m "feat: import and deduplicate 1736 student whitelist, update cache version v30, seed supabase"
 
 echo.
 echo 4. Menghubungkan remote GitHub...

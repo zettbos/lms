@@ -360,5 +360,29 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
     4. Workflow Input Data dari 0 di Admin Panel (`js/controllers/admin.js` & `index.html`):
        - Menambahkan tombol `[+ Modul Baru]`, `[+ Materi Baru]`, dan `[Hapus Materi]` di editor kurikulum admin untuk memfasilitasi pembuatan bab modul dan pelajaran dari nol.
        - Menambahkan tombol `[Bersihkan ke 0]` di header admin panel.
-       - Menyederhanakan tombol akses cepat login di Hero dan Halaman Login menjadi *"Masuk sebagai Farhan (Owner)"*.
+  - [2026-10-13] Implementasi Revisi 28: Security Hardening, Anti-Bypass, & Super Admin zettbos2025@gmail.com.
+    1. Super Admin Resmi Zettbos:
+       - Mengubah Super Admin ke `zettbos2025@gmail.com` dan membersihkan seluruh akun pengembang lama.
+    2. Eliminasi Total Dummy Access & Bypass:
+       - Menghapus tombol toggle cepat admin/member (`toggleAdminMemberMode`).
+       - Menghapus pill akun demo/dummy di modal login.
+       - Menghapus kode bypass OTP hardcoded (`123456`).
+       - Menambahkan perlindungan anti-inspect element (disable contextmenu dan shortcut keyboard DevTools).
+  - [2026-10-13] Implementasi Revisi 29: Integrasi Resend Third-Party Email OTP & Password Hashing.
+    1. Integrasi Resend API (`api/send-otp.js`):
+       - Pengiriman OTP email asli via serverless API Vercel dengan template Dark Cyberpunk resmi Zettbos.
+    2. Verifikasi Kriptografis HMAC SHA-256 (`api/verify-otp.js`):
+       - Token OTP ditandatangani dengan HMAC stateless dan masa aktif 10 menit.
+  - [2026-10-13] Implementasi Revisi 30: Audit Deduplikasi whitelist.txt & Impor 1.736 Siswa Unik ke LMS Whitelist.
+    1. Deduplikasi & Normalisasi whitelist.txt:
+       - Mengeliminasi seluruh email duplikat dari 1.759 data mentah menjadi 1.736 email siswa unik.
+       - Menyeragamkan format email ke lowercase dan spasi bersih.
+    2. Modul Data Whitelist (`js/whitelist-data.js` & `js/mock-data.js`):
+       - Memuat seluruh 1.736 siswa ke konstanta `WHITELIST_STUDENT_EMAILS` dan mengombinasikannya dengan Super Admin `zettbos2025@gmail.com`.
+       - Total whitelist resmi: 1.737 akun terdaftar.
+    3. Migrasi Otomatis LocalStorage (`js/core/state.js`):
+       - Cache breaker `DATA_CLEAN_VERSION = 'v30_whitelist_imported'` dengan preservasi password hash aktif.
+    4. SQL Batch Script (`supabase/seed_whitelist.sql`):
+       - Penyiapan file seed idempotent untuk sinkronisasi database PostgreSQL Supabase.
+
 

@@ -4,7 +4,7 @@
  * Seluruh data dummy telah dihapus. Sistem siap diisi data asli dari 0 melalui Admin Panel.
  */
 
-// 1. WHITELIST: Hanya akun resmi Super Admin Zettbos yang aktif
+// 1. WHITELIST: Akun resmi Super Admin Zettbos + 1.736 Siswa Terdaftar
 const SEED_WHITELIST = [
   {
     id: 'owner-1',
@@ -14,7 +14,16 @@ const SEED_WHITELIST = [
     isActive: true,
     passwordHash: null,
     registeredAt: '2026-10-13'
-  }
+  },
+  ...(typeof WHITELIST_STUDENT_EMAILS !== 'undefined' ? WHITELIST_STUDENT_EMAILS : []).map((email, idx) => ({
+    id: 'wl-' + (idx + 1),
+    email: email,
+    fullName: 'Siswa Zettbos',
+    role: 'member',
+    isActive: true,
+    passwordHash: null,
+    registeredAt: '2026-10-13'
+  }))
 ];
 
 // 2. MODUL KURIKULUM: Bersih dari 0 modul
