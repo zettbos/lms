@@ -143,6 +143,7 @@ const ZettSupabase = {
           fullName: w.full_name,
           role: w.role,
           isActive: w.is_active,
+          passwordHash: w.password_hash || null,
           registeredAt: w.registered_at
         }));
       }
@@ -233,7 +234,8 @@ const ZettSupabase = {
           email: w.email,
           full_name: w.fullName,
           role: w.role,
-          is_active: w.isActive
+          is_active: w.isActive,
+          password_hash: w.passwordHash || null
         }));
         await this.client.from('whitelist_members').upsert(payloadWl, { onConflict: 'email' });
       }

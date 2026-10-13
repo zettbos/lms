@@ -63,12 +63,12 @@ function renderLandingCurriculumBento(activeModuleId) {
         <span class="px-2.5 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/40 text-[11px] font-mono font-bold text-emerald-400 uppercase tracking-caps mb-3">
           Status: Siap Diisi Materi Asli
         </span>
-        <h3 class="text-lg sm:text-xl font-bold text-white mb-2">Mulai Masukkan Data Modul Anda</h3>
+        <h3 class="text-lg sm:text-xl font-bold text-white mb-2">Kurikulum Sedang Disusun</h3>
         <p class="text-xs text-slate-400 max-w-md leading-relaxed mb-6">
-          Klik tombol di bawah ini untuk membuka Admin Panel dan membuat modul pertama beserta materi video YouTube dan catatan Notion.
+          Mentor Zettbos sedang mematangkan silabus dan modul pembelajaran. Silakan masuk dengan akun member Anda untuk mulai belajar.
         </p>
-        <button onclick="loginAsDemo('farhan@zettbos.com'); navigate('admin');" class="btn-primary-action px-5 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 shadow-lg">
-          <span>Buka Admin &amp; Tambah Modul Pertama</span>
+        <button onclick="navigate('login');" class="btn-primary-action px-5 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 shadow-lg">
+          <span>Masuk ke Member Hub</span>
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
         </button>
       </div>
@@ -191,7 +191,7 @@ function renderLandingCurriculumBento(activeModuleId) {
         </div>
         <button 
           type="button" 
-          onclick="loginAsDemo('member@zettbos.com')" 
+          onclick="navigate('login')" 
           class="btn-primary-action w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 shadow-md whitespace-nowrap"
         >
           <span>Masuk &amp; Pelajari Modul Ini</span>
@@ -215,7 +215,12 @@ function handleLandingEmailSubmit(event) {
     showToast('Silakan masukkan alamat email', 'error');
     return;
   }
-  loginAsDemo(email);
+  navigate('login');
+  const loginInput = document.getElementById('login-email-input');
+  if (loginInput) {
+    loginInput.value = email;
+    loginInput.focus();
+  }
 }
 
 function renderLandingFromCms() {
@@ -399,7 +404,7 @@ const HeroTypewriterController = {
     'budi@perusahaan.com',
     'developer@startup.id',
     'owner@toko-online.com',
-    'farhan@zettbos.com'
+    'alumni@zettbos.com'
   ],
 
   headlineTimer: null,

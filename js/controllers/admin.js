@@ -10,9 +10,9 @@
 
 function renderAdminPanel() {
   const user = AppState.currentUser;
-  if (!user || user.role !== 'admin') {
-    showToast('Akses dibatasi hanya untuk Admin', 'error');
-    navigate('home');
+  if (!user || user.role !== 'admin' || user.email.toLowerCase() !== 'zettbos2025@gmail.com') {
+    showToast('Akses dibatasi hanya untuk Super Admin (zettbos2025@gmail.com)', 'error');
+    navigate(user ? 'home' : 'landing');
     return;
   }
 

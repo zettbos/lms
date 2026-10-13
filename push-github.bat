@@ -6,8 +6,8 @@ echo.
 
 echo 1. Inisialisasi Git Lokal...
 git init
-git config user.name "Farhan"
-git config user.email "farhan@zettbos.com"
+git config user.name "Zettbos Admin"
+git config user.email "zettbos2025@gmail.com"
 git branch -M main
 
 echo.
@@ -16,7 +16,7 @@ git add .
 
 echo.
 echo 3. Membuat Commit...
-git commit -m "feat: initial release lms zettbos production with supabase"
+git commit -m "security: lock admin to zettbos2025@gmail.com, remove backdoors, add native email OTP, sha256 password hashing, anti-inspect"
 
 echo.
 echo 4. Menghubungkan remote GitHub...

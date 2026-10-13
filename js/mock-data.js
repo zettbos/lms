@@ -4,14 +4,15 @@
  * Seluruh data dummy telah dihapus. Sistem siap diisi data asli dari 0 melalui Admin Panel.
  */
 
-// 1. WHITELIST: Hanya akun resmi Owner/Admin Farhan yang aktif
+// 1. WHITELIST: Hanya akun resmi Super Admin Zettbos yang aktif
 const SEED_WHITELIST = [
   {
     id: 'owner-1',
-    email: 'farhan@zettbos.com',
-    fullName: 'Farhan (Owner Zettbos)',
+    email: 'zettbos2025@gmail.com',
+    fullName: 'Owner Zettbos (Super Admin)',
     role: 'admin',
     isActive: true,
+    passwordHash: null,
     registeredAt: '2026-10-13'
   }
 ];

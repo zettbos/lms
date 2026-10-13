@@ -14,8 +14,12 @@ CREATE TABLE IF NOT EXISTS public.whitelist_members (
     full_name TEXT,
     role TEXT DEFAULT 'member' CHECK (role IN ('member', 'admin')),
     is_active BOOLEAN DEFAULT true,
+    password_hash TEXT,
     registered_at TIMESTAMPTZ DEFAULT now()
 );
+
+-- Idempotent column check if table already exists
+ALTER TABLE public.whitelist_members ADD COLUMN IF NOT EXISTS password_hash TEXT;
 
 -- 3. TABEL MODUL KURIKULUM (Curriculum Modules)
 CREATE TABLE IF NOT EXISTS public.curriculum_modules (
@@ -174,8 +178,8 @@ CREATE POLICY "Public Write Quick Actions" ON public.quick_actions FOR ALL USING
 -- SEED DATA AWAL (Langsung siap pakai begitu schema ini di-run di Supabase)
 -- ==============================================================================
 
--- Seed Whitelist: Hanya Akun Owner Farhan (Admin) untuk Mulai dari 0
-INSERT INTO public.whitelist_members (id, email, full_name, role, is_active) VALUES
-('owner-1', 'farhan@zettbos.com', 'Farhan (Owner Zettbos)', 'admin', true)
-ON CONFLICT (email) DO NOTHING;
+-- Seed Whitelist: Hanya Akun Super Admin Zettbos (zettbos2025@gmail.com) untuk Mulai dari 0
+INSERT INTO public.whitelist_members (id, email, full_name, role, is_active, password_hash) VALUES
+('owner-1', 'zettbos2025@gmail.com', 'Owner Zettbos (Super Admin)', 'admin', true, NULL)
+ON CONFLICT (email) DO UPDATE SET role = 'admin', is_active = true;
 

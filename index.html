@@ -85,12 +85,6 @@
 
       <!-- Right User Controls -->
       <div id="nav-user-section" class="flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
-        <!-- Quick Role Switch Pill for testing (Strictly Desktop only, guaranteed hidden on mobile) -->
-        <button id="nav-mode-switch" onclick="toggleAdminMemberMode()" title="Klik untuk beralih mode pengujian Admin / Siswa" class="nav-hidden text-[11px] font-medium px-2.5 py-1 rounded-lg bg-[#16181D] hover:bg-[#1C1F26] text-slate-300 border border-[#262933] transition-colors items-center gap-1.5">
-          <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
-          <span class="hidden sm:inline">Ubah Mode:</span>
-          <span id="nav-role-badge">ADMIN</span>
-        </button>
 
         <!-- Theme Toggle Button (Desktop & Tablet) -->
         <button id="nav-btn-theme-toggle" onclick="toggleTheme()" title="Beralih Mode Gelap / Terang" class="hidden md:flex p-1.5 sm:p-2 rounded-lg text-slate-300 hover:text-white hover:bg-[#1C1F26] border border-[#262933] transition-colors items-center justify-center">
@@ -186,14 +180,6 @@
         <button id="drawer-btn-admin" onclick="navigate('admin'); closeSidebarDrawer();" class="w-full px-3.5 py-2.5 rounded-xl text-xs font-semibold text-rose-300 hover:text-rose-200 hover:bg-rose-950/40 border border-rose-900/50 transition-all flex items-center gap-3">
           <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
           <span>Admin Panel Kurikulum</span>
-        </button>
-
-        <button onclick="toggleAdminMemberMode(); closeSidebarDrawer();" class="w-full px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-[#16181D] border border-[#262933] transition-all flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
-            <span>Beralih Mode Pengujian</span>
-          </div>
-          <span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-rose-950 text-rose-300 border border-rose-800/80">ADMIN</span>
         </button>
       </div>
     </div>
@@ -298,14 +284,6 @@
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
             </button>
           </form>
-
-          <!-- Quick 1-Click Access Button -->
-          <div class="flex flex-wrap items-center gap-2">
-            <span class="text-[11px] text-slate-400 font-medium">Akses langsung Owner:</span>
-            <button type="button" onclick="loginAsDemo('farhan@zettbos.com')" class="demo-pill demo-pill-admin px-3 py-1.5 rounded-lg text-[11px] font-mono transition-all">
-              Masuk sebagai Farhan (Owner)
-            </button>
-          </div>
         </div>
 
         <!-- Right: Studio Visual Mockup (Mobile-Harmonized & Desktop-Floating) -->
@@ -511,9 +489,9 @@
           </p>
         </div>
 
-        <form onsubmit="handleLoginSubmit(event)" class="space-y-4">
+        <form id="form-login-auth" onsubmit="handleLoginSubmit(event)" class="space-y-4">
           <div>
-            <label for="login-email-input" class="block text-xs font-semibold text-slate-300 mb-1.5">Alamat Email Pendaftar</label>
+            <label for="login-email-input" class="block text-xs font-semibold text-slate-300 mb-1.5">Alamat Email Terdaftar</label>
             <div class="relative">
               <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.206"/></svg>
@@ -523,27 +501,41 @@
                 type="email" 
                 required 
                 placeholder="nama@email.com"
+                oninput="onLoginEmailChanged()"
                 class="w-full pl-10 pr-4 py-2.5 rounded-lg bg-slate-950 border border-slate-800 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all"
               />
             </div>
           </div>
 
-          <button type="submit" class="w-full btn-primary-action py-2.5 rounded-lg font-semibold text-sm flex items-center justify-center gap-2">
-            <span>Kirim Kode OTP Masuk</span>
+          <!-- Password field (Muncul otomatis jika akun sudah membuat password) -->
+          <div id="login-password-container" class="hidden">
+            <div class="flex items-center justify-between mb-1.5">
+              <label for="login-password-input" class="block text-xs font-semibold text-slate-300">Kata Sandi</label>
+              <button type="button" onclick="requestOtpLoginForEmail()" class="text-[11px] text-emerald-400 hover:underline">
+                Lupa sandi? Kirim OTP
+              </button>
+            </div>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+              </div>
+              <input 
+                id="login-password-input" 
+                type="password" 
+                placeholder="Masukkan kata sandi akun"
+                class="w-full pl-10 pr-10 py-2.5 rounded-lg bg-slate-950 border border-slate-800 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all"
+              />
+              <button type="button" onclick="togglePasswordVisibility('login-password-input', this)" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-300">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <button id="btn-login-submit" type="submit" class="w-full btn-primary-action py-2.5 rounded-lg font-semibold text-sm flex items-center justify-center gap-2">
+            <span id="btn-login-label">Lanjut Masuk</span>
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
           </button>
         </form>
-
-        <!-- Quick Demo Pill for instant prototype testing -->
-        <!-- Quick Access Pill for Owner -->
-        <div class="mt-6 pt-5 border-t border-slate-800/80">
-          <p class="text-[11px] font-semibold text-slate-400 mb-2 text-center">Akses Cepat Pengelola (Clean Slate):</p>
-          <div class="flex flex-wrap gap-2 justify-center">
-            <button type="button" onclick="loginAsDemo('farhan@zettbos.com')" class="px-3.5 py-1.5 rounded-lg text-[11px] bg-slate-900 hover:bg-slate-800 text-emerald-400 border border-slate-800 font-mono transition-colors">
-              farhan@zettbos.com (Owner / Admin)
-            </button>
-          </div>
-        </div>
 
       </div>
 
@@ -1557,13 +1549,6 @@
         </p>
       </div>
 
-      <!-- Demo Auto-Fill Pill -->
-      <div class="text-center mb-5">
-        <button id="otp-simulation-pill" class="px-3 py-1.5 rounded-lg text-xs font-mono bg-emerald-950 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-900/60 transition-colors" title="Klik untuk otomatis mengisi kode OTP">
-          [DEMO MODE] Kode OTP Anda: 123456 (Klik Isi)
-        </button>
-      </div>
-
       <!-- 6-Digit Boxes -->
       <div class="flex justify-center gap-2 sm:gap-3 mb-6">
         <input type="text" maxlength="1" class="otp-digit-input" autofocus />
@@ -1578,14 +1563,11 @@
         Verifikasi & Masuk
       </button>
 
-      <button type="button" onclick="loginAsDemo(AppState.pendingEmailForOtp || 'farhan@zettbos.com')" class="w-full mt-2 py-2 rounded-lg text-xs bg-slate-900 hover:bg-slate-800 text-emerald-400 border border-slate-800 font-semibold flex items-center justify-center gap-1.5 transition-colors">
-        <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-        <span>Masuk Langsung (Bypass OTP Demo)</span>
-      </button>
-
-      <p class="text-[11px] text-slate-500 text-center mt-3">
-        Mode Demo: Anda bisa verifikasi dengan kode atau langsung klik tombol di atas.
-      </p>
+      <div class="mt-4 text-center">
+        <button type="button" onclick="resendOtpCode()" class="text-xs text-slate-400 hover:text-emerald-400 transition-colors">
+          Tidak menerima kode? <span class="underline">Kirim Ulang OTP</span>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -1607,21 +1589,79 @@
       </p>
 
       <div class="mt-6 space-y-2">
-        <!-- Tombol Bypass Khusus Prototype/Dummy Preview -->
-        <button type="button" onclick="bypassAndLogin(document.getElementById('modal-unregistered-email').textContent)" class="w-full py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 transition-all">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-          <span>Masuk Mode Preview (Bypass Selama Dummy)</span>
-        </button>
-
-        <a href="https://wa.me/6281234567890?text=Halo%20Admin%20Zettbos,%20email%20saya%20belum%20terdaftar%20di%20Member%20Hub" target="_blank" class="w-full py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 font-medium text-xs flex items-center justify-center gap-2 transition-colors">
-          <svg class="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
-          Hubungi Admin via WhatsApp
+        <a href="https://wa.me/6281234567890?text=Halo%20Admin%20Zettbos,%20email%20saya%20belum%20terdaftar%20di%20Member%20Hub" target="_blank" class="w-full py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 transition-all">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
+          <span>Konfirmasi Pendaftaran ke Admin</span>
         </a>
 
         <button onclick="closeNonWhitelistModal()" class="w-full py-2 rounded-lg bg-slate-950 hover:bg-slate-900 text-slate-400 font-medium text-xs transition-colors">
           Coba Email Lain
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL: BUAT KATA SANDI BARU (SET PASSWORD)
+       ========================================== -->
+  <div id="modal-set-password" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md hidden">
+    <div class="glass-card rounded-2xl p-6 sm:p-8 max-w-md w-full relative">
+      <div class="text-center mb-6">
+        <div class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto mb-3">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+        </div>
+        <h3 class="text-lg font-bold text-white">Buat Kata Sandi Akun</h3>
+        <p class="text-xs text-slate-400 mt-1">
+          OTP Terverifikasi! Silakan tentukan kata sandi akun untuk akses cepat berikutnya.
+        </p>
+        <div class="mt-2 text-xs font-mono text-emerald-400 font-semibold" id="set-password-target-email">user@email.com</div>
+      </div>
+
+      <form onsubmit="handleSetPasswordSubmit(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Kata Sandi Baru (Min. 8 Karakter)</label>
+          <div class="relative">
+            <input 
+              id="new-password-input" 
+              type="password" 
+              required 
+              minlength="8"
+              placeholder="Minimal 8 karakter kombinasi"
+              class="w-full pl-3.5 pr-10 py-2.5 rounded-lg bg-slate-950 border border-slate-800 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all"
+            />
+            <button type="button" onclick="togglePasswordVisibility('new-password-input', this)" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-300">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Konfirmasi Kata Sandi Baru</label>
+          <div class="relative">
+            <input 
+              id="confirm-password-input" 
+              type="password" 
+              required 
+              minlength="8"
+              placeholder="Ulangi kata sandi di atas"
+              class="w-full pl-3.5 pr-10 py-2.5 rounded-lg bg-slate-950 border border-slate-800 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all"
+            />
+            <button type="button" onclick="togglePasswordVisibility('confirm-password-input', this)" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-300">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="p-2.5 rounded-lg bg-emerald-950/40 border border-emerald-500/20 text-[11px] text-emerald-300/80 leading-relaxed flex items-center gap-2">
+          <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          <span>Password otomatis dienkripsi SHA-256 dan dilindungi di database cloud.</span>
+        </div>
+
+        <button type="submit" class="w-full btn-primary-action py-2.5 rounded-lg font-semibold text-sm flex items-center justify-center gap-2">
+          <span>Simpan Kata Sandi &amp; Masuk</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </button>
+      </form>
     </div>
   </div>
 

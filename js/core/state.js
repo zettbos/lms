@@ -54,10 +54,10 @@ function initStorage() {
   try { storedQuickActions = JSON.parse(localStorage.getItem('zett_quick_actions')); } catch (e) {}
   try { storedUser = JSON.parse(localStorage.getItem('zett_current_user')); } catch (e) {}
 
-  const DATA_CLEAN_VERSION = 'v27_clean_zero_start';
+  const DATA_CLEAN_VERSION = 'v28_hardened_security';
   const storedVersion = localStorage.getItem('zett_data_clean_version');
   
-  // Clean-slate migration: Bersihkan data dummy lama
+  // Clean-slate migration: Bersihkan data dummy & update admin ke zettbos2025@gmail.com
   if (storedVersion !== DATA_CLEAN_VERSION) {
     localStorage.removeItem('zett_modules');
     localStorage.removeItem('zett_lessons');
@@ -66,6 +66,7 @@ function initStorage() {
     localStorage.removeItem('zett_resources');
     localStorage.removeItem('zett_activity');
     localStorage.removeItem('zett_quick_actions');
+    localStorage.removeItem('zett_current_user');
     
     let cms = null;
     try { cms = JSON.parse(localStorage.getItem('zett_landing_cms')); } catch(e) {}
@@ -77,10 +78,11 @@ function initStorage() {
     const cleanWhitelist = [
       {
         id: 'owner-1',
-        email: 'farhan@zettbos.com',
-        fullName: 'Farhan (Owner Zettbos)',
+        email: 'zettbos2025@gmail.com',
+        fullName: 'Owner Zettbos (Super Admin)',
         role: 'admin',
         isActive: true,
+        passwordHash: null,
         registeredAt: '2026-10-13'
       }
     ];
@@ -95,6 +97,7 @@ function initStorage() {
     storedActivity = {};
     storedQuickActions = [];
     storedWhitelist = cleanWhitelist;
+    storedUser = null;
   }
 
   const zData = window.ZettData || {};
@@ -139,7 +142,7 @@ function initStorage() {
 }
 
 function resetAllDataToZero() {
-  if (confirm('Hapus seluruh data kurikulum, materi, resources, dan progres kembali ke 0 (bersih)? Akun Admin Farhan akan tetap aman.')) {
+  if (confirm('Hapus seluruh data kurikulum, materi, resources, dan progres kembali ke 0 (bersih)? Akun Admin Zettbos akan tetap aman.')) {
     AppState.modules = [];
     AppState.lessons = [];
     AppState.progress = {};
@@ -150,10 +153,11 @@ function resetAllDataToZero() {
     AppState.whitelist = [
       {
         id: 'owner-1',
-        email: 'farhan@zettbos.com',
-        fullName: 'Farhan (Owner Zettbos)',
+        email: 'zettbos2025@gmail.com',
+        fullName: 'Owner Zettbos (Super Admin)',
         role: 'admin',
         isActive: true,
+        passwordHash: null,
         registeredAt: '2026-10-13'
       }
     ];
@@ -167,6 +171,62 @@ function resetAllDataToZero() {
   }
 }
 window.resetAllDataToZero = resetAllDataToZero;
+
+// ==========================================
+// CRYPTOGRAPHIC UTILITIES & ANTI-INSPECT
+// ==========================================
+
+async function hashPassword(plainText) {
+  if (!plainText || typeof plainText !== 'string') return '';
+  try {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(plainText.trim());
+    const hashBuffer = await window.crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  } catch (err) {
+    console.error('[Security] Gagal melakukan hashing password:', err);
+    return '';
+  }
+}
+window.hashPassword = hashPassword;
+
+// Anti-Inspect & Anti-Tampering Protection
+(function initAntiInspect() {
+  // 1. Blokir Menu Klik Kanan
+  document.addEventListener('contextmenu', e => {
+    e.preventDefault();
+    return false;
+  });
+
+  // 2. Blokir Shortcut DevTools (F12, Ctrl+Shift+I/J/C, Ctrl+U)
+  document.addEventListener('keydown', e => {
+    if (e.key === 'F12' || e.keyCode === 123) {
+      e.preventDefault();
+      return false;
+    }
+    if (e.ctrlKey && e.shiftKey && ['I','i','J','j','C','c'].includes(e.key)) {
+      e.preventDefault();
+      return false;
+    }
+    if (e.ctrlKey && (e.key === 'U' || e.key === 'u')) {
+      e.preventDefault();
+      return false;
+    }
+  });
+
+  // 3. Security Warning di Console
+  try {
+    console.log(
+      '%c⛔ STOP! AREA DILINDUNGI SISTEM ZETTBOS LMS',
+      'color: #ef4444; font-size: 22px; font-weight: 900; -webkit-text-stroke: 1px black;'
+    );
+    console.log(
+      '%cSeluruh aktivitas, hak akses materi kurikulum, dan data di konsol ini diawasi secara ketat. Dilarang keras memodifikasi hak akses.',
+      'color: #94a3b8; font-size: 13px;'
+    );
+  } catch (err) {}
+})();
 
 function saveState() {
   localStorage.setItem('zett_whitelist', JSON.stringify(AppState.whitelist));

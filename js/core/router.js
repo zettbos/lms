@@ -42,7 +42,8 @@ function updateDrawerState() {
       drawerUserRole.className = user.role === 'admin' ? 'text-[10px] text-rose-400 font-mono font-bold' : 'text-[10px] text-emerald-400 font-mono font-bold';
     }
     if (drawerAdminSec) {
-      if (user.role === 'admin') drawerAdminSec.classList.remove('hidden');
+      const isSuperAdmin = user.role === 'admin' && user.email.toLowerCase() === 'zettbos2025@gmail.com';
+      if (isSuperAdmin) drawerAdminSec.classList.remove('hidden');
       else drawerAdminSec.classList.add('hidden');
     }
   }
@@ -86,9 +87,20 @@ function navigate(viewName, params = {}) {
     if (el) el.classList.add('hidden');
   });
 
-  // Check auth requirement (Landing & Login are public)
+  // Strict Auth & Admin Route Guard
   if (!AppState.currentUser && viewName !== 'login' && viewName !== 'landing') {
     viewName = 'landing';
+  }
+
+  if (viewName === 'admin') {
+    const user = AppState.currentUser;
+    const isSuperAdmin = user && user.role === 'admin' && user.email.toLowerCase() === 'zettbos2025@gmail.com';
+    if (!isSuperAdmin) {
+      if (typeof showToast === 'function') {
+        showToast('Akses Ditolak! Halaman ini dilindungi khusus Super Admin Zettbos.', 'error');
+      }
+      viewName = user ? 'home' : 'landing';
+    }
   }
 
   AppState.currentView = viewName;
@@ -219,20 +231,6 @@ function updateNavbarState(currentView) {
   }
 }
 
-function toggleAdminMemberMode() {
-  if (!AppState.currentUser) return;
-  if (AppState.currentUser.role === 'admin') {
-    AppState.currentUser.role = 'member';
-    showToast('Beralih ke Tampilan Siswa (Member Mode)', 'info');
-  } else {
-    AppState.currentUser.role = 'admin';
-    showToast('Beralih ke Tampilan Pemilik (Admin Mode)', 'info');
-  }
-  saveState();
-  updateNavbarState('home');
-  navigate('home');
-}
-
 // Window bindings
 window.toggleSidebarDrawer = toggleSidebarDrawer;
 window.openSidebarDrawer = openSidebarDrawer;
@@ -240,4 +238,3 @@ window.closeSidebarDrawer = closeSidebarDrawer;
 window.updateDrawerState = updateDrawerState;
 window.navigate = navigate;
 window.updateNavbarState = updateNavbarState;
-window.toggleAdminMemberMode = toggleAdminMemberMode;
