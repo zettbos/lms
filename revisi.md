@@ -1,52 +1,76 @@
-# ZETTBOS MEMBER HUB - DOKUMEN REVISI AKTIF (REVISI 38)
+# ZETTBOS MEMBER HUB - DOKUMEN REVISI AKTIF (REVISI 39)
 ================================================================================
 STATUS: SUKSES DITERAPKAN (READY TO PUSH TO GITHUB & VERCEL)
-FOKUS: 1. AUTO-SYNC KURIKULUM KE SUPABASE CLOUD (PENYEBAB MODUL BELUM MUNCUL DI USER LAIN)
-       2. LIVE AUTO-PUSH SAAT ADMIN MENYIMPAN / EDIT / HAPUS MODUL & MATERI
-       3. AUTO-PULL KURIKULUM CLOUD SAAT SISWA / DEVICE LAIN MEMBUKA LMS
-       4. TOMBOL CEPAT "SYNC KE CLOUD" DI HEADER PANEL ADMIN KURIKULUM
+FOKUS: 1. DUAL SAVE MODE: SIMPAN KE SUPABASE (CLOUD LIVE) VS SIMPAN DRAFT (LOKAL)
+       2. TOMBOL "SIMPAN DRAFT" & "SIMPAN KE CLOUD" DI TIER 2 EDITOR KURIKULUM
+       3. DUAL ACTION BUTTON DI MODAL TAMBAH/EDIT MODUL & MODAL TAMBAH MATERI
+       4. INDIKATOR STATUS VISUAL [DRAFT] & [LIVE] DI DROPDOWN & EDITOR BADGE
+       5. FILTER SISWA & LANDING: DRAFT TIDAK TAMPIL DI KATALOG SISWA/GUEST
 ================================================================================
 
-## 1. INVESTIGASI & PENYEBAB:
-**Pertanyaan Pengguna:** *"ini kan gw udh bikin modul, tapi kenapa di user lain belum muncul ya?"*
+## 1. LATAR BELAKANG & PERMINTAAN USER:
+**Instruksi Pengguna:**
+> *"gw mau kalau simpan itu = masuk ke supabase, tapi ada juga tombol draft = belum masuk ke supabase"*
 
-- **Akar Masalah Utama:**
-  1. **Tersimpan Hanya di LocalStorage Browser Admin:**
-     - Sebelumnya, fungsi `handleSaveModuleSubmit()` dan `handleSaveAddLessonSubmit()` hanya menyimpan modul/materi baru ke dalam `localStorage` browser milik Admin (`localStorage.setItem('zett_modules', ...)`).
-     - Tidak ada baris kode yang secara otomatis mengirimkan (*push*) data modul tersebut ke tabel `curriculum_modules` dan `curriculum_lessons` di Supabase Cloud saat tombol simpan ditekan.
-  2. **Browser Siswa Terisolasi & Tanpa Auto-Pull:**
-     - Di komputer, HP, atau jendela penyamaran (incognito) milik siswa lain, browser mereka memiliki `localStorage` yang terpisah dan kosong.
-     - Saat siswa membuka web `https://lms-zettbos.vercel.app/`, aplikasi sebelumnya hanya membaca `localStorage` lokal mereka yang kosong (atau seed data `[]`).
-     - Aplikasi tidak pernah memanggil `pull` dari Supabase saat startup, sehingga siswa tidak pernah menerima modul yang dibuat admin di komputernya.
+### Ekspektasi Alur:
+1. **Tombol "Simpan ke Cloud" (Publikasikan):**
+   - Modul/materi ditandai sebagai `isDraft: false`.
+   - Data otomatis diunggah langsung (upsert) ke tabel Supabase Cloud (`curriculum_modules` / `curriculum_lessons`).
+   - Konten detik itu juga LIVE dan dapat diakses oleh semua member/siswa di seluruh perangkat.
+2. **Tombol "Simpan Draft" (Draf Lokal):**
+   - Modul/materi ditandai sebagai `isDraft: true`.
+   - Data disimpan HANYA di `localStorage` browser milik Admin.
+   - **TIDAK DIKIRIM KE SUPABASE** (tidak menyentuh cloud sama sekali).
+   - Siswa lain dan pengunjung landing page TIDAK BISA melihat modul/materi draf ini.
 
 ---
 
-## 2. SOLUSI & PEMBARUAN SISTEM (REVISI 38):
+## 2. DETAIL IMPLEMENTASI & PERUBAHAN:
 
-1. **Auto-Push Real-Time ke Supabase Cloud saat Admin Beraksi (`admin.js`):**
-   - **Tambah / Edit Modul (`handleSaveModuleSubmit`):** Otomatis melakukan `upsert` data modul lengkap (`id`, `title`, `description`, `badge`, `cover_image`, `order_index`) ke tabel `curriculum_modules` Supabase Cloud secara live detik itu juga.
-   - **Hapus Modul (`deleteCurrentModule`):** Otomatis menghapus modul dari Cloud Supabase (`delete().eq('id', mod.id)`).
-   - **Tambah Materi Baru (`handleSaveAddLessonSubmit`):** Otomatis melakukan `upsert` materi dan block editor ke tabel `curriculum_lessons` Supabase Cloud.
-   - **Simpan Materi dari Block Editor (`saveLessonFromEditor`):** Otomatis mengunggah block Notion, YouTube URL, dan durasi ke Supabase Cloud.
-   - **Hapus Materi (`deleteCurrentLesson`):** Otomatis menghapus materi dari Cloud Supabase.
+### A. Tier 2 Curriculum Editor Bar (`index.html` & `admin.js`):
+1. **Pemisahan Tombol Aksi:**
+   - Tombol tunggal sebelumnya dipecah menjadi dua tombol berdampingan:
+     - **[Simpan Draft]** (`saveLessonFromEditor(false)`): Warna aksen Amber (`bg-amber-500/10 text-amber-300 border-amber-500/30`), menyimpan perubahan blok Notion & YouTube secara lokal tanpa push ke Supabase.
+     - **[Simpan ke Cloud]** (`saveLessonFromEditor(true)`): Warna Emerald Glow (`btn-primary-action`), menyimpan lokal sekaligus melakukan upsert live ke Supabase Cloud `curriculum_lessons`.
+2. **Badge Status Interaktif (`#admin-lesson-status-badge`):**
+   - Ditambahkan tepat di atas input judul materi:
+     - `🟡 DRAFT LOKAL`: jika materi berstatus draf.
+     - `🟢 LIVE SUPABASE`: jika materi telah dipublikasikan ke Cloud.
 
-2. **Auto-Pull Kurikulum Cloud untuk Seluruh Siswa & Perangkat (`supabase.js` & `app.js`):**
-   - Ditambahkan metode resmi `ZettSupabase.syncCurriculumFromCloud()`:
-     - Dijalankan secara otomatis di latar belakang saat aplikasi dimuat di browser manapun (`app.js`).
-     - Mengambil seluruh modul dari `curriculum_modules` (terurut berdasarkan `order_index`) dan materi dari `curriculum_lessons`.
-     - Otomatis memperbarui `AppState.modules` & `AppState.lessons` di browser siswa dan me-render ulang katalog modul secara live.
-   - Menjamin bahwa modul yang dibuat oleh Admin **langsung muncul di layar semua siswa tanpa perlu setting manual**.
+### B. Modal Tambah & Edit Modul (`#modal-manage-module`):
+- Footer modal kini memiliki dua opsi submit:
+  - **[Simpan Draft]** (`handleSaveModuleSubmit(event, false)`): Menyimpan bab modul dengan `isDraft: true`, tidak dikirim ke Supabase.
+  - **[Simpan ke Cloud]** (`handleSaveModuleSubmit(event, true)`): Menyimpan dan langsung mengunggah ke tabel `curriculum_modules` Supabase.
 
-3. **Tombol Cepat "Sync ke Cloud" di Tab Kurikulum Admin (`index.html`):**
-   - Di header Tier 1 Modul Kurikulum, ditambahkan tombol:
-     `[Sync ke Cloud]` (`ZettSupabase.syncCurriculumToCloudLive(true)`).
-   - Admin bisa menekan tombol ini satu kali untuk langsung mengunggah modul-modul yang sebelumnya sudah dibuat di laptop/browser lokal ke Cloud Supabase agar detik ini juga tersedia untuk semua member.
+### C. Modal Tambah Materi Baru (`#modal-add-lesson`):
+- Footer modal menyediakan dua opsi:
+  - **[Simpan Draft]** (`handleSaveAddLessonSubmit(event, false)`): Menambahkan materi ke modul terpilih dengan `isDraft: true` tanpa push ke Supabase.
+  - **[Simpan ke Cloud]** (`handleSaveAddLessonSubmit(event, true)`): Menambahkan materi dan langsung mengunggah ke tabel `curriculum_lessons` Supabase.
 
-4. **Self-Healing Background Sync di Panel Admin:**
-   - Saat Admin membuka tab Kurikulum, sistem otomatis mengecek apakah ada modul di local storage yang belum ada di Supabase Cloud. Jika Cloud masih kosong, sistem langsung mengunggahnya secara mandiri.
+### D. Indikator Status di Dropdown Panel Admin (`admin.js`):
+- Pilihan modul kurikulum (`#admin-module-select`) otomatis diberi label:
+  - `🟡 [DRAFT] MODUL 01: Judul Modul`
+  - `🟢 [LIVE] MODUL 01: Judul Modul`
+- Pilihan materi pembelajaran (`#admin-lesson-select`) otomatis diberi label:
+  - `🟡 [DRAFT] Judul Materi`
+  - `🟢 [LIVE] Judul Materi`
 
-5. **Cache Buster Versi 37:**
-   - Ditingkatkan ke `?v=37` di seluruh file JavaScript [`index.html`](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/index.html) agar browser siswa langsung mengunduh update controller terbaru.
+### E. Perlindungan Privasi Draf untuk Siswa & Guest (`classroom.js` & `landing.js`):
+1. **Katalog Modul Siswa (`classroom.js`):**
+   - Pengguna non-admin (siswa) hanya melihat modul dan materi berstatus `!mod.isDraft` dan `!l.isDraft`.
+2. **Ruang Belajar & Sidebar Silabus (`classroom.js`):**
+   - Jika siswa mencoba mengakses link materi yang masih berupa draf, sistem menampilkan peringatan *"Materi ini masih berupa draf dan belum dipublikasikan oleh mentor ke Supabase"* dan mengembalikan ke beranda.
+3. **Bento Box Kurikulum di Landing Page (`landing.js`):**
+   - Hanya menampilkan modul dan materi resmi yang sudah live di Supabase.
+
+### F. Ketahanan Sinkronisasi Cloud (`supabase.js`):
+1. **`syncCurriculumToCloudLive()`**:
+   - Hanya mengunggah data yang BUKAN draf (`!m.isDraft` dan `!l.isDraft`). Draf lokal tetap aman di browser admin dan tidak bocor ke cloud.
+2. **`syncCurriculumFromCloud()`**:
+   - Saat sinkronisasi otomatis dari cloud dijalankan, sistem secara cerdas mempertahankan draf lokal admin yang belum dipublikasikan agar tidak terhapus.
+
+### G. Cache Buster Versi 38:
+- Seluruh tag script di [`index.html`](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/index.html) dinaikkan ke `?v=38` agar browser pengguna langsung memuat fitur terbaru tanpa hambatan cache.
 
 ================================================================================
 SIAP DI-PUSH KE GITHUB & VERCEL VIA TERMINAL

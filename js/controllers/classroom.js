@@ -65,12 +65,16 @@ function renderModuleCategoryPills() {
   const container = document.getElementById('module-category-pills');
   if (!container) return;
 
+  const user = AppState.currentUser;
+  const isSuperAdmin = user && user.role === 'admin' && user.email?.toLowerCase() === 'zettbos2025@gmail.com';
+  const visibleModules = AppState.modules.filter(m => isSuperAdmin || !m.isDraft);
+
   const categories = [
-    { key: 'all', label: 'Semua Modul', count: AppState.modules.length },
-    { key: 'ai', label: 'Fundamental & Workflow AI', count: AppState.modules.filter(m => m.category === 'ai').length },
-    { key: 'gas', label: 'Google Apps Script & Sheets', count: AppState.modules.filter(m => m.category === 'gas').length },
-    { key: 'webhook', label: 'Webhook & Otomasi Lanjutan', count: AppState.modules.filter(m => m.category === 'webhook').length },
-    { key: 'cloud', label: 'Deploy Cloud & Produksi', count: AppState.modules.filter(m => m.category === 'cloud').length }
+    { key: 'all', label: 'Semua Modul', count: visibleModules.length },
+    { key: 'ai', label: 'Fundamental & Workflow AI', count: visibleModules.filter(m => m.category === 'ai').length },
+    { key: 'gas', label: 'Google Apps Script & Sheets', count: visibleModules.filter(m => m.category === 'gas').length },
+    { key: 'webhook', label: 'Webhook & Otomasi Lanjutan', count: visibleModules.filter(m => m.category === 'webhook').length },
+    { key: 'cloud', label: 'Deploy Cloud & Produksi', count: visibleModules.filter(m => m.category === 'cloud').length }
   ];
 
   container.innerHTML = categories.map(cat => {
@@ -126,17 +130,21 @@ function renderModuleCatalogGrid() {
   if (!container) return;
 
   const user = AppState.currentUser;
+  const isSuperAdmin = user && user.role === 'admin' && user.email?.toLowerCase() === 'zettbos2025@gmail.com';
   const userCompletedLessonIds = (user && AppState.progress[user.email]) ? AppState.progress[user.email] : [];
   const userFavs = (user && AppState.favorites[user.email]) ? AppState.favorites[user.email] : [];
 
   let filtered = AppState.modules.filter(mod => {
+    // Non-admin (siswa) hanya melihat modul yang sudah dipublikasikan (bukan draft)
+    if (!isSuperAdmin && mod.isDraft) return false;
+
     if (AppState.activeModuleCategory !== 'all' && mod.category !== AppState.activeModuleCategory) {
       return false;
     }
     if (AppState.moduleSearchQuery) {
       const q = AppState.moduleSearchQuery;
       const modMatch = mod.title.toLowerCase().includes(q) || (mod.description && mod.description.toLowerCase().includes(q));
-      const modLessons = AppState.lessons.filter(l => l.moduleId === mod.id);
+      const modLessons = AppState.lessons.filter(l => l.moduleId === mod.id && (isSuperAdmin || !l.isDraft));
       const lessonMatch = modLessons.some(l => l.title.toLowerCase().includes(q));
       if (!modMatch && !lessonMatch) return false;
     }
@@ -151,7 +159,6 @@ function renderModuleCatalogGrid() {
   }
 
   if (AppState.modules.length === 0) {
-    const isSuperAdmin = user && user.role === 'admin' && user.email.toLowerCase() === 'zettbos2025@gmail.com';
     container.innerHTML = `
       <div class="col-span-full py-16 text-center glass-card rounded-2xl border border-slate-800">
         <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mx-auto mb-4 text-emerald-400">
@@ -194,7 +201,7 @@ function renderModuleCatalogGrid() {
   container.innerHTML = '';
 
   filtered.forEach(mod => {
-    const moduleLessons = AppState.lessons.filter(l => l.moduleId === mod.id).sort((a, b) => a.orderIndex - b.orderIndex);
+    const moduleLessons = AppState.lessons.filter(l => l.moduleId === mod.id && (isSuperAdmin || !l.isDraft)).sort((a, b) => a.orderIndex - b.orderIndex);
     const modCompleted = moduleLessons.filter(l => userCompletedLessonIds.includes(l.id)).length;
     const isModFullyCompleted = moduleLessons.length > 0 && modCompleted === moduleLessons.length;
     const isModFav = userFavs.some(f => f.type === 'module' && f.targetId === mod.id);
@@ -571,8 +578,15 @@ function renderLearningRoom(lessonId) {
     return;
   }
 
-  AppState.currentLessonId = lesson.id;
   const user = AppState.currentUser;
+  const isSuperAdmin = user && user.role === 'admin' && user.email?.toLowerCase() === 'zettbos2025@gmail.com';
+  if (lesson.isDraft && !isSuperAdmin) {
+    showToast('Materi ini masih berupa draf dan belum dipublikasikan oleh mentor ke Supabase.', 'info');
+    navigate('home');
+    return;
+  }
+
+  AppState.currentLessonId = lesson.id;
   const userCompleted = (user && AppState.progress[user.email]) ? AppState.progress[user.email] : [];
   const isLessonCompleted = userCompleted.includes(lesson.id);
 
@@ -658,9 +672,10 @@ function renderLearningRoom(lessonId) {
     }
   }
 
-  const currentIndex = AppState.lessons.findIndex(l => l.id === lesson.id);
-  const prevLesson = currentIndex > 0 ? AppState.lessons[currentIndex - 1] : null;
-  const nextLesson = currentIndex < AppState.lessons.length - 1 ? AppState.lessons[currentIndex + 1] : null;
+  const visibleLessons = AppState.lessons.filter(l => isSuperAdmin || !l.isDraft);
+  const currentIndex = visibleLessons.findIndex(l => l.id === lesson.id);
+  const prevLesson = currentIndex > 0 ? visibleLessons[currentIndex - 1] : null;
+  const nextLesson = currentIndex < visibleLessons.length - 1 ? visibleLessons[currentIndex + 1] : null;
 
   const btnPrev = document.getElementById('btn-prev-lesson');
   const btnNext = document.getElementById('btn-next-lesson');
@@ -697,17 +712,19 @@ function renderCurriculumSidebar(activeLessonId) {
   const countBadge = document.getElementById('learn-curriculum-count');
 
   const user = AppState.currentUser;
+  const isSuperAdmin = user && user.role === 'admin' && user.email?.toLowerCase() === 'zettbos2025@gmail.com';
+  const visibleLessons = AppState.lessons.filter(l => isSuperAdmin || !l.isDraft);
   const userCompleted = (user && AppState.progress[user.email]) ? AppState.progress[user.email] : [];
 
   if (countBadge) {
-    countBadge.textContent = `${userCompleted.length}/${AppState.lessons.length} Selesai`;
+    countBadge.textContent = `${userCompleted.length}/${visibleLessons.length} Selesai`;
   }
 
   if (desktopSidebar) desktopSidebar.innerHTML = '';
   if (mobileTree) mobileTree.innerHTML = '';
 
-  AppState.modules.sort((a, b) => a.orderIndex - b.orderIndex).forEach(mod => {
-    const modLessons = AppState.lessons.filter(l => l.moduleId === mod.id);
+  AppState.modules.filter(m => isSuperAdmin || !m.isDraft).sort((a, b) => a.orderIndex - b.orderIndex).forEach(mod => {
+    const modLessons = AppState.lessons.filter(l => l.moduleId === mod.id && (isSuperAdmin || !l.isDraft));
     if (modLessons.length === 0) return;
 
     const modCompletedCount = modLessons.filter(l => userCompleted.includes(l.id)).length;

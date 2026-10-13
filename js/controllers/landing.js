@@ -45,7 +45,7 @@ function renderLandingCurriculumBento(activeModuleId) {
   const previewContainer = document.getElementById('landing-module-preview');
   if (!tabsContainer || !previewContainer) return;
 
-  const modules = (AppState.modules || []).slice(0, 5).sort((a, b) => a.orderIndex - b.orderIndex);
+  const modules = (AppState.modules || []).filter(m => !m.isDraft).slice(0, 5).sort((a, b) => a.orderIndex - b.orderIndex);
   if (modules.length === 0) {
     tabsContainer.innerHTML = `
       <div class="p-6 rounded-2xl glass-card border border-[var(--border)] text-center flex flex-col items-center justify-center gap-3">
@@ -88,7 +88,7 @@ function renderLandingCurriculumBento(activeModuleId) {
     const activeClass = isActive 
       ? 'bento-tab-active' 
       : 'hover:bg-[var(--surface-hover)] border-[var(--border)]';
-    const modLessons = AppState.lessons.filter(l => l.moduleId === mod.id);
+    const modLessons = AppState.lessons.filter(l => l.moduleId === mod.id && !l.isDraft);
     const totalMinutes = modLessons.reduce((acc, l) => acc + (l.durationMinutes || 15), 0);
 
     return `
@@ -121,7 +121,7 @@ function renderLandingCurriculumBento(activeModuleId) {
   }).join('');
 
   // 2. Render Right Dynamic Preview Card
-  const activeLessons = AppState.lessons.filter(l => l.moduleId === activeMod.id).sort((a, b) => a.orderIndex - b.orderIndex);
+  const activeLessons = AppState.lessons.filter(l => l.moduleId === activeMod.id && !l.isDraft).sort((a, b) => a.orderIndex - b.orderIndex);
   const totalMin = activeLessons.reduce((acc, l) => acc + (l.durationMinutes || 15), 0);
   const microTags = getModuleMicroTags(activeMod);
 

@@ -290,8 +290,12 @@ const ZettSupabase = {
 
       let hasChanges = false;
 
+      // Pertahankan draft lokal yang belum di-publish ke Supabase
+      const localDraftMods = (AppState.modules || []).filter(m => m.isDraft);
+      const localDraftLess = (AppState.lessons || []).filter(l => l.isDraft);
+
       if (!modErr && Array.isArray(mods) && mods.length > 0) {
-        AppState.modules = mods.map(m => ({
+        const cloudMods = mods.map(m => ({
           id: m.id,
           title: m.title,
           description: m.description,
@@ -300,21 +304,29 @@ const ZettSupabase = {
           coverImage: m.cover_image || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80',
           orderIndex: m.order_index || 1,
           isLocked: !!m.is_locked,
-          lockReason: m.lock_reason || ''
+          lockReason: m.lock_reason || '',
+          isDraft: false
         }));
+
+        const draftsToKeep = localDraftMods.filter(dm => !cloudMods.some(cm => cm.id === dm.id));
+        AppState.modules = [...cloudMods, ...draftsToKeep];
         hasChanges = true;
       }
 
       if (!lesErr && Array.isArray(less) && less.length > 0) {
-        AppState.lessons = less.map(l => ({
+        const cloudLessons = less.map(l => ({
           id: l.id,
           moduleId: l.module_id,
           title: l.title,
           youtubeUrl: l.youtube_url || '',
           durationMinutes: l.duration_minutes || 15,
           orderIndex: l.order_index || 1,
-          blocks: l.blocks || []
+          blocks: l.blocks || [],
+          isDraft: false
         }));
+
+        const draftsToKeep = localDraftLess.filter(dl => !cloudLessons.some(cl => cl.id === dl.id));
+        AppState.lessons = [...cloudLessons, ...draftsToKeep];
         hasChanges = true;
       }
 
@@ -343,11 +355,12 @@ const ZettSupabase = {
     }
 
     try {
-      if (showNotification) showToast('Sedang mengunggah seluruh kurikulum ke Supabase Cloud...', 'info');
+      if (showNotification) showToast('Sedang mengunggah kurikulum live ke Supabase Cloud...', 'info');
 
-      // 1. Push modules
-      if (Array.isArray(AppState.modules) && AppState.modules.length > 0) {
-        const payloadMods = AppState.modules.map(m => ({
+      // 1. Push published (non-draft) modules
+      const liveModules = (AppState.modules || []).filter(m => !m.isDraft);
+      if (liveModules.length > 0) {
+        const payloadMods = liveModules.map(m => ({
           id: m.id,
           title: m.title,
           description: m.description,
@@ -362,9 +375,10 @@ const ZettSupabase = {
         if (modErr) throw modErr;
       }
 
-      // 2. Push lessons
-      if (Array.isArray(AppState.lessons) && AppState.lessons.length > 0) {
-        const payloadLess = AppState.lessons.map(l => ({
+      // 2. Push published (non-draft) lessons
+      const liveLessons = (AppState.lessons || []).filter(l => !l.isDraft);
+      if (liveLessons.length > 0) {
+        const payloadLess = liveLessons.map(l => ({
           id: l.id,
           module_id: l.moduleId,
           title: l.title,
@@ -378,7 +392,13 @@ const ZettSupabase = {
       }
 
       if (showNotification) {
-        showToast(`Sukses! ${AppState.modules.length} Modul & ${AppState.lessons.length} Materi berhasil LIVE di Cloud Supabase!`, 'success');
+        const draftModsCount = (AppState.modules || []).filter(m => m.isDraft).length;
+        const draftLessCount = (AppState.lessons || []).filter(l => l.isDraft).length;
+        let note = `Sukses! ${liveModules.length} Modul & ${liveLessons.length} Materi berhasil LIVE di Cloud Supabase!`;
+        if (draftModsCount > 0 || draftLessCount > 0) {
+          note += ` (${draftModsCount} modul & ${draftLessCount} materi draft tetap tersimpan lokal)`;
+        }
+        showToast(note, 'success');
       }
       return true;
     } catch (e) {

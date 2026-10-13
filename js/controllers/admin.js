@@ -714,13 +714,14 @@ function renderAdminCurriculum() {
   AppState.modules.sort((a, b) => a.orderIndex - b.orderIndex).forEach(mod => {
     const opt = document.createElement('option');
     opt.value = mod.id;
-    opt.textContent = `${mod.badge || 'MODUL'}: ${mod.title}`;
+    const statusText = mod.isDraft ? '🟡 [DRAFT]' : '🟢 [LIVE]';
+    opt.textContent = `${statusText} ${mod.badge || 'MODUL'}: ${mod.title}`;
     moduleSelect.appendChild(opt);
 
     if (moduleMoveSelect) {
       const moveOpt = document.createElement('option');
       moveOpt.value = mod.id;
-      moveOpt.textContent = mod.title;
+      moveOpt.textContent = `${statusText} ${mod.title}`;
       moduleMoveSelect.appendChild(moveOpt);
     }
   });
@@ -755,7 +756,8 @@ function renderLessonsForSelectedModule() {
   modLessons.sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0)).forEach(les => {
     const opt = document.createElement('option');
     opt.value = les.id;
-    opt.textContent = les.title;
+    const statusText = les.isDraft ? '🟡 [DRAFT]' : '🟢 [LIVE]';
+    opt.textContent = `${statusText} ${les.title}`;
     lessonSelect.appendChild(opt);
   });
 
@@ -830,6 +832,20 @@ function loadLessonToEditor(lesson) {
   if (durInp) durInp.value = lesson.durationMinutes || 15;
   if (moduleSelect) moduleSelect.value = lesson.moduleId;
 
+  // Update Status Badge Live vs Draft
+  const statusBadge = document.getElementById('admin-lesson-status-badge');
+  if (statusBadge) {
+    if (lesson.isDraft) {
+      statusBadge.className = 'text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/40';
+      statusBadge.textContent = '🟡 DRAFT LOKAL';
+      statusBadge.title = 'Materi ini baru disimpan di browser lokal Anda (belum masuk ke Supabase Cloud)';
+    } else {
+      statusBadge.className = 'text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/40';
+      statusBadge.textContent = '🟢 LIVE SUPABASE';
+      statusBadge.title = 'Materi ini tersinkron di Cloud Supabase dan live dapat diakses siswa';
+    }
+  }
+
   const editorContainer = document.getElementById('notion-editor-root');
   if (editorContainer) {
     AppState.editorInstance = new NotionBlockEditor('notion-editor-root', lesson.blocks || [], (updatedBlocks) => {
@@ -846,7 +862,7 @@ function updateEditorLivePreview(blocks) {
   }
 }
 
-function saveLessonFromEditor() {
+function saveLessonFromEditor(publishToCloud = true) {
   if (!AppState.editorInstance || !AppState.adminSelectedLessonId) {
     showToast('Pilih materi yang ingin disimpan terlebih dahulu', 'error');
     return;
@@ -872,25 +888,30 @@ function saveLessonFromEditor() {
   }
 
   lesson.blocks = AppState.editorInstance.getBlocks();
+  lesson.isDraft = !publishToCloud;
 
   saveState();
 
-  // Live Auto-Push ke Supabase Cloud
-  if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
-    ZettSupabase.client.from('curriculum_lessons').upsert({
-      id: lesson.id,
-      module_id: lesson.moduleId,
-      title: lesson.title,
-      youtube_url: lesson.youtubeUrl || '',
-      duration_minutes: lesson.durationMinutes || 15,
-      order_index: lesson.orderIndex || 1,
-      blocks: lesson.blocks || []
-    }, { onConflict: 'id' }).then(({ error }) => {
-      if (error) console.warn('[Supabase Lesson Editor Save Error]', error);
-    });
+  if (publishToCloud) {
+    // Live Auto-Push ke Supabase Cloud
+    if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+      ZettSupabase.client.from('curriculum_lessons').upsert({
+        id: lesson.id,
+        module_id: lesson.moduleId,
+        title: lesson.title,
+        youtube_url: lesson.youtubeUrl || '',
+        duration_minutes: lesson.durationMinutes || 15,
+        order_index: lesson.orderIndex || 1,
+        blocks: lesson.blocks || []
+      }, { onConflict: 'id' }).then(({ error }) => {
+        if (error) console.warn('[Supabase Lesson Editor Save Error]', error);
+      });
+    }
+    showToast(`Materi '${lesson.title}' berhasil disimpan & LIVE di Supabase Cloud!`, 'success');
+  } else {
+    showToast(`Materi '${lesson.title}' disimpan sebagai DRAFT lokal (belum masuk ke Supabase).`, 'info');
   }
 
-  showToast('Perubahan materi berhasil disimpan!', 'success');
   renderAdminCurriculum();
   if (typeof renderLandingCurriculumBento === 'function') renderLandingCurriculumBento();
 }
@@ -935,7 +956,7 @@ function closeManageModuleModal() {
 }
 window.closeManageModuleModal = closeManageModuleModal;
 
-function handleSaveModuleSubmit(e) {
+function handleSaveModuleSubmit(e, publishToCloud = true) {
   if (e) e.preventDefault();
   const id = document.getElementById('manage-module-id').value;
   const title = document.getElementById('manage-module-title').value.trim();
@@ -947,19 +968,20 @@ function handleSaveModuleSubmit(e) {
     return;
   }
 
+  let targetMod = null;
   if (id) {
     // Edit existing module
-    const mod = AppState.modules.find(m => m.id === id);
-    if (mod) {
-      mod.title = title;
-      mod.badge = badge;
-      mod.description = desc;
-      showToast(`Modul '${title}' berhasil diperbarui!`, 'success');
+    targetMod = AppState.modules.find(m => m.id === id);
+    if (targetMod) {
+      targetMod.title = title;
+      targetMod.badge = badge;
+      targetMod.description = desc;
+      targetMod.isDraft = !publishToCloud;
     }
   } else {
     // Add new module
     const newModId = 'mod-' + Date.now();
-    const newMod = {
+    targetMod = {
       id: newModId,
       title: title,
       badge: badge,
@@ -967,19 +989,18 @@ function handleSaveModuleSubmit(e) {
       category: 'ai',
       coverImage: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80',
       orderIndex: AppState.modules.length + 1,
-      isLocked: false
+      isLocked: false,
+      isDraft: !publishToCloud
     };
-    AppState.modules.push(newMod);
+    AppState.modules.push(targetMod);
     AppState.adminSelectedModuleId = newModId;
-    showToast(`Modul '${title}' berhasil dibuat!`, 'success');
   }
 
   saveState();
 
-  // Live Auto-Push ke Supabase Cloud
-  if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
-    const targetMod = id ? AppState.modules.find(m => m.id === id) : AppState.modules[AppState.modules.length - 1];
-    if (targetMod) {
+  if (publishToCloud) {
+    // Live Auto-Push ke Supabase Cloud
+    if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected() && targetMod) {
       ZettSupabase.client.from('curriculum_modules').upsert({
         id: targetMod.id,
         title: targetMod.title,
@@ -994,6 +1015,9 @@ function handleSaveModuleSubmit(e) {
         if (error) console.warn('[Supabase Module Save Error]', error);
       });
     }
+    showToast(`Modul '${title}' berhasil disimpan & LIVE di Supabase Cloud!`, 'success');
+  } else {
+    showToast(`Modul '${title}' disimpan sebagai DRAFT lokal (belum masuk ke Supabase).`, 'info');
   }
 
   closeManageModuleModal();
@@ -1083,7 +1107,7 @@ function closeAddLessonModal() {
 }
 window.closeAddLessonModal = closeAddLessonModal;
 
-function handleSaveAddLessonSubmit(e) {
+function handleSaveAddLessonSubmit(e, publishToCloud = true) {
   if (e) e.preventDefault();
 
   const targetModuleId = document.getElementById('add-lesson-module-select')?.value || AppState.adminSelectedModuleId || AppState.modules[0]?.id;
@@ -1111,7 +1135,8 @@ function handleSaveAddLessonSubmit(e) {
     durationMinutes: duration,
     orderIndex: AppState.lessons.filter(l => l.moduleId === targetModuleId).length + 1,
     youtubeUrl: youtubeUrl,
-    blocks: initialBlocks
+    blocks: initialBlocks,
+    isDraft: !publishToCloud
   };
 
   AppState.lessons.push(newLesson);
@@ -1120,23 +1145,26 @@ function handleSaveAddLessonSubmit(e) {
 
   saveState();
 
-  if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
-    ZettSupabase.client.from('curriculum_lessons').upsert({
-      id: newLesson.id,
-      module_id: newLesson.moduleId,
-      title: newLesson.title,
-      youtube_url: newLesson.youtubeUrl || '',
-      duration_minutes: newLesson.durationMinutes || 15,
-      order_index: newLesson.orderIndex || 1,
-      blocks: newLesson.blocks || []
-    }, { onConflict: 'id' }).then(({ error }) => {
-      if (error) console.warn('[Supabase Lesson Save Error]', error);
-    });
+  if (publishToCloud) {
+    if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+      ZettSupabase.client.from('curriculum_lessons').upsert({
+        id: newLesson.id,
+        module_id: newLesson.moduleId,
+        title: newLesson.title,
+        youtube_url: newLesson.youtubeUrl || '',
+        duration_minutes: newLesson.durationMinutes || 15,
+        order_index: newLesson.orderIndex || 1,
+        blocks: newLesson.blocks || []
+      }, { onConflict: 'id' }).then(({ error }) => {
+        if (error) console.warn('[Supabase Lesson Save Error]', error);
+      });
+    }
+    showToast(`Materi "${title}" berhasil ditambahkan & LIVE di Supabase Cloud!`, 'success');
+  } else {
+    showToast(`Materi "${title}" ditambahkan sebagai DRAFT lokal (belum masuk ke Supabase).`, 'info');
   }
 
   closeAddLessonModal();
-  showToast(`Materi "${title}" berhasil ditambahkan!`, 'success');
-
   renderAdminCurriculum();
   if (typeof renderLandingCurriculumBento === 'function') renderLandingCurriculumBento();
 }
