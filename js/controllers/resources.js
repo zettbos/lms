@@ -39,7 +39,7 @@ function handleAddResourceSubmit(event) {
   }
 
   const newRes = {
-    id: 'res-' + Date.now(),
+    id: generateFormattedId('RES', AppState.resources, 2),
     title,
     description,
     url,

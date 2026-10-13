@@ -135,8 +135,147 @@ function initStorage() {
     AppState.currentUser = AppState.whitelist[0] || null;
   }
 
+  // Cek apakah ada ID dengan format epoch/timestamp acak (mod-17..., les-17..., qa-17...)
+  const hasMessyIds = (AppState.modules || []).some(m => !/^MOD-\d+$/i.test(m.id)) ||
+                      (AppState.lessons || []).some(l => !/^LES-\d+$/i.test(l.id)) ||
+                      (AppState.quickActions || []).some(q => !/^QA-\d+$/i.test(q.id));
+  if (hasMessyIds && (AppState.modules.length > 0 || (AppState.quickActions || []).length > 0)) {
+    console.log('[ZettBOT] Mendeteksi nomor unik acak/epoch. Melakukan normalisasi format ID database...');
+    normalizeAllDatabaseIds(false);
+  }
+
   saveState();
 }
+
+// ==========================================
+// UNIVERSAL FORMATTED ID GENERATOR & NORMALIZER (ZETTBOT STANDARD)
+// ==========================================
+
+function generateFormattedId(prefix, existingList, padLength = 2) {
+  let maxNum = 0;
+  const regex = new RegExp(`^${prefix}[-_]?(\\d+)$`, 'i');
+  (existingList || []).forEach(item => {
+    const id = typeof item === 'string' ? item : (item && item.id);
+    if (!id) return;
+    const match = String(id).match(regex);
+    if (match && match[1]) {
+      const num = parseInt(match[1], 10);
+      if (!isNaN(num) && num > maxNum) {
+        maxNum = num;
+      }
+    }
+  });
+  const nextNum = maxNum + 1;
+  return `${prefix.toUpperCase()}-${String(nextNum).padStart(padLength, '0')}`;
+}
+window.generateFormattedId = generateFormattedId;
+
+async function normalizeAllDatabaseIds(syncToSupabase = true) {
+  const modIdMap = {};
+  const lesIdMap = {};
+
+  // 1. Normalize Modules (MOD-01, MOD-02...)
+  if (Array.isArray(AppState.modules) && AppState.modules.length > 0) {
+    AppState.modules.sort((a, b) => (a.orderIndex || 1) - (b.orderIndex || 1));
+    AppState.modules.forEach((mod, idx) => {
+      const oldId = mod.id;
+      const newId = `MOD-${String(idx + 1).padStart(2, '0')}`;
+      modIdMap[oldId] = newId;
+      mod.id = newId;
+      mod.orderIndex = idx + 1;
+    });
+  }
+
+  // 2. Normalize Lessons (LES-01, LES-02...) & align moduleId
+  if (Array.isArray(AppState.lessons) && AppState.lessons.length > 0) {
+    AppState.lessons.sort((a, b) => (a.orderIndex || 1) - (b.orderIndex || 1));
+    AppState.lessons.forEach((les, idx) => {
+      const oldId = les.id;
+      const newId = `LES-${String(idx + 1).padStart(2, '0')}`;
+      lesIdMap[oldId] = newId;
+      les.id = newId;
+      les.orderIndex = idx + 1;
+      if (les.moduleId && modIdMap[les.moduleId]) {
+        les.moduleId = modIdMap[les.moduleId];
+      }
+    });
+  }
+
+  // 3. Normalize Progress tracking (map completed lesson IDs)
+  if (AppState.progress && typeof AppState.progress === 'object') {
+    Object.keys(AppState.progress).forEach(email => {
+      const completedList = AppState.progress[email];
+      if (Array.isArray(completedList)) {
+        AppState.progress[email] = completedList.map(oldId => lesIdMap[oldId] || oldId);
+      }
+    });
+  }
+
+  // 4. Normalize Favorites
+  if (AppState.favorites && typeof AppState.favorites === 'object') {
+    Object.keys(AppState.favorites).forEach(email => {
+      const favList = AppState.favorites[email];
+      if (Array.isArray(favList)) {
+        favList.forEach((fav, idx) => {
+          fav.id = `FAV-${String(idx + 1).padStart(2, '0')}`;
+          if (fav.type === 'lesson' && lesIdMap[fav.targetId]) {
+            fav.targetId = lesIdMap[fav.targetId];
+          } else if (fav.type === 'module' && modIdMap[fav.targetId]) {
+            fav.targetId = modIdMap[fav.targetId];
+          }
+        });
+      }
+    });
+  }
+
+  // 5. Normalize Resources (RES-01, RES-02...)
+  if (Array.isArray(AppState.resources) && AppState.resources.length > 0) {
+    AppState.resources.forEach((r, idx) => {
+      r.id = `RES-${String(idx + 1).padStart(2, '0')}`;
+    });
+  }
+
+  // 6. Normalize Quick Actions (QA-01, QA-02...)
+  if (Array.isArray(AppState.quickActions) && AppState.quickActions.length > 0) {
+    AppState.quickActions.forEach((q, idx) => {
+      q.id = `QA-${String(idx + 1).padStart(2, '0')}`;
+      q.orderIndex = idx + 1;
+    });
+  }
+
+  // 7. Normalize Testimonials in CMS (TESTI-01, TESTI-02...)
+  if (AppState.landingCms && Array.isArray(AppState.landingCms.testimonials)) {
+    AppState.landingCms.testimonials.forEach((t, idx) => {
+      t.id = `TESTI-${String(idx + 1).padStart(2, '0')}`;
+    });
+  }
+
+  // 8. Normalize Whitelist IDs (preserving owner-1)
+  if (Array.isArray(AppState.whitelist) && AppState.whitelist.length > 0) {
+    let studentCounter = 1;
+    AppState.whitelist.forEach(m => {
+      if (m.role === 'admin' || m.id === 'owner-1') {
+        m.id = 'owner-1';
+      } else {
+        m.id = `WL-${String(studentCounter++).padStart(4, '0')}`;
+      }
+    });
+  }
+
+  saveState();
+
+  // 9. Sync Clean Data to Supabase Cloud if connected
+  if (syncToSupabase && typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+    try {
+      await ZettSupabase.syncNormalizedCurriculumToCloud(modIdMap, lesIdMap);
+    } catch (err) {
+      console.warn('[ZettSupabase Normalization Cloud Sync]', err);
+    }
+  }
+
+  return { modIdMap, lesIdMap };
+}
+window.normalizeAllDatabaseIds = normalizeAllDatabaseIds;
 
 function resetAllDataToZero() {
   showCustomConfirm({

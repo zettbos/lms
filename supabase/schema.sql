@@ -4,12 +4,19 @@
 -- Kompatibel penuh dengan GUI Supabase "Table Editor" (Tampilan Mirip Google Sheets)
 -- ==============================================================================
 
--- 1. EXTENSIONS
+-- 1. EXTENSIONS & SEQUENCES UNTUK NOMOR KODE UNIK TERSTRUKTUR (ZETTBOT STANDARD)
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+CREATE SEQUENCE IF NOT EXISTS seq_whitelist_members START 1;
+CREATE SEQUENCE IF NOT EXISTS seq_curriculum_modules START 1;
+CREATE SEQUENCE IF NOT EXISTS seq_curriculum_lessons START 1;
+CREATE SEQUENCE IF NOT EXISTS seq_shared_resources START 1;
+CREATE SEQUENCE IF NOT EXISTS seq_quick_actions START 1;
+CREATE SEQUENCE IF NOT EXISTS seq_member_favorites START 1;
 
 -- 2. TABEL WHITELIST MEMBERS (Pendaftar & Hak Akses)
 CREATE TABLE IF NOT EXISTS public.whitelist_members (
-    id TEXT PRIMARY KEY DEFAULT ('wl-' || floor(extract(epoch from now()) * 1000)::text),
+    id TEXT PRIMARY KEY DEFAULT ('WL-' || lpad(nextval('seq_whitelist_members')::text, 4, '0')),
     email TEXT UNIQUE NOT NULL,
     full_name TEXT,
     role TEXT DEFAULT 'member' CHECK (role IN ('member', 'admin')),
@@ -23,7 +30,7 @@ ALTER TABLE public.whitelist_members ADD COLUMN IF NOT EXISTS password_hash TEXT
 
 -- 3. TABEL MODUL KURIKULUM (Curriculum Modules)
 CREATE TABLE IF NOT EXISTS public.curriculum_modules (
-    id TEXT PRIMARY KEY,
+    id TEXT PRIMARY KEY DEFAULT ('MOD-' || lpad(nextval('seq_curriculum_modules')::text, 2, '0')),
     title TEXT NOT NULL,
     description TEXT,
     category TEXT DEFAULT 'ai',
@@ -41,7 +48,7 @@ ALTER TABLE public.curriculum_modules ADD COLUMN IF NOT EXISTS is_pinned BOOLEAN
 
 -- 4. TABEL MATERI / VIDEO (Curriculum Lessons & Notion Blocks)
 CREATE TABLE IF NOT EXISTS public.curriculum_lessons (
-    id TEXT PRIMARY KEY,
+    id TEXT PRIMARY KEY DEFAULT ('LES-' || lpad(nextval('seq_curriculum_lessons')::text, 2, '0')),
     module_id TEXT REFERENCES public.curriculum_modules(id) ON DELETE CASCADE,
     title TEXT NOT NULL,
     youtube_url TEXT,
@@ -72,7 +79,7 @@ CREATE TABLE IF NOT EXISTS public.member_activity (
 
 -- 7. TABEL ITEM FAVORIT (Saved Lessons, Modules & Code Snippets)
 CREATE TABLE IF NOT EXISTS public.member_favorites (
-    id TEXT PRIMARY KEY DEFAULT ('fav-' || floor(extract(epoch from now()) * 1000)::text),
+    id TEXT PRIMARY KEY DEFAULT ('FAV-' || lpad(nextval('seq_member_favorites')::text, 2, '0')),
     user_email TEXT NOT NULL,
     type TEXT NOT NULL CHECK (type IN ('lesson', 'module', 'snippet')),
     target_id TEXT,
@@ -85,7 +92,7 @@ CREATE TABLE IF NOT EXISTS public.member_favorites (
 
 -- 8. TABEL DOKUMEN & SHARED RESOURCES (Sheet DB, Prompt, Code)
 CREATE TABLE IF NOT EXISTS public.shared_resources (
-    id TEXT PRIMARY KEY DEFAULT ('res-' || floor(extract(epoch from now()) * 1000)::text),
+    id TEXT PRIMARY KEY DEFAULT ('RES-' || lpad(nextval('seq_shared_resources')::text, 2, '0')),
     title TEXT NOT NULL,
     description TEXT,
     url TEXT NOT NULL,
@@ -106,7 +113,7 @@ CREATE TABLE IF NOT EXISTS public.landing_cms (
 
 -- 10. TABEL QUICK ACTIONS HUB (Kartu Pintas Beranda)
 CREATE TABLE IF NOT EXISTS public.quick_actions (
-    id TEXT PRIMARY KEY DEFAULT ('qa-' || floor(extract(epoch from now()) * 1000)::text),
+    id TEXT PRIMARY KEY DEFAULT ('QA-' || lpad(nextval('seq_quick_actions')::text, 2, '0')),
     title TEXT NOT NULL,
     subtitle TEXT,
     icon TEXT DEFAULT 'folder',
@@ -148,6 +155,10 @@ CREATE POLICY "Public Read Quick Actions" ON public.quick_actions FOR SELECT USI
 
 DROP POLICY IF EXISTS "Public Read Whitelist" ON public.whitelist_members;
 CREATE POLICY "Public Read Whitelist" ON public.whitelist_members FOR SELECT USING (true);
+
+-- Kebijakan Update Password & Profil Whitelist
+DROP POLICY IF EXISTS "Public Update Whitelist" ON public.whitelist_members;
+CREATE POLICY "Public Update Whitelist" ON public.whitelist_members FOR UPDATE USING (true) WITH CHECK (true);
 
 -- Kebijakan Member (Baca & Tulis Progres / Favorit sendiri)
 DROP POLICY IF EXISTS "Member Manage Progress" ON public.member_progress;

@@ -455,6 +455,79 @@ const ZettSupabase = {
       }
       return false;
     }
+  },
+
+  async syncNormalizedCurriculumToCloud(modIdMap = {}, lesIdMap = {}) {
+    if (!this.isConnected()) return false;
+    try {
+      console.log('[ZettSupabase] Menyinkronkan normalisasi ID ke cloud...');
+
+      // 1. Upsert normalized modules
+      const liveMods = (AppState.modules || []).filter(m => !m.isDraft);
+      if (liveMods.length > 0) {
+        const payloadMods = liveMods.map(m => ({
+          id: m.id,
+          title: m.title,
+          description: m.description,
+          category: m.category || 'ai',
+          badge: m.badge || 'MODUL',
+          cover_image: m.coverImage,
+          order_index: m.orderIndex || 1,
+          is_locked: !!m.isLocked,
+          lock_reason: m.lockReason || null,
+          is_pinned: !!m.isPinned
+        }));
+        await this.client.from('curriculum_modules').upsert(payloadMods, { onConflict: 'id' });
+      }
+
+      // 2. Upsert normalized lessons
+      const liveLessons = (AppState.lessons || []).filter(l => !l.isDraft);
+      if (liveLessons.length > 0) {
+        const payloadLessons = liveLessons.map(l => ({
+          id: l.id,
+          module_id: l.moduleId,
+          title: l.title,
+          youtube_url: l.youtubeUrl || '',
+          duration_minutes: l.durationMinutes || 15,
+          order_index: l.orderIndex || 1,
+          blocks: l.blocks || []
+        }));
+        await this.client.from('curriculum_lessons').upsert(payloadLessons, { onConflict: 'id' });
+      }
+
+      // 3. Delete old messy module IDs from cloud (CASCADE will clean old lessons)
+      const oldModIds = Object.keys(modIdMap).filter(id => id !== modIdMap[id]);
+      if (oldModIds.length > 0) {
+        for (const oldModId of oldModIds) {
+          try {
+            await this.client.from('curriculum_modules').delete().eq('id', oldModId);
+          } catch (delErr) {
+            console.warn('[ZettSupabase Delete Old Module]', delErr);
+          }
+        }
+      }
+
+      // 4. Upsert quick actions
+      if (Array.isArray(AppState.quickActions) && AppState.quickActions.length > 0) {
+        const payloadQa = AppState.quickActions.map(q => ({
+          id: q.id,
+          title: q.title,
+          subtitle: q.subtitle || '',
+          icon: q.icon || 'folder',
+          badge: q.badge || 'Akses',
+          action_type: q.actionType || 'navigate',
+          target: q.target || '',
+          order_index: q.orderIndex || 1
+        }));
+        await this.client.from('quick_actions').upsert(payloadQa, { onConflict: 'id' });
+      }
+
+      console.log('[ZettSupabase] Normalisasi ID berhasil tersinkron ke cloud!');
+      return true;
+    } catch (e) {
+      console.warn('[ZettSupabase syncNormalizedCurriculumToCloud Error]', e);
+      return false;
+    }
   }
 };
 

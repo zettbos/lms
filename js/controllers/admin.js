@@ -328,7 +328,7 @@ function handleSaveTestimonialSubmit(e) {
       target.quote = quote;
     }
   } else {
-    const newId = 'testi-' + Date.now();
+    const newId = generateFormattedId('TESTI', AppState.landingCms?.testimonials || [], 2);
     AppState.landingCms.testimonials.unshift({
       id: newId,
       name,
@@ -675,7 +675,7 @@ function handleSaveQuickActionSubmit(e) {
   } else {
     // Add new
     const newQa = {
-      id: 'qa-' + Date.now(),
+      id: generateFormattedId('QA', AppState.quickActions, 2),
       title: title,
       subtitle: subtitle,
       icon: icon,
@@ -1060,12 +1060,43 @@ function saveLessonFromEditor(publishToCloud = true) {
 }
 window.saveLessonFromEditor = saveLessonFromEditor;
 
+// Helper Auto-Converter: Link Google Drive ke Direct Image CDN (lh3.googleusercontent.com)
+function convertGoogleDriveToLh3(url) {
+  if (!url || typeof url !== 'string') return url;
+  const str = url.trim();
+  // Format 1: drive.google.com/file/d/FILE_ID/view...
+  const match1 = str.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (match1 && match1[1]) {
+    return `https://lh3.googleusercontent.com/d/${match1[1]}=w1000`;
+  }
+  // Format 2: drive.google.com/open?id=FILE_ID atau uc?id=FILE_ID
+  const match2 = str.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (match2 && match2[1]) {
+    return `https://lh3.googleusercontent.com/d/${match2[1]}=w1000`;
+  }
+  return str;
+}
+window.convertGoogleDriveToLh3 = convertGoogleDriveToLh3;
+
 // Modal Modul Management & Cover Presets
 function updateModuleCoverPreview(url) {
+  const input = document.getElementById('manage-module-cover');
   const preview = document.getElementById('manage-module-cover-preview');
   const empty = document.getElementById('manage-module-cover-empty');
   if (!preview || !empty) return;
-  const cleanUrl = (url || '').trim();
+
+  let cleanUrl = (url || '').trim();
+  const convertedUrl = convertGoogleDriveToLh3(cleanUrl);
+  if (convertedUrl !== cleanUrl) {
+    cleanUrl = convertedUrl;
+    if (input && input.value !== cleanUrl) {
+      input.value = cleanUrl;
+      if (typeof showToast === 'function') {
+        showToast('Link Google Drive otomatis dikonversi ke format direct image CDN (lh3)!', 'success');
+      }
+    }
+  }
+
   if (cleanUrl) {
     preview.src = cleanUrl;
     preview.classList.remove('hidden');
@@ -1205,7 +1236,7 @@ function handleSaveModuleSubmit(e, publishToCloud = true) {
     }
   } else {
     // Add new module
-    const newModId = 'mod-' + Date.now();
+    const newModId = generateFormattedId('MOD', AppState.modules, 2);
     targetMod = {
       id: newModId,
       title: title,
@@ -1355,7 +1386,7 @@ function handleSaveAddLessonSubmit(e, publishToCloud = true) {
     return;
   }
 
-  const newId = 'les-' + Date.now();
+  const newId = generateFormattedId('LES', AppState.lessons, 2);
   const initialBlocks = [
     { type: 'h1', content: title },
     { type: 'callout', content: notes || 'Catatan penting untuk materi pembelajaran ini.' },
@@ -1722,7 +1753,7 @@ async function handleSaveAddMemberSubmit(e) {
   }
 
   const newMember = {
-    id: 'wl-' + Date.now(),
+    id: generateFormattedId('WL', AppState.whitelist, 4),
     email: email,
     fullName: name || email.split('@')[0],
     role: role || 'member',
@@ -2246,3 +2277,22 @@ window.closeEditQuickActionModal = closeEditQuickActionModal;
 window.toggleQuickActionTargetType = toggleQuickActionTargetType;
 window.handleSaveQuickActionSubmit = handleSaveQuickActionSubmit;
 window.resetQuickActionsToDefault = resetQuickActionsToDefault;
+
+// Handler Manual Rapikan & Format Semua ID Database
+async function handleNormalizeAllIdsClick() {
+  showCustomConfirm({
+    title: '✨ Rapikan Format Seluruh ID Database?',
+    message: 'Apakah Anda ingin menstandardisasi format seluruh ID di database lokal & Supabase Cloud (contoh: MOD-01, LES-01, WL-0001, QA-01)? ID lama yang acak akan dibersihkan.',
+    confirmText: 'Ya, Rapikan Semua ID',
+    cancelText: 'Batal',
+    isDanger: false,
+    onConfirm: async () => {
+      showToast('Sedang merapikan seluruh nomor unik database...', 'info');
+      await normalizeAllDatabaseIds(true);
+      if (typeof renderAdminCurriculum === 'function') renderAdminCurriculum();
+      if (typeof renderAdminQuickActions === 'function') renderAdminQuickActions();
+      showToast('Semua nomor ID database berhasil distandardisasi & tersinkron!', 'success');
+    }
+  });
+}
+window.handleNormalizeAllIdsClick = handleNormalizeAllIdsClick;

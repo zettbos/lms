@@ -1143,7 +1143,7 @@ function toggleCurrentLessonFavorite() {
     showToast('Materi dihapus dari Favorit', 'info');
   } else {
     userFavs.unshift({
-      id: 'fav-' + Date.now(),
+      id: generateFormattedId('FAV', userFavs, 2),
       type: 'lesson',
       targetId: lesson.id,
       title: lesson.title,
@@ -1177,7 +1177,7 @@ function toggleModuleFavorite(moduleId) {
     showToast(`Modul "${mod.title.slice(0, 20)}..." dihapus dari Favorit`, 'info');
   } else {
     userFavs.unshift({
-      id: 'fav-' + Date.now(),
+      id: generateFormattedId('FAV', userFavs, 2),
       type: 'module',
       targetId: mod.id,
       title: mod.title,
@@ -1212,7 +1212,7 @@ function saveSnippetToFavorites(codeId, language) {
 
   const userFavs = getUserFavorites();
   userFavs.unshift({
-    id: 'fav-' + Date.now(),
+    id: generateFormattedId('FAV', userFavs, 2),
     type: 'snippet',
     targetId: AppState.currentLessonId,
     title: `Snippet ${(language || 'CODE').toUpperCase()} • ${currentLesson ? currentLesson.title : 'Materi'}`,

@@ -10,7 +10,7 @@
 // 1. LOGIN FORM CONTROLLER & DYNAMIC PASSWORD TOGGLE
 // ==========================================
 
-function onLoginEmailChanged() {
+async function onLoginEmailChanged() {
   const emailInput = document.getElementById('login-email-input');
   const passwordContainer = document.getElementById('login-password-container');
   const submitLabel = document.getElementById('btn-login-label');
@@ -23,8 +23,39 @@ function onLoginEmailChanged() {
     return;
   }
 
-  // Cek apakah akun ini terdaftar dan sudah memiliki password_hash
-  const member = AppState.whitelist.find(m => m.email.toLowerCase() === email);
+  // 1. Cek local state
+  let member = AppState.whitelist.find(m => m.email.toLowerCase() === email);
+
+  // 2. Jika di lokal belum ada password_hash tapi Supabase aktif, sinkronkan dari Supabase Cloud
+  if ((!member || !member.passwordHash) && typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+    try {
+      const { data } = await ZettSupabase.client
+        .from('whitelist_members')
+        .select('id, email, full_name, role, is_active, password_hash, registered_at')
+        .eq('email', email)
+        .single();
+
+      if (data && data.password_hash) {
+        if (member) {
+          member.passwordHash = data.password_hash;
+          if (data.full_name) member.fullName = data.full_name;
+        } else {
+          member = {
+            id: data.id || generateFormattedId('WL', AppState.whitelist, 4),
+            email: data.email,
+            fullName: data.full_name || email.split('@')[0],
+            role: data.role || 'member',
+            isActive: data.is_active !== false,
+            passwordHash: data.password_hash,
+            registeredAt: data.registered_at || new Date().toISOString()
+          };
+          AppState.whitelist.push(member);
+        }
+        saveState();
+      }
+    } catch (e) {}
+  }
+
   if (member && member.passwordHash) {
     passwordContainer.classList.remove('hidden');
     submitLabel.textContent = 'Masuk dengan Kata Sandi';
@@ -47,7 +78,8 @@ async function handleLoginSubmit(event) {
   // 1. Verifikasi Ketat Whitelist (Local State & Supabase Live)
   let member = AppState.whitelist.find(m => m.email.toLowerCase() === email);
 
-  if (!member && typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+  // Cek Supabase jika member belum ada di lokal atau belum punya password_hash
+  if ((!member || !member.passwordHash) && typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
     try {
       const { data, error } = await ZettSupabase.client
         .from('whitelist_members')
@@ -56,16 +88,21 @@ async function handleLoginSubmit(event) {
         .single();
       
       if (data && !error) {
-        member = {
-          id: data.id,
-          email: data.email,
-          fullName: data.full_name,
-          role: data.role || 'member',
-          isActive: data.is_active !== false,
-          passwordHash: data.password_hash || null,
-          registeredAt: data.registered_at
-        };
-        AppState.whitelist.push(member);
+        if (!member) {
+          member = {
+            id: data.id,
+            email: data.email,
+            fullName: data.full_name,
+            role: data.role || 'member',
+            isActive: data.is_active !== false,
+            passwordHash: data.password_hash || null,
+            registeredAt: data.registered_at
+          };
+          AppState.whitelist.push(member);
+        } else {
+          if (data.password_hash) member.passwordHash = data.password_hash;
+          if (data.full_name) member.fullName = data.full_name;
+        }
         saveState();
       }
     } catch (err) {
@@ -183,7 +220,7 @@ async function sendOtpToEmail(targetEmail) {
 
     if (data.success && data.otpToken) {
       AppState.activeOtpToken = data.otpToken;
-      showToast(`Kode OTP 6-digit berhasil dikirim ke ${targetEmail}! Periksa kotak masuk atau folder spam email Anda.`, 'success', 8000);
+      showToast(`Kode OTP 6-digit berhasil dikirim ke ${targetEmail}! Jika tidak ada di Inbox, WAJIB CEK FOLDER SPAM / JUNK email Anda.`, 'success', 9000);
     } else {
       console.warn('[Email OTP Warning]', data);
       showToast(`Gagal mengirim OTP: ${data.error || 'Periksa koneksi email'}`, 'error', 7000);
@@ -199,6 +236,7 @@ async function resendOtpCode() {
     showToast('Email tujuan OTP tidak ditemukan', 'error');
     return;
   }
+  showToast('Mengirim ulang OTP... Pastikan juga mengecek folder SPAM email Anda.', 'info');
   await sendOtpToEmail(AppState.pendingEmailForOtp);
 }
 
@@ -339,13 +377,27 @@ async function handleSetPasswordSubmit(event) {
   // Simpan ke Supabase Database Cloud
   if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
     try {
-      await ZettSupabase.client
+      const { error: updErr } = await ZettSupabase.client
         .from('whitelist_members')
         .update({ 
           full_name: fullName,
           password_hash: hashedPassword 
         })
         .eq('email', member.email);
+
+      if (updErr) {
+        console.warn('[Save Hash DB Error]', updErr);
+        // Fallback upsert
+        await ZettSupabase.client
+          .from('whitelist_members')
+          .upsert({
+            email: member.email,
+            full_name: fullName,
+            password_hash: hashedPassword,
+            role: member.role || 'member',
+            is_active: true
+          }, { onConflict: 'email' });
+      }
 
       // Sinkronkan juga password ke Supabase Auth
       try {
@@ -357,7 +409,7 @@ async function handleSetPasswordSubmit(event) {
         console.warn('[Supabase Auth Password Update]', authErr);
       }
     } catch (err) {
-      console.warn('[Save Hash DB Error]', err);
+      console.warn('[Save Hash DB Exception]', err);
     }
   }
 
@@ -437,6 +489,116 @@ function logout() {
   navigate('landing');
 }
 
+// ==========================================
+// 5. PENGATURAN PROFIL MEMBER (GANTI NAMA & KATA SANDI)
+// ==========================================
+
+function openProfileSettingsModal() {
+  const user = AppState.currentUser;
+  if (!user) {
+    showToast('Silakan login terlebih dahulu', 'error');
+    return;
+  }
+  const modal = document.getElementById('modal-profile-settings');
+  const emailInp = document.getElementById('profile-email-input');
+  const nameInp = document.getElementById('profile-fullname-input');
+  const passInp = document.getElementById('profile-new-password');
+  const confInp = document.getElementById('profile-confirm-password');
+
+  if (emailInp) emailInp.value = user.email || '';
+  if (nameInp) nameInp.value = (user.fullName && user.fullName !== 'Siswa Zettbos') ? user.fullName : '';
+  if (passInp) passInp.value = '';
+  if (confInp) confInp.value = '';
+
+  if (modal) modal.classList.remove('hidden');
+}
+
+function closeProfileSettingsModal() {
+  const modal = document.getElementById('modal-profile-settings');
+  if (modal) modal.classList.add('hidden');
+}
+
+async function handleSaveProfileSubmit(e) {
+  if (e) e.preventDefault();
+  const user = AppState.currentUser;
+  if (!user) return;
+
+  const nameInp = document.getElementById('profile-fullname-input');
+  const passInp = document.getElementById('profile-new-password');
+  const confInp = document.getElementById('profile-confirm-password');
+
+  const newName = (nameInp ? nameInp.value : '').trim();
+  const newPass = passInp ? passInp.value : '';
+  const confPass = confInp ? confInp.value : '';
+
+  if (!newName || newName.length < 2) {
+    showToast('Nama lengkap minimal 2 karakter!', 'error');
+    if (nameInp) nameInp.focus();
+    return;
+  }
+
+  let newPasswordHash = null;
+  if (newPass) {
+    if (newPass.length < 8) {
+      showToast('Kata sandi baru minimal 8 karakter!', 'error');
+      if (passInp) passInp.focus();
+      return;
+    }
+    if (newPass !== confPass) {
+      showToast('Konfirmasi kata sandi baru tidak cocok!', 'error');
+      if (confInp) confInp.focus();
+      return;
+    }
+    newPasswordHash = await hashPassword(newPass);
+  }
+
+  showToast('Menyimpan perubahan profil...', 'info');
+
+  // Update in local state
+  user.fullName = newName;
+  if (newPasswordHash) {
+    user.passwordHash = newPasswordHash;
+  }
+
+  // Update in AppState.whitelist
+  const member = AppState.whitelist.find(m => m.email.toLowerCase() === user.email.toLowerCase());
+  if (member) {
+    member.fullName = newName;
+    if (newPasswordHash) member.passwordHash = newPasswordHash;
+  }
+
+  saveState();
+
+  // Update in Supabase Cloud
+  if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+    try {
+      const updatePayload = { full_name: newName };
+      if (newPasswordHash) updatePayload.password_hash = newPasswordHash;
+
+      const { error: updErr } = await ZettSupabase.client
+        .from('whitelist_members')
+        .update(updatePayload)
+        .eq('email', user.email);
+
+      if (updErr) {
+        console.warn('[Profile Supabase Update Error]', updErr);
+      } else {
+        console.log('[Profile Supabase Update Success]');
+      }
+    } catch (err) {
+      console.warn('[Profile Supabase Exception]', err);
+    }
+  }
+
+  // Re-render UI
+  if (typeof updateNavbarState === 'function') updateNavbarState(AppState.currentView);
+  if (typeof updateDrawerState === 'function') updateDrawerState();
+  if (AppState.currentView === 'home' && typeof renderHome === 'function') renderHome();
+
+  closeProfileSettingsModal();
+  showToast('Profil Anda berhasil diperbarui!', 'success');
+}
+
 // Window bindings (Aman, tanpa fungsi bypass/dummy)
 window.onLoginEmailChanged = onLoginEmailChanged;
 window.handleLoginSubmit = handleLoginSubmit;
@@ -449,3 +611,6 @@ window.togglePasswordVisibility = togglePasswordVisibility;
 window.setupOtpInputListeners = setupOtpInputListeners;
 window.closeNonWhitelistModal = closeNonWhitelistModal;
 window.logout = logout;
+window.openProfileSettingsModal = openProfileSettingsModal;
+window.closeProfileSettingsModal = closeProfileSettingsModal;
+window.handleSaveProfileSubmit = handleSaveProfileSubmit;
