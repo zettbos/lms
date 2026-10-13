@@ -15,7 +15,7 @@ echo 2. Menambahkan file ke staging...
 git add .
 
 echo.
-git commit -m "feat: import and deduplicate 1736 student whitelist, update cache version v30, seed supabase"
+git commit -m "feat: replace whitelist with 2318 students, update cache version v31, seed supabase"
 
 echo.
 echo 4. Menghubungkan remote GitHub...

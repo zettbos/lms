@@ -54,10 +54,10 @@ function initStorage() {
   try { storedQuickActions = JSON.parse(localStorage.getItem('zett_quick_actions')); } catch (e) {}
   try { storedUser = JSON.parse(localStorage.getItem('zett_current_user')); } catch (e) {}
 
-  const DATA_CLEAN_VERSION = 'v30_whitelist_imported';
+  const DATA_CLEAN_VERSION = 'v31_whitelist_updated';
   const storedVersion = localStorage.getItem('zett_data_clean_version');
   
-  // Whitelist import migration: Import 1.736 siswa unik & pertahankan hash password yang sudah diset
+  // Whitelist import migration: Import 2.318 siswa unik & pertahankan hash password yang sudah diset
   if (storedVersion !== DATA_CLEAN_VERSION) {
     const existingPasswordMap = {};
     if (Array.isArray(storedWhitelist)) {

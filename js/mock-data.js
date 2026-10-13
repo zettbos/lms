@@ -4,7 +4,7 @@
  * Seluruh data dummy telah dihapus. Sistem siap diisi data asli dari 0 melalui Admin Panel.
  */
 
-// 1. WHITELIST: Akun resmi Super Admin Zettbos + 1.736 Siswa Terdaftar
+// 1. WHITELIST: Akun resmi Super Admin Zettbos + 2.318 Siswa Terdaftar
 const SEED_WHITELIST = [
   {
     id: 'owner-1',
