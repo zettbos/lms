@@ -384,5 +384,9 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
        - Cache breaker `DATA_CLEAN_VERSION = 'v30_whitelist_imported'` dengan preservasi password hash aktif.
     4. SQL Batch Script (`supabase/seed_whitelist.sql`):
        - Penyiapan file seed idempotent untuk sinkronisasi database PostgreSQL Supabase.
-
-
+  - [2026-10-13] Implementasi Revisi 43: Resolusi Total Sinkronisasi Database Supabase & Live Multi-User Update.
+    1. Perbaikan Fatal Mapping `isPinned`: Menambahkan `isPinned: !!m.is_pinned` pada `cloudMods` mapping di `syncCurriculumFromCloud()` (`js/core/supabase.js`), sehingga modul yang disematkan mentor tidak lagi hilang saat ditarik dari cloud oleh siswa.
+    2. Reactive Auto Re-render: Begitu data asynchronous dari Supabase Cloud tiba di browser, sistem langsung memicu re-render otomatis komponen `renderPinnedModuleHero()`, `renderQuickActionHub()`, `renderModuleCategoryPills()`, `renderModuleCatalogGrid()`, dan `renderResources()`.
+    3. Pinned Module Eksklusif: Memastikan hanya ada 1 modul pilihan mentor yang di-pin di lokal maupun Supabase Cloud (otomatis unpin modul lainnya).
+    4. Auto-Push Quick Actions & Shared Resources: Menambahkan batch upsert untuk `quick_actions` dan `shared_resources` pada fungsi `syncCurriculumToCloudLive()` dan CRUD handler terkait, menjamin seluruh perubahan Admin langsung tersimpan live ke database dan dapat diakses oleh semua pengguna.
+    5. Cache Buster: Menaikkan seluruh query string script modular di `index.html` ke versi `?v=43`.

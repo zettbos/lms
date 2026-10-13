@@ -321,6 +321,7 @@ const ZettSupabase = {
           orderIndex: m.order_index || 1,
           isLocked: !!m.is_locked,
           lockReason: m.lock_reason || '',
+          isPinned: !!m.is_pinned,
           isDraft: false
         }));
 
@@ -366,6 +367,27 @@ const ZettSupabase = {
         hasChanges = true;
       }
 
+      // 4. Fetch Shared Resources
+      const { data: sRes, error: resErr } = await this.client
+        .from('shared_resources')
+        .select('*')
+        .order('order_index');
+
+      if (!resErr && Array.isArray(sRes) && sRes.length > 0) {
+        AppState.resources = sRes.map(r => ({
+          id: r.id,
+          title: r.title,
+          description: r.description || '',
+          url: r.url,
+          category: r.category || 'sheet',
+          badge: r.badge || 'Official Link',
+          icon: r.category || 'sheet',
+          date: r.created_at ? new Date(r.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Aktif',
+          orderIndex: r.order_index || 1
+        }));
+        hasChanges = true;
+      }
+
       if (hasChanges) {
         saveState();
         if (!silent && typeof showToast === 'function') {
@@ -374,11 +396,17 @@ const ZettSupabase = {
         // Auto re-render active view
         if (AppState.currentView === 'home') {
           if (typeof renderHome === 'function') renderHome();
+          if (typeof renderPinnedModuleHero === 'function') renderPinnedModuleHero();
           if (typeof renderQuickActionHub === 'function') renderQuickActionHub();
+          if (typeof renderModuleCategoryPills === 'function') renderModuleCategoryPills();
+          if (typeof renderModuleCatalogGrid === 'function') renderModuleCatalogGrid();
         }
         else if (AppState.currentView === 'admin') {
           if (typeof renderAdminCurriculum === 'function') renderAdminCurriculum();
           if (typeof renderAdminQuickActions === 'function') renderAdminQuickActions();
+        }
+        else if (AppState.currentView === 'resources') {
+          if (typeof renderResources === 'function') renderResources();
         }
         else if (AppState.currentView === 'landing' && typeof renderLandingCurriculumBento === 'function') renderLandingCurriculumBento();
         else if (AppState.currentView === 'learn' && typeof renderLearningRoom === 'function') renderLearningRoom(AppState.currentLessonId);
@@ -438,10 +466,41 @@ const ZettSupabase = {
         if (lesErr) throw lesErr;
       }
 
+      // 3. Push Quick Actions live to Supabase Cloud
+      if (Array.isArray(AppState.quickActions) && AppState.quickActions.length > 0) {
+        const payloadQa = AppState.quickActions.map((q, idx) => ({
+          id: q.id,
+          title: q.title,
+          subtitle: q.subtitle || '',
+          icon: q.icon || 'folder',
+          badge: q.badge || 'Akses',
+          action_type: q.actionType || 'navigate',
+          target: q.target || '',
+          order_index: q.orderIndex || (idx + 1)
+        }));
+        const { error: qaErr } = await this.client.from('quick_actions').upsert(payloadQa, { onConflict: 'id' });
+        if (qaErr) console.warn('[ZettSupabase QA Cloud Push Warning]', qaErr);
+      }
+
+      // 4. Push Shared Resources live to Supabase Cloud
+      if (Array.isArray(AppState.resources) && AppState.resources.length > 0) {
+        const payloadRes = AppState.resources.map((r, idx) => ({
+          id: r.id,
+          title: r.title,
+          description: r.description || '',
+          url: r.url,
+          category: r.category || 'sheet',
+          badge: r.badge || 'Official Link',
+          order_index: r.orderIndex || (idx + 1)
+        }));
+        const { error: resErr } = await this.client.from('shared_resources').upsert(payloadRes, { onConflict: 'id' });
+        if (resErr) console.warn('[ZettSupabase Resources Cloud Push Warning]', resErr);
+      }
+
       if (showNotification) {
         const draftModsCount = (AppState.modules || []).filter(m => m.isDraft).length;
         const draftLessCount = (AppState.lessons || []).filter(l => l.isDraft).length;
-        let note = `Sukses! ${liveModules.length} Modul & ${liveLessons.length} Materi berhasil LIVE di Cloud Supabase!`;
+        let note = `Sukses! Seluruh Kurikulum, Quick Actions & Dokumen LIVE di Supabase Cloud!`;
         if (draftModsCount > 0 || draftLessCount > 0) {
           note += ` (${draftModsCount} modul & ${draftLessCount} materi draft tetap tersimpan lokal)`;
         }

@@ -1,54 +1,44 @@
-# ZETTBOS MEMBER HUB - DOKUMEN REVISI AKTIF (REVISI 42)
+# ZETTBOS MEMBER HUB - DOKUMEN REVISI AKTIF (REVISI 43)
 ================================================================================
 STATUS: SUKSES DITERAPKAN (READY TO PUSH TO GITHUB & VERCEL)
 ARSITEK SISTEM: ZettBOT by Zettbos (Universal Product Architect & Lead Engineering Mentor)
 FOKUS REVISI:
-  1. AUTO-CONVERTER GOOGLE DRIVE KE FORMAT DIRECT IMAGE CDN (LH3.GOOGLEUSERCONTENT.COM)
-  2. PENGATURAN PROFIL MEMBER LENGKAP (GANTI NAMA LENGKAP & KATA SANDI)
-  3. RESOLUSI TUNTAS SINKRONISASI PASSWORD SUPABASE (TWO-WAY SYNC SUPABASE & LOCALSTORAGE)
+  1. FIX FATAL BUG: SINKRONISASI MODUL PINNED (IS_PINNED) HILANG SAAT DITARIK DARI SUPABASE
+  2. SINKRONISASI LENGKAP KARTU QUICK ACTIONS & SHARED RESOURCES KE CLOUD SUPABASE (DARI ADMIN KE SELURUH SISWA)
+  3. REAL-TIME VIEW RE-RENDER SETELAH CLOUD FETCH (ANTI-STALE / ANTI-CACHE DI LAYAR SISWA)
 ================================================================================
 
-## 1. DETAIL FITUR & PERUBAHAN:
+## 1. DETAIL FITUR & PERBAIKAN YANG TELAH DILAKUKAN:
 
-### A. Auto-Converter Link Google Drive ke Format Direct CDN `lh3` (`admin.js` & `index.html`)
-- **Fungsi `convertGoogleDriveToLh3(url)`**:
-  - Mendeteksi format link Google Drive umum:
-    * `drive.google.com/file/d/FILE_ID/view...`
-    * `drive.google.com/open?id=FILE_ID`
-    * `docs.google.com/uc?id=FILE_ID`
-  - Secara instan mengubahnya menjadi URL CDN direct image:
-    `https://lh3.googleusercontent.com/d/FILE_ID=w1000`
-- **Integrasi di Modal Edit/Tambah Modul**:
-  - Begitu Admin mem-paste link Google Drive ke input `#manage-module-cover`, sistem otomatis mengganti nilai input ke link format `lh3`, merender Live Image Preview seketika, dan memunculkan toast konfirmasi.
-  - Ditambahkan badge panduan `⚡ Auto-Convert Google Drive (lh3)` di atas form.
+### A. Perbaikan Mapping `isPinned` & Auto Re-render (`js/core/supabase.js`)
+- **Fix Mapping `cloudMods`**:
+  * Menambahkan `isPinned: !!m.is_pinned` pada fungsi `syncCurriculumFromCloud()`.
+  * Saat siswa membuka aplikasi, data pin modul dari Supabase langsung diterima dan dipertahankan.
+- **Auto Re-render Dinamis**:
+  * Ketika respons data cloud tiba secara asynchronous, sistem otomatis memanggil ulang:
+    - `renderHome()`
+    - `renderPinnedModuleHero()`
+    - `renderQuickActionHub()`
+    - `renderModuleCategoryPills()`
+    - `renderModuleCatalogGrid()`
+    - `renderResources()`
+  * Layar siswa langsung memunculkan kartu modul unggulan pilihan mentor tanpa perlu hard reload.
 
-### B. Pengaturan Profil Member (`index.html` & `auth.js`)
-- **Akses UI**:
-  - Di navbar atas (desktop) dan drawer samping (mobile), avatar profil member dilengkapi label interaktif dan tombol aksi `⚙️ Edit Profil`.
-- **Modal Profil Siswa (`#modal-profile-settings`)**:
-  - Kolom Email terkunci (read-only dengan badge gembok) agar konsistensi whitelist terjaga.
-  - Kolom Nama Lengkap `#profile-fullname-input` (dapat diedit bebas).
-  - Kolom Ubah Kata Sandi `#profile-new-password` & `#profile-confirm-password` (opsional, min. 8 karakter, dienkripsi SHA-256).
-- **Logika Penyimpanan**:
-  - `handleSaveProfileSubmit()` memperbarui local state `AppState.currentUser.fullName` dan `AppState.whitelist`.
-  - Mengirim update ke tabel `whitelist_members` di database Supabase Cloud (`full_name` & `password_hash`).
-  - Sapaan di Beranda dan avatar langsung di-render ulang secara real-time.
+### B. Sinkronisasi Penuh Quick Actions & Shared Resources (`supabase.js` & `resources.js`)
+- **Upload Terintegrasi di `syncCurriculumToCloudLive()`**:
+  * Setiap kali Admin menekan tombol upload ke Cloud, tabel `quick_actions` dan `shared_resources` kini ikut diunggah secara batch ke Supabase.
+- **Live Push Aksi Cepat**:
+  * Menambah dan menghapus resource di halaman Resource Hub (`resources.js`) langsung memanggil `upsert()` dan `delete()` ke tabel `shared_resources` di Supabase.
 
-### C. Resolusi Tuntas Sinkronisasi Password Supabase (`auth.js` & `schema.sql`)
-- **Penyebab Masalah**:
-  - Di perangkat siswa lama, password tersimpan di `localStorage` sehingga dia bisa login di HP tersebut. Namun di Supabase, update diblokir karena RLS `whitelist_members` sebelumnya hanya memiliki policy `SELECT`.
-  - Selain itu, saat login di perangkat baru, sistem hanya memeriksa lokal tanpa melakukan live check ke Supabase jika objek member sudah ada dengan hash null.
-- **Solusi Komprehensif**:
-  1. `onLoginEmailChanged()` & `handleLoginSubmit()` kini memeriksa Supabase Cloud secara live jika `member.passwordHash` di lokal masih kosong, sehingga member yang login di HP lain otomatis mendapatkan password dari Supabase!
-  2. `handleSetPasswordSubmit()` menyertakan fallback upsert ke Supabase untuk memastikan hash password tersimpan 100%.
-  3. `supabase/schema.sql` menyertakan policy RLS:
-     `CREATE POLICY "Public Update Whitelist" ON public.whitelist_members FOR UPDATE USING (true) WITH CHECK (true);`
+### C. Pin Eksklusif & Live Supabase Sync (`js/controllers/admin.js`)
+- **1 Modul Unggulan Terpilih**:
+  * Di `togglePinCurrentModule()`, saat Admin mem-pin sebuah modul, modul lain otomatis di-unpin di memori dan di Supabase Cloud (`is_pinned: false`).
+- **Simpan Form Modul**:
+  * Di `handleSaveModuleSubmit()`, status `is_pinned` ikut di-push ke Supabase Cloud dan modul lain di-unpin jika checkbox disematkan aktif.
 
----
-
-## 2. VERSI SCRIPT & CACHE BUSTER
-- Seluruh script modular di `index.html` dinaikkan ke versi `?v=42` untuk eliminasi cache browser.
+### D. Versi Cache Buster (`index.html`)
+- Seluruh script modular dinaikkan versinya ke `?v=43` untuk mengeliminasi cache browser pada semua perangkat siswa.
 
 ================================================================================
-SIAP DI-PUSH KE GITHUB & VERCEL VIA PUSH-GITHUB.BAT
+LANGKAH DEPLOYMENT: RUN SQL DI SUPABASE -> GIT TERMINAL PUSH
 ================================================================================

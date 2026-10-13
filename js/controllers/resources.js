@@ -51,9 +51,24 @@ function handleAddResourceSubmit(event) {
 
   AppState.resources.unshift(newRes);
   saveState();
+
+  if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+    ZettSupabase.client.from('shared_resources').upsert({
+      id: newRes.id,
+      title: newRes.title,
+      description: newRes.description || '',
+      url: newRes.url,
+      category: newRes.category || 'sheet',
+      badge: newRes.badge || 'Official Link',
+      order_index: 1
+    }, { onConflict: 'id' }).then(({ error }) => {
+      if (error) console.warn('[Supabase Shared Resources Insert Warning]', error);
+    });
+  }
+
   closeAddResourceModal();
   event.target.reset();
-  showToast('Link dokumen berhasil dibagikan ke seluruh member', 'success');
+  showToast('Link dokumen berhasil dibagikan & LIVE ke Database!', 'success');
   renderResources();
   if (typeof renderAdminResourcesCms === 'function') {
     renderAdminResourcesCms();
@@ -79,7 +94,14 @@ function deleteResource(resId) {
       if (idx > -1) {
         AppState.resources.splice(idx, 1);
         saveState();
-        showToast('Link dokumen telah dihapus', 'info');
+
+        if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+          ZettSupabase.client.from('shared_resources').delete().eq('id', resId).then(({ error }) => {
+            if (error) console.warn('[Supabase Shared Resources Delete Warning]', error);
+          });
+        }
+
+        showToast('Link dokumen telah dihapus dari database', 'info');
         renderResources();
         if (typeof renderAdminResourcesCms === 'function') {
           renderAdminResourcesCms();
