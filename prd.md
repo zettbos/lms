@@ -387,6 +387,17 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
   - [2026-10-13] Implementasi Revisi 43: Resolusi Total Sinkronisasi Database Supabase & Live Multi-User Update.
     1. Perbaikan Fatal Mapping `isPinned`: Menambahkan `isPinned: !!m.is_pinned` pada `cloudMods` mapping di `syncCurriculumFromCloud()` (`js/core/supabase.js`), sehingga modul yang disematkan mentor tidak lagi hilang saat ditarik dari cloud oleh siswa.
     2. Reactive Auto Re-render: Begitu data asynchronous dari Supabase Cloud tiba di browser, sistem langsung memicu re-render otomatis komponen `renderPinnedModuleHero()`, `renderQuickActionHub()`, `renderModuleCategoryPills()`, `renderModuleCatalogGrid()`, dan `renderResources()`.
-    3. Pinned Module Eksklusif: Memastikan hanya ada 1 modul pilihan mentor yang di-pin di lokal maupun Supabase Cloud (otomatis unpin modul lainnya).
+    3. Pinned Module Eksklusif: Memastikan modul pilihan mentor di-pin di lokal maupun Supabase Cloud.
     4. Auto-Push Quick Actions & Shared Resources: Menambahkan batch upsert untuk `quick_actions` dan `shared_resources` pada fungsi `syncCurriculumToCloudLive()` dan CRUD handler terkait, menjamin seluruh perubahan Admin langsung tersimpan live ke database dan dapat diakses oleh semua pengguna.
     5. Cache Buster: Menaikkan seluruh query string script modular di `index.html` ke versi `?v=43`.
+  - [2026-10-13] Implementasi Revisi 44: Sleek Home Layout, Multi-Pin Stacked Heroes, Centered Learning Room, & Clean Code Blocks.
+    1. Re-Layout Simetris Ruang Belajar (`#view-learn`): Menyelaraskan sub-bar atas dan kontainer materi ke grid terpusat (`max-w-5xl xl:max-w-6xl w-full mx-auto px-4 sm:px-6 items-start justify-center`) yang mengeliminasi ruang kosong di monitor lebar dan memberikan pengalaman fokus baca ala Notion/Medium.
+    2. Light Mode Fix Pinned Hero & Dukungan Multi-Pin Hero Stacked:
+       - Memperbaiki glitch Light Mode pada kartu pinned dengan styling CSS `html.light .pinned-hero-card` (background putih `#FFFFFF` alabaster, border `#CBD5E1`, kontras teks `#0F172A`).
+       - Memperbarui `renderPinnedModuleHero()` di `js/controllers/classroom.js` menggunakan `.filter(m => m.isPinned)` dengan wrapper `space-y-6`, sehingga seluruh modul yang di-pin oleh Admin tersusun vertikal bertumpuk rapi ke bawah.
+       - Memperbarui `js/controllers/admin.js` agar Admin leluasa menyematkan beberapa modul unggulan sekaligus ke Supabase.
+    3. Sleek Compact Welcome Bar di Beranda: Menata ulang sapaan "Selamat Datang" menjadi sub-header berprofil rendah 1 baris (`p-3.5 sm:p-4 mb-5`) dengan mini progress bar horizontal, menghemat 70% ruang vertikal.
+    4. Eliminasi Helper Slop: Menghapus teks kaku "Klik di mana saja pada kartu ini untuk langsung masuk modul." pada kartu hero.
+    5. Re-Order Beranda: Memindahkan seksi "Akses Cepat & Resource Hub" tepat di atas "Rekomendasi Lanjutkan Belajar".
+    6. Terminal Dots Minimalis pada Code Block (`js/editor.js`): Mengganti label teks bahasa ("JAVASCRIPT", dll) dengan 3 titik terminal MacOS minimalis (`rose-500`, `amber-500`, `emerald-500`).
+    7. Cache Buster: Menaikkan cache buster seluruh file JS dan CSS di `index.html` ke versi `?v=44`.

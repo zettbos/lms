@@ -377,7 +377,11 @@ function renderBlocksToHtml(blocks) {
       html += `
         <div class="my-4 rounded-xl overflow-hidden border border-slate-800 bg-slate-950/90 shadow-lg">
           <div class="flex items-center justify-between px-3.5 py-2 bg-slate-900/90 border-b border-slate-800 text-xs text-slate-400">
-            <span class="font-mono uppercase tracking-wider text-[11px] text-cyan-400 font-bold">${block.language || 'CODE'}</span>
+            <div class="flex items-center gap-1.5 py-0.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-rose-500/70 inline-block"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-500/70 inline-block"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500/70 inline-block"></span>
+            </div>
             <div class="flex items-center gap-1.5">
               <button onclick="saveSnippetToFavorites('${codeId}', '${escapeHtml(block.language || 'javascript')}')" class="flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-800 hover:bg-amber-950/40 text-slate-300 hover:text-amber-300 border border-slate-700/80 hover:border-amber-600/40 transition-colors text-xs" title="Simpan snippet ini ke menu Favorit">
                 <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>

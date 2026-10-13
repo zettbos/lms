@@ -1184,40 +1184,16 @@ function togglePinCurrentModule() {
   const mod = AppState.modules.find(m => m.id === AppState.adminSelectedModuleId);
   if (!mod) return;
 
-  const willBePinned = !mod.isPinned;
-
-  // Hanya boleh ada 1 modul pinned unggulan: unpin yang lain di lokal
-  if (willBePinned) {
-    AppState.modules.forEach(m => {
-      if (m.id !== mod.id) m.isPinned = false;
-    });
-  }
-  mod.isPinned = willBePinned;
+  mod.isPinned = !mod.isPinned;
   saveState();
 
   if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
-    if (willBePinned) {
-      // 1. Unpin modul lain di Supabase
-      ZettSupabase.client.from('curriculum_modules')
-        .update({ is_pinned: false })
-        .neq('id', mod.id)
-        .then(() => {
-          // 2. Set modul ini is_pinned: true di Supabase
-          return ZettSupabase.client.from('curriculum_modules')
-            .update({ is_pinned: true })
-            .eq('id', mod.id);
-        })
-        .then(({ error }) => {
-          if (error) console.warn('[Supabase Module Pin Update Warning]', error);
-        });
-    } else {
-      ZettSupabase.client.from('curriculum_modules')
-        .update({ is_pinned: false })
-        .eq('id', mod.id)
-        .then(({ error }) => {
-          if (error) console.warn('[Supabase Module Unpin Update Warning]', error);
-        });
-    }
+    ZettSupabase.client.from('curriculum_modules')
+      .update({ is_pinned: !!mod.isPinned })
+      .eq('id', mod.id)
+      .then(({ error }) => {
+        if (error) console.warn('[Supabase Module Pin Update Warning]', error);
+      });
   }
 
   showToast(mod.isPinned ? `Modul "${mod.title}" berhasil disematkan di Beranda & LIVE ke Database!` : `Sematkan modul "${mod.title}" dilepas.`, 'success');
@@ -1244,13 +1220,6 @@ function handleSaveModuleSubmit(e, publishToCloud = true) {
   if (!title) {
     showToast('Judul modul wajib diisi', 'error');
     return;
-  }
-
-  if (isPinned) {
-    // Unpin modul lain agar selalu ada tepat 1 modul pilihan mentor
-    AppState.modules.forEach(m => {
-      if (m.id !== id) m.isPinned = false;
-    });
   }
 
   let targetMod = null;
@@ -1290,10 +1259,6 @@ function handleSaveModuleSubmit(e, publishToCloud = true) {
   if (publishToCloud) {
     // Live Auto-Push ke Supabase Cloud
     if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected() && targetMod) {
-      if (targetMod.isPinned) {
-        ZettSupabase.client.from('curriculum_modules').update({ is_pinned: false }).neq('id', targetMod.id);
-      }
-
       const payload = {
         id: targetMod.id,
         title: targetMod.title,
