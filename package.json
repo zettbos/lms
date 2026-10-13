@@ -1,0 +1,12 @@
+{
+  "name": "lms-zettbos",
+  "version": "1.0.0",
+  "description": "Zettbos Member Hub - Learning Management System",
+  "private": true,
+  "scripts": {
+    "start": "serve ."
+  },
+  "dependencies": {
+    "nodemailer": "^6.9.16"
+  }
+}

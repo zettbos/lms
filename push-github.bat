@@ -15,7 +15,7 @@ echo 2. Menambahkan file ke staging...
 git add .
 
 echo.
-git commit -m "feat: replace whitelist with 2318 students, update cache version v31, seed supabase"
+git commit -m "feat: integrate official Gmail SMTP with Nodemailer for OTP delivery v32"
 
 echo.
 echo 4. Menghubungkan remote GitHub...

@@ -1,12 +1,28 @@
 const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 
-// Resend Configuration (Environment Variable Vercel atau segmented token)
+// 1. Konfigurasi Gmail SMTP Resmi Zettbos (Google App Password)
+const GMAIL_USER = process.env.GMAIL_USER || 'zettbos2025@gmail.com';
+const GMAIL_PASS = process.env.GMAIL_APP_PASSWORD || 'vdtflqkiupmhjgid';
+
+// Fallback Resend Key jika dibutuhkan
 const getResendKey = () => {
   if (process.env.RESEND_API_KEY) return process.env.RESEND_API_KEY;
   return ['re', 'VVMPDPkb', 'MhJ9cPuFg6pvuxA91PANRFDu'].join('_');
 };
 const RESEND_API_KEY = getResendKey();
 const HMAC_SECRET = process.env.HMAC_SECRET || 'zettbos_secure_secret_2026';
+
+// Buat transporter Nodemailer Gmail
+const transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true, // SSL
+  auth: {
+    user: GMAIL_USER,
+    pass: GMAIL_PASS
+  }
+});
 
 module.exports = async (req, res) => {
   // CORS Headers
@@ -44,7 +60,7 @@ module.exports = async (req, res) => {
     const signature = crypto.createHmac('sha256', HMAC_SECRET).update(payload).digest('hex');
     const otpToken = `${expiresAt}.${signature}`;
 
-    // 3. Template HTML Email Resmi Zettbos
+    // 3. Template HTML Email Resmi Zettbos (Dark Cyberpunk)
     const htmlContent = `
     <!DOCTYPE html>
     <html lang="id">
@@ -90,29 +106,53 @@ module.exports = async (req, res) => {
     </html>
     `;
 
-    // 4. Kirim Email Menggunakan Resend REST API
-    const resendResponse = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${RESEND_API_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        from: 'Zettbos LMS <onboarding@resend.dev>',
-        to: [cleanEmail],
+    // 4. Pengiriman Utama: Gunakan Gmail SMTP Resmi Zettbos (Nodemailer)
+    let emailSent = false;
+    let lastError = null;
+
+    try {
+      await transporter.sendMail({
+        from: '"Zettbos Member Hub" <' + GMAIL_USER + '>',
+        to: cleanEmail,
         subject: `Kode Verifikasi Masuk Zettbos: ${code}`,
         html: htmlContent
-      })
-    });
+      });
+      emailSent = true;
+    } catch (smtpErr) {
+      console.warn('[Gmail SMTP Warning, trying Resend fallback]', smtpErr);
+      lastError = smtpErr;
 
-    const resendData = await resendResponse.json();
+      // Fallback ke Resend jika SMTP ada kendala jaringan
+      try {
+        const resendResponse = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${RESEND_API_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            from: 'Zettbos LMS <onboarding@resend.dev>',
+            to: [cleanEmail],
+            subject: `Kode Verifikasi Masuk Zettbos: ${code}`,
+            html: htmlContent
+          })
+        });
+        const resendData = await resendResponse.json();
+        if (resendResponse.ok) {
+          emailSent = true;
+        } else {
+          lastError = new Error(resendData.message || 'Resend error');
+        }
+      } catch (rErr) {
+        lastError = rErr;
+      }
+    }
 
-    if (!resendResponse.ok) {
-      console.error('[Resend Error]', resendData);
-      return res.status(resendResponse.status).json({
+    if (!emailSent) {
+      console.error('[Send Email Failed]', lastError);
+      return res.status(500).json({
         success: false,
-        error: resendData.message || 'Gagal mengirim email melalui Resend.',
-        details: resendData
+        error: lastError ? (lastError.message || lastError.toString()) : 'Gagal mengirim email verifikasi.'
       });
     }
 
@@ -126,7 +166,7 @@ module.exports = async (req, res) => {
     console.error('[Send OTP Serverless Error]', err);
     return res.status(500).json({
       success: false,
-      error: 'Terjadi kesalahan pada server saat memproses pengiriman OTP.'
+      error: 'Terjadi kesalahan pada server saat memproses pengiriman OTP: ' + (err.message || err.toString())
     });
   }
 };

@@ -170,7 +170,7 @@ async function sendOtpToEmail(targetEmail) {
   inputs.forEach(inp => inp.value = '');
   if (inputs[0]) inputs[0].focus();
 
-  showToast(`Mengirim kode OTP asli via Resend ke ${targetEmail}...`, 'info');
+  showToast(`Mengirim kode OTP verifikasi ke ${targetEmail}...`, 'info');
 
   try {
     const res = await fetch(getApiEndpoint('/api/send-otp'), {
@@ -183,14 +183,14 @@ async function sendOtpToEmail(targetEmail) {
 
     if (data.success && data.otpToken) {
       AppState.activeOtpToken = data.otpToken;
-      showToast(`Kode OTP 6-digit berhasil dikirim ke ${targetEmail}! Periksa kotak masuk / spam email Anda.`, 'success', 8000);
+      showToast(`Kode OTP 6-digit berhasil dikirim ke ${targetEmail}! Periksa kotak masuk atau folder spam email Anda.`, 'success', 8000);
     } else {
-      console.warn('[Resend API Warning]', data);
-      showToast(`Gagal mengirim OTP: ${data.error || 'Periksa konfigurasi Resend'}`, 'error', 7000);
+      console.warn('[Email OTP Warning]', data);
+      showToast(`Gagal mengirim OTP: ${data.error || 'Periksa koneksi email'}`, 'error', 7000);
     }
   } catch (err) {
     console.error('[Send OTP Error]', err);
-    showToast('Gagal menghubungi server email Resend. Periksa koneksi internet.', 'error');
+    showToast('Gagal menghubungi server email. Periksa koneksi internet.', 'error');
   }
 }
 
