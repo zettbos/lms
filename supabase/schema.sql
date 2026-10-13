@@ -32,8 +32,12 @@ CREATE TABLE IF NOT EXISTS public.curriculum_modules (
     order_index INTEGER DEFAULT 1,
     is_locked BOOLEAN DEFAULT false,
     lock_reason TEXT,
+    is_pinned BOOLEAN DEFAULT false,
     created_at TIMESTAMPTZ DEFAULT now()
 );
+
+-- Idempotent column check for curriculum_modules
+ALTER TABLE public.curriculum_modules ADD COLUMN IF NOT EXISTS is_pinned BOOLEAN DEFAULT false;
 
 -- 4. TABEL MATERI / VIDEO (Curriculum Lessons & Notion Blocks)
 CREATE TABLE IF NOT EXISTS public.curriculum_lessons (

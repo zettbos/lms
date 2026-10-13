@@ -116,7 +116,8 @@ const ZettSupabase = {
           coverImage: m.cover_image,
           orderIndex: m.order_index,
           isLocked: m.is_locked,
-          lockReason: m.lock_reason
+          lockReason: m.lock_reason,
+          isPinned: !!m.is_pinned
         }));
       }
 
@@ -264,6 +265,21 @@ const ZettSupabase = {
         }, { onConflict: 'id' });
       }
 
+      // 6. Push Quick Actions Hub
+      if (Array.isArray(AppState.quickActions) && AppState.quickActions.length > 0) {
+        const payloadQa = AppState.quickActions.map((q, idx) => ({
+          id: q.id,
+          title: q.title,
+          subtitle: q.subtitle || '',
+          icon: q.icon || 'folder',
+          badge: q.badge || 'Akses',
+          action_type: q.actionType || 'navigate',
+          target: q.target || '',
+          order_index: idx + 1
+        }));
+        await this.client.from('quick_actions').upsert(payloadQa, { onConflict: 'id' });
+      }
+
       showToast('Seluruh data berhasil tersinkron ke tabel Supabase!', 'success');
       return true;
     } catch (e) {
@@ -330,14 +346,40 @@ const ZettSupabase = {
         hasChanges = true;
       }
 
+      // 3. Fetch Quick Actions
+      const { data: qas, error: qaErr } = await this.client
+        .from('quick_actions')
+        .select('*')
+        .order('order_index');
+
+      if (!qaErr && Array.isArray(qas) && qas.length > 0) {
+        AppState.quickActions = qas.map(q => ({
+          id: q.id,
+          title: q.title,
+          subtitle: q.subtitle,
+          icon: q.icon || 'folder',
+          badge: q.badge || 'Akses',
+          actionType: q.action_type || 'navigate',
+          target: q.target || '',
+          orderIndex: q.order_index || 1
+        }));
+        hasChanges = true;
+      }
+
       if (hasChanges) {
         saveState();
         if (!silent && typeof showToast === 'function') {
           showToast('Kurikulum Cloud berhasil disinkronkan ke layar!', 'success');
         }
         // Auto re-render active view
-        if (AppState.currentView === 'home' && typeof renderHome === 'function') renderHome();
-        else if (AppState.currentView === 'admin' && typeof renderAdminCurriculum === 'function') renderAdminCurriculum();
+        if (AppState.currentView === 'home') {
+          if (typeof renderHome === 'function') renderHome();
+          if (typeof renderQuickActionHub === 'function') renderQuickActionHub();
+        }
+        else if (AppState.currentView === 'admin') {
+          if (typeof renderAdminCurriculum === 'function') renderAdminCurriculum();
+          if (typeof renderAdminQuickActions === 'function') renderAdminQuickActions();
+        }
         else if (AppState.currentView === 'landing' && typeof renderLandingCurriculumBento === 'function') renderLandingCurriculumBento();
         else if (AppState.currentView === 'learn' && typeof renderLearningRoom === 'function') renderLearningRoom(AppState.currentLessonId);
       }
@@ -369,10 +411,15 @@ const ZettSupabase = {
           cover_image: m.coverImage,
           order_index: m.orderIndex || 1,
           is_locked: !!m.isLocked,
-          lock_reason: m.lockReason || null
+          lock_reason: m.lockReason || null,
+          is_pinned: !!m.isPinned
         }));
         const { error: modErr } = await this.client.from('curriculum_modules').upsert(payloadMods, { onConflict: 'id' });
-        if (modErr) throw modErr;
+        if (modErr) {
+          // If remote table doesn't have is_pinned column yet, fallback safely
+          const fallbackPayload = payloadMods.map(p => { const copy = { ...p }; delete copy.is_pinned; return copy; });
+          await this.client.from('curriculum_modules').upsert(fallbackPayload, { onConflict: 'id' });
+        }
       }
 
       // 2. Push published (non-draft) lessons

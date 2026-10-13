@@ -44,8 +44,49 @@ const SEED_FAVORITES = {};
 // 7. DOKUMEN & SHARED RESOURCES: Bersih dari 0 link/dokumen
 const SEED_RESOURCES = [];
 
-// 8. QUICK ACTION HUB BERANDA: Bersih dari 0 aksi cepat
-const SEED_QUICK_ACTIONS = [];
+// 8. QUICK ACTION HUB BERANDA: 4 Aksi Cepat Default yang Fleksibel & Dapat Diubah Admin
+const SEED_QUICK_ACTIONS = [
+  {
+    id: 'qa-1',
+    title: 'Resource & Template Hub',
+    subtitle: 'Akses template Google Sheets, script otomasi & cheat sheet AI',
+    icon: 'folder',
+    actionType: 'navigate',
+    target: 'resources',
+    badge: 'Akses',
+    orderIndex: 1
+  },
+  {
+    id: 'qa-2',
+    title: 'Kurikulum Pembelajaran',
+    subtitle: 'Jelajahi seluruh video tutorial step-by-step dari nol',
+    icon: 'book',
+    actionType: 'navigate',
+    target: 'home',
+    badge: 'Video',
+    orderIndex: 2
+  },
+  {
+    id: 'qa-3',
+    title: 'Grup Diskusi & Komunitas',
+    subtitle: 'Tanya jawab langsung sesama member dan tim Zettbos',
+    icon: 'chat',
+    actionType: 'url',
+    target: 'https://t.me/zettbos',
+    badge: 'Telegram',
+    orderIndex: 3
+  },
+  {
+    id: 'qa-4',
+    title: 'Jadwal Konsultasi Mentor',
+    subtitle: 'Sesi privat 1-on-1 pembahasan implementasi web app',
+    icon: 'sparkles',
+    actionType: 'url',
+    target: 'https://wa.me/628123456789',
+    badge: 'VIP',
+    orderIndex: 4
+  }
+];
 
 // 9. CMS LANDING PORTAL: Copywriting resmi dipertahankan, testimoni dummy dikosongkan
 const SEED_LANDING_CMS = {

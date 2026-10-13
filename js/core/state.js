@@ -127,7 +127,7 @@ function initStorage() {
   }
 
   AppState.activity = (storedActivity && typeof storedActivity === 'object') ? storedActivity : { ...seedActivity };
-  AppState.quickActions = Array.isArray(storedQuickActions) ? storedQuickActions : [...seedQuickActions];
+  AppState.quickActions = (Array.isArray(storedQuickActions) && storedQuickActions.length > 0) ? storedQuickActions : [...seedQuickActions];
   AppState.currentUser = storedUser || null;
 
   // Jika user yang tersimpan adalah dummy yang sudah dihapus, ganti ke akun Owner Farhan

@@ -559,15 +559,41 @@ function renderAdminQuickActions() {
         </span>
       </td>
       <td class="py-3 px-4 text-right">
-        <button onclick="openEditQuickActionModal('${qa.id}')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-emerald-400 border border-slate-800 transition-colors inline-flex items-center gap-1.5">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-          <span>Edit</span>
-        </button>
+        <div class="flex items-center justify-end gap-1.5">
+          <button onclick="openEditQuickActionModal('${qa.id}')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-emerald-400 border border-slate-800 transition-colors inline-flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+            <span>Edit</span>
+          </button>
+          <button onclick="deleteQuickAction('${qa.id}')" class="px-2 py-1 rounded-lg text-xs font-semibold bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-800/60 transition-colors" title="Hapus kartu ini">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+          </button>
+        </div>
       </td>
     `;
     tbody.appendChild(tr);
   });
 }
+
+function openAddQuickActionModal() {
+  document.getElementById('edit-qa-id').value = '';
+  document.getElementById('edit-qa-title').value = '';
+  document.getElementById('edit-qa-subtitle').value = '';
+  document.getElementById('edit-qa-icon').value = 'folder';
+  document.getElementById('edit-qa-badge').value = 'Akses';
+  document.getElementById('edit-qa-actiontype').value = 'navigate';
+  document.getElementById('edit-qa-target-url').value = '';
+  document.getElementById('edit-qa-target-view').value = 'resources';
+
+  const titleEl = document.querySelector('#modal-edit-quickaction h3');
+  if (titleEl) titleEl.innerHTML = `
+    <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+    <span>Tambah Kartu Quick Action Hub</span>
+  `;
+
+  toggleQuickActionTargetType();
+  document.getElementById('modal-edit-quickaction').classList.remove('hidden');
+}
+window.openAddQuickActionModal = openAddQuickActionModal;
 
 function openEditQuickActionModal(qaId) {
   const qa = (AppState.quickActions || []).find(a => a.id === qaId);
@@ -579,6 +605,12 @@ function openEditQuickActionModal(qaId) {
   document.getElementById('edit-qa-icon').value = qa.icon || 'folder';
   document.getElementById('edit-qa-badge').value = qa.badge || '';
   document.getElementById('edit-qa-actiontype').value = qa.actionType || 'navigate';
+
+  const titleEl = document.querySelector('#modal-edit-quickaction h3');
+  if (titleEl) titleEl.innerHTML = `
+    <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+    <span>Edit Kartu Quick Action Hub</span>
+  `;
 
   toggleQuickActionTargetType();
 
@@ -618,7 +650,7 @@ function handleSaveQuickActionSubmit(e) {
   const title = document.getElementById('edit-qa-title').value.trim();
   const subtitle = document.getElementById('edit-qa-subtitle').value.trim();
   const icon = document.getElementById('edit-qa-icon').value;
-  const badge = document.getElementById('edit-qa-badge').value.trim();
+  const badge = document.getElementById('edit-qa-badge').value.trim() || 'Akses';
   const actionType = document.getElementById('edit-qa-actiontype').value;
   const target = actionType === 'url'
     ? document.getElementById('edit-qa-target-url').value.trim()
@@ -629,22 +661,86 @@ function handleSaveQuickActionSubmit(e) {
     return;
   }
 
-  const qa = (AppState.quickActions || []).find(a => a.id === id);
-  if (qa) {
-    qa.title = title;
-    qa.subtitle = subtitle;
-    qa.icon = icon;
-    qa.badge = badge;
-    qa.actionType = actionType;
-    qa.target = target;
-
-    saveState();
-    closeEditQuickActionModal();
-    renderAdminQuickActions();
-    if (typeof renderQuickActionHub === 'function') renderQuickActionHub();
-    showToast('Kartu Quick Action berhasil diperbarui!', 'success');
+  if (id) {
+    // Edit existing
+    const qa = (AppState.quickActions || []).find(a => a.id === id);
+    if (qa) {
+      qa.title = title;
+      qa.subtitle = subtitle;
+      qa.icon = icon;
+      qa.badge = badge;
+      qa.actionType = actionType;
+      qa.target = target;
+    }
+  } else {
+    // Add new
+    const newQa = {
+      id: 'qa-' + Date.now(),
+      title: title,
+      subtitle: subtitle,
+      icon: icon,
+      badge: badge,
+      actionType: actionType,
+      target: target,
+      orderIndex: (AppState.quickActions || []).length + 1
+    };
+    if (!Array.isArray(AppState.quickActions)) AppState.quickActions = [];
+    AppState.quickActions.push(newQa);
   }
+
+  saveState();
+
+  // Live Auto-Push ke Supabase Cloud
+  if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+    const payload = AppState.quickActions.map((q, i) => ({
+      id: q.id,
+      title: q.title,
+      subtitle: q.subtitle || '',
+      icon: q.icon || 'folder',
+      badge: q.badge || 'Akses',
+      action_type: q.actionType || 'navigate',
+      target: q.target || '',
+      order_index: i + 1
+    }));
+    ZettSupabase.client.from('quick_actions').upsert(payload, { onConflict: 'id' }).then(({ error }) => {
+      if (error) console.warn('[Supabase QA Save Error]', error);
+    });
+  }
+
+  closeEditQuickActionModal();
+  renderAdminQuickActions();
+  if (typeof renderQuickActionHub === 'function') renderQuickActionHub();
+  showToast(id ? 'Kartu Quick Action berhasil diperbarui!' : 'Quick Action baru berhasil ditambahkan!', 'success');
 }
+window.handleSaveQuickActionSubmit = handleSaveQuickActionSubmit;
+
+function deleteQuickAction(qaId) {
+  const qa = (AppState.quickActions || []).find(a => a.id === qaId);
+  if (!qa) return;
+
+  showCustomConfirm({
+    title: 'Hapus Kartu Quick Action?',
+    message: `Hapus kartu "${qa.title}" dari tampilan Home beranda?`,
+    confirmText: 'Ya, Hapus Kartu',
+    cancelText: 'Batal',
+    isDanger: true,
+    onConfirm: () => {
+      AppState.quickActions = (AppState.quickActions || []).filter(a => a.id !== qaId);
+      saveState();
+
+      if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+        ZettSupabase.client.from('quick_actions').delete().eq('id', qaId).then(({ error }) => {
+          if (error) console.warn('[Supabase QA Delete Error]', error);
+        });
+      }
+
+      renderAdminQuickActions();
+      if (typeof renderQuickActionHub === 'function') renderQuickActionHub();
+      showToast(`Kartu "${qa.title}" berhasil dihapus.`, 'info');
+    }
+  });
+}
+window.deleteQuickAction = deleteQuickAction;
 
 function resetQuickActionsToDefault() {
   showCustomConfirm({
@@ -657,6 +753,21 @@ function resetQuickActionsToDefault() {
       const zData = window.ZettData || {};
       AppState.quickActions = zData.SEED_QUICK_ACTIONS ? JSON.parse(JSON.stringify(zData.SEED_QUICK_ACTIONS)) : [];
       saveState();
+
+      if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+        const payload = AppState.quickActions.map((q, i) => ({
+          id: q.id,
+          title: q.title,
+          subtitle: q.subtitle || '',
+          icon: q.icon || 'folder',
+          badge: q.badge || 'Akses',
+          action_type: q.actionType || 'navigate',
+          target: q.target || '',
+          order_index: i + 1
+        }));
+        ZettSupabase.client.from('quick_actions').upsert(payload, { onConflict: 'id' });
+      }
+
       renderAdminQuickActions();
       if (typeof renderQuickActionHub === 'function') renderQuickActionHub();
       showToast('Quick Action Hub berhasil di-reset ke default!', 'info');
@@ -715,13 +826,14 @@ function renderAdminCurriculum() {
     const opt = document.createElement('option');
     opt.value = mod.id;
     const statusText = mod.isDraft ? '🟡 [DRAFT]' : '🟢 [LIVE]';
-    opt.textContent = `${statusText} ${mod.badge || 'MODUL'}: ${mod.title}`;
+    const pinText = mod.isPinned ? '📌 ' : '';
+    opt.textContent = `${pinText}${statusText} ${mod.badge || 'MODUL'}: ${mod.title}`;
     moduleSelect.appendChild(opt);
 
     if (moduleMoveSelect) {
       const moveOpt = document.createElement('option');
       moveOpt.value = mod.id;
-      moveOpt.textContent = `${statusText} ${mod.title}`;
+      moveOpt.textContent = `${pinText}${statusText} ${mod.title}`;
       moduleMoveSelect.appendChild(moveOpt);
     }
   });
@@ -731,6 +843,21 @@ function renderAdminCurriculum() {
     AppState.adminSelectedModuleId = AppState.modules[0].id;
   }
   moduleSelect.value = AppState.adminSelectedModuleId;
+
+  // Sync Pin button state
+  const pinBtn = document.getElementById('btn-admin-pin-module');
+  if (pinBtn) {
+    const curMod = AppState.modules.find(m => m.id === AppState.adminSelectedModuleId);
+    if (curMod && curMod.isPinned) {
+      pinBtn.innerHTML = '📌 Pinned';
+      pinBtn.className = 'text-[11px] text-amber-300 bg-amber-500/20 hover:bg-amber-500/30 font-bold px-1.5 py-0.5 rounded transition-colors flex items-center gap-0.5 border border-amber-500/40';
+      pinBtn.title = 'Modul ini disematkan di Beranda. Klik untuk melepas sematan.';
+    } else {
+      pinBtn.innerHTML = '📌 Pin';
+      pinBtn.className = 'text-[11px] text-amber-400 hover:text-amber-300 font-semibold px-1 py-0.5 rounded hover:bg-amber-950/60 transition-colors flex items-center gap-0.5';
+      pinBtn.title = 'Sematkan modul ini di bagian atas Beranda';
+    }
+  }
 
   // 2. Render Materi Milik Modul Terpilih ke Tier 2 Select
   renderLessonsForSelectedModule();
@@ -777,6 +904,22 @@ function handleAdminModuleChange(moduleId) {
   if (!moduleId) return;
   AppState.adminSelectedModuleId = moduleId;
   AppState.adminSelectedLessonId = null;
+
+  // Sync Pin button state
+  const pinBtn = document.getElementById('btn-admin-pin-module');
+  if (pinBtn) {
+    const curMod = AppState.modules.find(m => m.id === moduleId);
+    if (curMod && curMod.isPinned) {
+      pinBtn.innerHTML = '📌 Pinned';
+      pinBtn.className = 'text-[11px] text-amber-300 bg-amber-500/20 hover:bg-amber-500/30 font-bold px-1.5 py-0.5 rounded transition-colors flex items-center gap-0.5 border border-amber-500/40';
+      pinBtn.title = 'Modul ini disematkan di Beranda. Klik untuk melepas sematan.';
+    } else {
+      pinBtn.innerHTML = '📌 Pin';
+      pinBtn.className = 'text-[11px] text-amber-400 hover:text-amber-300 font-semibold px-1 py-0.5 rounded hover:bg-amber-950/60 transition-colors flex items-center gap-0.5';
+      pinBtn.title = 'Sematkan modul ini di bagian atas Beranda';
+    }
+  }
+
   renderLessonsForSelectedModule();
 }
 window.handleAdminModuleChange = handleAdminModuleChange;
@@ -917,7 +1060,37 @@ function saveLessonFromEditor(publishToCloud = true) {
 }
 window.saveLessonFromEditor = saveLessonFromEditor;
 
-// Modal Modul Management
+// Modal Modul Management & Cover Presets
+function updateModuleCoverPreview(url) {
+  const preview = document.getElementById('manage-module-cover-preview');
+  const empty = document.getElementById('manage-module-cover-empty');
+  if (!preview || !empty) return;
+  const cleanUrl = (url || '').trim();
+  if (cleanUrl) {
+    preview.src = cleanUrl;
+    preview.classList.remove('hidden');
+    empty.classList.add('hidden');
+    preview.onerror = () => {
+      preview.classList.add('hidden');
+      empty.classList.remove('hidden');
+    };
+  } else {
+    preview.src = '';
+    preview.classList.add('hidden');
+    empty.classList.remove('hidden');
+  }
+}
+window.updateModuleCoverPreview = updateModuleCoverPreview;
+
+function selectPresetModuleCover(url) {
+  const input = document.getElementById('manage-module-cover');
+  if (input) {
+    input.value = url;
+    updateModuleCoverPreview(url);
+  }
+}
+window.selectPresetModuleCover = selectPresetModuleCover;
+
 function openAddModuleModal() {
   document.getElementById('modal-module-title').innerHTML = `
     <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
@@ -927,6 +1100,19 @@ function openAddModuleModal() {
   document.getElementById('manage-module-title').value = '';
   document.getElementById('manage-module-badge').value = `MODUL 0${AppState.modules.length + 1}`;
   document.getElementById('manage-module-desc').value = '';
+
+  const defaultCategory = 'Fundamental & Workflow AI';
+  const categoryInp = document.getElementById('manage-module-category');
+  if (categoryInp) categoryInp.value = defaultCategory;
+
+  const defaultCover = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80';
+  const coverInp = document.getElementById('manage-module-cover');
+  if (coverInp) coverInp.value = defaultCover;
+  updateModuleCoverPreview(defaultCover);
+
+  const pinnedInp = document.getElementById('manage-module-pinned');
+  if (pinnedInp) pinnedInp.checked = false;
+
   document.getElementById('modal-manage-module').classList.remove('hidden');
 }
 window.openAddModuleModal = openAddModuleModal;
@@ -947,9 +1133,42 @@ function openEditModuleModal() {
   document.getElementById('manage-module-title').value = mod.title;
   document.getElementById('manage-module-badge').value = mod.badge || '';
   document.getElementById('manage-module-desc').value = mod.description || '';
+
+  const categoryInp = document.getElementById('manage-module-category');
+  if (categoryInp) categoryInp.value = mod.category || 'Fundamental & Workflow AI';
+
+  const coverInp = document.getElementById('manage-module-cover');
+  if (coverInp) coverInp.value = mod.coverImage || '';
+  updateModuleCoverPreview(mod.coverImage || '');
+
+  const pinnedInp = document.getElementById('manage-module-pinned');
+  if (pinnedInp) pinnedInp.checked = !!mod.isPinned;
+
   document.getElementById('modal-manage-module').classList.remove('hidden');
 }
 window.openEditModuleModal = openEditModuleModal;
+
+function togglePinCurrentModule() {
+  if (!AppState.adminSelectedModuleId) return;
+  const mod = AppState.modules.find(m => m.id === AppState.adminSelectedModuleId);
+  if (!mod) return;
+
+  mod.isPinned = !mod.isPinned;
+  saveState();
+
+  if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+    ZettSupabase.client.from('curriculum_modules').update({
+      is_pinned: !!mod.isPinned
+    }).eq('id', mod.id).then(({ error }) => {
+      if (error) console.warn('[Supabase Module Pin Update, column might not exist yet]', error);
+    });
+  }
+
+  showToast(mod.isPinned ? `Modul "${mod.title}" berhasil disematkan di Beranda!` : `Sematkan modul "${mod.title}" dilepas.`, 'success');
+  renderAdminCurriculum();
+  if (typeof renderPinnedModuleHero === 'function') renderPinnedModuleHero();
+}
+window.togglePinCurrentModule = togglePinCurrentModule;
 
 function closeManageModuleModal() {
   document.getElementById('modal-manage-module')?.classList.add('hidden');
@@ -962,6 +1181,9 @@ function handleSaveModuleSubmit(e, publishToCloud = true) {
   const title = document.getElementById('manage-module-title').value.trim();
   const badge = document.getElementById('manage-module-badge').value.trim() || `MODUL 0${AppState.modules.length + 1}`;
   const desc = document.getElementById('manage-module-desc').value.trim();
+  const category = (document.getElementById('manage-module-category')?.value.trim()) || 'Fundamental & Workflow AI';
+  const cover = (document.getElementById('manage-module-cover')?.value.trim()) || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80';
+  const isPinned = !!document.getElementById('manage-module-pinned')?.checked;
 
   if (!title) {
     showToast('Judul modul wajib diisi', 'error');
@@ -976,6 +1198,9 @@ function handleSaveModuleSubmit(e, publishToCloud = true) {
       targetMod.title = title;
       targetMod.badge = badge;
       targetMod.description = desc;
+      targetMod.category = category;
+      targetMod.coverImage = cover;
+      targetMod.isPinned = isPinned;
       targetMod.isDraft = !publishToCloud;
     }
   } else {
@@ -986,10 +1211,11 @@ function handleSaveModuleSubmit(e, publishToCloud = true) {
       title: title,
       badge: badge,
       description: desc,
-      category: 'ai',
-      coverImage: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80',
+      category: category,
+      coverImage: cover,
       orderIndex: AppState.modules.length + 1,
       isLocked: false,
+      isPinned: isPinned,
       isDraft: !publishToCloud
     };
     AppState.modules.push(targetMod);
@@ -1001,18 +1227,25 @@ function handleSaveModuleSubmit(e, publishToCloud = true) {
   if (publishToCloud) {
     // Live Auto-Push ke Supabase Cloud
     if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected() && targetMod) {
-      ZettSupabase.client.from('curriculum_modules').upsert({
+      const payload = {
         id: targetMod.id,
         title: targetMod.title,
         description: targetMod.description || '',
         category: targetMod.category || 'ai',
         badge: targetMod.badge || 'MODUL',
-        cover_image: targetMod.coverImage || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80',
+        cover_image: targetMod.coverImage,
         order_index: targetMod.orderIndex || 1,
         is_locked: !!targetMod.isLocked,
-        lock_reason: targetMod.lockReason || null
-      }, { onConflict: 'id' }).then(({ error }) => {
-        if (error) console.warn('[Supabase Module Save Error]', error);
+        lock_reason: targetMod.lockReason || null,
+        is_pinned: !!targetMod.isPinned
+      };
+
+      ZettSupabase.client.from('curriculum_modules').upsert(payload, { onConflict: 'id' }).then(({ error }) => {
+        if (error) {
+          // If column is_pinned does not exist in remote DB, fallback safely
+          delete payload.is_pinned;
+          ZettSupabase.client.from('curriculum_modules').upsert(payload, { onConflict: 'id' });
+        }
       });
     }
     showToast(`Modul '${title}' berhasil disimpan & LIVE di Supabase Cloud!`, 'success');
@@ -1022,6 +1255,7 @@ function handleSaveModuleSubmit(e, publishToCloud = true) {
 
   closeManageModuleModal();
   renderAdminCurriculum();
+  if (typeof renderPinnedModuleHero === 'function') renderPinnedModuleHero();
   if (typeof renderLandingCurriculumBento === 'function') renderLandingCurriculumBento();
 }
 window.handleSaveModuleSubmit = handleSaveModuleSubmit;

@@ -80,6 +80,38 @@ class NotionBlockEditor {
     if (this.onChange) this.onChange(this.blocks);
   }
 
+  createFormatToolbar(targetInput) {
+    const bar = document.createElement('div');
+    bar.className = 'flex flex-wrap items-center gap-1 mb-2 pb-1.5 border-b border-slate-800/80 text-[11px]';
+    
+    const label = document.createElement('span');
+    label.className = 'text-[10px] text-slate-500 font-bold uppercase tracking-wider mr-1';
+    label.textContent = 'Format:';
+    bar.appendChild(label);
+
+    const makeBtn = (text, title, prefix, suffix, defaultTxt, btnClass) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = `px-2 py-0.5 rounded text-xs transition-colors flex items-center gap-1 ${btnClass}`;
+      btn.title = title;
+      btn.innerHTML = text;
+      btn.onclick = (e) => {
+        e.preventDefault();
+        applyFormatToInput(targetInput, prefix, suffix, defaultTxt);
+      };
+      return btn;
+    };
+
+    bar.appendChild(makeBtn('<b>B</b>', 'Tebal (Bold: **teks**)', '**', '**', 'teks tebal', 'bg-slate-800 hover:bg-slate-700 text-white font-bold border border-slate-700'));
+    bar.appendChild(makeBtn('<i>I</i>', 'Miring (Italic: *teks*)', '*', '*', 'teks miring', 'bg-slate-800 hover:bg-slate-700 text-slate-200 italic border border-slate-700'));
+    bar.appendChild(makeBtn('🖍️ Kuning', 'Stabilo Neon Kuning (==teks==)', '==', '==', 'stabilo kuning', 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-semibold border border-amber-500/40'));
+    bar.appendChild(makeBtn('🟢 Hijau', 'Stabilo Hijau (==green:teks==)', '==green:', '==', 'stabilo hijau', 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-semibold border border-emerald-500/40'));
+    bar.appendChild(makeBtn('🔵 Cyan', 'Stabilo Cyan (==cyan:teks==)', '==cyan:', '==', 'stabilo cyan', 'bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 font-semibold border border-cyan-500/40'));
+    bar.appendChild(makeBtn('🌸 Pink', 'Stabilo Pink (==pink:teks==)', '==pink:', '==', 'stabilo pink', 'bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-semibold border border-rose-500/40'));
+
+    return bar;
+  }
+
   render() {
     if (!this.container) return;
     this.container.innerHTML = '';
@@ -201,14 +233,18 @@ class NotionBlockEditor {
         const textarea = document.createElement('textarea');
         textarea.rows = 3;
         textarea.value = block.content || '';
-        textarea.placeholder = 'Tulis penjelasan normal di sini... (mendukung enter untuk paragraf baru)';
+        textarea.placeholder = 'Tulis penjelasan normal di sini... (gunakan toolbar format di atas untuk tebal, miring & stabilo)';
         textarea.className = 'w-full bg-transparent text-sm text-slate-300 border-none focus:outline-none focus:ring-1 focus:ring-emerald-500/50 rounded px-1 py-1 resize-y leading-relaxed';
         textarea.oninput = (e) => this.updateBlockContent(index, e.target.value);
+        blockEl.appendChild(this.createFormatToolbar(textarea));
         blockEl.appendChild(textarea);
       } else if (block.type === 'callout') {
         const calloutWrapper = document.createElement('div');
-        calloutWrapper.className = 'flex gap-3 p-3 rounded-lg bg-emerald-950/25 border border-emerald-500/30 text-emerald-200';
-        calloutWrapper.innerHTML = `
+        calloutWrapper.className = 'flex flex-col gap-2 p-3 rounded-lg bg-emerald-950/25 border border-emerald-500/30 text-emerald-200';
+        
+        const topRow = document.createElement('div');
+        topRow.className = 'flex gap-2 items-start';
+        topRow.innerHTML = `
           <div class="mt-0.5 text-emerald-400">
             <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
           </div>
@@ -219,7 +255,10 @@ class NotionBlockEditor {
         textarea.placeholder = 'Ketik isi tips / catatan penting di sini...';
         textarea.className = 'w-full bg-transparent text-sm text-emerald-200 placeholder-emerald-500/60 border-none focus:outline-none focus:ring-1 focus:ring-emerald-400/40 rounded px-1 py-0.5 resize-y';
         textarea.oninput = (e) => this.updateBlockContent(index, e.target.value);
-        calloutWrapper.appendChild(textarea);
+        topRow.appendChild(textarea);
+        
+        calloutWrapper.appendChild(this.createFormatToolbar(textarea));
+        calloutWrapper.appendChild(topRow);
         blockEl.appendChild(calloutWrapper);
       } else if (block.type === 'code') {
         const codeWrapper = document.createElement('div');
@@ -315,14 +354,13 @@ function renderBlocksToHtml(blocks) {
 
   blocks.forEach(block => {
     if (block.type === 'h1') {
-      html += `<h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mt-6 mb-3 border-b border-slate-800/80 pb-3">${escapeHtml(block.content)}</h1>`;
+      html += `<h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mt-6 mb-3 border-b border-slate-800/80 pb-3">${formatRichText(block.content)}</h1>`;
     } else if (block.type === 'h2') {
-      html += `<h2 class="text-xl sm:text-2xl font-bold text-slate-100 tracking-tight mt-6 mb-2">${escapeHtml(block.content)}</h2>`;
+      html += `<h2 class="text-xl sm:text-2xl font-bold text-slate-100 tracking-tight mt-6 mb-2">${formatRichText(block.content)}</h2>`;
     } else if (block.type === 'h3') {
-      html += `<h3 class="text-lg font-semibold text-slate-200 mt-4 mb-2">${escapeHtml(block.content)}</h3>`;
+      html += `<h3 class="text-lg font-semibold text-slate-200 mt-4 mb-2">${formatRichText(block.content)}</h3>`;
     } else if (block.type === 'text') {
-      const formatted = escapeHtml(block.content).replace(/\n/g, '<br/>');
-      html += `<p class="leading-relaxed text-slate-300 text-sm sm:text-base">${formatted}</p>`;
+      html += `<p class="leading-relaxed text-slate-300 text-sm sm:text-base">${formatRichText(block.content)}</p>`;
     } else if (block.type === 'callout') {
       html += `
         <div class="my-4 p-4 rounded-lg bg-emerald-950/30 border border-emerald-500/30 flex gap-3.5 items-start shadow-sm">
@@ -330,7 +368,7 @@ function renderBlocksToHtml(blocks) {
             <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
           </div>
           <div class="text-sm leading-relaxed text-emerald-200 font-medium">
-            ${escapeHtml(block.content).replace(/\n/g, '<br/>')}
+            ${formatRichText(block.content)}
           </div>
         </div>
       `;
@@ -384,6 +422,52 @@ function renderBlocksToHtml(blocks) {
   html += '</div>';
   return html;
 }
+
+function formatRichText(text) {
+  if (!text) return '';
+  let str = escapeHtml(text);
+
+  // 1. Stabilo / Highlighter (Multi-color background)
+  // Green / Hijau: ==green:text== atau ==hijau:text==
+  str = str.replace(/==(?:green|hijau):([\s\S]+?)==/gi, '<mark class="bg-emerald-500/25 text-emerald-200 px-1.5 py-0.5 rounded border border-emerald-500/40 font-medium">$1</mark>');
+  // Cyan / Biru: ==cyan:text== atau ==biru:text==
+  str = str.replace(/==(?:cyan|biru):([\s\S]+?)==/gi, '<mark class="bg-cyan-500/25 text-cyan-200 px-1.5 py-0.5 rounded border border-cyan-500/40 font-medium">$1</mark>');
+  // Pink / Rose: ==pink:text== atau ==rose:text==
+  str = str.replace(/==(?:pink|rose):([\s\S]+?)==/gi, '<mark class="bg-rose-500/25 text-rose-200 px-1.5 py-0.5 rounded border border-rose-500/40 font-medium">$1</mark>');
+  // Purple / Ungu: ==purple:text== atau ==ungu:text==
+  str = str.replace(/==(?:purple|ungu):([\s\S]+?)==/gi, '<mark class="bg-purple-500/25 text-purple-200 px-1.5 py-0.5 rounded border border-purple-500/40 font-medium">$1</mark>');
+  // Standard Neon Yellow Stabilo: ==text==
+  str = str.replace(/==([\s\S]+?)==/g, '<mark class="bg-amber-400/30 text-amber-200 px-1.5 py-0.5 rounded border border-amber-400/40 font-medium shadow-sm">$1</mark>');
+
+  // 2. Bold: **text**
+  str = str.replace(/\*\*([\s\S]+?)\*\*/g, '<strong class="font-bold text-white">$1</strong>');
+
+  // 3. Italic: *text* (excluding already formatted)
+  str = str.replace(/(^|[^*])\*(?!\*)([^*]+?)\*(?!\*)/g, '$1<em class="italic text-slate-100">$2</em>');
+
+  // 4. Line break support
+  str = str.replace(/\n/g, '<br/>');
+
+  return str;
+}
+window.formatRichText = formatRichText;
+
+function applyFormatToInput(inputOrTextarea, prefix, suffix, defaultText) {
+  if (!inputOrTextarea) return;
+  const start = inputOrTextarea.selectionStart;
+  const end = inputOrTextarea.selectionEnd;
+  const text = inputOrTextarea.value;
+  const selected = text.substring(start, end);
+  const insertContent = selected || defaultText;
+  const replacement = prefix + insertContent + suffix;
+  inputOrTextarea.value = text.substring(0, start) + replacement + text.substring(end);
+  inputOrTextarea.focus();
+  const selectStart = start + prefix.length;
+  const selectEnd = selectStart + insertContent.length;
+  inputOrTextarea.setSelectionRange(selectStart, selectEnd);
+  inputOrTextarea.dispatchEvent(new Event('input', { bubbles: true }));
+}
+window.applyFormatToInput = applyFormatToInput;
 
 function escapeHtml(text) {
   if (!text) return '';

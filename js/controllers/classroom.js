@@ -58,6 +58,151 @@ function executeQuickAction(id) {
 }
 
 // ==========================================
+// 1.5. PINNED MODULE HERO (ADMIN FEATURED)
+// ==========================================
+
+function renderPinnedModuleHero() {
+  const container = document.getElementById('dash-pinned-module-container');
+  if (!container) return;
+
+  const user = AppState.currentUser;
+  const isSuperAdmin = user && user.role === 'admin' && user.email?.toLowerCase() === 'zettbos2025@gmail.com';
+  const userCompletedLessonIds = (user && AppState.progress[user.email]) ? AppState.progress[user.email] : [];
+
+  // Find pinned module (visible to students if published, or to super admin)
+  const pinnedMod = AppState.modules.find(m => m.isPinned && (isSuperAdmin || !m.isDraft));
+
+  if (!pinnedMod) {
+    container.innerHTML = '';
+    container.classList.add('hidden');
+    return;
+  }
+
+  container.classList.remove('hidden');
+
+  const moduleLessons = AppState.lessons
+    .filter(l => l.moduleId === pinnedMod.id && (isSuperAdmin || !l.isDraft))
+    .sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0));
+
+  const completedCount = moduleLessons.filter(l => userCompletedLessonIds.includes(l.id)).length;
+  const totalMinutes = moduleLessons.reduce((acc, l) => acc + (l.durationMinutes || 15), 0);
+  const percent = moduleLessons.length > 0 ? Math.round((completedCount / moduleLessons.length) * 100) : 0;
+  
+  const targetLessonId = (completedCount > 0 
+    ? (moduleLessons.find(l => !userCompletedLessonIds.includes(l.id)) || moduleLessons[0])?.id 
+    : moduleLessons[0]?.id);
+
+  const coverImg = pinnedMod.coverImage || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80';
+
+  container.innerHTML = `
+    <div 
+      onclick="${targetLessonId ? `navigate('learn', { lessonId: '${targetLessonId}' })` : `showToast('Modul ini belum memiliki materi', 'info')`}"
+      class="relative overflow-hidden rounded-3xl p-5 sm:p-7 bg-gradient-to-br from-slate-900/95 via-slate-950/90 to-slate-900/95 border border-emerald-500/40 shadow-2xl shadow-emerald-950/30 group cursor-pointer hover:border-emerald-500/70 hover:shadow-emerald-500/10 transition-all duration-300"
+    >
+      <!-- Background Ambient Glow -->
+      <div class="absolute -top-20 -right-20 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-emerald-500/15 transition-all"></div>
+      <div class="absolute -bottom-20 -left-20 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <!-- Top Header Badge -->
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-5 relative z-10 border-b border-slate-800/80 pb-3.5">
+        <div class="flex items-center gap-2">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase bg-amber-500/15 text-amber-300 border border-amber-500/40 shadow-sm animate-pulse">
+            <svg class="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+            <span>MODUL UNGGULAN PILIHAN MENTOR</span>
+          </span>
+          <span class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-900/90 text-cyan-400 border border-cyan-500/30">
+            ${escapeHtml(pinnedMod.badge || 'MODUL UTAMA')}
+          </span>
+        </div>
+
+        <div class="flex items-center gap-2 text-xs font-mono text-slate-400">
+          <span class="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-emerald-400 font-bold">
+            ${completedCount}/${moduleLessons.length} Materi Selesai (${percent}%)
+          </span>
+        </div>
+      </div>
+
+      <!-- Center Content: Grid with Large Cover Image & Detailed Information -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center relative z-10">
+        <!-- Big Cover Image Showcase -->
+        <div class="lg:col-span-5 relative">
+          <div class="relative w-full aspect-video rounded-2xl overflow-hidden border border-slate-700/80 bg-slate-950 group-hover:border-emerald-500/50 transition-all shadow-xl">
+            <img 
+              src="${coverImg}" 
+              alt="${escapeHtml(pinnedMod.title)}" 
+              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-90 group-hover:opacity-100"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
+            
+            <!-- Category Chip on Image -->
+            <div class="absolute top-3 left-3">
+              <span class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-950/80 backdrop-blur-md text-emerald-300 border border-emerald-500/40 shadow">
+                ${escapeHtml(pinnedMod.category || 'Fundamental AI')}
+              </span>
+            </div>
+
+            <!-- Big Floating Play Badge -->
+            <div class="absolute inset-0 flex items-center justify-center">
+              <div class="w-14 h-14 rounded-full bg-emerald-500/90 text-slate-950 flex items-center justify-center shadow-2xl group-hover:scale-110 group-hover:bg-emerald-400 transition-all duration-300">
+                <svg class="w-7 h-7 ml-1 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              </div>
+            </div>
+
+            <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between text-[11px] font-mono text-slate-300">
+              <span class="bg-slate-950/80 px-2 py-0.5 rounded border border-slate-800">${moduleLessons.length} Video Materi</span>
+              <span class="bg-slate-950/80 px-2 py-0.5 rounded border border-slate-800">${totalMinutes} Menit Total</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Side: Title, Description, Lessons Highlight & Call to Action -->
+        <div class="lg:col-span-7 flex flex-col justify-between space-y-4">
+          <div>
+            <div class="text-xs font-semibold text-emerald-400 uppercase tracking-caps mb-1.5 flex items-center gap-1.5">
+              <span>★ Rekomendasi Utama Zettbos Academy</span>
+            </div>
+            <h2 class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white group-hover:text-emerald-400 transition-colors leading-tight mb-2.5">
+              ${escapeHtml(pinnedMod.title)}
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-300 line-clamp-3 leading-relaxed mb-4">
+              ${escapeHtml(pinnedMod.description || 'Modul kurikulum unggulan yang disematkan langsung oleh mentor Zettbos. Tonton materi video dan pelajari studi kasusnya langkah demi langkah.')}
+            </p>
+
+            <!-- Micro Quick Lessons Preview -->
+            ${moduleLessons.length > 0 ? `
+              <div class="surface-well p-2 rounded-xl mb-4 max-h-28 overflow-y-auto custom-scrollbar space-y-1">
+                ${moduleLessons.slice(0, 3).map((l, i) => `
+                  <div class="flex items-center justify-between text-xs py-1 px-2 rounded hover:bg-slate-800/60 text-slate-300">
+                    <span class="truncate">${i + 1}. ${escapeHtml(l.title)}</span>
+                    <span class="text-[10px] text-slate-500 font-mono flex-shrink-0">${l.durationMinutes || 15}m</span>
+                  </div>
+                `).join('')}
+                ${moduleLessons.length > 3 ? `<div class="text-[11px] text-slate-500 italic px-2">+ ${moduleLessons.length - 3} materi lainnya di modul ini</div>` : ''}
+              </div>
+            ` : ''}
+          </div>
+
+          <!-- Bottom Action Buttons inside Card -->
+          <div class="flex flex-wrap items-center gap-3 pt-2">
+            <button 
+              onclick="event.stopPropagation(); ${targetLessonId ? `navigate('learn', { lessonId: '${targetLessonId}' })` : `showToast('Modul ini belum memiliki materi', 'info')`}" 
+              class="btn-primary-action px-6 py-3 rounded-xl text-xs sm:text-sm font-bold shadow-lg shadow-emerald-950/50 flex items-center gap-2 group-hover:scale-[1.02] transition-transform"
+            >
+              <span>${completedCount > 0 ? 'Lanjutkan Belajar Modul Ini' : 'Mulai Belajar Modul Ini Sekarang'}</span>
+              <svg class="w-4 h-4 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            </button>
+            <span class="text-xs text-slate-400 italic">
+              Klik di mana saja pada kartu ini untuk langsung masuk modul.
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+window.renderPinnedModuleHero = renderPinnedModuleHero;
+
+// ==========================================
 // 2. CURRICULUM MODULE CATALOG & FILTERING
 // ==========================================
 
@@ -69,13 +214,26 @@ function renderModuleCategoryPills() {
   const isSuperAdmin = user && user.role === 'admin' && user.email?.toLowerCase() === 'zettbos2025@gmail.com';
   const visibleModules = AppState.modules.filter(m => isSuperAdmin || !m.isDraft);
 
+  // Extract unique categories dynamically from visible modules
+  const rawCategories = visibleModules
+    .map(m => (m.category || '').trim())
+    .filter(cat => cat.length > 0);
+  const uniqueCategories = Array.from(new Set(rawCategories));
+
+  // Build categories array with "all" as first option
   const categories = [
     { key: 'all', label: 'Semua Modul', count: visibleModules.length },
-    { key: 'ai', label: 'Fundamental & Workflow AI', count: visibleModules.filter(m => m.category === 'ai').length },
-    { key: 'gas', label: 'Google Apps Script & Sheets', count: visibleModules.filter(m => m.category === 'gas').length },
-    { key: 'webhook', label: 'Webhook & Otomasi Lanjutan', count: visibleModules.filter(m => m.category === 'webhook').length },
-    { key: 'cloud', label: 'Deploy Cloud & Produksi', count: visibleModules.filter(m => m.category === 'cloud').length }
+    ...uniqueCategories.map(cat => ({
+      key: cat,
+      label: cat,
+      count: visibleModules.filter(m => (m.category || '').trim() === cat).length
+    }))
   ];
+
+  // If active filter is not in list and not 'all', revert to 'all'
+  if (AppState.activeModuleCategory !== 'all' && !uniqueCategories.includes(AppState.activeModuleCategory)) {
+    AppState.activeModuleCategory = 'all';
+  }
 
   container.innerHTML = categories.map(cat => {
     const isActive = AppState.activeModuleCategory === cat.key;
@@ -83,12 +241,13 @@ function renderModuleCategoryPills() {
       ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/50 font-bold shadow-sm' 
       : 'bg-[var(--surface-subtle)] text-[var(--fg-muted)] hover:text-[var(--fg)] hover:bg-[var(--surface-hover)] border-[var(--border)] font-medium';
 
+    const safeKey = cat.key.replace(/'/g, "\\'");
     return `
       <button 
-        onclick="setModuleCategory('${cat.key}')" 
+        onclick="setModuleCategory('${safeKey}')" 
         class="px-3 py-1.5 rounded-lg text-xs border transition-all flex items-center gap-1.5 ${activeClass}"
       >
-        <span>${cat.label}</span>
+        <span>${escapeHtml(cat.label)}</span>
         <span class="text-[10px] font-mono px-1 rounded ${isActive ? 'bg-emerald-500/20 text-emerald-300' : 'bg-[var(--surface)] text-[var(--fg-muted)]'}">
           ${cat.count}
         </span>
@@ -138,7 +297,7 @@ function renderModuleCatalogGrid() {
     // Non-admin (siswa) hanya melihat modul yang sudah dipublikasikan (bukan draft)
     if (!isSuperAdmin && mod.isDraft) return false;
 
-    if (AppState.activeModuleCategory !== 'all' && mod.category !== AppState.activeModuleCategory) {
+    if (AppState.activeModuleCategory !== 'all' && (mod.category || '').trim() !== AppState.activeModuleCategory) {
       return false;
     }
     if (AppState.moduleSearchQuery) {
@@ -208,8 +367,24 @@ function renderModuleCatalogGrid() {
     const totalMinutes = moduleLessons.reduce((acc, l) => acc + (l.durationMinutes || 15), 0);
     const completionPercent = moduleLessons.length > 0 ? Math.round((modCompleted / moduleLessons.length) * 100) : 0;
 
+    const targetLessonId = (modCompleted > 0 
+      ? (moduleLessons.find(l => !userCompletedLessonIds.includes(l.id)) || moduleLessons[0])?.id 
+      : moduleLessons[0]?.id);
+
     const card = document.createElement('div');
-    card.className = 'glass-card glass-card-translucent rounded-2xl overflow-hidden flex flex-col justify-between group transition-all duration-200 border border-[var(--border)] hover:border-[var(--border-strong)]';
+    card.className = 'glass-card glass-card-translucent rounded-2xl overflow-hidden flex flex-col justify-between group transition-all duration-300 border border-[var(--border)] hover:border-emerald-500/50 cursor-pointer hover:shadow-xl hover:-translate-y-1';
+
+    card.onclick = () => {
+      if (mod.isLocked) {
+        showToast(mod.lockReason || 'Modul terkunci', 'info');
+        return;
+      }
+      if (targetLessonId) {
+        navigate('learn', { lessonId: targetLessonId });
+      } else {
+        showToast('Modul ini belum memiliki materi', 'info');
+      }
+    };
 
     card.innerHTML = `
       <div>
@@ -294,22 +469,22 @@ function renderModuleCatalogGrid() {
         </span>
 
         ${mod.isLocked ? `
-          <button onclick="showToast('${escapeHtml(mod.lockReason || 'Modul terkunci')}', 'info')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--surface-subtle)] text-slate-500 border border-[var(--border)] flex items-center gap-1.5">
+          <button onclick="event.stopPropagation(); showToast('${escapeHtml(mod.lockReason || 'Modul terkunci')}', 'info')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--surface-subtle)] text-slate-500 border border-[var(--border)] flex items-center gap-1.5">
             <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
             <span>Terkunci</span>
           </button>
         ` : (isModFullyCompleted ? `
-          <button onclick="navigate('learn', { lessonId: '${moduleLessons[0]?.id}' })" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/40 hover:bg-emerald-500/25 flex items-center gap-1.5 transition-colors">
+          <button onclick="event.stopPropagation(); navigate('learn', { lessonId: '${moduleLessons[0]?.id}' })" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/40 hover:bg-emerald-500/25 flex items-center gap-1.5 transition-colors">
             <span>Ulas Modul</span>
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
           </button>
         ` : (modCompleted > 0 ? `
-          <button onclick="navigate('learn', { lessonId: '${(moduleLessons.find(l => !userCompletedLessonIds.includes(l.id)) || moduleLessons[0])?.id}' })" class="btn-primary-action px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5">
+          <button onclick="event.stopPropagation(); navigate('learn', { lessonId: '${(moduleLessons.find(l => !userCompletedLessonIds.includes(l.id)) || moduleLessons[0])?.id}' })" class="btn-primary-action px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5">
             <span>Lanjutkan</span>
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
           </button>
         ` : `
-          <button onclick="navigate('learn', { lessonId: '${moduleLessons[0]?.id}' })" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--surface-subtle)] hover:bg-[var(--surface-hover)] text-[var(--fg)] border border-[var(--border)] flex items-center gap-1.5 transition-colors">
+          <button onclick="event.stopPropagation(); navigate('learn', { lessonId: '${moduleLessons[0]?.id}' })" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--surface-subtle)] hover:bg-[var(--surface-hover)] text-[var(--fg)] border border-[var(--border)] flex items-center gap-1.5 transition-colors">
             <span>Masuk Modul</span>
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
           </button>
@@ -419,6 +594,7 @@ function renderHome() {
   }
 
   renderQuickActionHub();
+  renderPinnedModuleHero();
   renderModuleCategoryPills();
   renderModuleCatalogGrid();
 }

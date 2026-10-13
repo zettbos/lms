@@ -1,76 +1,80 @@
-# ZETTBOS MEMBER HUB - DOKUMEN REVISI AKTIF (REVISI 39)
+# ZETTBOS MEMBER HUB - DOKUMEN REVISI AKTIF (REVISI 40)
 ================================================================================
 STATUS: SUKSES DITERAPKAN (READY TO PUSH TO GITHUB & VERCEL)
-FOKUS: 1. DUAL SAVE MODE: SIMPAN KE SUPABASE (CLOUD LIVE) VS SIMPAN DRAFT (LOKAL)
-       2. TOMBOL "SIMPAN DRAFT" & "SIMPAN KE CLOUD" DI TIER 2 EDITOR KURIKULUM
-       3. DUAL ACTION BUTTON DI MODAL TAMBAH/EDIT MODUL & MODAL TAMBAH MATERI
-       4. INDIKATOR STATUS VISUAL [DRAFT] & [LIVE] DI DROPDOWN & EDITOR BADGE
-       5. FILTER SISWA & LANDING: DRAFT TIDAK TAMPIL DI KATALOG SISWA/GUEST
+FOKUS: 1. CARD CLICKABILITY: SELURUH AREA KARTU MODUL DAPAT DIKLIK LANGSUNG
+       2. HERO CARD MODUL PINNED DI ATAS KATALOG DENGAN GAMBAR BESAR DI TENGAH
+       3. INPUT GAMBAR COVER MODUL (PREVIEW LIVE & 4 PRESET GRADIENT/WALLPAPER)
+       4. PENGELOLA QUICK ACTION HUB DI PANEL ADMIN (BISA DITAMBAH, DIUBAH, DIHAPUS)
+       5. INPUT FORM KATEGORI MODUL & FILTER PILLS DINAMIS DARI KATEGORI ASLI
+       6. FORMAT RICH TEXT PADA BLOK MATERI (BOLD, ITALIC, STABILO/HIGHLIGHT MULTI-WARNA)
 ================================================================================
 
 ## 1. LATAR BELAKANG & PERMINTAAN USER:
 **Instruksi Pengguna:**
-> *"gw mau kalau simpan itu = masuk ke supabase, tapi ada juga tombol draft = belum masuk ke supabase"*
-
-### Ekspektasi Alur:
-1. **Tombol "Simpan ke Cloud" (Publikasikan):**
-   - Modul/materi ditandai sebagai `isDraft: false`.
-   - Data otomatis diunggah langsung (upsert) ke tabel Supabase Cloud (`curriculum_modules` / `curriculum_lessons`).
-   - Konten detik itu juga LIVE dan dapat diakses oleh semua member/siswa di seluruh perangkat.
-2. **Tombol "Simpan Draft" (Draf Lokal):**
-   - Modul/materi ditandai sebagai `isDraft: true`.
-   - Data disimpan HANYA di `localStorage` browser milik Admin.
-   - **TIDAK DIKIRIM KE SUPABASE** (tidak menyentuh cloud sama sekali).
-   - Siswa lain dan pengunjung landing page TIDAK BISA melihat modul/materi draf ini.
+> *"gambar 1: gw pengen untuk tombol2 card seperti ini bisa diklik seluruh cardnya untuk masuk, jangan cuma mengandalkan 1 tombol"*
+> *"gambar 2: di atas katalog modul pembelajaran gw mau ada modul yang di pin admin munculin disitu, jadi biar semua orang liat itu dulu. Gw mau lu bikin yg gede disitu dan taruh di tengah, ada gambarnya juga, btw di awal waktu bikin modul belum bisa masukin gambar untuk modulnya"*
+> *"gambar 3: quick action belum bisa diganti2"*
+> *"gambar 4: untuk filter gw mau gw sesuai yang kita buat di awal bikin modul, jadi nanti lu tambahin 1 form untuk input bagian kategori untuk difilter nantinya"*
+> *"- gw juga mau bikin modul ini bisa bikin tulisan bold, italic, dan bisa diwarnain belakangnya (seperti distabilo)"*
 
 ---
 
 ## 2. DETAIL IMPLEMENTASI & PERUBAHAN:
 
-### A. Tier 2 Curriculum Editor Bar (`index.html` & `admin.js`):
-1. **Pemisahan Tombol Aksi:**
-   - Tombol tunggal sebelumnya dipecah menjadi dua tombol berdampingan:
-     - **[Simpan Draft]** (`saveLessonFromEditor(false)`): Warna aksen Amber (`bg-amber-500/10 text-amber-300 border-amber-500/30`), menyimpan perubahan blok Notion & YouTube secara lokal tanpa push ke Supabase.
-     - **[Simpan ke Cloud]** (`saveLessonFromEditor(true)`): Warna Emerald Glow (`btn-primary-action`), menyimpan lokal sekaligus melakukan upsert live ke Supabase Cloud `curriculum_lessons`.
-2. **Badge Status Interaktif (`#admin-lesson-status-badge`):**
-   - Ditambahkan tepat di atas input judul materi:
-     - `🟡 DRAFT LOKAL`: jika materi berstatus draf.
-     - `🟢 LIVE SUPABASE`: jika materi telah dipublikasikan ke Cloud.
+### A. Gambar 1: Full Card Clickability pada Katalog Modul (`classroom.js`)
+- Sebelumnya hanya tombol kecil "Masuk Modul" / "Lanjutkan" di pojok kanan bawah yang bisa diklik.
+- Sekarang, seluruh container kartu modul (`glass-card`) diberi class `cursor-pointer hover:border-emerald-500/50 hover:shadow-xl hover:-translate-y-1` dan event `onclick` langsung membuka materi pertama atau melanjutkan materi terakhir yang belum selesai.
+- Event `stopPropagation()` disematkan pada bookmark toggle dan item link list pelajaran di dalam kartu agar aksi independen tetap berjalan mulus tanpa konflik klik.
 
-### B. Modal Tambah & Edit Modul (`#modal-manage-module`):
-- Footer modal kini memiliki dua opsi submit:
-  - **[Simpan Draft]** (`handleSaveModuleSubmit(event, false)`): Menyimpan bab modul dengan `isDraft: true`, tidak dikirim ke Supabase.
-  - **[Simpan ke Cloud]** (`handleSaveModuleSubmit(event, true)`): Menyimpan dan langsung mengunggah ke tabel `curriculum_modules` Supabase.
+### B. Gambar 2: Hero Modul Pinned di Atas Katalog & Input Cover Gambar (`index.html`, `classroom.js`, `admin.js`)
+1. **Container Pinned Module Hero (`#dash-pinned-module-container`):**
+   - Diletakkan tepat di atas section "Katalog Modul Pembelajaran" di halaman Beranda.
+   - Ditampilkan dalam format Hero Card berukuran besar di tengah dengan gradien neon Slate-Emerald, badge berkedip `📌 MODUL UNGGULAN PILIHAN MENTOR`, dan thumbnail cover aspect-video beresolusi tinggi dengan tombol floating play overlay.
+   - Menampilkan total video, durasi menit, ringkasan 3 materi awal, persentase progres, dan tombol utama `[Mulai Belajar Modul Ini Sekarang]`.
+   - Seluruh hero card dapat diklik untuk langsung melompat ke ruang belajar.
+2. **Input Cover Gambar & Preset di Modal Tambah/Edit Modul (`#modal-manage-module`):**
+   - Menambahkan input teks URL gambar `#manage-module-cover`.
+   - Box Live Image Preview interaktif (`#manage-module-cover-preview`) yang langsung memperlihatkan gambar saat URL diketik atau dipilih.
+   - 4 tombol preset instan siap pakai: `🎨 Gradient AI`, `💻 Code Neon`, `⚡ Matrix Dark`, `🌐 Cloud Hub`.
+3. **Pinning Toggle Admin:**
+   - Checkbox `📌 Sematkan / Pin Modul ini di Bagian Paling Atas Beranda` pada modal modul.
+   - Tombol shortcut instan `[📌 Pin]` di Tier 1 bar admin panel untuk menyematkan/melepas sematan modul dengan 1 klik.
+   - Ditandai dengan ikon `📌 ` pada dropdown modul admin.
 
-### C. Modal Tambah Materi Baru (`#modal-add-lesson`):
-- Footer modal menyediakan dua opsi:
-  - **[Simpan Draft]** (`handleSaveAddLessonSubmit(event, false)`): Menambahkan materi ke modul terpilih dengan `isDraft: true` tanpa push ke Supabase.
-  - **[Simpan ke Cloud]** (`handleSaveAddLessonSubmit(event, true)`): Menambahkan materi dan langsung mengunggah ke tabel `curriculum_lessons` Supabase.
+### C. Gambar 3: Pengelola Quick Action Hub Aktif di Panel Admin (`mock-data.js`, `state.js`, `admin.js`, `index.html`)
+- `SEED_QUICK_ACTIONS` diisi 4 aksi cepat standar resmi Zettbos sehingga tabel tidak pernah kosong lagi.
+- `AppState.quickActions` otomatis memuat aksi default jika penyimpanan lokal kosong.
+- Tombol `[+ Tambah Quick Action]` di header tabel pengelola Quick Action.
+- Fungsi lengkap CRUD: `openAddQuickActionModal()`, `openEditQuickActionModal()`, `deleteQuickAction()`, dan sinkronisasi live dua arah dengan tabel `quick_actions` di Supabase Cloud.
 
-### D. Indikator Status di Dropdown Panel Admin (`admin.js`):
-- Pilihan modul kurikulum (`#admin-module-select`) otomatis diberi label:
-  - `🟡 [DRAFT] MODUL 01: Judul Modul`
-  - `🟢 [LIVE] MODUL 01: Judul Modul`
-- Pilihan materi pembelajaran (`#admin-lesson-select`) otomatis diberi label:
-  - `🟡 [DRAFT] Judul Materi`
-  - `🟢 [LIVE] Judul Materi`
+### D. Gambar 4: Form Kategori Modul & Filter Pill Dinamis (`index.html`, `classroom.js`, `admin.js`)
+1. **Input Kategori di Modal Modul:**
+   - Ditambahkan field input `#manage-module-category` lengkap dengan `<datalist>` saran kategori (misal: "Fundamental & Workflow AI", "Google Apps Script & Sheets", "Webhook & Otomasi Lanjutan", "Deploy Cloud & Produksi", dll.) atau admin bebas mengetik kategori baru sesukanya.
+2. **Filter Pills Dinamis di Beranda Siswa:**
+   - `renderModuleCategoryPills()` tidak lagi menggunakan daftar statis/hardcoded.
+   - Sistem secara dinamis mengekstrak seluruh kategori unik yang ada pada modul (`visibleModules`) dan menghitung jumlah modul di setiap kategori secara akurat.
+   - Setiap kategori baru yang dibuat admin otomatis memunculkan tombol pill filter di Beranda.
 
-### E. Perlindungan Privasi Draf untuk Siswa & Guest (`classroom.js` & `landing.js`):
-1. **Katalog Modul Siswa (`classroom.js`):**
-   - Pengguna non-admin (siswa) hanya melihat modul dan materi berstatus `!mod.isDraft` dan `!l.isDraft`.
-2. **Ruang Belajar & Sidebar Silabus (`classroom.js`):**
-   - Jika siswa mencoba mengakses link materi yang masih berupa draf, sistem menampilkan peringatan *"Materi ini masih berupa draf dan belum dipublikasikan oleh mentor ke Supabase"* dan mengembalikan ke beranda.
-3. **Bento Box Kurikulum di Landing Page (`landing.js`):**
-   - Hanya menampilkan modul dan materi resmi yang sudah live di Supabase.
+### E. Rich Text Formatting & Stabilo (Highlighter) pada Modul Materi (`editor.js`)
+1. **Parser Sintaks `formatRichText(text)`:**
+   - **Tebal / Bold**: `**teks**` -> `<strong class="font-bold text-white">teks</strong>`
+   - **Miring / Italic**: `*teks*` -> `<em class="italic text-slate-100">teks</em>`
+   - **Stabilo Neon Kuning**: `==teks==` -> `<mark class="bg-amber-400/30 text-amber-200 px-1.5 py-0.5 rounded border border-amber-400/40">teks</mark>`
+   - **Stabilo Hijau Neon**: `==green:teks==` / `==hijau:teks==` -> `<mark class="bg-emerald-500/25 text-emerald-200 px-1.5 py-0.5 rounded">`
+   - **Stabilo Cyan Neon**: `==cyan:teks==` / `==biru:teks==` -> `<mark class="bg-cyan-500/25 text-cyan-200 px-1.5 py-0.5 rounded">`
+   - **Stabilo Pink**: `==pink:teks==` -> `<mark class="bg-rose-500/25 text-rose-200 px-1.5 py-0.5 rounded">`
+   - **Stabilo Ungu**: `==purple:teks==` -> `<mark class="bg-purple-500/25 text-purple-200 px-1.5 py-0.5 rounded">`
+2. **Toolbar Formatting Interaktif di Notion Block Editor:**
+   - Pada setiap blok teks dan callout tips, disediakan tombol toolbar cepat:
+     `[B]`, `[I]`, `[🖍️ Kuning]`, `[🟢 Hijau]`, `[🔵 Cyan]`, `[🌸 Pink]`.
+   - Mengklik tombol akan otomatis membungkus teks yang sedang diseleksi (highlight) atau menyisipkan template format di posisi kursor secara langsung dengan live preview update seketika!
 
-### F. Ketahanan Sinkronisasi Cloud (`supabase.js`):
-1. **`syncCurriculumToCloudLive()`**:
-   - Hanya mengunggah data yang BUKAN draf (`!m.isDraft` dan `!l.isDraft`). Draf lokal tetap aman di browser admin dan tidak bocor ke cloud.
-2. **`syncCurriculumFromCloud()`**:
-   - Saat sinkronisasi otomatis dari cloud dijalankan, sistem secara cerdas mempertahankan draf lokal admin yang belum dipublikasikan agar tidak terhapus.
+### F. Sinkronisasi Skema Supabase (`schema.sql` & `supabase.js`)
+- Menambahkan kolom `is_pinned BOOLEAN DEFAULT false` pada tabel `curriculum_modules`.
+- Fungsi `upsert` Supabase dilengkapi graceful fallback otomatis jika kolom `is_pinned` belum di-execute di dashboard remote pengguna.
 
-### G. Cache Buster Versi 38:
-- Seluruh tag script di [`index.html`](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/index.html) dinaikkan ke `?v=38` agar browser pengguna langsung memuat fitur terbaru tanpa hambatan cache.
+### G. Cache Buster Versi 40:
+- Seluruh skrip di `index.html` dinaikkan versinya ke `?v=40` untuk memastikan pembaruan langsung aktif di browser.
 
 ================================================================================
 SIAP DI-PUSH KE GITHUB & VERCEL VIA TERMINAL
