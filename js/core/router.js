@@ -36,13 +36,13 @@ function updateDrawerState() {
   const drawerUserRole = document.getElementById('drawer-user-role');
   const drawerAdminSec = document.getElementById('drawer-admin-section');
   if (user) {
+    const isSuperAdmin = user.role === 'admin' && user.email.toLowerCase() === 'zettbos2025@gmail.com';
     if (drawerUserName) drawerUserName.textContent = user.fullName || user.email;
     if (drawerUserRole) {
-      drawerUserRole.textContent = user.role === 'admin' ? 'OWNER / ADMIN' : 'MEMBER SISWA';
-      drawerUserRole.className = user.role === 'admin' ? 'text-[10px] text-rose-400 font-mono font-bold' : 'text-[10px] text-emerald-400 font-mono font-bold';
+      drawerUserRole.textContent = isSuperAdmin ? 'OWNER / ADMIN' : 'MEMBER SISWA';
+      drawerUserRole.className = isSuperAdmin ? 'text-[10px] text-rose-400 font-mono font-bold' : 'text-[10px] text-emerald-400 font-mono font-bold';
     }
     if (drawerAdminSec) {
-      const isSuperAdmin = user.role === 'admin' && user.email.toLowerCase() === 'zettbos2025@gmail.com';
       if (isSuperAdmin) drawerAdminSec.classList.remove('hidden');
       else drawerAdminSec.classList.add('hidden');
     }
@@ -213,7 +213,8 @@ function updateNavbarState(currentView) {
     if (userSection) userSection.classList.remove('hidden');
     if (userNameEl) userNameEl.textContent = AppState.currentUser.fullName || AppState.currentUser.email;
 
-    if (AppState.currentUser.role === 'admin') {
+    const isSuperAdmin = AppState.currentUser.role === 'admin' && AppState.currentUser.email.toLowerCase() === 'zettbos2025@gmail.com';
+    if (isSuperAdmin) {
       if (roleBadge) {
         roleBadge.textContent = 'ADMIN';
         roleBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold tracking-wider bg-rose-950 text-rose-300 border border-rose-800/80';

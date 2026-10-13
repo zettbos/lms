@@ -186,17 +186,24 @@ function handleSaveLandingHeroCms(e) {
 }
 
 function resetLandingHeroToDefault() {
-  if (confirm('Kembalikan pengaturan Hero Banner ke bawaan default?')) {
-    const zData = window.ZettData || {};
-    if (zData.SEED_LANDING_CMS?.hero) {
-      AppState.landingCms.hero = JSON.parse(JSON.stringify(zData.SEED_LANDING_CMS.hero));
-      saveState();
-      renderAdminLandingCms();
-      if (typeof renderLandingFromCms === 'function') renderLandingFromCms();
-      if (window.HeroTypewriterController) window.HeroTypewriterController.init();
-      showToast('Hero Banner berhasil di-reset ke default!', 'info');
+  showCustomConfirm({
+    title: 'Reset Pengaturan Hero Banner?',
+    message: 'Kembalikan pengaturan teks headline, badge, deskripsi, dan tombol CTA Hero Banner ke bawaan awal default?',
+    confirmText: 'Ya, Reset ke Default',
+    cancelText: 'Batal',
+    isDanger: true,
+    onConfirm: () => {
+      const zData = window.ZettData || {};
+      if (zData.SEED_LANDING_CMS?.hero) {
+        AppState.landingCms.hero = JSON.parse(JSON.stringify(zData.SEED_LANDING_CMS.hero));
+        saveState();
+        renderAdminLandingCms();
+        if (typeof renderLandingFromCms === 'function') renderLandingFromCms();
+        if (window.HeroTypewriterController) window.HeroTypewriterController.init();
+        showToast('Hero Banner berhasil di-reset ke default!', 'info');
+      }
     }
-  }
+  });
 }
 
 function openEditUseCaseModal(id) {
@@ -239,16 +246,23 @@ function handleSaveUseCaseSubmit(e) {
 }
 
 function resetLandingUseCasesToDefault() {
-  if (confirm('Kembalikan 4 kartu target audiens ke bawaan default?')) {
-    const zData = window.ZettData || {};
-    if (zData.SEED_LANDING_CMS?.useCases) {
-      AppState.landingCms.useCases = JSON.parse(JSON.stringify(zData.SEED_LANDING_CMS.useCases));
-      saveState();
-      renderAdminLandingCms();
-      if (typeof renderLandingFromCms === 'function') renderLandingFromCms();
-      showToast('Kartu target audiens berhasil di-reset!', 'info');
+  showCustomConfirm({
+    title: 'Reset Kartu Target Audiens?',
+    message: 'Kembalikan 4 kartu target audiens di landing page ke pengaturan bawaan awal default?',
+    confirmText: 'Ya, Reset ke Default',
+    cancelText: 'Batal',
+    isDanger: true,
+    onConfirm: () => {
+      const zData = window.ZettData || {};
+      if (zData.SEED_LANDING_CMS?.useCases) {
+        AppState.landingCms.useCases = JSON.parse(JSON.stringify(zData.SEED_LANDING_CMS.useCases));
+        saveState();
+        renderAdminLandingCms();
+        if (typeof renderLandingFromCms === 'function') renderLandingFromCms();
+        showToast('Kartu target audiens berhasil di-reset!', 'info');
+      }
     }
-  }
+  });
 }
 
 function openAddTestimonialModal() {
@@ -334,26 +348,40 @@ function handleSaveTestimonialSubmit(e) {
 }
 
 function deleteTestimonial(id) {
-  if (confirm('Hapus testimoni member ini dari landing page?')) {
-    AppState.landingCms.testimonials = (AppState.landingCms.testimonials || []).filter(t => t.id !== id);
-    saveState();
-    renderAdminLandingCms();
-    if (typeof renderLandingFromCms === 'function') renderLandingFromCms();
-    showToast('Testimoni telah dihapus', 'info');
-  }
-}
-
-function resetLandingTestimonialsToDefault() {
-  if (confirm('Kembalikan daftar testimoni ke bawaan default?')) {
-    const zData = window.ZettData || {};
-    if (zData.SEED_LANDING_CMS?.testimonials) {
-      AppState.landingCms.testimonials = JSON.parse(JSON.stringify(zData.SEED_LANDING_CMS.testimonials));
+  showCustomConfirm({
+    title: 'Hapus Testimoni Member?',
+    message: 'Hapus testimoni member ini dari landing page secara permanen?',
+    confirmText: 'Ya, Hapus Testimoni',
+    cancelText: 'Batal',
+    isDanger: true,
+    onConfirm: () => {
+      AppState.landingCms.testimonials = (AppState.landingCms.testimonials || []).filter(t => t.id !== id);
       saveState();
       renderAdminLandingCms();
       if (typeof renderLandingFromCms === 'function') renderLandingFromCms();
-      showToast('Daftar testimoni berhasil di-reset!', 'info');
+      showToast('Testimoni telah dihapus', 'info');
     }
-  }
+  });
+}
+
+function resetLandingTestimonialsToDefault() {
+  showCustomConfirm({
+    title: 'Reset Daftar Testimoni?',
+    message: 'Kembalikan seluruh daftar testimoni member ke pengaturan bawaan awal default?',
+    confirmText: 'Ya, Reset ke Default',
+    cancelText: 'Batal',
+    isDanger: true,
+    onConfirm: () => {
+      const zData = window.ZettData || {};
+      if (zData.SEED_LANDING_CMS?.testimonials) {
+        AppState.landingCms.testimonials = JSON.parse(JSON.stringify(zData.SEED_LANDING_CMS.testimonials));
+        saveState();
+        renderAdminLandingCms();
+        if (typeof renderLandingFromCms === 'function') renderLandingFromCms();
+        showToast('Daftar testimoni berhasil di-reset!', 'info');
+      }
+    }
+  });
 }
 
 // ==========================================
@@ -467,14 +495,21 @@ function handleSaveEditResourceSubmit(e) {
 }
 
 function resetResourcesToDefault() {
-  if (confirm('Kembalikan seluruh daftar shared resource & link dokumen ke bawaan default?')) {
-    const zData = window.ZettData || {};
-    AppState.resources = zData.SEED_RESOURCES ? JSON.parse(JSON.stringify(zData.SEED_RESOURCES)) : [];
-    saveState();
-    renderAdminResourcesCms();
-    if (typeof renderResources === 'function') renderResources();
-    showToast('Resource berhasil di-reset ke default!', 'info');
-  }
+  showCustomConfirm({
+    title: 'Reset Daftar Shared Resources?',
+    message: 'Kembalikan seluruh daftar shared resource & link dokumen ke pengaturan awal default?',
+    confirmText: 'Ya, Reset ke Default',
+    cancelText: 'Batal',
+    isDanger: true,
+    onConfirm: () => {
+      const zData = window.ZettData || {};
+      AppState.resources = zData.SEED_RESOURCES ? JSON.parse(JSON.stringify(zData.SEED_RESOURCES)) : [];
+      saveState();
+      renderAdminResourcesCms();
+      if (typeof renderResources === 'function') renderResources();
+      showToast('Resource berhasil di-reset ke default!', 'info');
+    }
+  });
 }
 
 // ==========================================
@@ -612,14 +647,21 @@ function handleSaveQuickActionSubmit(e) {
 }
 
 function resetQuickActionsToDefault() {
-  if (confirm('Kembalikan 4 kartu Quick Action Hub ke pengaturan awal?')) {
-    const zData = window.ZettData || {};
-    AppState.quickActions = zData.SEED_QUICK_ACTIONS ? JSON.parse(JSON.stringify(zData.SEED_QUICK_ACTIONS)) : [];
-    saveState();
-    renderAdminQuickActions();
-    if (typeof renderQuickActionHub === 'function') renderQuickActionHub();
-    showToast('Quick Action Hub berhasil di-reset ke default!', 'info');
-  }
+  showCustomConfirm({
+    title: 'Reset Quick Action Hub?',
+    message: 'Kembalikan 4 kartu Quick Action Hub di halaman depan ke pengaturan awal default?',
+    confirmText: 'Ya, Reset ke Default',
+    cancelText: 'Batal',
+    isDanger: true,
+    onConfirm: () => {
+      const zData = window.ZettData || {};
+      AppState.quickActions = zData.SEED_QUICK_ACTIONS ? JSON.parse(JSON.stringify(zData.SEED_QUICK_ACTIONS)) : [];
+      saveState();
+      renderAdminQuickActions();
+      if (typeof renderQuickActionHub === 'function') renderQuickActionHub();
+      showToast('Quick Action Hub berhasil di-reset ke default!', 'info');
+    }
+  });
 }
 
 // ==========================================
@@ -908,54 +950,117 @@ function deleteCurrentModule() {
   const mod = AppState.modules.find(m => m.id === AppState.adminSelectedModuleId);
   if (!mod) return;
 
-  if (confirm(`Hapus modul '${mod.title}' beserta seluruh materi di dalamnya?`)) {
-    AppState.modules = AppState.modules.filter(m => m.id !== mod.id);
-    AppState.lessons = AppState.lessons.filter(l => l.moduleId !== mod.id);
-    AppState.adminSelectedModuleId = AppState.modules[0]?.id || null;
-    AppState.adminSelectedLessonId = null;
+  showCustomConfirm({
+    title: 'Hapus Modul Kurikulum?',
+    message: `Hapus modul "${mod.title}" beserta seluruh materi di dalamnya secara permanen?`,
+    confirmText: 'Ya, Hapus Modul',
+    cancelText: 'Batal',
+    isDanger: true,
+    onConfirm: () => {
+      AppState.modules = AppState.modules.filter(m => m.id !== mod.id);
+      AppState.lessons = AppState.lessons.filter(l => l.moduleId !== mod.id);
+      AppState.adminSelectedModuleId = AppState.modules[0]?.id || null;
+      AppState.adminSelectedLessonId = null;
 
-    saveState();
-    showToast(`Modul '${mod.title}' telah dihapus.`, 'info');
-    renderAdminCurriculum();
-    if (typeof renderLandingCurriculumBento === 'function') renderLandingCurriculumBento();
-  }
+      saveState();
+      showToast(`Modul "${mod.title}" telah dihapus.`, 'info');
+      renderAdminCurriculum();
+      if (typeof renderLandingCurriculumBento === 'function') renderLandingCurriculumBento();
+    }
+  });
 }
 window.deleteCurrentModule = deleteCurrentModule;
 
-function addNewLessonPrompt() {
+function openAddLessonModal() {
   if (AppState.modules.length === 0) {
     showToast('Buat modul kurikulum terlebih dahulu dengan tombol [+ Modul Baru]', 'warning');
     openAddModuleModal();
     return;
   }
 
-  const title = prompt('Masukkan Judul Materi/Video Baru:');
-  if (!title || !title.trim()) return;
+  const moduleSelect = document.getElementById('add-lesson-module-select');
+  if (moduleSelect) {
+    moduleSelect.innerHTML = '';
+    AppState.modules.sort((a, b) => a.orderIndex - b.orderIndex).forEach(mod => {
+      const opt = document.createElement('option');
+      opt.value = mod.id;
+      opt.textContent = `${mod.badge || 'MODUL'}: ${mod.title}`;
+      moduleSelect.appendChild(opt);
+    });
+    const selectedModId = AppState.adminSelectedModuleId || AppState.modules[0].id;
+    moduleSelect.value = selectedModId;
+  }
 
-  const targetModuleId = AppState.adminSelectedModuleId || AppState.modules[0].id;
+  const titleInp = document.getElementById('add-lesson-title');
+  const durInp = document.getElementById('add-lesson-duration');
+  const ytInp = document.getElementById('add-lesson-youtube');
+  const notesInp = document.getElementById('add-lesson-notes');
+
+  if (titleInp) titleInp.value = '';
+  if (durInp) durInp.value = '15';
+  if (ytInp) ytInp.value = '';
+  if (notesInp) notesInp.value = '';
+
+  const modal = document.getElementById('modal-add-lesson');
+  if (modal) {
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+      if (titleInp) titleInp.focus();
+    }, 50);
+  }
+}
+window.openAddLessonModal = openAddLessonModal;
+window.addNewLessonPrompt = openAddLessonModal;
+
+function closeAddLessonModal() {
+  const modal = document.getElementById('modal-add-lesson');
+  if (modal) modal.classList.add('hidden');
+}
+window.closeAddLessonModal = closeAddLessonModal;
+
+function handleSaveAddLessonSubmit(e) {
+  if (e) e.preventDefault();
+
+  const targetModuleId = document.getElementById('add-lesson-module-select')?.value || AppState.adminSelectedModuleId || AppState.modules[0]?.id;
+  const title = (document.getElementById('add-lesson-title')?.value || '').trim();
+  const duration = parseInt(document.getElementById('add-lesson-duration')?.value, 10) || 15;
+  const youtubeUrl = (document.getElementById('add-lesson-youtube')?.value || '').trim();
+  const notes = (document.getElementById('add-lesson-notes')?.value || '').trim();
+
+  if (!title) {
+    showToast('Judul materi pembelajaran tidak boleh kosong', 'error');
+    return;
+  }
+
   const newId = 'les-' + Date.now();
+  const initialBlocks = [
+    { type: 'h1', content: title },
+    { type: 'callout', content: notes || 'Catatan penting untuk materi pembelajaran ini.' },
+    { type: 'text', content: 'Tuliskan penjelasan detail materi atau petunjuk langkah di sini...' }
+  ];
+
   const newLesson = {
     id: newId,
     moduleId: targetModuleId,
-    title: title.trim(),
-    durationMinutes: 15,
+    title: title,
+    durationMinutes: duration,
     orderIndex: AppState.lessons.filter(l => l.moduleId === targetModuleId).length + 1,
-    youtubeUrl: '',
-    blocks: [
-      { type: 'h1', content: title.trim() },
-      { type: 'callout', content: 'Catatan penting untuk materi ini...' },
-      { type: 'text', content: 'Tulis penjelasan materi di sini...' }
-    ]
+    youtubeUrl: youtubeUrl,
+    blocks: initialBlocks
   };
 
   AppState.lessons.push(newLesson);
+  AppState.adminSelectedModuleId = targetModuleId;
   AppState.adminSelectedLessonId = newId;
+
   saveState();
-  showToast('Materi video baru berhasil ditambahkan!', 'success');
+  closeAddLessonModal();
+  showToast(`Materi "${title}" berhasil ditambahkan!`, 'success');
+
   renderAdminCurriculum();
   if (typeof renderLandingCurriculumBento === 'function') renderLandingCurriculumBento();
 }
-window.addNewLessonPrompt = addNewLessonPrompt;
+window.handleSaveAddLessonSubmit = handleSaveAddLessonSubmit;
 
 function deleteCurrentLesson() {
   if (!AppState.adminSelectedLessonId) {
@@ -966,14 +1071,21 @@ function deleteCurrentLesson() {
   const lesson = AppState.lessons.find(l => l.id === AppState.adminSelectedLessonId);
   if (!lesson) return;
 
-  if (confirm(`Hapus materi '${lesson.title}' dari kurikulum?`)) {
-    AppState.lessons = AppState.lessons.filter(l => l.id !== lesson.id);
-    AppState.adminSelectedLessonId = null;
-    saveState();
-    showToast('Materi telah dihapus', 'info');
-    renderAdminCurriculum();
-    if (typeof renderLandingCurriculumBento === 'function') renderLandingCurriculumBento();
-  }
+  showCustomConfirm({
+    title: 'Hapus Materi Pembelajaran?',
+    message: `Hapus materi "${lesson.title}" dari kurikulum secara permanen?`,
+    confirmText: 'Ya, Hapus Materi',
+    cancelText: 'Batal',
+    isDanger: true,
+    onConfirm: () => {
+      AppState.lessons = AppState.lessons.filter(l => l.id !== lesson.id);
+      AppState.adminSelectedLessonId = null;
+      saveState();
+      showToast('Materi telah dihapus', 'info');
+      renderAdminCurriculum();
+      if (typeof renderLandingCurriculumBento === 'function') renderLandingCurriculumBento();
+    }
+  });
 }
 window.deleteCurrentLesson = deleteCurrentLesson;
 
@@ -991,6 +1103,48 @@ let whitelistState = {
 function renderAdminWhitelist() {
   const tableBody = document.getElementById('whitelist-table-body');
   if (!tableBody) return;
+
+  // Live Background Sync from Supabase Cloud (jika terhubung & belum sedang fetch)
+  if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected() && !window._isSyncingWhitelistBackground) {
+    window._isSyncingWhitelistBackground = true;
+    ZettSupabase.client.from('whitelist_members').select('id, email, full_name, role, is_active, password_hash').then(({ data, error }) => {
+      window._isSyncingWhitelistBackground = false;
+      if (data && !error && data.length > 0) {
+        let hasChanges = false;
+        data.forEach(cloudM => {
+          const localM = AppState.whitelist.find(m => m.email.toLowerCase() === cloudM.email.toLowerCase());
+          if (localM) {
+            if (cloudM.password_hash && localM.passwordHash !== cloudM.password_hash) {
+              localM.passwordHash = cloudM.password_hash;
+              hasChanges = true;
+            }
+            if (cloudM.full_name && localM.fullName !== cloudM.full_name && cloudM.full_name !== 'Siswa Zettbos') {
+              localM.fullName = cloudM.full_name;
+              hasChanges = true;
+            }
+          } else {
+            AppState.whitelist.push({
+              id: cloudM.id,
+              email: cloudM.email.toLowerCase(),
+              fullName: cloudM.full_name || cloudM.email.split('@')[0],
+              role: cloudM.role || 'member',
+              isActive: cloudM.is_active !== false,
+              passwordHash: cloudM.password_hash || null,
+              registeredAt: new Date().toISOString()
+            });
+            hasChanges = true;
+          }
+        });
+        if (hasChanges) {
+          saveState();
+          renderAdminWhitelist();
+          if (AppState.activeAdminTab === 'analytics') renderAdminAnalytics();
+        }
+      }
+    }).catch(() => {
+      window._isSyncingWhitelistBackground = false;
+    });
+  }
 
   // 1. Hitung statistik filter
   const total = AppState.whitelist.length;
@@ -1180,6 +1334,8 @@ function openAddMemberModal() {
   document.getElementById('add-member-fullname').value = '';
   document.getElementById('add-member-email').value = '';
   document.getElementById('add-member-role').value = 'member';
+  const passInp = document.getElementById('add-member-password');
+  if (passInp) passInp.value = '';
   document.getElementById('modal-add-member').classList.remove('hidden');
 }
 window.openAddMemberModal = openAddMemberModal;
@@ -1194,6 +1350,7 @@ async function handleSaveAddMemberSubmit(e) {
   const name = document.getElementById('add-member-fullname').value.trim();
   const email = document.getElementById('add-member-email').value.trim().toLowerCase();
   const role = document.getElementById('add-member-role').value;
+  const rawPass = (document.getElementById('add-member-password')?.value || '').trim();
 
   if (!email || !email.includes('@')) {
     showToast('Masukkan alamat email yang valid', 'error');
@@ -1205,13 +1362,22 @@ async function handleSaveAddMemberSubmit(e) {
     return;
   }
 
+  let passHash = null;
+  if (rawPass) {
+    if (rawPass.length < 6) {
+      showToast('Kata sandi minimal 6 karakter', 'error');
+      return;
+    }
+    passHash = await hashPassword(rawPass);
+  }
+
   const newMember = {
     id: 'wl-' + Date.now(),
     email: email,
     fullName: name || email.split('@')[0],
     role: role || 'member',
     isActive: true,
-    passwordHash: null,
+    passwordHash: passHash,
     registeredAt: new Date().toISOString()
   };
 
@@ -1227,7 +1393,7 @@ async function handleSaveAddMemberSubmit(e) {
         full_name: newMember.fullName,
         role: newMember.role,
         is_active: true,
-        password_hash: null
+        password_hash: passHash
       }]);
     } catch (err) {
       console.warn('[Supabase Insert Member Error]', err);
@@ -1235,7 +1401,7 @@ async function handleSaveAddMemberSubmit(e) {
   }
 
   closeAddMemberModal();
-  showToast(`Siswa ${newMember.fullName} (${email}) berhasil ditambahkan ke whitelist!`, 'success');
+  showToast(`Siswa ${newMember.fullName} (${email}) berhasil ditambahkan ke whitelist${passHash ? ' dengan kata sandi aktif' : ''}!`, 'success');
   renderAdminWhitelist();
 }
 window.handleSaveAddMemberSubmit = handleSaveAddMemberSubmit;
@@ -1249,6 +1415,9 @@ function openEditMemberModal(id) {
   document.getElementById('edit-member-email').value = member.email || '';
   document.getElementById('edit-member-role').value = member.role || 'member';
   document.getElementById('edit-member-active').value = member.isActive ? 'true' : 'false';
+
+  const newPassInp = document.getElementById('edit-member-newpass');
+  if (newPassInp) newPassInp.value = '';
 
   const passStatusEl = document.getElementById('edit-member-pass-status');
   const resetPassBtn = document.getElementById('btn-reset-member-pass');
@@ -1286,6 +1455,7 @@ async function handleSaveEditMemberSubmit(e) {
   const newEmail = document.getElementById('edit-member-email').value.trim().toLowerCase();
   const newRole = document.getElementById('edit-member-role').value;
   const newActive = document.getElementById('edit-member-active').value === 'true';
+  const rawNewPass = (document.getElementById('edit-member-newpass')?.value || '').trim();
 
   if (!newEmail) {
     showToast('Email tidak boleh kosong', 'error');
@@ -1298,6 +1468,16 @@ async function handleSaveEditMemberSubmit(e) {
     return;
   }
 
+  let updatedPassHash = member.passwordHash;
+  if (rawNewPass) {
+    if (rawNewPass.length < 6) {
+      showToast('Kata sandi baru minimal 6 karakter', 'error');
+      return;
+    }
+    updatedPassHash = await hashPassword(rawNewPass);
+    member.passwordHash = updatedPassHash;
+  }
+
   member.fullName = newName;
   member.email = newEmail;
   member.role = newRole;
@@ -1308,19 +1488,23 @@ async function handleSaveEditMemberSubmit(e) {
   // Sinkronkan ke Supabase jika terhubung
   if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
     try {
-      await ZettSupabase.client.from('whitelist_members').update({
+      const updatePayload = {
         full_name: newName,
         email: newEmail,
         role: newRole,
         is_active: newActive
-      }).eq('id', member.id);
+      };
+      if (rawNewPass) {
+        updatePayload.password_hash = updatedPassHash;
+      }
+      await ZettSupabase.client.from('whitelist_members').update(updatePayload).eq('id', member.id);
     } catch (err) {
       console.warn('[Supabase Update Member Error]', err);
     }
   }
 
   closeEditMemberModal();
-  showToast(`Data member ${member.fullName} berhasil diperbarui!`, 'success');
+  showToast(`Data member ${member.fullName} berhasil diperbarui${rawNewPass ? ' (kata sandi baru tersimpan)' : ''}!`, 'success');
   renderAdminWhitelist();
 }
 window.handleSaveEditMemberSubmit = handleSaveEditMemberSubmit;
@@ -1330,24 +1514,31 @@ async function handleResetMemberPasswordFromModal() {
   const member = AppState.whitelist.find(m => m.id === id);
   if (!member) return;
 
-  if (confirm(`Reset kata sandi untuk ${member.email}? Siswa akan diwajibkan verifikasi OTP email dan membuat password baru saat login berikutnya.`)) {
-    member.passwordHash = null;
-    saveState();
+  showCustomConfirm({
+    title: 'Reset Sandi Member?',
+    message: `Reset kata sandi untuk ${member.email}? Siswa akan diwajibkan verifikasi OTP email dan membuat sandi baru saat login berikutnya.`,
+    confirmText: 'Ya, Reset Sandi',
+    cancelText: 'Batal',
+    isDanger: true,
+    onConfirm: async () => {
+      member.passwordHash = null;
+      saveState();
 
-    if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
-      try {
-        await ZettSupabase.client.from('whitelist_members').update({
-          password_hash: null
-        }).eq('email', member.email);
-      } catch (err) {
-        console.warn('[Supabase Reset Pass Error]', err);
+      if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+        try {
+          await ZettSupabase.client.from('whitelist_members').update({
+            password_hash: null
+          }).eq('email', member.email);
+        } catch (err) {
+          console.warn('[Supabase Reset Pass Error]', err);
+        }
       }
-    }
 
-    showToast(`Kata sandi untuk ${member.email} berhasil di-reset!`, 'success');
-    closeEditMemberModal();
-    renderAdminWhitelist();
-  }
+      showToast(`Kata sandi untuk ${member.email} berhasil di-reset!`, 'success');
+      closeEditMemberModal();
+      renderAdminWhitelist();
+    }
+  });
 }
 window.handleResetMemberPasswordFromModal = handleResetMemberPasswordFromModal;
 
@@ -1387,21 +1578,28 @@ async function deleteMember(id) {
     return;
   }
 
-  if (confirm(`Hapus ${member.email} (${member.fullName || 'Siswa'}) secara permanen dari whitelist?`)) {
-    AppState.whitelist = AppState.whitelist.filter(m => m.id !== id);
-    saveState();
+  showCustomConfirm({
+    title: 'Hapus Member dari Whitelist?',
+    message: `Hapus ${member.email} (${member.fullName || 'Siswa'}) secara permanen dari whitelist?`,
+    confirmText: 'Ya, Hapus Member',
+    cancelText: 'Batal',
+    isDanger: true,
+    onConfirm: async () => {
+      AppState.whitelist = AppState.whitelist.filter(m => m.id !== id);
+      saveState();
 
-    if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
-      try {
-        await ZettSupabase.client.from('whitelist_members').delete().eq('id', member.id);
-      } catch (err) {
-        console.warn('[Supabase Delete Member Error]', err);
+      if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+        try {
+          await ZettSupabase.client.from('whitelist_members').delete().eq('id', member.id);
+        } catch (err) {
+          console.warn('[Supabase Delete Member Error]', err);
+        }
       }
-    }
 
-    renderAdminWhitelist();
-    showToast(`Email ${member.email} telah dihapus dari whitelist.`, 'info');
-  }
+      renderAdminWhitelist();
+      showToast(`Email ${member.email} telah dihapus dari whitelist.`, 'info');
+    }
+  });
 }
 window.deleteMember = deleteMember;
 
@@ -1440,45 +1638,225 @@ async function syncWhitelistToSupabaseLive() {
 window.syncWhitelistToSupabaseLive = syncWhitelistToSupabaseLive;
 
 // ==========================================
-// 7. SISWA PROGRESS ANALYTICS
+// 7. SISWA PROGRESS ANALYTICS (FAST PAGINATION & FILTERS)
 // ==========================================
+
+let analyticsState = {
+  currentPage: 1,
+  perPage: 25,
+  search: '',
+  filter: 'all'
+};
 
 function renderAdminAnalytics() {
   const tableBody = document.getElementById('analytics-table-body');
   if (!tableBody) return;
 
-  tableBody.innerHTML = '';
   const totalLessons = AppState.lessons.length;
+  const members = AppState.whitelist || [];
 
-  AppState.whitelist.forEach(m => {
+  // 1. Hitung progres setiap siswa terlebih dahulu
+  const enrichedMembers = members.map(m => {
     const completedList = AppState.progress[m.email] || [];
     const count = completedList.length;
     const percent = totalLessons > 0 ? Math.round((count / totalLessons) * 100) : 0;
+    return {
+      ...m,
+      completedCount: count,
+      percent: percent,
+      isCompleted: percent === 100 && totalLessons > 0,
+      isLearning: percent > 0 && percent < 100,
+      isNotStarted: percent === 0
+    };
+  });
 
+  // 2. Hitung statistik keseluruhan
+  const totalCount = enrichedMembers.length;
+  const completedCount = enrichedMembers.filter(m => m.isCompleted).length;
+  const learningCount = enrichedMembers.filter(m => m.isLearning).length;
+  const notStartedCount = enrichedMembers.filter(m => m.isNotStarted).length;
+
+  // Update badge & metric cards
+  const elTotalBadge = document.getElementById('analytics-total-badge');
+  if (elTotalBadge) elTotalBadge.textContent = `${totalCount.toLocaleString('id-ID')} Siswa`;
+
+  const elStatTotal = document.getElementById('analytics-stat-total');
+  const elStatComp = document.getElementById('analytics-stat-completed');
+  const elStatLearn = document.getElementById('analytics-stat-learning');
+  const elStatNot = document.getElementById('analytics-stat-notstarted');
+  if (elStatTotal) elStatTotal.textContent = totalCount.toLocaleString('id-ID');
+  if (elStatComp) elStatComp.textContent = completedCount.toLocaleString('id-ID');
+  if (elStatLearn) elStatLearn.textContent = learningCount.toLocaleString('id-ID');
+  if (elStatNot) elStatNot.textContent = notStartedCount.toLocaleString('id-ID');
+
+  // Update counter badges on filter tabs
+  const elCntAll = document.getElementById('an-count-all');
+  const elCntComp = document.getElementById('an-count-completed');
+  const elCntLearn = document.getElementById('an-count-learning');
+  const elCntNot = document.getElementById('an-count-notstarted');
+  if (elCntAll) elCntAll.textContent = totalCount.toLocaleString('id-ID');
+  if (elCntComp) elCntComp.textContent = completedCount.toLocaleString('id-ID');
+  if (elCntLearn) elCntLearn.textContent = learningCount.toLocaleString('id-ID');
+  if (elCntNot) elCntNot.textContent = notStartedCount.toLocaleString('id-ID');
+
+  // 3. Filter data berdasarkan tab & search input
+  const searchLower = (analyticsState.search || '').toLowerCase().trim();
+  let filtered = enrichedMembers.filter(m => {
+    // Search
+    const matchSearch = !searchLower ||
+      (m.email && m.email.toLowerCase().includes(searchLower)) ||
+      (m.fullName && m.fullName.toLowerCase().includes(searchLower));
+
+    if (!matchSearch) return false;
+
+    // Filter status
+    if (analyticsState.filter === 'completed') return m.isCompleted;
+    if (analyticsState.filter === 'learning') return m.isLearning;
+    if (analyticsState.filter === 'notstarted') return m.isNotStarted;
+    return true;
+  });
+
+  // 4. Hitung pagination
+  const totalPages = Math.ceil(filtered.length / analyticsState.perPage) || 1;
+  if (analyticsState.currentPage > totalPages) analyticsState.currentPage = totalPages;
+  if (analyticsState.currentPage < 1) analyticsState.currentPage = 1;
+
+  const startIndex = (analyticsState.currentPage - 1) * analyticsState.perPage;
+  const endIndex = Math.min(startIndex + analyticsState.perPage, filtered.length);
+  const pageItems = filtered.slice(startIndex, endIndex);
+
+  // Update Footer Controls
+  const pageInfo = document.getElementById('analytics-page-info');
+  if (pageInfo) {
+    pageInfo.textContent = filtered.length > 0 
+      ? `Menampilkan ${(startIndex + 1).toLocaleString('id-ID')} - ${endIndex.toLocaleString('id-ID')} dari ${filtered.length.toLocaleString('id-ID')} siswa (Total: ${totalCount.toLocaleString('id-ID')})`
+      : 'Tidak ada siswa yang cocok dengan filter';
+  }
+
+  const pageIndicator = document.getElementById('analytics-page-indicator');
+  if (pageIndicator) {
+    pageIndicator.textContent = `Hal ${analyticsState.currentPage} / ${totalPages}`;
+  }
+
+  // 5. Render Baris Tabel (Super Cepat < 1ms untuk 25 siswa)
+  tableBody.innerHTML = '';
+
+  if (pageItems.length === 0) {
+    tableBody.innerHTML = `
+      <tr>
+        <td colspan="6" class="py-12 text-center text-slate-500 font-mono text-xs">
+          Tidak ada data siswa yang sesuai dengan filter atau pencarian.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  pageItems.forEach((m, idx) => {
     const row = document.createElement('tr');
     row.className = 'border-b border-slate-800/80 hover:bg-slate-900/50 text-xs transition-colors';
 
+    const rowNum = startIndex + idx + 1;
+    const isSuperAdmin = m.email.toLowerCase() === 'zettbos2025@gmail.com';
+
+    let statusBadge = '';
+    if (m.isCompleted) {
+      statusBadge = '<span class="px-2.5 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">Lulus 100%</span>';
+    } else if (m.isLearning) {
+      statusBadge = '<span class="px-2.5 py-0.5 rounded text-[10px] font-bold bg-cyan-950 text-cyan-300 border border-cyan-800">Sedang Belajar</span>';
+    } else {
+      statusBadge = '<span class="px-2.5 py-0.5 rounded text-[10px] font-medium bg-slate-800 text-slate-400">Belum Mulai</span>';
+    }
+
     row.innerHTML = `
-      <td class="py-3 px-4 font-medium text-white">${m.fullName || '-'}</td>
-      <td class="py-3 px-4 text-slate-400 font-mono">${m.email}</td>
-      <td class="py-3 px-4 text-emerald-400 font-semibold">${count} dari ${totalLessons} Materi</td>
+      <td class="py-3 px-4 text-center font-mono text-slate-500">${rowNum}</td>
+      <td class="py-3 px-4">
+        <div class="font-bold text-white flex items-center gap-1.5">
+          <span>${escapeHtml(m.fullName || 'Siswa Zettbos')}</span>
+          ${isSuperAdmin ? '<span class="text-[9px] px-1.5 py-0.2 rounded bg-amber-950 text-amber-300 border border-amber-800 font-mono font-bold">OWNER</span>' : ''}
+        </div>
+      </td>
+      <td class="py-3 px-4 text-slate-400 font-mono text-xs">${escapeHtml(m.email)}</td>
+      <td class="py-3 px-4 text-emerald-400 font-semibold font-mono">${m.completedCount} dari ${totalLessons} Materi</td>
       <td class="py-3 px-4">
         <div class="flex items-center gap-3">
-          <div class="w-28 h-2 rounded-full bg-slate-800 overflow-hidden">
-            <div class="h-full bg-emerald-500 rounded-full" style="width: ${percent}%"></div>
+          <div class="w-24 sm:w-28 h-2 rounded-full bg-slate-800 overflow-hidden">
+            <div class="h-full bg-emerald-500 rounded-full transition-all duration-300" style="width: ${m.percent}%"></div>
           </div>
-          <span class="font-bold ${percent === 100 ? 'text-emerald-400' : 'text-slate-300'}">${percent}%</span>
+          <span class="font-bold font-mono text-xs ${m.percent === 100 ? 'text-emerald-400' : (m.percent > 0 ? 'text-cyan-300' : 'text-slate-400')}">${m.percent}%</span>
         </div>
       </td>
       <td class="py-3 px-4 text-right">
-        <span class="px-2 py-0.5 rounded text-[10px] ${percent === 100 ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-slate-800 text-slate-400'}">
-          ${percent === 100 ? 'Lulus / Selesai' : 'Sedang Belajar'}
-        </span>
+        ${statusBadge}
       </td>
     `;
     tableBody.appendChild(row);
   });
 }
+
+function handleAnalyticsSearch(val) {
+  analyticsState.search = val || '';
+  analyticsState.currentPage = 1;
+  renderAdminAnalytics();
+}
+window.handleAnalyticsSearch = handleAnalyticsSearch;
+
+function setAnalyticsFilter(filterName) {
+  analyticsState.filter = filterName;
+  analyticsState.currentPage = 1;
+
+  ['all', 'completed', 'learning', 'notstarted'].forEach(f => {
+    const btn = document.getElementById(`an-filter-${f}`);
+    if (btn) {
+      if (f === filterName) {
+        btn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-950 text-emerald-300 border border-emerald-500/40 whitespace-nowrap';
+      } else {
+        btn.className = 'px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800 whitespace-nowrap';
+      }
+    }
+  });
+
+  renderAdminAnalytics();
+}
+window.setAnalyticsFilter = setAnalyticsFilter;
+
+function changeAnalyticsPerPage(val) {
+  analyticsState.perPage = parseInt(val, 10) || 25;
+  analyticsState.currentPage = 1;
+  renderAdminAnalytics();
+}
+window.changeAnalyticsPerPage = changeAnalyticsPerPage;
+
+function gotoAnalyticsPage(action) {
+  const totalLessons = AppState.lessons.length;
+  const searchLower = (analyticsState.search || '').toLowerCase().trim();
+
+  let filtered = (AppState.whitelist || []).filter(m => {
+    const completedList = AppState.progress[m.email] || [];
+    const count = completedList.length;
+    const percent = totalLessons > 0 ? Math.round((count / totalLessons) * 100) : 0;
+
+    const matchSearch = !searchLower ||
+      (m.email && m.email.toLowerCase().includes(searchLower)) ||
+      (m.fullName && m.fullName.toLowerCase().includes(searchLower));
+    if (!matchSearch) return false;
+
+    if (analyticsState.filter === 'completed') return percent === 100 && totalLessons > 0;
+    if (analyticsState.filter === 'learning') return percent > 0 && percent < 100;
+    if (analyticsState.filter === 'notstarted') return percent === 0;
+    return true;
+  });
+
+  const totalPages = Math.ceil(filtered.length / analyticsState.perPage) || 1;
+
+  if (action === 'first') analyticsState.currentPage = 1;
+  else if (action === 'prev') analyticsState.currentPage = Math.max(1, analyticsState.currentPage - 1);
+  else if (action === 'next') analyticsState.currentPage = Math.min(totalPages, analyticsState.currentPage + 1);
+  else if (action === 'last') analyticsState.currentPage = totalPages;
+
+  renderAdminAnalytics();
+}
+window.gotoAnalyticsPage = gotoAnalyticsPage;
 
 // Global window bindings
 window.renderAdminPanel = renderAdminPanel;

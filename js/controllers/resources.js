@@ -62,23 +62,31 @@ function handleAddResourceSubmit(event) {
 
 function deleteResource(resId) {
   const user = AppState.currentUser;
-  if (!user || user.role !== 'admin') {
-    showToast('Hanya Owner/Admin yang dapat menghapus link', 'error');
+  const isSuperAdmin = user && user.role === 'admin' && user.email.toLowerCase() === 'zettbos2025@gmail.com';
+  if (!isSuperAdmin) {
+    showToast('Hanya Super Admin yang dapat menghapus link dokumen', 'error');
     return;
   }
 
-  if (confirm('Hapus link dokumen ini dari daftar member?')) {
-    const idx = AppState.resources.findIndex(r => r.id === resId);
-    if (idx > -1) {
-      AppState.resources.splice(idx, 1);
-      saveState();
-      showToast('Link dokumen telah dihapus', 'info');
-      renderResources();
-      if (typeof renderAdminResourcesCms === 'function') {
-        renderAdminResourcesCms();
+  showCustomConfirm({
+    title: 'Hapus Dokumen Shared?',
+    message: 'Hapus link dokumen ini dari daftar member secara permanen?',
+    confirmText: 'Ya, Hapus Dokumen',
+    cancelText: 'Batal',
+    isDanger: true,
+    onConfirm: () => {
+      const idx = AppState.resources.findIndex(r => r.id === resId);
+      if (idx > -1) {
+        AppState.resources.splice(idx, 1);
+        saveState();
+        showToast('Link dokumen telah dihapus', 'info');
+        renderResources();
+        if (typeof renderAdminResourcesCms === 'function') {
+          renderAdminResourcesCms();
+        }
       }
     }
-  }
+  });
 }
 
 function renderResources() {
@@ -149,7 +157,14 @@ function renderResources() {
   container.innerHTML = '';
 
   const user = AppState.currentUser;
-  const isAdmin = user && user.role === 'admin';
+  const isSuperAdmin = user && user.role === 'admin' && user.email.toLowerCase() === 'zettbos2025@gmail.com';
+
+  // Toggle '+ Bagikan Link Dokumen' button strictly for Super Admin
+  const addBtn = document.getElementById('btn-admin-add-resource');
+  if (addBtn) {
+    if (isSuperAdmin) addBtn.classList.remove('hidden');
+    else addBtn.classList.add('hidden');
+  }
 
   filtered.forEach(item => {
     const card = document.createElement('div');
@@ -225,7 +240,7 @@ function renderResources() {
           </button>
         </div>
 
-        ${isAdmin ? `
+        ${isSuperAdmin ? `
           <button onclick="deleteResource('${item.id}')" title="Hapus Dokumen" class="p-1 text-slate-500 hover:text-rose-400 rounded-lg hover:bg-slate-800 transition-colors">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
           </button>

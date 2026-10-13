@@ -151,17 +151,25 @@ function renderModuleCatalogGrid() {
   }
 
   if (AppState.modules.length === 0) {
+    const isSuperAdmin = user && user.role === 'admin' && user.email.toLowerCase() === 'zettbos2025@gmail.com';
     container.innerHTML = `
       <div class="col-span-full py-16 text-center glass-card rounded-2xl border border-slate-800">
         <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mx-auto mb-4 text-emerald-400">
           <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
         </div>
         <h4 class="text-base font-bold text-white mb-1.5">Belum Ada Modul Kurikulum</h4>
-        <p class="text-xs text-slate-400 mb-5 max-w-md mx-auto">Database telah dibersihkan ke 0. Masuk ke Admin Panel untuk mulai membuat modul dan pelajaran pertama Anda.</p>
+        <p class="text-xs text-slate-400 mb-5 max-w-md mx-auto">${isSuperAdmin ? 'Database telah dibersihkan ke 0. Masuk ke Admin Panel untuk mulai membuat modul dan pelajaran pertama Anda.' : 'Kurikulum sedang disusun oleh tim mentor Zettbos. Silakan akses dokumen dan resource pembelajaran yang tersedia.'}</p>
+        ${isSuperAdmin ? `
         <button onclick="navigate('admin')" class="btn-primary-action px-5 py-2.5 rounded-xl text-xs font-semibold inline-flex items-center gap-2">
           <span>Buka Panel Kurikulum Admin</span>
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
         </button>
+        ` : `
+        <button onclick="navigate('resources')" class="btn-primary-action px-5 py-2.5 rounded-xl text-xs font-semibold inline-flex items-center gap-2">
+          <span>Buka Dokumen &amp; Resource Hub</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </button>
+        `}
       </div>
     `;
     return;
@@ -325,6 +333,14 @@ function renderHome() {
   if (percentEl) percentEl.textContent = `${progressPercent}%`;
   if (progressBar) progressBar.style.width = `${progressPercent}%`;
 
+  // Role-Based Toggle Reset Data Button (Super Admin Only)
+  const isSuperAdmin = user && user.role === 'admin' && user.email.toLowerCase() === 'zettbos2025@gmail.com';
+  const resetBtn = document.getElementById('btn-home-reset-data');
+  if (resetBtn) {
+    if (isSuperAdmin) resetBtn.classList.remove('hidden');
+    else resetBtn.classList.add('hidden');
+  }
+
   let nextLesson = AppState.lessons.find(l => !userCompletedLessonIds.includes(l.id));
   if (!nextLesson && AppState.lessons.length > 0) {
     nextLesson = AppState.lessons[0];
@@ -367,20 +383,30 @@ function renderHome() {
       const featProgressBar = document.getElementById('feat-progress-bar');
       const featProgressPercent = document.getElementById('feat-progress-percent');
 
-      if (featTitle) featTitle.textContent = 'Mulai Buat Modul & Materi Pelajaran Pertama';
-      if (featModuleTag) featModuleTag.textContent = 'Setup Awal Kurikulum';
+      if (featTitle) featTitle.textContent = isSuperAdmin ? 'Mulai Buat Modul & Materi Pelajaran Pertama' : 'Kurikulum Segera Hadir';
+      if (featModuleTag) featModuleTag.textContent = isSuperAdmin ? 'Setup Awal Kurikulum' : 'Info Kelas';
       if (featDuration) featDuration.textContent = '0 Menit';
       if (featProgressBar) featProgressBar.style.width = '0%';
-      if (featProgressPercent) featProgressPercent.textContent = '0% (Belum Ada Materi)';
+      if (featProgressPercent) featProgressPercent.textContent = '0%';
 
       if (featBtnResume) {
-        featBtnResume.innerHTML = `
-          <span>Buka Admin Kurikulum</span>
-          <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-        `;
-        featBtnResume.onclick = () => {
-          navigate('admin');
-        };
+        if (isSuperAdmin) {
+          featBtnResume.innerHTML = `
+            <span>Buka Admin Kurikulum</span>
+            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          `;
+          featBtnResume.onclick = () => {
+            navigate('admin');
+          };
+        } else {
+          featBtnResume.innerHTML = `
+            <span>Jelajahi Resource &amp; SOP</span>
+            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          `;
+          featBtnResume.onclick = () => {
+            navigate('resources');
+          };
+        }
       }
     }
   }

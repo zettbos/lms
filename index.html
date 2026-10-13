@@ -664,7 +664,7 @@
           <h2 class="text-lg sm:text-xl font-bold text-white tracking-tight">Katalog Modul Pembelajaran</h2>
           <span id="dash-module-count-badge" class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-900 text-emerald-400 border border-slate-800 font-mono">5 Modul Lengkap</span>
         </div>
-        <button onclick="resetAllToDefault()" class="text-xs text-slate-500 hover:text-slate-300 underline self-start sm:self-auto">
+        <button id="btn-home-reset-data" onclick="resetAllToDefault()" class="hidden text-xs text-slate-500 hover:text-slate-300 underline self-start sm:self-auto">
           Reset Data
         </button>
       </div>
@@ -1024,7 +1024,7 @@
       </div>
 
       <div class="flex items-center gap-2 self-start sm:self-auto">
-        <button id="btn-admin-add-resource" onclick="openAddResourceModal()" class="btn-primary-action px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 shadow-lg">
+        <button id="btn-admin-add-resource" onclick="openAddResourceModal()" class="btn-primary-action px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 shadow-lg hidden">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
           <span>+ Bagikan Link Dokumen</span>
         </button>
@@ -1180,7 +1180,7 @@
                   <span>Materi / Video Pembelajaran:</span>
                 </label>
                 <div class="flex items-center gap-1">
-                  <button type="button" onclick="addNewLessonPrompt()" class="text-[11px] text-cyan-400 hover:text-cyan-300 font-semibold px-2 py-0.5 rounded hover:bg-cyan-950/60 transition-colors">
+                  <button type="button" onclick="openAddLessonModal()" class="text-[11px] text-cyan-400 hover:text-cyan-300 font-semibold px-2 py-0.5 rounded hover:bg-cyan-950/60 transition-colors">
                     + Materi Baru
                   </button>
                   <button type="button" onclick="deleteCurrentLesson()" title="Hapus Materi Ini" class="text-[11px] text-rose-400 hover:text-rose-300 px-1.5 py-0.5 rounded hover:bg-rose-950/60 transition-colors">
@@ -1380,30 +1380,121 @@
       </div>
     </div>
 
-    <!-- TAB 3: PROGRES ANALYTICS SISWA -->
+    <!-- TAB 3: PROGRES ANALYTICS SISWA (WITH FAST PAGINATION & FILTERS) -->
     <div id="tab-pane-analytics" class="space-y-6 hidden">
-      <div class="glass-card-static rounded-xl p-6">
-        <div class="pb-4 mb-4 border-b border-slate-800">
-          <h2 class="text-lg font-bold text-white">Monitoring Progres Belajar Seluruh Siswa</h2>
-          <p class="text-xs text-slate-400">Pantau siswa mana saja yang sudah menuntaskan materi dan siapa yang masih tertinggal.</p>
+      <div class="glass-card-static rounded-2xl p-6 border border-slate-800/90 shadow-xl">
+        
+        <!-- Header & Top Summary Stats -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 mb-5 border-b border-slate-800">
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-lg font-bold text-white">Monitoring Progres Belajar Seluruh Siswa</h2>
+              <span id="analytics-total-badge" class="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">
+                2.319 Siswa
+              </span>
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5">Pantau penyelesaian materi video, persentase kelulusan, dan keaktifan belajar setiap siswa.</p>
+          </div>
         </div>
 
+        <!-- Metric Badges Row -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+          <div class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800/80">
+            <span class="text-[11px] text-slate-400 font-semibold block">Total Siswa</span>
+            <span id="analytics-stat-total" class="text-lg font-extrabold text-white font-mono">2.319</span>
+          </div>
+          <div class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800/80">
+            <span class="text-[11px] text-emerald-400 font-semibold block">Lulus / 100%</span>
+            <span id="analytics-stat-completed" class="text-lg font-extrabold text-emerald-300 font-mono">0</span>
+          </div>
+          <div class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800/80">
+            <span class="text-[11px] text-cyan-400 font-semibold block">Sedang Belajar (&gt;0%)</span>
+            <span id="analytics-stat-learning" class="text-lg font-extrabold text-cyan-300 font-mono">0</span>
+          </div>
+          <div class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800/80">
+            <span class="text-[11px] text-slate-400 font-semibold block">Belum Mulai (0%)</span>
+            <span id="analytics-stat-notstarted" class="text-lg font-extrabold text-slate-400 font-mono">2.319</span>
+          </div>
+        </div>
+
+        <!-- Filter, Search & Pagination Controls Bar -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-5">
+          
+          <!-- Filter Tabs -->
+          <div class="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
+            <button id="an-filter-all" onclick="setAnalyticsFilter('all')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-950 text-emerald-300 border border-emerald-500/40 whitespace-nowrap">
+              Semua (<span id="an-count-all">0</span>)
+            </button>
+            <button id="an-filter-completed" onclick="setAnalyticsFilter('completed')" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800 whitespace-nowrap">
+              Lulus 100% (<span id="an-count-completed">0</span>)
+            </button>
+            <button id="an-filter-learning" onclick="setAnalyticsFilter('learning')" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800 whitespace-nowrap">
+              Sedang Belajar (<span id="an-count-learning">0</span>)
+            </button>
+            <button id="an-filter-notstarted" onclick="setAnalyticsFilter('notstarted')" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800 whitespace-nowrap">
+              Belum Mulai (<span id="an-count-notstarted">0</span>)
+            </button>
+          </div>
+
+          <!-- Search & Per Page -->
+          <div class="flex items-center gap-2">
+            <div class="relative flex-1 md:w-64">
+              <input id="analytics-search" type="text" oninput="handleAnalyticsSearch(this.value)" placeholder="Cari nama atau email siswa..." class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+              <svg class="w-4 h-4 text-slate-500 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            </div>
+            <select id="analytics-per-page" onchange="changeAnalyticsPerPage(this.value)" class="bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-2 text-xs text-slate-300 focus:outline-none focus:border-emerald-500">
+              <option value="25" selected>25 per hal</option>
+              <option value="50">50 per hal</option>
+              <option value="100">100 per hal</option>
+            </select>
+          </div>
+
+        </div>
+
+        <!-- Table of Student Progress -->
         <div class="overflow-x-auto rounded-xl border border-slate-800">
           <table class="w-full text-left border-collapse">
             <thead>
               <tr class="bg-slate-950 text-slate-400 text-[11px] uppercase tracking-wider border-b border-slate-800">
+                <th class="py-3 px-4 w-12 text-center font-mono">No</th>
                 <th class="py-3 px-4">Nama Siswa</th>
                 <th class="py-3 px-4">Email</th>
                 <th class="py-3 px-4">Materi Selesai</th>
                 <th class="py-3 px-4">Persentase</th>
-                <th class="py-3 px-4 text-right">Status</th>
+                <th class="py-3 px-4 text-right">Status Kelulusan</th>
               </tr>
             </thead>
             <tbody id="analytics-table-body">
-              <!-- Rendered by js/app.js -->
+              <!-- Rendered with pagination by admin.js -->
             </tbody>
           </table>
         </div>
+
+        <!-- Pagination Controls Footer -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-4 border-t border-slate-800/80 mt-4 text-xs text-slate-400">
+          <div id="analytics-page-info">
+            Menampilkan 1 - 25 dari 2.319 siswa
+          </div>
+          
+          <div class="flex items-center gap-1.5 self-center sm:self-auto">
+            <button onclick="gotoAnalyticsPage('first')" class="px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed">
+              &laquo;
+            </button>
+            <button onclick="gotoAnalyticsPage('prev')" class="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed">
+              Sebelumnya
+            </button>
+            <span class="px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-800 font-mono text-emerald-400 font-bold" id="analytics-page-indicator">
+              Hal 1 / 93
+            </span>
+            <button onclick="gotoAnalyticsPage('next')" class="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed">
+              Selanjutnya
+            </button>
+            <button onclick="gotoAnalyticsPage('last')" class="px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed">
+              &raquo;
+            </button>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -1858,6 +1949,12 @@
           </select>
         </div>
 
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Setel Kata Sandi Awal (Opsional)</label>
+          <input id="add-member-password" type="text" placeholder="Kosongkan jika siswa akan buat sandi sendiri via OTP..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono">
+          <p class="text-[10px] text-slate-500 mt-1">Jika diisi, status akun langsung 'Password Aktif' tanpa perlu OTP pertama.</p>
+        </div>
+
         <div class="pt-3 border-t border-slate-800 flex items-center justify-end gap-2">
           <button type="button" onclick="closeAddMemberModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
             Batal
@@ -1913,6 +2010,12 @@
               <option value="false">Diblokir</option>
             </select>
           </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Setel Kata Sandi Baru Langsung (Opsional)</label>
+          <input id="edit-member-newpass" type="text" placeholder="Tulis sandi baru jika ingin mengubah langsung..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-cyan-500 font-mono">
+          <p class="text-[10px] text-slate-500 mt-1">Isi kolom ini jika ingin langsung mengubah sandi member tanpa siswa melakukan verifikasi OTP.</p>
         </div>
 
         <!-- Password Management Box -->
@@ -1981,6 +2084,91 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL: FORM TAMBAH MATERI / VIDEO KURIKULUM BARU
+       ========================================== -->
+  <div id="modal-add-lesson" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md hidden">
+    <div class="glass-card rounded-2xl p-6 sm:p-7 max-w-lg w-full relative shadow-2xl border border-slate-800">
+      <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span>Tambah Materi / Video Baru</span>
+        </h3>
+        <button type="button" onclick="closeAddLessonModal()" class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <form onsubmit="handleSaveAddLessonSubmit(event)" class="space-y-4">
+        <!-- Target Module Selection -->
+        <div>
+          <label for="add-lesson-module-select" class="block text-xs font-semibold text-slate-300 mb-1">Pilih Modul Kurikulum</label>
+          <select id="add-lesson-module-select" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+            <!-- Dynamically populated -->
+          </select>
+        </div>
+
+        <!-- Lesson Title -->
+        <div>
+          <label for="add-lesson-title" class="block text-xs font-semibold text-slate-300 mb-1">Judul Materi Pembelajaran</label>
+          <input id="add-lesson-title" type="text" placeholder="Contoh: Mengatur Prompt System & Rules AI" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500">
+        </div>
+
+        <!-- Estimated Duration & Youtube Link in Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label for="add-lesson-duration" class="block text-xs font-semibold text-slate-300 mb-1">Durasi (Menit)</label>
+            <input id="add-lesson-duration" type="number" min="1" value="15" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+          </div>
+          <div class="sm:col-span-2">
+            <label for="add-lesson-youtube" class="block text-xs font-semibold text-slate-300 mb-1">Link URL YouTube (Opsional)</label>
+            <input id="add-lesson-youtube" type="text" placeholder="https://www.youtube.com/watch?v=..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-emerald-400 font-mono placeholder-slate-600 focus:outline-none focus:border-cyan-500">
+          </div>
+        </div>
+
+        <!-- Initial Notes / Summary -->
+        <div>
+          <label for="add-lesson-notes" class="block text-xs font-semibold text-slate-300 mb-1">Catatan Penting Awal (Opsional)</label>
+          <textarea id="add-lesson-notes" rows="2.5" placeholder="Tuliskan ringkasan materi atau poin-poin yang akan dibahas..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"></textarea>
+        </div>
+
+        <!-- Action Footer -->
+        <div class="pt-3 border-t border-slate-800 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeAddLessonModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
+            Batal
+          </button>
+          <button type="submit" class="btn-primary-action px-5 py-2 rounded-xl text-xs font-semibold shadow-lg shadow-emerald-950/40">
+            Tambahkan Materi
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL: CUSTOM CONFIRMATION & ALERT DIALOG
+       ========================================== -->
+  <div id="modal-custom-confirm" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md hidden transition-opacity">
+    <div class="glass-card rounded-2xl p-6 max-w-sm w-full relative shadow-2xl border border-slate-800 text-center animate-in fade-in zoom-in duration-150">
+      <!-- Icon Container -->
+      <div id="confirm-modal-icon-container" class="w-12 h-12 rounded-2xl bg-rose-950/70 border border-rose-800/80 text-rose-400 mx-auto flex items-center justify-center mb-4">
+        <svg id="confirm-modal-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+      </div>
+
+      <h3 id="confirm-modal-title" class="text-base font-bold text-white mb-1.5">Konfirmasi Tindakan</h3>
+      <p id="confirm-modal-message" class="text-xs text-slate-300 leading-relaxed mb-5">Apakah Anda yakin ingin melanjutkan tindakan ini?</p>
+
+      <div class="flex items-center justify-center gap-2.5">
+        <button type="button" id="confirm-modal-btn-cancel" onclick="closeCustomConfirmModal(false)" class="w-full py-2.5 px-4 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-900 hover:bg-slate-800 border border-slate-800 transition-colors">
+          Batal
+        </button>
+        <button type="button" id="confirm-modal-btn-action" onclick="closeCustomConfirmModal(true)" class="w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white shadow-lg shadow-rose-950/60 transition-colors">
+          Ya, Lanjutkan
+        </button>
+      </div>
     </div>
   </div>
 
@@ -2484,18 +2672,18 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- Application Scripts (Modular Architecture with Cache Buster) -->
-  <script src="js/whitelist-data.js?v=34"></script>
-  <script src="js/mock-data.js?v=34"></script>
-  <script src="js/editor.js?v=34"></script>
-  <script src="js/core/state.js?v=34"></script>
-  <script src="js/core/supabase.js?v=34"></script>
-  <script src="js/core/router.js?v=34"></script>
-  <script src="js/core/particles.js?v=34"></script>
-  <script src="js/controllers/auth.js?v=34"></script>
-  <script src="js/controllers/landing.js?v=34"></script>
-  <script src="js/controllers/classroom.js?v=34"></script>
-  <script src="js/controllers/resources.js?v=34"></script>
-  <script src="js/controllers/admin.js?v=34"></script>
-  <script src="js/app.js?v=34"></script>
+  <script src="js/whitelist-data.js?v=36"></script>
+  <script src="js/mock-data.js?v=36"></script>
+  <script src="js/editor.js?v=36"></script>
+  <script src="js/core/state.js?v=36"></script>
+  <script src="js/core/supabase.js?v=36"></script>
+  <script src="js/core/router.js?v=36"></script>
+  <script src="js/core/particles.js?v=36"></script>
+  <script src="js/controllers/auth.js?v=36"></script>
+  <script src="js/controllers/landing.js?v=36"></script>
+  <script src="js/controllers/classroom.js?v=36"></script>
+  <script src="js/controllers/resources.js?v=36"></script>
+  <script src="js/controllers/admin.js?v=36"></script>
+  <script src="js/app.js?v=36"></script>
 </body>
 </html>

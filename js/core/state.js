@@ -139,33 +139,40 @@ function initStorage() {
 }
 
 function resetAllDataToZero() {
-  if (confirm('Hapus seluruh data kurikulum, materi, resources, dan progres kembali ke 0 (bersih)? Akun Admin Zettbos akan tetap aman.')) {
-    AppState.modules = [];
-    AppState.lessons = [];
-    AppState.progress = {};
-    AppState.favorites = {};
-    AppState.resources = [];
-    AppState.activity = {};
-    AppState.quickActions = [];
-    AppState.whitelist = [
-      {
-        id: 'owner-1',
-        email: 'zettbos2025@gmail.com',
-        fullName: 'Owner Zettbos (Super Admin)',
-        role: 'admin',
-        isActive: true,
-        passwordHash: null,
-        registeredAt: '2026-10-13'
+  showCustomConfirm({
+    title: 'Bersihkan Seluruh Data ke 0?',
+    message: 'Hapus seluruh data kurikulum, materi, resources, dan progres kembali ke 0 (bersih)? Akun Admin Zettbos akan tetap aman.',
+    confirmText: 'Ya, Bersihkan ke 0',
+    cancelText: 'Batal',
+    isDanger: true,
+    onConfirm: () => {
+      AppState.modules = [];
+      AppState.lessons = [];
+      AppState.progress = {};
+      AppState.favorites = {};
+      AppState.resources = [];
+      AppState.activity = {};
+      AppState.quickActions = [];
+      AppState.whitelist = [
+        {
+          id: 'owner-1',
+          email: 'zettbos2025@gmail.com',
+          fullName: 'Owner Zettbos (Super Admin)',
+          role: 'admin',
+          isActive: true,
+          passwordHash: null,
+          registeredAt: '2026-10-13'
+        }
+      ];
+      if (AppState.landingCms) {
+        AppState.landingCms.testimonials = [];
       }
-    ];
-    if (AppState.landingCms) {
-      AppState.landingCms.testimonials = [];
+      AppState.currentUser = AppState.whitelist[0];
+      saveState();
+      showToast('Seluruh data berhasil dibersihkan kembali ke 0!', 'success');
+      if (window.navigate) navigate(AppState.currentView || 'admin');
     }
-    AppState.currentUser = AppState.whitelist[0];
-    saveState();
-    showToast('Seluruh data berhasil dibersihkan kembali ke 0!', 'success');
-    navigate(AppState.currentView || 'admin');
-  }
+  });
 }
 window.resetAllDataToZero = resetAllDataToZero;
 
@@ -242,14 +249,86 @@ function saveState() {
   }
 }
 
-function resetAllToDefault() {
-  if (confirm('Kembalikan seluruh data materi, whitelist, dan progres ke kondisi awal bawaan?')) {
-    localStorage.clear();
-    initStorage();
-    showToast('Data berhasil di-reset ke kondisi awal!', 'info');
-    if (window.navigate) window.navigate('home');
+// ==========================================
+// CUSTOM CONFIRMATION MODAL (ZERO BROWSER POPUPS)
+// ==========================================
+
+let customConfirmCallback = null;
+
+function showCustomConfirm({
+  title = 'Konfirmasi Tindakan',
+  message = 'Apakah Anda yakin ingin melanjutkan tindakan ini?',
+  confirmText = 'Ya, Lanjutkan',
+  cancelText = 'Batal',
+  isDanger = true,
+  onConfirm
+} = {}) {
+  const modal = document.getElementById('modal-custom-confirm');
+  if (!modal) {
+    if (confirm(message)) {
+      if (typeof onConfirm === 'function') onConfirm();
+    }
+    return;
   }
+
+  const titleEl = document.getElementById('confirm-modal-title');
+  const msgEl = document.getElementById('confirm-modal-message');
+  const actionBtn = document.getElementById('confirm-modal-btn-action');
+  const cancelBtn = document.getElementById('confirm-modal-btn-cancel');
+  const iconContainer = document.getElementById('confirm-modal-icon-container');
+
+  if (titleEl) titleEl.textContent = title;
+  if (msgEl) msgEl.textContent = message;
+  if (cancelBtn) cancelBtn.textContent = cancelText;
+
+  if (actionBtn) {
+    actionBtn.textContent = confirmText;
+    if (isDanger) {
+      actionBtn.className = 'w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white shadow-lg shadow-rose-950/60 transition-colors';
+    } else {
+      actionBtn.className = 'w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-950/60 transition-colors';
+    }
+  }
+
+  if (iconContainer) {
+    if (isDanger) {
+      iconContainer.className = 'w-12 h-12 rounded-2xl bg-rose-950/70 border border-rose-800/80 text-rose-400 mx-auto flex items-center justify-center mb-4';
+    } else {
+      iconContainer.className = 'w-12 h-12 rounded-2xl bg-amber-950/70 border border-amber-800/80 text-amber-400 mx-auto flex items-center justify-center mb-4';
+    }
+  }
+
+  customConfirmCallback = onConfirm;
+  modal.classList.remove('hidden');
 }
+window.showCustomConfirm = showCustomConfirm;
+
+function closeCustomConfirmModal(isConfirmed) {
+  const modal = document.getElementById('modal-custom-confirm');
+  if (modal) modal.classList.add('hidden');
+  if (isConfirmed && typeof customConfirmCallback === 'function') {
+    customConfirmCallback();
+  }
+  customConfirmCallback = null;
+}
+window.closeCustomConfirmModal = closeCustomConfirmModal;
+
+function resetAllToDefault() {
+  showCustomConfirm({
+    title: 'Reset ke Data Bawaan Awal?',
+    message: 'Kembalikan seluruh data materi kurikulum, whitelist, dan progres belajar ke kondisi awal bawaan?',
+    confirmText: 'Ya, Reset ke Awal',
+    cancelText: 'Batal',
+    isDanger: true,
+    onConfirm: () => {
+      localStorage.clear();
+      initStorage();
+      showToast('Data berhasil di-reset ke kondisi awal!', 'info');
+      if (window.navigate) window.navigate('home');
+    }
+  });
+}
+window.resetAllToDefault = resetAllToDefault;
 
 function showToast(message, type = 'info', duration = 3500) {
   const container = document.getElementById('toast-container');
