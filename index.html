@@ -1,0 +1,2173 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zettbos Member Hub - Belajar Bikin Web App Full Pakai AI</title>
+  <meta name="description" content="Platform edukasi resmi Zettbos untuk belajar membuat web app full pakai AI dari nol sampai online dengan praktek langsung, modul terstruktur, dan bimbingan mentor." />
+  
+  <!-- Anti-FOUC Zero-Flash Theme Script -->
+  <script>
+    (function() {
+      try {
+        var saved = localStorage.getItem('zett_theme') || 'dark';
+        document.documentElement.className = saved;
+      } catch (e) {
+        document.documentElement.className = 'dark';
+      }
+    })();
+  </script>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              emerald: '#10B981',
+              cyan: '#06B6D4',
+              dark: '#070B14',
+              surface: '#0E1626',
+              card: '#131E33'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--fg)] selection:bg-emerald-500/30 selection:text-emerald-300 transition-colors duration-150">
+
+  <!-- Fixed Cyber Particle Network Canvas (Inspirasi referensi2.html) -->
+  <canvas id="particles-canvas"></canvas>
+
+  <!-- ==========================================
+       MAIN NAVBAR (Decluttered with Hamburger Menu & Clean Mobile View)
+       ========================================== -->
+  <header id="main-navbar" class="sticky top-0 z-50 glass-nav hidden">
+    <div class="max-w-[1440px] 2xl:max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
+      
+      <!-- Left: Hamburger Button + Brand Logo -->
+      <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+        <!-- Hamburger Menu Button (Hidden on Mobile, Visible on Tablet/Desktop) -->
+        <button id="btn-sidebar-toggle" onclick="toggleSidebarDrawer()" title="Buka Menu Navigasi" class="hidden md:flex p-2 rounded-xl text-slate-300 hover:text-white hover:bg-[#1C1F26] border border-[#262933] transition-all items-center justify-center group focus:outline-none focus:border-emerald-500">
+          <svg class="w-5 h-5 text-emerald-400 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+
+        <!-- Brand Logo (Compact & Single-Line on Mobile) -->
+        <div class="flex items-center gap-2 cursor-pointer select-none" onclick="navigate('home')">
+          <div class="w-8 h-8 rounded-lg bg-emerald-950/80 border border-emerald-500/40 flex items-center justify-center shadow-sm flex-shrink-0">
+            <span class="text-xs font-black text-emerald-400 font-mono tracking-tighter">ZB</span>
+          </div>
+          <div class="flex flex-col min-w-0">
+            <div class="flex items-center gap-1.5">
+              <span class="font-extrabold text-sm sm:text-base tracking-tight text-white whitespace-nowrap">ZETTBOS</span>
+              <span class="hidden sm:inline-block text-[10px] font-semibold px-1.5 py-0.5 rounded bg-emerald-950/70 text-emerald-400 border border-emerald-500/30 tracking-caps uppercase whitespace-nowrap">MEMBER HUB</span>
+            </div>
+            <span class="hidden sm:block text-[10px] text-slate-400 tracking-caps uppercase -mt-0.5 whitespace-nowrap">Web App AI Academy</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center: Active Page Breadcrumb Indicator (Desktop only) -->
+      <div id="nav-center-indicator" class="hidden md:flex items-center gap-2 text-xs font-semibold px-3.5 py-1.5 rounded-full bg-[#16181D] border border-[#262933] text-slate-300 shadow-inner">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span id="nav-current-page-label">Home Kurikulum</span>
+      </div>
+
+      <!-- Right User Controls -->
+      <div id="nav-user-section" class="flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
+        <!-- Quick Role Switch Pill for testing (Strictly Desktop only, guaranteed hidden on mobile) -->
+        <button id="nav-mode-switch" onclick="toggleAdminMemberMode()" title="Klik untuk beralih mode pengujian Admin / Siswa" class="nav-hidden text-[11px] font-medium px-2.5 py-1 rounded-lg bg-[#16181D] hover:bg-[#1C1F26] text-slate-300 border border-[#262933] transition-colors items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+          <span class="hidden sm:inline">Ubah Mode:</span>
+          <span id="nav-role-badge">ADMIN</span>
+        </button>
+
+        <!-- Theme Toggle Button (Desktop & Tablet) -->
+        <button id="nav-btn-theme-toggle" onclick="toggleTheme()" title="Beralih Mode Gelap / Terang" class="hidden md:flex p-1.5 sm:p-2 rounded-lg text-slate-300 hover:text-white hover:bg-[#1C1F26] border border-[#262933] transition-colors items-center justify-center">
+          <span id="nav-theme-icon">
+            <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path stroke-linecap="round" d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41m14.14-14.14l-1.41 1.41"/></svg>
+          </span>
+        </button>
+
+        <div class="h-6 w-px bg-[#262933] mx-1 hidden md:block"></div>
+
+        <div class="flex items-center gap-2 pl-0.5 cursor-pointer" onclick="toggleSidebarDrawer()" title="Buka Menu & Profil">
+          <div class="w-8 h-8 rounded-full bg-[#16181D] border border-[#262933] hover:border-emerald-500/50 flex items-center justify-center text-xs font-bold text-emerald-400 transition-colors flex-shrink-0">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+          </div>
+          <span id="nav-user-name" class="text-xs font-semibold text-slate-200 hidden md:inline max-w-[140px] truncate">Farhan</span>
+        </div>
+
+        <button onclick="logout()" title="Keluar" class="p-1.5 sm:p-2 text-slate-400 hover:text-rose-400 hover:bg-[#1C1F26] rounded-lg transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ==========================================
+       GLOBAL SIDEBAR DRAWER (PC & MOBILE MENU)
+       ========================================== -->
+  <div id="sidebar-drawer-overlay" onclick="closeSidebarDrawer()" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden transition-opacity"></div>
+  
+  <aside id="sidebar-drawer" class="sidebar-drawer-panel fixed inset-y-0 left-0 z-[60] w-72 sm:w-80 shadow-2xl flex flex-col justify-between hidden animate-drawer-left">
+    <!-- Top: Drawer Header -->
+    <div class="drawer-header p-5 border-b flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-emerald-950/80 border border-emerald-500/40 flex items-center justify-center font-mono font-bold text-xs text-emerald-400">ZB</div>
+        <div>
+          <div class="drawer-brand-title text-sm font-extrabold tracking-tight">ZETTBOS</div>
+          <div class="text-[10px] text-slate-400 tracking-caps uppercase">Navigation Hub</div>
+        </div>
+      </div>
+      <button onclick="closeSidebarDrawer()" class="drawer-close-btn p-1.5 rounded-lg transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <!-- Middle: Nav Links -->
+    <div class="flex-1 overflow-y-auto p-4 space-y-1.5">
+      <div class="drawer-section-label text-[10px] font-bold uppercase tracking-caps px-3 py-1">Navigasi Utama</div>
+      
+      <button id="drawer-btn-home" onclick="navigate('home'); closeSidebarDrawer();" class="w-full px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-900 border border-transparent hover:border-slate-800 transition-all flex items-center gap-3">
+        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        <span>Home Kurikulum</span>
+      </button>
+
+      <button id="drawer-btn-dashboard" onclick="navigate('user-dashboard'); closeSidebarDrawer();" class="w-full px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-900 border border-transparent hover:border-slate-800 transition-all flex items-center gap-3">
+        <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        <span>Dashboard Data Belajar</span>
+      </button>
+
+      <button id="drawer-btn-learn" onclick="navigate('learn'); closeSidebarDrawer();" class="w-full px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-900 border border-transparent hover:border-slate-800 transition-all flex items-center gap-3">
+        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>Ruang Belajar & Video</span>
+      </button>
+
+      <!-- Dokumen & Resource -->
+      <button id="drawer-btn-resources" onclick="navigate('resources'); closeSidebarDrawer();" class="w-full px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-900 border border-transparent hover:border-slate-800 transition-all flex items-center gap-3">
+        <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        <span class="flex-1 text-left">Dokumen & Resource</span>
+        <span class="text-[9px] px-1.5 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-800/80 font-bold">BARU</span>
+      </button>
+
+      <button id="drawer-btn-favorites" onclick="navigate('favorites'); closeSidebarDrawer();" class="w-full px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-900 border border-transparent hover:border-slate-800 transition-all flex items-center gap-3">
+        <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
+        <span>Item Favorit & Simpanan</span>
+      </button>
+
+      <!-- Theme Switcher Row (PC & Mobile) -->
+      <div class="pt-2">
+        <div class="drawer-section-label text-[10px] font-bold uppercase tracking-caps px-3 py-1">Preferensi Tampilan</div>
+        <button onclick="toggleTheme()" class="w-full px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-900 border border-transparent hover:border-slate-800 transition-all flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span id="drawer-theme-icon" class="flex-shrink-0">
+              <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path stroke-linecap="round" d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41m14.14-14.14l-1.41 1.41"/></svg>
+            </span>
+            <span>Tema Tampilan</span>
+          </div>
+          <span id="drawer-theme-label" class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-800 text-slate-300 border border-slate-700">DARK</span>
+        </button>
+      </div>
+
+      <div id="drawer-admin-section" class="pt-3 hidden space-y-1.5">
+        <div class="text-[10px] font-bold text-rose-400/80 uppercase tracking-caps px-3 py-1">Area Owner / Admin</div>
+        <button id="drawer-btn-admin" onclick="navigate('admin'); closeSidebarDrawer();" class="w-full px-3.5 py-2.5 rounded-xl text-xs font-semibold text-rose-300 hover:text-rose-200 hover:bg-rose-950/40 border border-rose-900/50 transition-all flex items-center gap-3">
+          <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <span>Admin Panel Kurikulum</span>
+        </button>
+
+        <button onclick="toggleAdminMemberMode(); closeSidebarDrawer();" class="w-full px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-[#16181D] border border-[#262933] transition-all flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+            <span>Beralih Mode Pengujian</span>
+          </div>
+          <span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-rose-950 text-rose-300 border border-rose-800/80">ADMIN</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Bottom: Drawer User Profile -->
+    <div class="drawer-footer p-4 border-t">
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold text-emerald-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+          </div>
+          <div class="flex flex-col">
+            <span id="drawer-user-name" class="text-xs font-bold truncate max-w-[130px]">Farhan</span>
+            <span id="drawer-user-role" class="text-[10px] text-emerald-400 font-mono">ADMIN / OWNER</span>
+          </div>
+        </div>
+        <button onclick="logout()" title="Logout" class="drawer-close-btn p-2 rounded-lg transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ==========================================
+       VIEW 0: LANDING PORTAL (ZETTBOS ACADEMY PRE-LOGIN SHOWCASE)
+       Inspirasi referensi.html: Floating Pill Nav, Hero, Overlap Banner,
+       Bento Split Showcase, and Use-Case Cards.
+       ========================================== -->
+  <div id="view-landing" class="flex-1 flex flex-col hidden min-h-screen relative overflow-x-hidden">
+    <!-- Ambient Engineering Matrix Overlay -->
+    <div class="landing-matrix-overlay"></div>
+    
+    <!-- 1. Floating Pill Header (Inspirasi hp-nav-shell) -->
+    <header class="fixed top-3 sm:top-5 inset-x-0 z-50 px-3 sm:px-6 lg:px-8">
+      <div class="max-w-[1440px] 2xl:max-w-[1600px] mx-auto h-14 sm:h-16 landing-pill-nav rounded-2xl sm:rounded-[26px] px-4 sm:px-8 flex items-center justify-between">
+        <!-- Brand Logo -->
+        <div class="flex items-center gap-2 cursor-pointer select-none" onclick="navigate('landing')">
+          <div class="w-8 h-8 rounded-lg bg-emerald-950/80 border border-emerald-500/40 flex items-center justify-center font-mono font-bold text-xs text-emerald-400">ZB</div>
+          <div class="flex items-center gap-1.5">
+            <span class="font-extrabold text-sm sm:text-base tracking-tight text-white">ZETTBOS</span>
+            <span class="hidden sm:inline-block text-[10px] font-semibold px-1.5 py-0.5 rounded bg-emerald-950/70 text-emerald-400 border border-emerald-500/30 tracking-caps uppercase">ACADEMY</span>
+          </div>
+        </div>
+
+        <!-- Desktop Navigation Links -->
+        <nav class="hidden md:flex items-center gap-7 text-xs font-semibold text-slate-300">
+          <a href="#landing-hero" class="hover:text-emerald-400 transition-colors">Beranda</a>
+          <a href="#landing-curriculum" class="hover:text-emerald-400 transition-colors">Kurikulum Modul</a>
+          <a href="#landing-usecases" class="hover:text-emerald-400 transition-colors">Target Siswa</a>
+          <a href="#landing-testimonials" class="hover:text-emerald-400 transition-colors">Testimoni</a>
+        </nav>
+
+        <!-- Right Controls: Theme Toggle & Masuk Member -->
+        <div class="flex items-center gap-2 sm:gap-2.5">
+          <button onclick="toggleTheme()" title="Beralih Tema (Dark/Light)" class="p-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800/80 border border-slate-700/80 transition-colors flex items-center justify-center">
+            <span id="landing-theme-icon">
+              <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path stroke-linecap="round" d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41m14.14-14.14l-1.41 1.41"/></svg>
+            </span>
+          </button>
+          <button onclick="navigate('login')" class="btn-primary-action px-3.5 sm:px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-sm">
+            <span>Masuk Member</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- 2. Hero Section (Inspirasi hp-mobile-hero) -->
+    <section id="landing-hero" class="pt-20 sm:pt-32 pb-12 sm:pb-20 px-4 sm:px-8 lg:px-12 max-w-[1440px] 2xl:max-w-[1600px] mx-auto w-full relative">
+      <!-- Ambient Background Spotlight -->
+      <div class="hero-ambient-spotlight"></div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center relative z-10">
+        <!-- Left: Headline & Interactive Input -->
+        <div class="lg:col-span-7 flex flex-col items-start">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 text-[11px] font-semibold mb-3.5 tracking-caps uppercase shadow-sm">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span id="landing-hero-badge">Kelas Praktek • Bikin Web App Full Pakai AI</span>
+          </div>
+          
+          <h1 class="text-2xl sm:text-4xl lg:text-[3.25rem] font-black text-white tracking-tight leading-[1.24] sm:leading-[1.18] mb-4">
+            <span id="landing-hero-pre">Bikin Web App Sendiri Full Pakai AI.</span> <br class="hidden sm:inline" />
+            <span class="inline-block relative">
+              <span id="hero-typing-phrase" class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400">Langsung Praktek Jadi Aplikasi</span><span id="hero-typing-cursor" class="typewriter-blink-cursor"></span>
+            </span>
+            <br class="hidden sm:inline" />
+            <span id="landing-hero-post">Dari Nol Sampai Online.</span>
+          </h1>
+          
+          <p id="landing-hero-desc" class="text-xs sm:text-base text-slate-400 leading-relaxed mb-5 sm:mb-6 max-w-xl">
+            Di kelas Zettbos, Anda tidak diajari teori hafalan koding yang bikin pusing. Anda langsung praktek bikin web app fungsional dari nol—mulai dari minta AI bikinin aplikasinya, nambah fitur, beresin error kalau ada bug, sampai hosting dan pasang domain sendiri. Semua orang bisa bikin sistemnya sendiri tanpa perlu sewa programmer.
+          </p>
+
+          <!-- Interactive One-Line Email Form -->
+          <form onsubmit="handleLandingEmailSubmit(event)" class="hero-email-form w-full max-w-lg p-1.5 rounded-2xl glass-card flex flex-col sm:flex-row gap-2 shadow-xl mb-3.5 group transition-all">
+            <div class="flex-1 flex items-center px-3 gap-2.5 h-11 sm:h-auto">
+              <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.206"/></svg>
+              <input id="landing-email-input" type="email" placeholder="Ketik email Anda..." class="w-full bg-transparent border-0 text-xs sm:text-sm placeholder-slate-400 focus:outline-none" required />
+            </div>
+            <button type="submit" class="btn-primary-action px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 whitespace-nowrap shadow-md h-11 sm:h-auto">
+              <span id="landing-cta-btn-text">Mulai Bikin Web App Sendiri</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            </button>
+          </form>
+
+          <!-- Quick 1-Click Access Button -->
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-[11px] text-slate-400 font-medium">Akses langsung Owner:</span>
+            <button type="button" onclick="loginAsDemo('farhan@zettbos.com')" class="demo-pill demo-pill-admin px-3 py-1.5 rounded-lg text-[11px] font-mono transition-all">
+              Masuk sebagai Farhan (Owner)
+            </button>
+          </div>
+        </div>
+
+        <!-- Right: Studio Visual Mockup (Mobile-Harmonized & Desktop-Floating) -->
+        <div class="lg:col-span-5 relative mt-3 sm:mt-0 flex flex-col items-center justify-center">
+          <!-- Card 3: Completion Badge (Mobile-integrated / Desktop-floating) -->
+          <div class="hero-float-badge hero-float-progress w-full sm:w-auto sm:absolute sm:-top-3 sm:-right-4 mb-2.5 sm:mb-0 rounded-xl p-2.5 sm:p-3 shadow-xl flex items-center justify-between sm:justify-start gap-2.5 animate-float-card-3 z-20">
+            <div class="flex items-center gap-2.5">
+              <div class="hero-float-icon-box w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-cyan-950 flex items-center justify-center text-cyan-400 border border-cyan-500/40 shrink-0">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+              </div>
+              <div class="hero-float-title text-[11px] sm:text-xs font-bold">100% Progres Belajar Real-Time</div>
+            </div>
+            <span class="text-[9px] font-mono text-cyan-400 px-1.5 py-0.5 rounded bg-cyan-950/80 border border-cyan-800 sm:hidden">LIVE</span>
+          </div>
+
+          <!-- Card 1: Schematic IDE Window -->
+          <div class="w-full max-w-md sm:max-w-lg lg:max-w-md xl:max-w-lg glass-card rounded-2xl p-4 sm:p-5 border border-[var(--border)] shadow-2xl animate-float-card-1 relative z-10">
+            <div class="flex items-center justify-between pb-3 mb-3 border-b border-[var(--border)] text-[11px] font-mono text-slate-400">
+              <div class="flex items-center gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-rose-500/80"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-amber-500/80"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></span>
+                <span class="ml-2 text-slate-300 font-semibold">ZettbosEngine.js</span>
+              </div>
+              <span class="text-emerald-400 font-bold">GAS v2.4</span>
+            </div>
+            <div class="space-y-1.5 font-mono text-xs text-slate-300">
+              <p class="text-slate-500">// 1. Script Engine Web App AI</p>
+              <p><span class="text-cyan-400">function</span> <span class="text-emerald-400">doGet</span>(e) {</p>
+              <p class="pl-4 text-slate-400">const template = HtmlService.createTemplateFromFile('app');</p>
+              <p class="pl-4 text-emerald-300">return template.evaluate().setTitle('Zettbos LMS');</p>
+              <p>}</p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-[var(--border)] flex items-center justify-between">
+              <span class="micro-tag-pill">
+                <svg class="w-3 h-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                Deploy Cloud Aktif
+              </span>
+              <div class="flex items-center gap-1.5 font-mono text-[11px] text-slate-400">
+                <span class="text-emerald-400">&gt;</span>
+                <span id="hero-terminal-status">siap mengeksekusi</span>
+                <span class="w-1.5 h-3 bg-emerald-400 inline-block animate-pulse"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Floating Video Preview Badge (Mobile-integrated / Desktop-floating) -->
+          <div class="hero-float-badge hero-float-video w-full sm:w-auto sm:absolute sm:-bottom-4 sm:-left-6 mt-2.5 sm:mt-0 rounded-xl p-2.5 sm:p-3 shadow-xl flex items-center gap-3 animate-float-card-2 z-20">
+            <div class="hero-float-icon-box w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-emerald-950 flex items-center justify-center text-emerald-400 border border-emerald-500/40 shrink-0">
+              <svg class="w-4 h-4 sm:w-5 sm:h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </div>
+            <div>
+              <div class="hero-float-title text-[11px] sm:text-xs font-bold">Full HD Video Course</div>
+              <div class="hero-float-subtitle text-[10px] font-mono">12 Episode • Terstruktur</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Floating Overlap Banner: Minimal Frosted Glass Strip (Opsi 1) -->
+    <div id="landing-overlap-banner" class="relative z-20 max-w-[1440px] 2xl:max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-12 w-full -mt-6 sm:-mt-8 mb-12">
+      <div class="landing-frosted-strip rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 transition-all">
+        <div class="flex items-center gap-3.5 sm:gap-4 min-w-0">
+          <!-- Monoline Icon Container with Subtle Glow -->
+          <div class="strip-icon-box w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center flex-shrink-0 transition-all">
+            <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </div>
+          <!-- Text Content -->
+          <div class="min-w-0">
+            <div class="flex items-center gap-2 mb-0.5">
+              <span class="strip-badge text-[10px] font-mono uppercase tracking-caps px-2 py-0.5 rounded font-bold">100% Praktek Langsung</span>
+              <span class="hidden md:inline-block text-[11px] text-emerald-400 font-mono">• Tanpa Perlu Sewa Programmer</span>
+            </div>
+            <h3 id="landing-banner-title" class="strip-title text-sm sm:text-base font-bold text-white tracking-tight leading-snug">Bikin Aplikasinya Sendiri, Stop Ketergantungan ke Orang Lain</h3>
+            <p id="landing-banner-desc" class="strip-desc text-xs text-slate-400 mt-0.5 line-clamp-1 sm:line-clamp-none">Semua modul dibuat step-by-step. Begitu selesai kelas, aplikasi Anda sudah jadi, berfungsi normal, dan siap dipakai untuk operasional bisnis atau dijual ke klien.</p>
+          </div>
+        </div>
+        <!-- Right CTA Button -->
+        <a href="#landing-curriculum" class="strip-cta-btn px-4 sm:px-5 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 whitespace-nowrap transition-all shadow-sm shrink-0">
+          <span>Lihat 5 Modul Kurikulum</span>
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- 4. Bento Split Curriculum Showcase (Inspirasi #features di referensi.html) -->
+    <section id="landing-curriculum" class="py-12 sm:py-16 px-4 sm:px-8 lg:px-12 max-w-[1440px] 2xl:max-w-[1600px] mx-auto w-full">
+      <div class="text-center mb-10">
+        <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">Tahapan Praktek: Dari Nol Sampai Aplikasi Jadi &amp; Online</h2>
+        <p class="text-xs sm:text-sm text-slate-400 mt-2 max-w-lg mx-auto">
+          Bukan tutorial potongan. Anda dipandu alur lengkapnya: dari menyusun prompt awal, menghubungkan database Google Sheets, mendesain tampilan, menuntaskan error bareng AI, hingga aplikasi live dengan nama domain Anda sendiri.
+        </p>
+      </div>
+
+      <!-- Bento Big Card Container with Frosted Glass -->
+      <div class="glass-card-translucent rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-[var(--border)] shadow-2xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+        <!-- Left: 5 Interactive Tab Buttons -->
+        <div class="lg:col-span-5 flex flex-col gap-2.5" id="landing-module-tabs">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Right: Dynamic Preview Card -->
+        <div class="lg:col-span-7 surface-well rounded-2xl p-5 sm:p-6 flex flex-col justify-between" id="landing-module-preview">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Audience Use-Case Cards (CMS-Driven) -->
+    <section id="landing-usecases" class="py-10 sm:py-16 px-4 sm:px-8 lg:px-12 max-w-[1440px] 2xl:max-w-[1600px] mx-auto w-full">
+      <div class="text-center mb-8 sm:mb-10">
+        <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">Siapa Saja yang Butuh Bikin Web App Pakai AI?</h2>
+        <p class="text-xs sm:text-sm text-slate-400 mt-2 max-w-lg mx-auto">
+          Bukan cuma untuk orang IT. Siapapun Anda yang butuh sistem bisnis sendiri, ingin kerjaan kantor lebih cepat beres, atau mau cari penghasilan tambahan—sekarang semuanya bisa bikin sendiri full pakai AI.
+        </p>
+      </div>
+
+      <div id="landing-usecases-container" class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+        <!-- Rendered dynamically by js/app.js from AppState.landingCms.useCases -->
+      </div>
+    </section>
+
+    <!-- 6. Social Proof & Testimonials (CMS-Driven Lynk-Style Marquee) -->
+    <section id="landing-testimonials" class="py-12 sm:py-16 overflow-hidden w-full relative">
+      <div class="text-center mb-8 sm:mb-10 px-4 max-w-[1440px] mx-auto">
+        <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">Cerita Member Zettbos</h2>
+        <p class="text-xs sm:text-sm text-slate-400 mt-2 max-w-lg mx-auto">
+          Bagaimana alumni member mendeploy aplikasi nyata mereka dari nol hingga siap pakai.
+        </p>
+      </div>
+
+      <!-- Marquee Carousel Track with Edge Mask -->
+      <div class="testimonial-marquee-container">
+        <div id="landing-testimonials-track" class="testimonial-marquee-track">
+          <!-- Rendered dynamically by js/app.js from AppState.landingCms.testimonials -->
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. Footer (Inspirasi footer di referensi.html) -->
+    <footer class="mt-auto border-t border-[var(--border)] py-10 px-4 sm:px-8 lg:px-12">
+      <div class="max-w-[1440px] 2xl:max-w-[1600px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div class="flex items-center gap-2.5">
+          <div class="w-7 h-7 rounded-lg bg-emerald-950 border border-emerald-500/40 flex items-center justify-center font-mono font-bold text-xs text-emerald-400">ZB</div>
+          <span class="text-sm font-bold text-white">ZETTBOS ACADEMY</span>
+          <span class="text-xs text-slate-500">• Belajar Web App AI</span>
+        </div>
+        <div class="flex items-center gap-6 text-xs text-slate-400">
+          <button onclick="navigate('login')" class="hover:text-emerald-400 transition-colors">Portal Login Member</button>
+          <a href="https://wa.me/6281234567890?text=Halo%20Admin%20Zettbos,%20saya%20tertarik%20dengan%20kelas%20web%20app%20AI" target="_blank" class="hover:text-emerald-400 transition-colors">Hubungi Mentor WhatsApp</a>
+        </div>
+        <div class="text-xs text-slate-500 font-mono">
+          &copy; 2026 Zettbos. All rights reserved.
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+
+  <!-- ==========================================
+       VIEW 1: LOGIN (WHITELIST GATEKEEPER)
+       ========================================== -->
+  <main id="view-login" class="flex-1 flex items-center justify-center p-4 sm:p-6 my-auto relative hidden">
+    <!-- Back to Landing Link -->
+    <div class="fixed top-4 left-4 z-40">
+      <button onclick="navigate('landing')" class="px-3.5 py-1.5 rounded-full text-xs font-medium glass-card flex items-center gap-1.5 text-slate-300 hover:text-white transition-all shadow-md">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+        <span>Ke Halaman Utama</span>
+      </button>
+    </div>
+    <!-- Floating Theme Switcher on Login View -->
+    <div class="fixed top-4 right-4 z-40">
+      <button onclick="toggleTheme()" id="login-btn-theme-toggle" title="Beralih Mode Gelap / Terang" class="px-3.5 py-1.5 rounded-full text-xs font-semibold glass-card flex items-center gap-2 text-slate-300 hover:text-white transition-all shadow-md">
+        <span id="login-theme-icon" class="flex-shrink-0">
+          <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path stroke-linecap="round" d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41m14.14-14.14l-1.41 1.41"/></svg>
+        </span>
+        <span id="login-theme-text" class="font-mono text-[11px]">Dark Mode</span>
+      </button>
+    </div>
+
+    <div class="w-full max-w-md">
+      
+      <!-- Brand Card Header -->
+      <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-surface-1 border border-hairline mb-4 shadow-sm">
+          <span class="text-2xl font-black font-mono text-emerald-400 tracking-tighter">ZB</span>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">ZETTBOS MEMBER HUB</h1>
+        <p class="text-xs sm:text-sm text-slate-400 mt-1.5 max-w-sm mx-auto">
+          Portal pembelajaran resmi kelas Bikin Web App Full Pakai AI Zettbos.
+        </p>
+      </div>
+
+      <!-- Login Box -->
+      <div class="glass-card rounded-xl p-6 sm:p-8 relative overflow-hidden">
+
+        <div class="mb-5">
+          <h2 class="text-base font-bold text-white">Login Member</h2>
+          <p class="text-xs text-slate-400 mt-0.5">
+            Gunakan email yang sudah Anda daftarkan saat pendaftaran kelas.
+          </p>
+        </div>
+
+        <form onsubmit="handleLoginSubmit(event)" class="space-y-4">
+          <div>
+            <label for="login-email-input" class="block text-xs font-semibold text-slate-300 mb-1.5">Alamat Email Pendaftar</label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.206"/></svg>
+              </div>
+              <input 
+                id="login-email-input" 
+                type="email" 
+                required 
+                placeholder="nama@email.com"
+                class="w-full pl-10 pr-4 py-2.5 rounded-lg bg-slate-950 border border-slate-800 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all"
+              />
+            </div>
+          </div>
+
+          <button type="submit" class="w-full btn-primary-action py-2.5 rounded-lg font-semibold text-sm flex items-center justify-center gap-2">
+            <span>Kirim Kode OTP Masuk</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          </button>
+        </form>
+
+        <!-- Quick Demo Pill for instant prototype testing -->
+        <!-- Quick Access Pill for Owner -->
+        <div class="mt-6 pt-5 border-t border-slate-800/80">
+          <p class="text-[11px] font-semibold text-slate-400 mb-2 text-center">Akses Cepat Pengelola (Clean Slate):</p>
+          <div class="flex flex-wrap gap-2 justify-center">
+            <button type="button" onclick="loginAsDemo('farhan@zettbos.com')" class="px-3.5 py-1.5 rounded-lg text-[11px] bg-slate-900 hover:bg-slate-800 text-emerald-400 border border-slate-800 font-mono transition-colors">
+              farhan@zettbos.com (Owner / Admin)
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="mt-6 text-center text-xs text-slate-500">
+        Butuh bantuan atau belum mendaftar? <a href="https://wa.me/6281234567890?text=Halo%20Admin%20Zettbos,%20saya%20ingin%20mendaftar%20kelas%20web%20app%20AI" target="_blank" class="text-emerald-400 hover:underline">Hubungi Admin Zettbos</a>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ==========================================
+       VIEW 2A: HOME (KATALOG MODUL & RESUME BELAJAR)
+       ========================================== -->
+  <main id="view-home" class="flex-1 max-w-[1440px] 2xl:max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 hidden">
+    
+    <!-- Top Greeting Banner -->
+    <div class="glass-card-static rounded-2xl p-5 sm:p-7 mb-6 sm:mb-8 relative overflow-hidden">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+        <div>
+          <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-emerald-950/80 text-emerald-300 border border-emerald-500/30 text-[11px] font-semibold mb-2.5 tracking-caps uppercase">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            Member Hub Aktif
+          </div>
+          <h1 class="text-xl sm:text-3xl font-extrabold text-white tracking-tight">
+            Selamat Datang di Home, <span id="dash-user-greeting" class="text-white">Farhan</span>
+          </h1>
+          <p class="text-xs sm:text-sm text-slate-400 mt-1 max-w-xl">
+            Akses seluruh kurikulum modul video di bawah ini. Anda dapat membuka halaman <strong>Dashboard</strong> di atas untuk memantau detail jam belajar dan analitik Anda.
+          </p>
+        </div>
+
+        <!-- Global Progress Metric Widget -->
+        <div class="surface-well p-4 sm:p-5 min-w-[260px] sm:min-w-[280px]">
+          <div class="flex items-center justify-between text-xs mb-2">
+            <span class="text-slate-400 font-medium">Progres Kelulusan Belajar:</span>
+            <span id="dash-progress-percent" class="font-extrabold text-emerald-400 text-sm font-mono">0%</span>
+          </div>
+          <!-- Progress Bar -->
+          <div class="w-full h-2 rounded-full bg-slate-900 border border-slate-800 overflow-hidden mb-2">
+            <div id="dash-progress-bar" class="h-full bg-emerald-500 rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+          <div class="flex items-center justify-between text-[11px] text-slate-500">
+            <span id="dash-completed-count" class="font-mono">0 dari 0 Materi Selesai</span>
+            <button onclick="navigate('user-dashboard')" class="text-slate-300 hover:text-white font-medium">Detail &rarr;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Featured Lesson Banner (Materi Terakhir Ditonton - Gambar 1) -->
+    <div id="dash-featured-lesson" class="mb-6 sm:mb-8 p-4 sm:p-6 rounded-2xl featured-lesson-hero-card flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-5 relative overflow-hidden group">
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 flex-1">
+        <!-- Schematic / IDE Video Thumbnail Preview -->
+        <div class="relative w-full sm:w-56 h-32 rounded-xl bg-[#0D0E11] border border-[var(--border)] flex flex-col justify-between p-3 overflow-hidden flex-shrink-0 group-hover:border-emerald-500/40 transition-colors">
+          <div class="flex items-center justify-between text-[10px] text-slate-500 font-mono">
+            <span class="text-emerald-400 font-semibold">&lt;GAS WebApp /&gt;</span>
+            <span>doGet.js</span>
+          </div>
+          <!-- Center Play Overlay -->
+          <div class="self-center my-auto flex items-center justify-center">
+            <div class="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 flex items-center justify-center group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-slate-950 transition-all duration-200">
+              <svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </div>
+          </div>
+          <div class="flex items-center justify-between text-[10px] font-mono text-slate-400">
+            <span class="text-slate-500">google.script.run</span>
+            <span id="feat-lesson-duration" class="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-300">18 Menit</span>
+          </div>
+        </div>
+
+        <!-- Featured Lesson Meta & Progress -->
+        <div class="flex-1 min-w-0">
+          <div class="flex flex-wrap items-center gap-2 mb-1.5">
+            <span class="text-[10px] font-bold uppercase tracking-caps px-2 py-0.5 rounded bg-emerald-950/80 text-emerald-300 border border-emerald-500/40">
+              Rekomendasi Lanjutkan Belajar
+            </span>
+            <span id="feat-lesson-module-tag" class="text-xs text-slate-400 font-medium">Modul 1: Tutorial Wajib</span>
+          </div>
+          <h2 id="feat-lesson-title" class="text-base sm:text-lg font-bold text-white leading-snug line-clamp-2 mb-2">
+            Video Pembelajaran: Membuat Web App dengan Google Apps Script
+          </h2>
+          <!-- Micro Progress -->
+          <div class="max-w-md">
+            <div class="flex items-center justify-between text-[11px] text-slate-400 mb-1">
+              <span id="feat-progress-label">Progres Belajar Materi Ini</span>
+              <span id="feat-progress-percent" class="font-bold text-emerald-400 font-mono">0% Selesai</span>
+            </div>
+            <div class="w-full h-1.5 rounded-full bg-slate-950 border border-slate-800 overflow-hidden">
+              <div id="feat-progress-bar" class="h-full bg-emerald-500 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-col sm:flex-row lg:flex-col gap-2.5 flex-shrink-0 justify-center">
+        <button id="feat-btn-resume" class="btn-primary-action px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/40">
+          <span>Lanjutkan Menonton</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </button>
+        <button onclick="navigate('resources')" class="px-4 py-2.5 rounded-xl text-xs font-semibold bg-slate-950/80 hover:bg-slate-900 text-slate-300 hover:text-white border border-slate-800 transition-colors flex items-center justify-center gap-2">
+          <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          <span>Template &amp; Kode Terkait</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Quick Action Hub (4 Cards - Dynamically Configurable in Admin Panel) -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between mb-3">
+        <div class="text-xs font-bold uppercase tracking-caps text-slate-400 flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          <span>Akses Cepat &amp; Resource Hub</span>
+        </div>
+      </div>
+      <div id="dash-quick-actions-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
+        <!-- Rendered dynamically by js/app.js from AppState.quickActions -->
+      </div>
+    </div>
+
+    <!-- Section: Curriculum Module Catalog (Katalog Modul Pembelajaran) -->
+    <div class="mb-8">
+      <!-- Section Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+        <div class="flex items-center gap-2.5">
+          <h2 class="text-lg sm:text-xl font-bold text-white tracking-tight">Katalog Modul Pembelajaran</h2>
+          <span id="dash-module-count-badge" class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-900 text-emerald-400 border border-slate-800 font-mono">5 Modul Lengkap</span>
+        </div>
+        <button onclick="resetAllToDefault()" class="text-xs text-slate-500 hover:text-slate-300 underline self-start sm:self-auto">
+          Reset Data
+        </button>
+      </div>
+
+      <!-- Search Input Interaktif -->
+      <div class="flex items-center gap-2 mb-3">
+        <div class="relative flex-1">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          </div>
+          <input 
+            id="input-module-search" 
+            type="text" 
+            oninput="handleModuleSearch()" 
+            placeholder="Cari materi, topik, atau keyword..." 
+            class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-8 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors"
+          />
+          <button id="btn-clear-module-search" onclick="clearModuleSearch()" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-white hidden">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Filter Kategori Pills (Full SVG, No Emojis) -->
+      <div id="module-category-pills" class="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-6">
+        <!-- Rendered dynamically by js/app.js -->
+      </div>
+
+      <!-- Curriculum Module Cards Grid -->
+      <div id="dash-modules-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <!-- Rendered dynamically by js/app.js with scrollable 'Materi di Modul Ini' -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ==========================================
+       VIEW 2B: USER DASHBOARD (DATA BELAJAR & ANALITIK SISWA)
+       ========================================== -->
+  <main id="view-user-dashboard" class="flex-1 max-w-[1440px] 2xl:max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 hidden">
+    
+    <!-- Dashboard Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
+      <div>
+        <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded text-[11px] font-bold bg-cyan-950 text-cyan-300 border border-cyan-800/80 mb-2">
+          ANALITIK PERSONAL SISWA
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Dashboard Belajar Saya</h1>
+        <p class="text-xs sm:text-sm text-slate-400 mt-0.5">Pantau konsistensi belajar, total jam tontonan, dan lencana pencapaian Anda.</p>
+      </div>
+
+      <button onclick="navigate('learn')" class="btn-primary-action px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold flex items-center gap-2 self-start sm:self-auto">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>Lanjut Nonton Video</span>
+      </button>
+    </div>
+
+    <!-- 2 Key Stat Cards (Waktu Belajar & Status Kelulusan) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-8">
+      
+      <!-- Card 1: Waktu Belajar -->
+      <div class="glass-card rounded-xl p-5 relative overflow-hidden">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold text-slate-400">Total Waktu Belajar</span>
+          <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <div id="stat-total-minutes" class="text-2xl sm:text-3xl font-extrabold text-cyan-300 font-mono">84 Menit</div>
+        <p class="text-[11px] text-slate-400 mt-1">Total durasi materi video tuntas dipelajari</p>
+      </div>
+
+      <!-- Card 2: Status Kelulusan -->
+      <div class="glass-card rounded-xl p-5 relative overflow-hidden">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold text-slate-400">Status Kelulusan Kelas</span>
+          <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>
+        </div>
+        <div id="stat-overall-percent" class="text-2xl sm:text-3xl font-extrabold text-white font-mono">43%</div>
+        <p id="stat-overall-text" class="text-[11px] text-slate-400 mt-1">3 dari 7 Materi Selesai</p>
+      </div>
+
+    </div>
+
+    <!-- Section 2: Kalender Belajar Bulanan (Gambar 2 - Pengganti Heatmap) -->
+    <div class="glass-card rounded-xl p-5 sm:p-6 mb-8">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-4 border-b border-slate-800">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <h2 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+              <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              Kalender Belajar Bulanan
+            </h2>
+            <span id="calendar-active-days-count" class="text-xs font-semibold px-2.5 py-0.5 rounded-md bg-emerald-950/80 text-emerald-300 border border-emerald-500/30 inline-flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <span>6 Hari Belajar</span>
+            </span>
+          </div>
+          <p class="text-xs text-slate-400">Jadwal kehadiran belajar harian Anda. Tanggal dengan kotak hijau menandakan hari di mana Anda aktif belajar atau menuntaskan materi.</p>
+        </div>
+
+        <!-- Legend & Month Indicator -->
+        <div class="flex items-center gap-3 text-xs">
+          <div class="flex items-center gap-2 bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800 font-mono text-slate-300">
+            <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+            <span class="font-bold text-white">Oktober 2026</span>
+          </div>
+          <div class="flex items-center gap-2 font-mono text-[11px] text-slate-400">
+            <span class="flex items-center gap-1.5">
+              <span class="w-3 h-3 rounded bg-emerald-950/80 border border-emerald-500 inline-block shadow-sm shadow-emerald-500/20"></span>
+              <span>Aktif Belajar</span>
+            </span>
+            <span class="flex items-center gap-1.5 ml-1">
+              <span class="w-3 h-3 rounded bg-slate-900 border border-slate-800 inline-block"></span>
+              <span>Istirahat</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Calendar Header: Days of Week -->
+      <div class="calendar-grid mb-1.5 text-center text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+        <div class="py-1">Sen</div>
+        <div class="py-1">Sel</div>
+        <div class="py-1">Rab</div>
+        <div class="py-1">Kam</div>
+        <div class="py-1">Jum</div>
+        <div class="py-1">Sab</div>
+        <div class="py-1">Min</div>
+      </div>
+
+      <!-- Calendar Grid Cells Container -->
+      <div id="learning-calendar-container" class="calendar-grid">
+        <!-- Injected dynamically by js/app.js renderMonthlyLearningCalendar() -->
+      </div>
+
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between text-[11px] text-slate-400 mt-3.5 pt-3 border-t border-slate-800/80 gap-2">
+        <div class="flex items-center gap-1.5 text-slate-400">
+          <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span>Klik tanggal bertanda hijau untuk melihat ringkasan aktivitas belajar.</span>
+        </div>
+        <div class="text-emerald-400/90 font-medium">
+          Setiap kali Anda menuntaskan materi, tanggal hari ini akan otomatis berubah menjadi hijau!
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Section 3: Kemajuan Detail per Modul (Full Width) -->
+    <div class="glass-card rounded-xl p-5 sm:p-6">
+      <div class="pb-3 mb-4 border-b border-slate-800">
+        <h2 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+          <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          Kemajuan Detail per Modul
+        </h2>
+        <p class="text-xs text-slate-400">Status penyelesaian materi video dalam masing-masing bab kurikulum.</p>
+      </div>
+
+      <div id="module-breakdown-list" class="space-y-4">
+        <!-- Rendered by js/app.js -->
+      </div>
+    </div>
+
+    </div>
+
+  </main>
+
+  <!-- ==========================================
+       VIEW 3: RUANG BELAJAR (DISTRACTION-FREE PLAYER)
+       ========================================== -->
+  <main id="view-learn" class="flex-1 flex flex-col hidden bg-[var(--bg)]">
+    <!-- Top Sub-Bar for Learning Room -->
+    <div class="border-b border-[var(--border)] bg-[var(--surface)] px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3 truncate">
+        <button onclick="navigate('home')" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-1 text-xs">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+          <span class="hidden sm:inline">Kembali ke Home</span>
+        </button>
+        <span class="text-slate-700 hidden sm:inline">|</span>
+        <span id="learn-module-badge" class="text-xs font-semibold text-emerald-400 truncate max-w-[200px]">Modul 1</span>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <!-- Mobile Curriculum Drawer Trigger -->
+        <button id="btn-mobile-curriculum-trigger" onclick="openMobileCurriculumDrawer()" class="lg:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-950/70 hover:bg-emerald-900/80 text-emerald-300 border border-emerald-700/60 text-xs font-semibold">
+          <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+          <span>Daftar Materi</span>
+        </button>
+        <button id="btn-prev-lesson" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 disabled:opacity-30 disabled:pointer-events-none transition-colors">
+          &larr; Prev
+        </button>
+        <button id="btn-next-lesson" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 disabled:opacity-30 disabled:pointer-events-none transition-colors">
+          Next &rarr;
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Learning Layout: 2 Columns on Desktop, Single Clean Column on Mobile -->
+    <div class="flex-1 max-w-[1440px] 2xl:max-w-[1600px] w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 flex flex-col lg:flex-row gap-6 lg:gap-8 pb-24 lg:pb-8">
+      
+      <!-- Left Column: Lesson Header & Notion Content Area (Natural Block Order) -->
+      <div class="flex-1 min-w-0">
+
+        <!-- Lesson Header & Actions (No forced video on top - videos appear as blocks!) -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-800/80 mb-6">
+          <div>
+            <div class="flex items-center gap-2 mb-1.5">
+              <span id="learn-duration-badge" class="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-900 text-slate-400 border border-slate-800 font-mono">18 Menit</span>
+              <span class="text-xs text-emerald-400 font-medium">Kurikulum Resmi Zettbos</span>
+            </div>
+            <h1 id="learn-lesson-title" class="text-xl sm:text-2xl font-extrabold text-white leading-tight">
+              Video Pembelajaran: Membuat Web App dengan Google Apps Script
+            </h1>
+          </div>
+
+          <!-- Action Buttons: Favorite + Mark Complete (Thumb-friendly 2-col on mobile, flex on desktop) -->
+          <div class="grid grid-cols-2 gap-2 w-full sm:flex sm:w-auto sm:items-center sm:flex-shrink-0">
+            <button id="btn-toggle-favorite-lesson" onclick="toggleCurrentLessonFavorite()" class="w-full sm:w-auto flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 transition-all">
+              <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
+              <span id="fav-btn-label">Simpan</span>
+            </button>
+            <button id="btn-toggle-complete" class="w-full sm:w-auto btn-primary-action flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+              <span>Selesai &amp; Lanjut</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Notion-Style Reading Content Card (Videos & Text in configured order) -->
+        <div class="glass-card rounded-2xl p-4 sm:p-7 mb-6">
+          <div id="learn-notion-content">
+            <!-- Rendered dynamically by js/editor.js renderBlocksToHtml -->
+          </div>
+
+          <!-- Reading Navigation Footer -->
+          <div class="mt-8 pt-6 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <button id="btn-footer-prev-lesson" onclick="goToAdjacentLesson(-1)" class="w-full sm:w-auto px-4 py-2 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 flex items-center justify-center gap-2 transition-colors disabled:opacity-30">
+              &larr; Materi Sebelumnya
+            </button>
+            <button id="btn-footer-complete" onclick="toggleCurrentLessonCompletion()" class="w-full sm:w-auto btn-primary-action px-5 py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+              <span>Selesai & Lanjut</span>
+            </button>
+            <button id="btn-footer-next-lesson" onclick="goToAdjacentLesson(1)" class="w-full sm:w-auto px-4 py-2 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 flex items-center justify-center gap-2 transition-colors disabled:opacity-30">
+              Materi Berikutnya &rarr;
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Curriculum Navigation Sidebar (Desktop Only: Hidden on Mobile for clean reading) -->
+      <aside class="hidden lg:block lg:w-80 flex-shrink-0">
+        <div class="sticky top-24 glass-card rounded-xl p-4 sm:p-5">
+          <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800 text-xs font-bold text-white">
+            <span class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+              Kurikulum Kelas
+            </span>
+            <span id="learn-curriculum-count" class="text-[11px] text-slate-400 font-mono">Pilih Materi</span>
+          </div>
+
+          <!-- Curriculum Tree -->
+          <div id="learn-curriculum-sidebar" class="max-h-[calc(100vh-200px)] overflow-y-auto pr-1">
+            <!-- Rendered by js/app.js -->
+          </div>
+        </div>
+      </aside>
+
+    </div>
+  </main>
+
+  <!-- ==========================================
+       VIEW 3B: FAVORIT & SIMPANAN BELAJAR
+       ========================================== -->
+  <main id="view-favorites" class="flex-1 max-w-[1440px] 2xl:max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 hidden pb-24 lg:pb-8">
+    
+    <!-- Favorites Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
+      <div>
+        <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-[11px] font-bold bg-amber-950/80 text-amber-300 border border-amber-800/80 mb-2 tracking-caps">
+          <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+          ITEM TERSIMPAN
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Koleksi Favorit Saya</h1>
+        <p class="text-xs sm:text-sm text-slate-400 mt-0.5">Akses instan modul, materi video, dan cuplikan snippet kode yang Anda simpan saat belajar.</p>
+      </div>
+
+      <button onclick="navigate('learn')" class="btn-primary-action px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold flex items-center gap-2 self-start sm:self-auto">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>Lanjut ke Ruang Belajar</span>
+      </button>
+    </div>
+
+    <!-- Filter Tabs (Semua, Materi, Modul, Snippet) & Search -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 mb-6 border-b border-slate-800">
+      <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+        <button id="fav-tab-all" onclick="filterFavorites('all')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-950 text-emerald-300 border border-emerald-500/40 transition-colors">
+          Semua (<span id="fav-count-all">0</span>)
+        </button>
+        <button id="fav-tab-lesson" onclick="filterFavorites('lesson')" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800 transition-colors">
+          Materi / Video (<span id="fav-count-lesson">0</span>)
+        </button>
+        <button id="fav-tab-module" onclick="filterFavorites('module')" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800 transition-colors">
+          Modul (<span id="fav-count-module">0</span>)
+        </button>
+        <button id="fav-tab-snippet" onclick="filterFavorites('snippet')" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800 transition-colors">
+          Snippet Kode (<span id="fav-count-snippet">0</span>)
+        </button>
+      </div>
+
+      <div class="w-full sm:w-64">
+        <input 
+          id="fav-search-input" 
+          type="text" 
+          oninput="handleSearchFavorites()" 
+          placeholder="Cari item favorit..." 
+          class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+        />
+      </div>
+    </div>
+
+    <!-- Favorites Grid Cards -->
+    <div id="favorites-grid-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+      <!-- Injected by js/app.js renderFavorites() -->
+    </div>
+
+    <!-- Empty State -->
+    <div id="favorites-empty-state" class="glass-card rounded-2xl p-8 sm:p-12 text-center max-w-md mx-auto hidden mt-4">
+      <div class="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center mx-auto mb-4">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
+      </div>
+      <h3 class="text-base font-bold text-white mb-1">Belum Ada Item Tersimpan</h3>
+      <p class="text-xs text-slate-400 mb-6 leading-relaxed">
+        Tandai modul, video pembelajaran, atau simpan snippet kode dengan tombol <b>"Simpan"</b> di Ruang Belajar agar mudah diakses kapan saja.
+      </p>
+      <button onclick="navigate('learn')" class="btn-primary-action px-4 py-2 rounded-lg text-xs font-semibold inline-flex items-center gap-1.5">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+        Buka Materi Belajar
+      </button>
+    </div>
+
+  </main>
+
+  <!-- ==========================================
+       VIEW 3C: DOKUMEN & RESOURCE SHARING HUB (BARU)
+       ========================================== -->
+  <main id="view-resources" class="flex-1 max-w-[1440px] 2xl:max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 hidden pb-24 lg:pb-8">
+    <!-- Resources Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
+      <div>
+        <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded text-[11px] font-bold bg-blue-950 text-blue-300 border border-blue-800/80 mb-2">
+          SHARED HUB RESMI
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Dokumen & Link Resource</h1>
+        <p class="text-xs sm:text-sm text-slate-400 mt-1 max-w-2xl">
+          Koleksi resmi template Google Sheets, starter code GitHub, formula prompt AI, dan asset Google Drive yang dibagikan untuk member Zettbos.
+        </p>
+      </div>
+
+      <div class="flex items-center gap-2 self-start sm:self-auto">
+        <button id="btn-admin-add-resource" onclick="openAddResourceModal()" class="btn-primary-action px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 shadow-lg">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          <span>+ Bagikan Link Dokumen</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Filter Bar & Search -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-6 pb-4 border-b border-slate-800">
+      <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+        <button id="res-tab-all" onclick="filterResourceCategory('all')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-950 text-emerald-300 border border-emerald-500/40">
+          Semua Dokumen (<span id="res-count-all">5</span>)
+        </button>
+        <button id="res-tab-sheet" onclick="filterResourceCategory('sheet')" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800 transition-colors inline-flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          <span>Google Sheets</span> (<span id="res-count-sheet">1</span>)
+        </button>
+        <button id="res-tab-code" onclick="filterResourceCategory('code')" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800 transition-colors inline-flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+          <span>Starter Code</span> (<span id="res-count-code">1</span>)
+        </button>
+        <button id="res-tab-prompt" onclick="filterResourceCategory('prompt')" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800 transition-colors inline-flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          <span>Prompt & SOP</span> (<span id="res-count-prompt">2</span>)
+        </button>
+        <button id="res-tab-drive" onclick="filterResourceCategory('drive')" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800 transition-colors inline-flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+          <span>Google Drive</span> (<span id="res-count-drive">1</span>)
+        </button>
+      </div>
+
+      <div class="w-full md:w-72">
+        <input 
+          id="resource-search-input" 
+          type="text" 
+          oninput="handleSearchResources()" 
+          placeholder="Cari dokumen, template, link..." 
+          class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+        />
+      </div>
+    </div>
+
+    <!-- Resources Grid (Sleek Compact 4-Column Layout) -->
+    <div id="resources-grid-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5 sm:gap-4">
+      <!-- Injected by js/app.js renderResources() -->
+    </div>
+
+    <!-- Empty State -->
+    <div id="resources-empty-state" class="glass-card rounded-2xl p-10 text-center max-w-md mx-auto hidden mt-6">
+      <div class="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center justify-center mx-auto mb-3">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      </div>
+      <h3 class="text-sm font-bold text-white mb-1">Dokumen Tidak Ditemukan</h3>
+      <p class="text-xs text-slate-400">Tidak ada dokumen atau tautan yang cocok dengan kata kunci pencarian Anda.</p>
+    </div>
+  </main>
+
+  <!-- ==========================================
+       VIEW 4: ADMIN MANAGEMENT PANEL (OWNER)
+       ========================================== -->
+  <main id="view-admin" class="flex-1 max-w-[1440px] 2xl:max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 hidden">
+    
+    <!-- Admin Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+      <div>
+        <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded text-[11px] font-bold bg-rose-950 text-rose-300 border border-rose-800/80 mb-2">
+          PANEL KONTROL OWNER
+        </div>
+        <h1 class="text-2xl font-extrabold text-white tracking-tight">Manajemen LMS Zettbos</h1>
+        <p class="text-xs text-slate-400 mt-0.5">Kelola kurikulum, susun materi dengan block editor Notion, dan atur whitelist email pendaftar.</p>
+      </div>
+
+      <!-- Admin Tabs -->
+      <div class="flex flex-wrap gap-2">
+        <button id="tab-btn-curriculum" onclick="switchAdminTab('curriculum')" class="px-4 py-2 rounded-lg text-sm font-semibold bg-emerald-950 text-emerald-300 border border-emerald-500/40">
+          Kurikulum & Editor
+        </button>
+        <button id="tab-btn-landing_cms" onclick="switchAdminTab('landing_cms')" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800">
+          CMS Landing Portal
+        </button>
+        <button id="tab-btn-resources_cms" onclick="switchAdminTab('resources_cms')" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800">
+          CMS Resource Hub
+        </button>
+        <button id="tab-btn-quickactions" onclick="switchAdminTab('quickactions')" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800">
+          Quick Action Hub
+        </button>
+        <button id="tab-btn-whitelist" onclick="switchAdminTab('whitelist')" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800">
+          Whitelist Member
+        </button>
+        <button id="tab-btn-analytics" onclick="switchAdminTab('analytics')" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800">
+          Progres Siswa
+        </button>
+        <button onclick="openSupabaseSettingsModal()" class="px-3.5 py-2 rounded-lg text-sm font-semibold bg-emerald-950/90 text-emerald-300 border border-emerald-500/50 hover:bg-emerald-900/60 flex items-center gap-2 transition-all shadow-sm">
+          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          <span>Database Cloud (Supabase)</span>
+        </button>
+        <button onclick="resetAllDataToZero()" title="Bersihkan seluruh kurikulum & progress kembali ke 0" class="px-3 py-2 rounded-lg text-xs font-semibold bg-rose-950/60 text-rose-300 border border-rose-800/60 hover:bg-rose-900/60 flex items-center gap-1.5 transition-all">
+          <svg class="w-3.5 h-3.5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+          <span>Bersihkan ke 0</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- TAB 1: KURIKULUM & NOTION BLOCK EDITOR -->
+    <div id="tab-pane-curriculum" class="space-y-6">
+      <div class="glass-card-static rounded-xl p-6">
+        
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 mb-5 border-b border-slate-800">
+          <div class="flex-1">
+            <label for="admin-lesson-select" class="block text-xs font-semibold text-slate-400 mb-1">Pilih Materi yang Ingin Diedit:</label>
+            <select id="admin-lesson-select" class="w-full bg-slate-950 text-white border border-slate-800 rounded-lg px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none">
+              <!-- Filled dynamically -->
+            </select>
+          </div>
+          <div class="flex items-center gap-2 self-end sm:self-auto flex-wrap">
+            <button onclick="addNewModulePrompt()" class="px-3.5 py-2 rounded-lg text-xs font-semibold bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 border border-emerald-500/40 flex items-center gap-1.5 shadow-sm">
+              <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              <span>+ Modul Baru</span>
+            </button>
+            <button onclick="addNewLessonPrompt()" class="px-3.5 py-2 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              <span>+ Materi Baru</span>
+            </button>
+            <button onclick="deleteCurrentLesson()" title="Hapus materi aktif" class="px-3 py-2 rounded-lg text-xs font-semibold bg-rose-950/60 hover:bg-rose-900/80 text-rose-300 border border-rose-800/60 flex items-center gap-1">
+              <svg class="w-3.5 h-3.5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            </button>
+            <button onclick="saveLessonFromEditor()" class="btn-primary-action px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+              <span>Simpan Perubahan</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Lesson Meta Inputs -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div class="md:col-span-2">
+            <label for="admin-edit-title" class="block text-xs font-semibold text-slate-400 mb-1">Judul Materi</label>
+            <input id="admin-edit-title" type="text" class="w-full bg-slate-950 text-white border border-slate-800 rounded-lg px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none">
+          </div>
+          <div>
+            <label for="admin-edit-module" class="block text-xs font-semibold text-slate-400 mb-1">Modul Induk</label>
+            <select id="admin-edit-module" class="w-full bg-slate-950 text-white border border-slate-800 rounded-lg px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none">
+              <!-- Filled dynamically -->
+            </select>
+          </div>
+          <div>
+            <label for="admin-edit-duration" class="block text-xs font-semibold text-slate-400 mb-1">Estimasi Menit</label>
+            <input id="admin-edit-duration" type="number" class="w-full bg-slate-950 text-white border border-slate-800 rounded-lg px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none">
+          </div>
+          <div class="md:col-span-4">
+            <label for="admin-edit-youtube" class="block text-xs font-semibold text-slate-400 mb-1">Link URL Video YouTube Unlisted (Video Utama)</label>
+            <input id="admin-edit-youtube" type="text" placeholder="https://www.youtube.com/watch?v=..." class="w-full bg-slate-950 text-white border border-slate-800 rounded-lg px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none font-mono text-xs">
+          </div>
+        </div>
+
+        <!-- 2 Columns: Notion Block Editor (Left) & Live Preview (Right) -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-4 border-t border-slate-800">
+          
+          <!-- Notion Block Editor -->
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                Notion Block Editor (H1-H3, Text, Callout, Code, Image)
+              </span>
+            </div>
+            
+            <div id="notion-editor-root" class="min-h-[300px]">
+              <!-- Injected by js/editor.js -->
+            </div>
+          </div>
+
+          <!-- Live Preview Window -->
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                Live Preview (Tampilan Siswa)
+              </span>
+            </div>
+
+            <div class="p-5 rounded-lg bg-slate-950/80 border border-slate-800 min-h-[300px] max-h-[600px] overflow-y-auto">
+              <div id="editor-live-preview">
+                <!-- Injected live preview -->
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TAB 2: WHITELIST MANAGER -->
+    <div id="tab-pane-whitelist" class="space-y-6 hidden">
+      <div class="glass-card-static rounded-xl p-6">
+        
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 mb-5 border-b border-slate-800">
+          <div>
+            <h2 class="text-lg font-bold text-white">Whitelist Email Terdaftar</h2>
+            <p id="whitelist-total-count" class="text-xs text-slate-400">0 Member Terdaftar</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="document.getElementById('modal-batch-whitelist').classList.remove('hidden')" class="btn-primary-action px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              + Import Batch Banyak Email (Paste Sekaligus)
+            </button>
+          </div>
+        </div>
+
+        <!-- Add Single Member Form & Search Bar -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+          <form onsubmit="handleAddSingleMember(event)" class="md:col-span-2 flex flex-col sm:flex-row gap-2">
+            <input id="add-member-name" type="text" placeholder="Nama Lengkap Siswa" class="w-full sm:w-1/3 bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+            <input id="add-member-email" type="email" required placeholder="email.member@gmail.com" class="w-full sm:w-1/2 bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono">
+            <button type="submit" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700 flex-shrink-0">
+              + Tambah 1
+            </button>
+          </form>
+
+          <div>
+            <input id="whitelist-search" type="text" oninput="renderAdminWhitelist()" placeholder="Cari nama atau email..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+          </div>
+        </div>
+
+        <!-- Table of Whitelisted Members -->
+        <div class="overflow-x-auto rounded-xl border border-slate-800">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-950 text-slate-400 text-[11px] uppercase tracking-wider border-b border-slate-800">
+                <th class="py-3 px-4">Nama Lengkap</th>
+                <th class="py-3 px-4">Email Terdaftar</th>
+                <th class="py-3 px-4">Peran</th>
+                <th class="py-3 px-4">Status Akses</th>
+                <th class="py-3 px-4 text-right">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="whitelist-table-body">
+              <!-- Rendered by js/app.js -->
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TAB 3: PROGRES ANALYTICS SISWA -->
+    <div id="tab-pane-analytics" class="space-y-6 hidden">
+      <div class="glass-card-static rounded-xl p-6">
+        <div class="pb-4 mb-4 border-b border-slate-800">
+          <h2 class="text-lg font-bold text-white">Monitoring Progres Belajar Seluruh Siswa</h2>
+          <p class="text-xs text-slate-400">Pantau siswa mana saja yang sudah menuntaskan materi dan siapa yang masih tertinggal.</p>
+        </div>
+
+        <div class="overflow-x-auto rounded-xl border border-slate-800">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-950 text-slate-400 text-[11px] uppercase tracking-wider border-b border-slate-800">
+                <th class="py-3 px-4">Nama Siswa</th>
+                <th class="py-3 px-4">Email</th>
+                <th class="py-3 px-4">Materi Selesai</th>
+                <th class="py-3 px-4">Persentase</th>
+                <th class="py-3 px-4 text-right">Status</th>
+              </tr>
+            </thead>
+            <tbody id="analytics-table-body">
+              <!-- Rendered by js/app.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: PENGELOLA QUICK ACTION HUB -->
+    <div id="tab-pane-quickactions" class="space-y-6 hidden">
+      <div class="glass-card-static rounded-xl p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 mb-4 border-b border-slate-800">
+          <div>
+            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+              <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              Pengelola Quick Action Hub (Halaman Depan)
+            </h2>
+            <p class="text-xs text-slate-400 mt-0.5">Ubah 4 kartu aksi cepat di Home: judul, subtitle, ikon monoline SVG, serta target navigasi internal atau link eksternal.</p>
+          </div>
+          <button onclick="resetQuickActionsToDefault()" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 transition-colors">
+            Reset 4 Hub ke Default
+          </button>
+        </div>
+
+        <div class="overflow-x-auto rounded-xl border border-slate-800">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-950 text-slate-400 text-[11px] uppercase tracking-wider border-b border-slate-800">
+                <th class="py-3 px-4 w-12 text-center">No</th>
+                <th class="py-3 px-4 w-16 text-center">Ikon</th>
+                <th class="py-3 px-4">Judul &amp; Keterangan Subtitle</th>
+                <th class="py-3 px-4">Tipe Aksi</th>
+                <th class="py-3 px-4">Target Aksi</th>
+                <th class="py-3 px-4">Badge</th>
+                <th class="py-3 px-4 text-right">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="quickactions-table-body">
+              <!-- Rendered dynamically by js/app.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: CMS LANDING PORTAL (HERO, TYPEWRITER, USE-CASES & TESTIMONI) -->
+    <div id="tab-pane-landing_cms" class="space-y-6 hidden">
+      <!-- Section A: Hero Banner & Typewriter Engine -->
+      <div class="glass-card-static rounded-xl p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 mb-5 border-b border-slate-800">
+          <div>
+            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+              <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+              CMS Hero Banner &amp; Mesin Typewriter Teks Berputar
+            </h2>
+            <p class="text-xs text-slate-400 mt-0.5">Ubah teks pembuka, frasa ketikan animasi typewriter, judul, deskripsi, dan tombol CTA utama di landing page publik.</p>
+          </div>
+          <button onclick="resetLandingHeroToDefault()" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 transition-colors">
+            Reset Hero ke Default
+          </button>
+        </div>
+
+        <form onsubmit="handleSaveLandingHeroCms(event)" class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Badge Teks Atas Hero</label>
+              <input id="admin-cms-hero-badge" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Teks Tombol CTA Utama</label>
+              <input id="admin-cms-hero-cta" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Judul Sebelum Kata Ketikan (Pre-Headline)</label>
+              <input id="admin-cms-hero-pre" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Judul Setelah Kata Ketikan (Post-Headline)</label>
+              <input id="admin-cms-hero-post" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+            </div>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="block text-xs font-semibold text-slate-300">Daftar Frasa Rotasi Animasi Typewriter (1 baris = 1 kata/frasa)</label>
+              <span class="text-[11px] text-emerald-400 font-mono">Diputar otomatis bergantian</span>
+            </div>
+            <textarea id="admin-cms-hero-phrases" rows="5" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-emerald-300 font-mono focus:outline-none focus:border-emerald-500 leading-relaxed"></textarea>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Deskripsi Lengkap Hero Banner</label>
+            <textarea id="admin-cms-hero-desc" rows="2" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-white focus:outline-none focus:border-emerald-500"></textarea>
+          </div>
+
+          <!-- Overlap Banner Setting -->
+          <div class="pt-4 border-t border-slate-800 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Judul Banner Hijau Overlap</label>
+              <input id="admin-cms-hero-bannertitle" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Deskripsi Banner Hijau Overlap</label>
+              <input id="admin-cms-hero-bannerdesc" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+            </div>
+          </div>
+
+          <div class="pt-2 flex justify-end">
+            <button type="submit" class="btn-primary-action px-5 py-2.5 rounded-lg text-xs font-semibold flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+              Simpan Perubahan Hero &amp; Typewriter
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Section B: Use-Cases (Target Audiens 4 Cards) -->
+      <div class="glass-card-static rounded-xl p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 mb-4 border-b border-slate-800">
+          <div>
+            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+              <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+              Pengelola Target Audiens (4 Kartu Use-Cases)
+            </h2>
+            <p class="text-xs text-slate-400 mt-0.5">Kelola 4 kartu segmen pengguna di landing page: judul target, deskripsi manfaat, pilihan ikon, dan tag keahlian.</p>
+          </div>
+          <button onclick="resetLandingUseCasesToDefault()" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 transition-colors">
+            Reset Kartu ke Default
+          </button>
+        </div>
+
+        <div id="admin-usecases-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Rendered dynamically by js/app.js -->
+        </div>
+      </div>
+
+      <!-- Section C: Testimoni Member (Lynk-Style Marquee Slider) -->
+      <div class="glass-card-static rounded-xl p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 mb-4 border-b border-slate-800">
+          <div>
+            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+              <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+              Pengelola Testimoni Member (Lynk Marquee Slider)
+            </h2>
+            <p class="text-xs text-slate-400 mt-0.5">Kelola kartu cerita alumni member yang berputar mulus tanpa jeda di bagian bawah landing page.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="resetLandingTestimonialsToDefault()" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 transition-colors">
+              Reset ke Default
+            </button>
+            <button onclick="openAddTestimonialModal()" class="btn-primary-action px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              + Tambah Testimoni Baru
+            </button>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto rounded-xl border border-slate-800">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-950 text-slate-400 text-[11px] uppercase tracking-wider border-b border-slate-800">
+                <th class="py-3 px-4 w-12 text-center">No</th>
+                <th class="py-3 px-4 w-16 text-center">Inisial</th>
+                <th class="py-3 px-4">Nama &amp; Peran Member</th>
+                <th class="py-3 px-4">Badge Hasil / Pencapaian</th>
+                <th class="py-3 px-4">Kutipan Cerita Testimoni</th>
+                <th class="py-3 px-4 text-right">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="admin-testimonials-table-body">
+              <!-- Rendered dynamically by js/app.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 6: CMS DOKUMEN & SHARED RESOURCE HUB -->
+    <div id="tab-pane-resources_cms" class="space-y-6 hidden">
+      <div class="glass-card-static rounded-xl p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 mb-4 border-b border-slate-800">
+          <div>
+            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+              <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              Pengelola Dokumen &amp; Shared Resource Hub
+            </h2>
+            <p class="text-xs text-slate-400 mt-0.5">Kelola seluruh database materi file, Google Drive, Sheets, SOP, dan starter code yang dapat diakses oleh seluruh member.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="resetResourcesToDefault()" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 transition-colors">
+              Reset Resource ke Default
+            </button>
+            <button onclick="openAddResourceModal()" class="btn-primary-action px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              + Bagikan Dokumen Baru
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter & Search Bar -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-5">
+          <div id="admin-resource-count" class="text-xs font-mono text-slate-400">
+            0 Dokumen Tersedia
+          </div>
+          <div class="w-full sm:w-72">
+            <input 
+              id="admin-resource-search-input" 
+              type="text" 
+              oninput="renderAdminResourcesCms()" 
+              placeholder="Cari judul, kategori, atau link..." 
+              class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+            />
+          </div>
+        </div>
+
+        <div class="overflow-x-auto rounded-xl border border-slate-800">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-950 text-slate-400 text-[11px] uppercase tracking-wider border-b border-slate-800">
+                <th class="py-3 px-4 w-12 text-center">No</th>
+                <th class="py-3 px-4">Kategori &amp; Label</th>
+                <th class="py-3 px-4">Judul &amp; Keterangan Dokumen</th>
+                <th class="py-3 px-4">Tautan URL</th>
+                <th class="py-3 px-4">Tanggal Rilis</th>
+                <th class="py-3 px-4 text-right">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="admin-resources-table-body">
+              <!-- Rendered dynamically by js/app.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ==========================================
+       MODAL 1: OTP VERIFICATION
+       ========================================== -->
+  <div id="modal-otp" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md hidden">
+    <div class="glass-card rounded-2xl p-6 sm:p-8 max-w-md w-full relative">
+      <button onclick="document.getElementById('modal-otp').classList.add('hidden')" class="absolute top-4 right-4 text-slate-500 hover:text-slate-300">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+
+      <div class="text-center mb-6">
+        <div class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto mb-3">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+        </div>
+        <h3 class="text-lg font-bold text-white">Verifikasi Kode OTP</h3>
+        <p class="text-xs text-slate-400 mt-1">
+          Kode 6-digit telah dikirimkan ke email: <br/>
+          <span id="otp-target-email" class="font-mono text-emerald-400 font-semibold">member@email.com</span>
+        </p>
+      </div>
+
+      <!-- Demo Auto-Fill Pill -->
+      <div class="text-center mb-5">
+        <button id="otp-simulation-pill" class="px-3 py-1.5 rounded-lg text-xs font-mono bg-emerald-950 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-900/60 transition-colors" title="Klik untuk otomatis mengisi kode OTP">
+          [DEMO MODE] Kode OTP Anda: 123456 (Klik Isi)
+        </button>
+      </div>
+
+      <!-- 6-Digit Boxes -->
+      <div class="flex justify-center gap-2 sm:gap-3 mb-6">
+        <input type="text" maxlength="1" class="otp-digit-input" autofocus />
+        <input type="text" maxlength="1" class="otp-digit-input" />
+        <input type="text" maxlength="1" class="otp-digit-input" />
+        <input type="text" maxlength="1" class="otp-digit-input" />
+        <input type="text" maxlength="1" class="otp-digit-input" />
+        <input type="text" maxlength="1" class="otp-digit-input" />
+      </div>
+
+      <button onclick="verifyOtpCode()" class="w-full btn-primary-action py-2.5 rounded-lg font-semibold text-sm">
+        Verifikasi & Masuk
+      </button>
+
+      <button type="button" onclick="loginAsDemo(AppState.pendingEmailForOtp || 'farhan@zettbos.com')" class="w-full mt-2 py-2 rounded-lg text-xs bg-slate-900 hover:bg-slate-800 text-emerald-400 border border-slate-800 font-semibold flex items-center justify-center gap-1.5 transition-colors">
+        <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        <span>Masuk Langsung (Bypass OTP Demo)</span>
+      </button>
+
+      <p class="text-[11px] text-slate-500 text-center mt-3">
+        Mode Demo: Anda bisa verifikasi dengan kode atau langsung klik tombol di atas.
+      </p>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL 2: NON-WHITELIST REJECTION DIALOG
+       ========================================== -->
+  <div id="modal-non-whitelist" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md hidden">
+    <div class="glass-card rounded-2xl p-6 sm:p-8 max-w-md w-full text-center relative border-rose-900/50">
+      <div class="w-12 h-12 rounded-xl bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center justify-center mx-auto mb-4">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+      </div>
+
+      <h3 class="text-lg font-bold text-white">Email Belum Terdaftar</h3>
+      <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+        Email <span id="modal-unregistered-email" class="text-rose-400 font-mono font-semibold">user@email.com</span> belum ada di dalam daftar whitelist member Zettbos.
+      </p>
+      <p class="text-xs text-slate-500 mt-2">
+        Jika Anda sudah menyelesaikan pendaftaran kelas, silakan konfirmasikan bukti pembayaran atau email pendaftaran Anda kepada Admin.
+      </p>
+
+      <div class="mt-6 space-y-2">
+        <!-- Tombol Bypass Khusus Prototype/Dummy Preview -->
+        <button type="button" onclick="bypassAndLogin(document.getElementById('modal-unregistered-email').textContent)" class="w-full py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 transition-all">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          <span>Masuk Mode Preview (Bypass Selama Dummy)</span>
+        </button>
+
+        <a href="https://wa.me/6281234567890?text=Halo%20Admin%20Zettbos,%20email%20saya%20belum%20terdaftar%20di%20Member%20Hub" target="_blank" class="w-full py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 font-medium text-xs flex items-center justify-center gap-2 transition-colors">
+          <svg class="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
+          Hubungi Admin via WhatsApp
+        </a>
+
+        <button onclick="closeNonWhitelistModal()" class="w-full py-2 rounded-lg bg-slate-950 hover:bg-slate-900 text-slate-400 font-medium text-xs transition-colors">
+          Coba Email Lain
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL 3: BATCH ADD WHITELIST (PASTE MULTIPLE)
+       ========================================== -->
+  <div id="modal-batch-whitelist" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md hidden">
+    <div class="glass-card rounded-2xl p-6 sm:p-8 max-w-lg w-full relative">
+      <button onclick="document.getElementById('modal-batch-whitelist').classList.add('hidden')" class="absolute top-4 right-4 text-slate-500 hover:text-slate-300">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+
+      <h3 class="text-lg font-bold text-white mb-1">Import Batch Banyak Email Sekaligus</h3>
+      <p class="text-xs text-slate-400 mb-4">
+        Tempel (paste) daftar email member baru di bawah ini. Pisahkan dengan baris baru (Enter), koma, atau titik koma.
+      </p>
+
+      <textarea 
+        id="batch-emails-textarea" 
+        rows="7" 
+        placeholder="budi@gmail.com&#10;andi@yahoo.com&#10;citra@hotmail.com" 
+        class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3.5 text-xs text-emerald-300 font-mono focus:outline-none focus:border-emerald-500 mb-4 resize-y"
+      ></textarea>
+
+      <div class="flex items-center justify-end gap-2">
+        <button onclick="document.getElementById('modal-batch-whitelist').classList.add('hidden')" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white">
+          Batal
+        </button>
+        <button onclick="handleBatchAddMembers()" class="btn-primary-action px-4 py-2 rounded-lg text-xs font-semibold">
+          Daftarkan Semua ke Whitelist
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL 3B: ADD SHARED RESOURCE / DOKUMEN LINK
+       ========================================== -->
+  <div id="modal-add-resource" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md hidden">
+    <div class="glass-card rounded-2xl p-6 sm:p-7 max-w-lg w-full relative shadow-2xl">
+      <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          Bagikan Link Dokumen / File ke Member
+        </h3>
+        <button onclick="closeAddResourceModal()" class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <form onsubmit="handleAddResourceSubmit(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Judul Dokumen / Resource</label>
+          <input id="new-res-title" required placeholder="Contoh: Template Master Google Sheets Database" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Tautan / URL Lengkap</label>
+          <input id="new-res-url" type="url" required placeholder="https://docs.google.com/spreadsheets/d/..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Kategori</label>
+            <select id="new-res-category" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+              <option value="sheet">Google Sheets</option>
+              <option value="code">Starter Code</option>
+              <option value="prompt">Prompt & SOP</option>
+              <option value="drive">Google Drive</option>
+              <option value="sop">Dokumen SOP</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Label Layanan</label>
+            <input id="new-res-badge" placeholder="Contoh: Google Sheets" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Deskripsi Singkat</label>
+          <textarea id="new-res-desc" rows="3" required placeholder="Jelaskan isi link ini dan cara member menggunakannya..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"></textarea>
+        </div>
+
+        <div class="pt-3 border-t border-slate-800 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeAddResourceModal()" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800">
+            Batal
+          </button>
+          <button type="submit" class="btn-primary-action px-4 py-2 rounded-lg text-xs font-semibold">
+            Simpan & Bagikan
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL 3C: EDIT QUICK ACTION HUB ITEM
+       ========================================== -->
+  <div id="modal-edit-quickaction" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md hidden">
+    <div class="glass-card rounded-2xl p-6 sm:p-7 max-w-lg w-full relative shadow-2xl">
+      <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+          Edit Kartu Quick Action Hub
+        </h3>
+        <button onclick="closeEditQuickActionModal()" class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <form onsubmit="handleSaveQuickActionSubmit(event)" class="space-y-4">
+        <input type="hidden" id="edit-qa-id" />
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Judul Utama Card</label>
+            <input id="edit-qa-title" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Subtitle / Keterangan</label>
+            <input id="edit-qa-subtitle" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Pilihan Ikon Monoline SVG</label>
+            <select id="edit-qa-icon" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+              <option value="folder">Folder (Resource &amp; SOP)</option>
+              <option value="calendar">Kalender (Track Jam Belajar)</option>
+              <option value="bookmark">Bookmark (Koleksi Favorit)</option>
+              <option value="chat">Chat (WA &amp; Discord)</option>
+              <option value="code">Code (Repository Template)</option>
+              <option value="sparkles">Sparkles (Prompt &amp; AI)</option>
+              <option value="play">Play (Ruang Belajar)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Label Badge Kategori</label>
+            <input id="edit-qa-badge" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Tipe Aksi Klik</label>
+          <select id="edit-qa-actiontype" onchange="toggleQuickActionTargetType()" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+            <option value="navigate">Buka Halaman LMS (SPA View)</option>
+            <option value="url">Buka Link Eksternal / WhatsApp (Tab Baru)</option>
+          </select>
+        </div>
+
+        <div id="container-qa-view">
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Pilih Halaman LMS Tujuan</label>
+          <select id="edit-qa-target-view" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+            <option value="resources">Dokumen &amp; Resource Hub</option>
+            <option value="user-dashboard">Dashboard &amp; Kalender Belajar</option>
+            <option value="favorites">Koleksi Favorit &amp; Snippet</option>
+            <option value="learn">Ruang Belajar Materi</option>
+            <option value="home">Home Kurikulum</option>
+          </select>
+        </div>
+
+        <div id="container-qa-url" class="hidden">
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Tautan / URL Lengkap</label>
+          <input id="edit-qa-target-url" type="text" placeholder="https://wa.me/... atau https://discord.gg/..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono">
+        </div>
+
+        <div class="pt-3 border-t border-slate-800 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeEditQuickActionModal()" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800">
+            Batal
+          </button>
+          <button type="submit" class="btn-primary-action px-4 py-2 rounded-lg text-xs font-semibold">
+            Simpan Perubahan Hub
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL 3D: EDIT / ADD TESTIMONIAL CMS
+       ========================================== -->
+  <div id="modal-edit-testimonial" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md hidden">
+    <div class="glass-card rounded-2xl p-6 sm:p-7 max-w-lg w-full relative shadow-2xl">
+      <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+        <h3 id="modal-testi-title" class="text-base font-bold text-white flex items-center gap-2">
+          <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+          Edit Testimoni Member
+        </h3>
+        <button onclick="closeEditTestimonialModal()" class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <form onsubmit="handleSaveTestimonialSubmit(event)" class="space-y-4">
+        <input type="hidden" id="edit-testi-id" />
+
+        <div class="grid grid-cols-3 gap-3">
+          <div class="col-span-2">
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Nama Member</label>
+            <input id="edit-testi-name" required placeholder="Contoh: Budi Santoso" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Inisial Avatar</label>
+            <input id="edit-testi-initials" required maxlength="3" placeholder="BS" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-center font-mono text-white focus:outline-none focus:border-emerald-500 uppercase">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Peran / Profesi Member</label>
+            <input id="edit-testi-role" required placeholder="Contoh: Operations Manager" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Warna Aksen Kartu</label>
+            <select id="edit-testi-tint" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+              <option value="emerald">Emerald Green</option>
+              <option value="cyan">Cyan Electric</option>
+              <option value="purple">Purple Modern</option>
+              <option value="amber">Amber Gold</option>
+              <option value="blue">Blue High-Tech</option>
+              <option value="rose">Rose Bold</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Badge Hasil Nyata / Pencapaian</label>
+          <input id="edit-testi-outcome" required placeholder="Contoh: Deploy Web App Inventaris 2 Cabang" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Kutipan Ulasan / Pengalaman Member</label>
+          <textarea id="edit-testi-quote" rows="3" required placeholder="Ceritakan bagaimana materi dan bantuan AI di kelas Zettbos membantu member menyelesaikan aplikasinya..." class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-white focus:outline-none focus:border-emerald-500"></textarea>
+        </div>
+
+        <div class="pt-3 border-t border-slate-800 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeEditTestimonialModal()" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800">
+            Batal
+          </button>
+          <button type="submit" class="btn-primary-action px-4 py-2 rounded-lg text-xs font-semibold">
+            Simpan Testimoni
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL 3E: EDIT USE-CASE AUDIENCE CARD CMS
+       ========================================== -->
+  <div id="modal-edit-usecase" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md hidden">
+    <div class="glass-card rounded-2xl p-6 sm:p-7 max-w-lg w-full relative shadow-2xl">
+      <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+          Edit Kartu Target Audiens
+        </h3>
+        <button onclick="closeEditUseCaseModal()" class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <form onsubmit="handleSaveUseCaseSubmit(event)" class="space-y-4">
+        <input type="hidden" id="edit-usecase-id" />
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Judul Target Audiens</label>
+          <input id="edit-usecase-title" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Pilihan Ikon Monoline</label>
+            <select id="edit-usecase-icon" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+              <option value="briefcase">Briefcase (Bisnis &amp; UMKM)</option>
+              <option value="code">Code (Non-Programmer)</option>
+              <option value="sparkles">Sparkles (Solopreneur)</option>
+              <option value="chart">Chart (Tim Operasional)</option>
+              <option value="folder">Folder (Project &amp; SOP)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Warna Aksen Border</label>
+            <select id="edit-usecase-tint" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+              <option value="emerald">Emerald Green</option>
+              <option value="cyan">Cyan Electric</option>
+              <option value="purple">Purple Modern</option>
+              <option value="amber">Amber Gold</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Tag Chips Keahlian (Pisahkan dengan koma)</label>
+          <input id="edit-usecase-tags" required placeholder="Zero-Code, Sheets, Automasi Bisnis" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Deskripsi Manfaat &amp; Solusi</label>
+          <textarea id="edit-usecase-desc" rows="3" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-white focus:outline-none focus:border-emerald-500"></textarea>
+        </div>
+
+        <div class="pt-3 border-t border-slate-800 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeEditUseCaseModal()" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800">
+            Batal
+          </button>
+          <button type="submit" class="btn-primary-action px-4 py-2 rounded-lg text-xs font-semibold">
+            Simpan Kartu Audiens
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL 3F: EDIT RESOURCE LINK CMS
+       ========================================== -->
+  <div id="modal-edit-resource" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md hidden">
+    <div class="glass-card rounded-2xl p-6 sm:p-7 max-w-lg w-full relative shadow-2xl">
+      <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+          Edit Link Dokumen / Shared Resource
+        </h3>
+        <button onclick="closeEditResourceModal()" class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <form onsubmit="handleSaveEditResourceSubmit(event)" class="space-y-4">
+        <input type="hidden" id="edit-res-id" />
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Judul Dokumen / Resource</label>
+          <input id="edit-res-title" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Tautan / URL Lengkap</label>
+          <input id="edit-res-url" type="url" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Kategori Dokumen</label>
+            <select id="edit-res-category" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+              <option value="sheet">Google Sheets</option>
+              <option value="code">Starter Code</option>
+              <option value="prompt">Prompt &amp; SOP</option>
+              <option value="drive">Google Drive</option>
+              <option value="sop">Dokumen SOP</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Label Layanan</label>
+            <input id="edit-res-badge" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Deskripsi Singkat</label>
+          <textarea id="edit-res-desc" rows="3" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"></textarea>
+        </div>
+
+        <div class="pt-3 border-t border-slate-800 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeEditResourceModal()" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800">
+            Batal
+          </button>
+          <button type="submit" class="btn-primary-action px-4 py-2 rounded-lg text-xs font-semibold">
+            Simpan Perubahan Dokumen
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL 4: MOBILE CURRICULUM DRAWER / BOTTOM SHEET
+       ========================================== -->
+  <div id="modal-mobile-curriculum" class="fixed inset-0 z-50 flex flex-col justify-end bg-slate-950/80 backdrop-blur-md hidden transition-opacity">
+    <div onclick="closeMobileCurriculumDrawer()" class="flex-1"></div>
+    <div class="glass-card rounded-t-2xl p-4 sm:p-5 max-h-[82vh] flex flex-col border-b-0 border-x-0 relative shadow-2xl animate-sheet-up bg-slate-950/95">
+      <!-- Drag handle -->
+      <div class="w-12 h-1.5 bg-slate-700/80 rounded-full mx-auto mb-3"></div>
+
+      <!-- Drawer Header -->
+      <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
+        <div>
+          <h3 class="text-sm font-bold text-white flex items-center gap-2">
+            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+            Kurikulum & Daftar Materi
+          </h3>
+          <p class="text-[11px] text-slate-400">Pilih materi untuk langsung berpindah</p>
+        </div>
+        <button onclick="closeMobileCurriculumDrawer()" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <!-- Scrollable Curriculum List -->
+      <div id="mobile-curriculum-tree" class="overflow-y-auto flex-1 pr-1 space-y-4">
+        <!-- Injected by js/app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Sticky Progress Pill (UX Saat Scroll di Bawah Video) -->
+  <div id="floating-progress-pill" class="hidden-pill">
+    <div class="flex items-center gap-2 min-w-0">
+      <div class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center flex-shrink-0">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      </div>
+      <div class="flex flex-col pr-1 min-w-0">
+        <span id="floating-pill-title" class="text-xs font-bold text-white max-w-[120px] sm:max-w-[200px] truncate leading-tight">Materi Belajar</span>
+        <span id="floating-pill-module" class="text-[10px] text-slate-400 font-medium truncate max-w-[110px] sm:max-w-[180px]">Modul 1</span>
+      </div>
+    </div>
+    <div class="h-5 w-px bg-slate-800 hidden sm:block"></div>
+    <div id="floating-pill-action-container" class="flex items-center gap-1.5 flex-shrink-0">
+      <button id="floating-btn-complete" class="btn-primary-action px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+        <span>Selesai</span>
+      </button>
+      <button onclick="dismissFloatingPill()" title="Sembunyikan Bar" class="p-1 text-slate-400 hover:text-white rounded">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Bottom Navigation Bar (1-Thumb App UX - 5 Tabs) -->
+  <nav id="mobile-bottom-nav" class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-lg border-t border-slate-800/80 px-1 py-1.5 flex items-center justify-around hidden">
+    <button onclick="navigate('home')" id="mobile-nav-home" class="flex flex-col items-center gap-0.5 py-1 px-2 rounded-lg text-slate-400 hover:text-emerald-400 transition-colors">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+      <span class="text-[9px] font-semibold">Home</span>
+    </button>
+    <button onclick="navigate('user-dashboard')" id="mobile-nav-dashboard" class="flex flex-col items-center gap-0.5 py-1 px-2 rounded-lg text-slate-400 hover:text-cyan-400 transition-colors">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+      <span class="text-[9px] font-semibold">Kalender</span>
+    </button>
+    <button onclick="navigate('learn')" id="mobile-nav-learn" class="flex flex-col items-center gap-0.5 py-1 px-2 rounded-lg text-slate-400 hover:text-emerald-400 transition-colors">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      <span class="text-[9px] font-semibold">Belajar</span>
+    </button>
+    <button onclick="navigate('resources')" id="mobile-nav-resources" class="flex flex-col items-center gap-0.5 py-1 px-2 rounded-lg text-slate-400 hover:text-blue-400 transition-colors">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      <span class="text-[9px] font-semibold">Dokumen</span>
+    </button>
+    <button onclick="navigate('favorites')" id="mobile-nav-favorites" class="flex flex-col items-center gap-0.5 py-1 px-2 rounded-lg text-slate-400 hover:text-amber-400 transition-colors">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
+      <span class="text-[9px] font-semibold">Favorit</span>
+    </button>
+  </nav>
+
+  <!-- ==========================================
+       MODAL 5: SUPABASE CLOUD DATABASE SETTINGS & 2-WAY SYNC
+       ========================================== -->
+  <div id="modal-supabase-settings" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md hidden transition-opacity">
+    <div class="glass-card rounded-2xl max-w-lg w-full p-6 border border-emerald-500/40 relative shadow-2xl animate-scale-up">
+      <button onclick="closeSupabaseSettingsModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-950/90 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-white flex items-center gap-2">
+            Database Cloud Supabase
+            <span class="text-[9px] px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-500/40 font-mono">TABLE EDITOR</span>
+          </h3>
+          <p class="text-xs text-slate-400">PostgreSQL cloud dengan antarmuka spreadsheet mirip Google Sheets.</p>
+        </div>
+      </div>
+
+      <!-- Live Connection Status -->
+      <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800 mb-4 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <span id="supabase-connection-status" class="w-2 h-2 rounded-full bg-amber-400"></span>
+          <span id="supabase-status-label" class="text-[11px] font-mono text-amber-400">Mode Lokal (LocalStorage Standalone)</span>
+        </div>
+        <button onclick="ZettSupabase.testConnection()" type="button" class="px-2.5 py-1 rounded text-[10px] font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors">
+          Tes Koneksi
+        </button>
+      </div>
+
+      <form onsubmit="handleSaveSupabaseConfig(event)" class="space-y-3.5">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Project URL Supabase</label>
+          <input id="supabase-config-url" type="url" placeholder="https://xxxxxxxxxxxx.supabase.co" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-emerald-300 font-mono focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Anon / Public API Key</label>
+          <input id="supabase-config-anon" type="password" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-emerald-300 font-mono focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <div class="p-2.5 rounded-lg bg-emerald-950/30 border border-emerald-800/40 text-[11px] text-slate-300 leading-relaxed">
+          <span class="text-emerald-400 font-bold">Catatan Arsitektur:</span> Jika URL & Key belum diisi, aplikasi tetap 100% aktif menggunakan LocalStorage offline. Begitu diisi, Anda bisa menyinkronkan data dua arah secara instan.
+        </div>
+
+        <!-- Sync Actions -->
+        <div class="pt-2 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <button onclick="ZettSupabase.pullAllData()" type="button" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-cyan-950 hover:bg-cyan-900 text-cyan-200 border border-cyan-800/80 transition-colors flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              <span>Tarik Data Cloud</span>
+            </button>
+            <button onclick="ZettSupabase.pushAllLocalDataToSupabase()" type="button" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-950 hover:bg-emerald-900 text-emerald-200 border border-emerald-800/80 transition-colors flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+              <span>Upload Lokal ke Cloud</span>
+            </button>
+          </div>
+
+          <div class="flex items-center gap-2 ml-auto">
+            <button type="button" onclick="closeSupabaseSettingsModal()" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white">
+              Tutup
+            </button>
+            <button type="submit" class="btn-primary-action px-4 py-1.5 rounded-lg text-xs font-semibold">
+              Simpan URL & Key
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container"></div>
+
+  <!-- Supabase JS Client CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Application Scripts (Modular Architecture) -->
+  <script src="js/mock-data.js"></script>
+  <script src="js/editor.js"></script>
+  <script src="js/core/state.js"></script>
+  <script src="js/core/supabase.js"></script>
+  <script src="js/core/router.js"></script>
+  <script src="js/core/particles.js"></script>
+  <script src="js/controllers/auth.js"></script>
+  <script src="js/controllers/landing.js"></script>
+  <script src="js/controllers/classroom.js"></script>
+  <script src="js/controllers/resources.js"></script>
+  <script src="js/controllers/admin.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

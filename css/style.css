@@ -1,0 +1,1944 @@
+/* ==========================================================================
+   ZETTBOS LMS - HUMAN-CRAFTED DESIGN SYSTEM (ANTI-AI REFINED)
+   Conforms strictly to anti-ai-slop, color-craft, typography, animation-discipline,
+   and laws-of-ux specifications.
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root, html.dark {
+  /* ------------------------------------------------------------------------
+     1. PALETTE STRUCTURE - DARK MODE (Linear / Raycast Matte Carbon)
+     ------------------------------------------------------------------------ */
+  /* Neutrals: Deep, calm, true carbon charcoal (pitch black matte) */
+  --bg: #07080A;
+  --surface: #16181D;
+  --surface-subtle: #101216;
+  --surface-hover: #1C1F26;
+  --surface-active: #232731;
+  
+  /* Hairline borders: Crisp, solid, refined structure */
+  --border: #262933;
+  --border-subtle: #1E2028;
+  --border-strong: #333745;
+
+  /* Foreground text hierarchy (Readability minimums WCAG AA compliant) */
+  --fg: #F1F5F9;
+  --fg-heading: #FFFFFF;
+  --muted: #94A3B8;
+  --dim: #64748B;
+
+  /* Single Accent: Curated Engineering Emerald */
+  --accent: #10B981;
+  --accent-hover: #059669;
+  --accent-subtle: rgba(16, 185, 129, 0.10);
+  --accent-fg: #34D399;
+  --accent-border: rgba(16, 185, 129, 0.35);
+
+  /* Shadows & Depth */
+  --card-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05), 0 4px 16px -2px rgba(0, 0, 0, 0.45);
+  --card-shadow-hover: inset 0 1px 0 0 rgba(255, 255, 255, 0.08), 0 8px 24px -4px rgba(0, 0, 0, 0.6);
+  --nav-bg: #0D0E11;
+  --nav-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.5);
+
+  /* Semantics */
+  --success: #10B981;
+  --warn: #F59E0B;
+  --danger: #EF4444;
+  --info: #3B82F6;
+
+  /* Concentric Radius Hierarchy */
+  --radius-badge: 6px;
+  --radius-btn: 8px;
+  --radius-input: 8px;
+  --radius-card: 12px;
+  --radius-modal: 16px;
+
+  /* Timing Tokens */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --duration-fast: 150ms;
+  --duration-medium: 220ms;
+}
+
+html.light {
+  /* ------------------------------------------------------------------------
+     1B. PALETTE STRUCTURE - LIGHT MODE (Linear / Apple Editorial Alabaster)
+     ------------------------------------------------------------------------ */
+  --bg: #F8F9FA;
+  --surface: #FFFFFF;
+  --surface-subtle: #F1F3F5;
+  --surface-hover: #F8FAFC;
+  --surface-active: #E2E8F0;
+  
+  --border: #E2E8F0;
+  --border-subtle: #EDF2F7;
+  --border-strong: #CBD5E1;
+
+  --fg: #0F172A;
+  --fg-heading: #0F172A;
+  --muted: #475569;
+  --dim: #64748B;
+
+  --accent: #059669;
+  --accent-hover: #047857;
+  --accent-subtle: rgba(5, 150, 105, 0.08);
+  --accent-fg: #047857;
+  --accent-border: rgba(5, 150, 105, 0.25);
+
+  --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+  --card-shadow-hover: 0 6px 18px -3px rgba(0, 0, 0, 0.08), 0 2px 6px -2px rgba(0, 0, 0, 0.04);
+  --nav-bg: rgba(255, 255, 255, 0.95);
+  --nav-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+
+  --success: #059669;
+  --warn: #D97706;
+  --danger: #DC2626;
+  --info: #2563EB;
+
+  --radius-badge: 6px;
+  --radius-btn: 8px;
+  --radius-input: 8px;
+  --radius-card: 12px;
+  --radius-modal: 16px;
+
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --duration-fast: 150ms;
+  --duration-medium: 220ms;
+}
+
+/* Base Reset & Core Setup */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--bg);
+  color: var(--fg);
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  letter-spacing: 0;
+  line-height: 1.5;
+}
+
+/* ------------------------------------------------------------------------
+   2. TYPOGRAPHY DISCIPLINE (Anti-AI Scale & Letter-Spacing Rules)
+   ------------------------------------------------------------------------ */
+
+/* 3-Weight Discipline: 400 (Read), 500 (Emphasize), 600 (Announce). No 800/900 bloat */
+h1, h2, h3, h4, .font-heading {
+  font-weight: 600;
+  color: #FFFFFF;
+}
+
+/* Display & H1 (≥32px): tight leading (1.1-1.2), tight tracking (-0.02em) */
+h1, .h1-display {
+  font-size: 1.875rem; /* 30-36px */
+  line-height: 1.18;
+  letter-spacing: -0.02em;
+}
+
+@media (min-width: 640px) {
+  h1, .h1-display {
+    font-size: 2.25rem; /* 36px */
+  }
+}
+
+/* H2 (24-32px): letter-spacing -0.015em */
+h2, .h2-title {
+  font-size: 1.35rem;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+}
+
+@media (min-width: 640px) {
+  h2, .h2-title {
+    font-size: 1.5rem;
+  }
+}
+
+/* H3 (20-24px): letter-spacing -0.01em */
+h3, .h3-subtitle {
+  font-size: 1.125rem;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+/* ALL CAPS Letter-spacing Floor (0.06em to 0.1em - MANDATORY ANTI-AI RULE) */
+.tracking-caps,
+.uppercase,
+button.uppercase,
+span.uppercase,
+.card-badge {
+  letter-spacing: 0.08em !important;
+  font-weight: 600;
+}
+
+/* UI labels and buttons: subtle positive tracking */
+button, input, select, textarea, .ui-label {
+  letter-spacing: 0.015em;
+}
+
+/* Monospace Numbers & Code */
+pre, code, .font-mono, .font-numeric {
+  font-family: 'JetBrains Mono', monospace;
+  font-feature-settings: "tnum" 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* Optimal Reading Measure (50-75 characters per line) */
+.prose-reading {
+  max-width: 65ch;
+  line-height: 1.68;
+  color: #CBD5E1;
+  font-size: 0.9375rem; /* 15px */
+}
+
+/* Accessible Focus Ring (Fitts's & WCAG 2.4.7 compliant) */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Precision Compact Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: #1E293B;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+/* ------------------------------------------------------------------------
+   3. SURFACES & CONTAINERS (Matte Depth Hierarchy - No Cheesy Glows)
+   ------------------------------------------------------------------------ */
+
+/* Clean Solid Navigation Bar */
+.glass-nav {
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.5);
+}
+
+/* Precision Solid Matte Card: True physical weight + subtle top hairline inset */
+.glass-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05), 0 4px 16px -2px rgba(0, 0, 0, 0.45);
+  transition: border-color var(--duration-fast) var(--ease-standard),
+              background var(--duration-fast) var(--ease-standard),
+              transform var(--duration-fast) var(--ease-standard);
+}
+
+.glass-card:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-hover);
+  transform: translateY(-1px);
+}
+
+/* Static Solid Card (no hover jump for forms and settings) */
+.glass-card-static {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05), 0 4px 16px -2px rgba(0, 0, 0, 0.45);
+}
+
+/* Sub-Surface / Inner Well (Law of Common Region) */
+.surface-well {
+  background: var(--surface-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+}
+
+/* ------------------------------------------------------------------------
+   4. BUTTONS & CONTROLS (Tactile 8px Radius, 150ms State Transitions)
+   ------------------------------------------------------------------------ */
+
+/* Primary CTA: Solid, High-Contrast, No Two-Stop Gradient */
+.btn-primary-action {
+  background-color: var(--accent);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-btn);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.25), 0 2px 6px 0 rgba(0, 0, 0, 0.4);
+  font-weight: 600;
+  transition: background-color var(--duration-fast) var(--ease-standard),
+              transform var(--duration-fast) var(--ease-standard);
+}
+
+.btn-primary-action:hover {
+  background-color: var(--accent-hover);
+  transform: translateY(-0.5px);
+}
+
+.btn-primary-action:active {
+  transform: translateY(0.5px);
+  box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+}
+
+/* Secondary Button */
+.btn-secondary {
+  background-color: rgba(255, 255, 255, 0.04);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-btn);
+  font-weight: 500;
+  transition: background-color var(--duration-fast) var(--ease-standard),
+              border-color var(--duration-fast) var(--ease-standard);
+}
+
+.btn-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.16);
+  color: #FFFFFF;
+}
+
+/* Precision Chips & Badges */
+.status-chip {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--radius-badge);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.chip-accent {
+  background: var(--accent-subtle);
+  color: var(--accent-fg);
+  border: 1px solid var(--accent-border);
+}
+
+.chip-neutral {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+/* ------------------------------------------------------------------------
+   5. VIDEO CONTAINER & NOTION BLOCKS (Responsive & Clean)
+   ------------------------------------------------------------------------ */
+.video-responsive-container {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+  height: 0;
+  overflow: hidden;
+  border-radius: var(--radius-card);
+  background-color: #0A0B0D;
+  box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.8), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+}
+
+.video-responsive-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* Native Blueprint Cover for Modules (Replaces Fragile Stock Photos) */
+.module-blueprint-cover {
+  width: 100%;
+  height: 100%;
+  background: #0D1322;
+  background-image: 
+    radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(16, 185, 129, 0.05) 0%, transparent 100%);
+  background-size: 16px 16px, 100% 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Floating Sticky Progress Pill */
+#floating-progress-pill {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 45;
+  background: rgba(14, 20, 34, 0.96);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-card);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.1), 0 14px 35px -5px rgba(0, 0, 0, 0.7);
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: opacity var(--duration-medium) var(--ease-standard),
+              transform var(--duration-medium) var(--ease-standard);
+}
+
+#floating-progress-pill.hidden-pill {
+  opacity: 0;
+  transform: translateY(16px);
+  pointer-events: none;
+}
+
+#floating-progress-pill.visible-pill {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* Toast Container & Notification Item */
+#toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.toast-item {
+  pointer-events: auto;
+  min-width: 280px;
+  max-width: 420px;
+  padding: 10px 16px;
+  border-radius: var(--radius-btn);
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.1), 0 10px 25px -5px rgba(0, 0, 0, 0.6);
+  animation: toastIn var(--duration-fast) var(--ease-standard) forwards;
+  transition: all var(--duration-fast) ease;
+}
+
+.toast-item.success {
+  background: #064E3B;
+  color: #D1FAE5;
+  border: 1px solid rgba(16, 185, 129, 0.5);
+}
+
+.toast-item.error {
+  background: #7F1D1D;
+  color: #FEE2E2;
+  border: 1px solid rgba(239, 68, 68, 0.5);
+}
+
+.toast-item.info {
+  background: #0C4A6E;
+  color: #E0F2FE;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* OTP Digits Input */
+.otp-digit-input {
+  width: 48px;
+  height: 52px;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+  border-radius: var(--radius-input);
+  background-color: var(--surface-subtle);
+  border: 1px solid var(--border-strong);
+  color: #FFFFFF;
+  transition: border-color var(--duration-fast) ease, box-shadow var(--duration-fast) ease;
+}
+
+.otp-digit-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
+  background-color: var(--surface);
+}
+
+/* ------------------------------------------------------------------------
+   6. MONTHLY LEARNING CALENDAR (Gambar 2 Craft Refinement)
+   ------------------------------------------------------------------------ */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+@media (max-width: 640px) {
+  .calendar-grid {
+    gap: 4px;
+  }
+}
+
+.calendar-day-cell {
+  min-height: 54px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all var(--duration-fast) var(--ease-standard);
+  position: relative;
+  overflow: hidden;
+}
+
+@media (max-width: 640px) {
+  .calendar-day-cell {
+    min-height: 46px;
+    padding: 4px 6px;
+  }
+}
+
+.calendar-day-cell:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-hover);
+}
+
+.calendar-day-empty {
+  min-height: 54px;
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px dashed rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+}
+
+@media (max-width: 640px) {
+  .calendar-day-empty {
+    min-height: 46px;
+  }
+}
+
+/* Active Day (Quiet, intentional emerald badge - not a neon flood) */
+.calendar-day-active {
+  background: rgba(6, 78, 59, 0.45) !important;
+  border: 1px solid rgba(16, 185, 129, 0.5) !important;
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+}
+
+.calendar-day-active .day-number {
+  color: var(--accent-fg) !important;
+  font-weight: 600;
+}
+
+.calendar-day-active:hover {
+  border-color: rgba(16, 185, 129, 0.8) !important;
+  background: rgba(6, 78, 59, 0.65) !important;
+}
+
+/* Today indicator */
+.calendar-day-today {
+  border-color: rgba(255, 255, 255, 0.35) !important;
+}
+
+.calendar-day-today::after {
+  content: '';
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: var(--accent);
+}
+
+/* ------------------------------------------------------------------------
+   7. DRAWER & MODAL MOTION DISCIPLINE (≤220ms, Front-Loaded)
+   ------------------------------------------------------------------------ */
+@keyframes drawerSlideLeft {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-drawer-left {
+  animation: drawerSlideLeft var(--duration-medium) var(--ease-standard) forwards;
+}
+
+@keyframes sheetUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.animate-sheet-up {
+  animation: sheetUp var(--duration-medium) var(--ease-standard) forwards;
+}
+
+/* ------------------------------------------------------------------------
+   8. SKELETON LOADERS (State Coverage Required State: Loading)
+   ------------------------------------------------------------------------ */
+.ph-skeleton {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.04) 25%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.04) 75%);
+  background-size: 200% 100%;
+  animation: skeletonWave 1.6s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+@keyframes skeletonWave {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ------------------------------------------------------------------------
+   9. CUSTOM SCROLLBAR UTILITY (For Scrollable Module Lessons Container)
+   ------------------------------------------------------------------------ */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.25) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(16, 185, 129, 0.5);
+}
+
+/* ------------------------------------------------------------------------
+   10. ACCESSIBILITY & PREFERS-REDUCED-MOTION (MANDATORY ACCESSIBILITY FLOOR)
+   ------------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  #floating-progress-pill,
+  .animate-drawer-left,
+  .animate-sheet-up,
+  .toast-item {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+/* ------------------------------------------------------------------------
+   11. MOBILE NAVBAR POLISH (Strict Decluttering & Zero Overlap)
+   ------------------------------------------------------------------------ */
+#nav-mode-switch {
+  display: none !important;
+}
+
+@media (min-width: 768px) {
+  #nav-mode-switch:not(.nav-hidden) {
+    display: inline-flex !important;
+  }
+}
+
+/* ------------------------------------------------------------------------
+   11B. LANDING PORTAL & REFERENSI.HTML CRAFT (Hero Float & Bento Styles)
+   ------------------------------------------------------------------------ */
+@keyframes heroCardFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-float-card-1 {
+  animation: heroCardFloat 4.2s ease-in-out infinite;
+}
+
+.animate-float-card-2 {
+  animation: heroCardFloat 5s ease-in-out 1.2s infinite;
+}
+
+.animate-float-card-3 {
+  animation: heroCardFloat 5.6s ease-in-out 2.4s infinite;
+}
+
+/* Floating Pill Navbar */
+.landing-pill-nav {
+  background: rgba(22, 24, 29, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+}
+
+html.light .landing-pill-nav {
+  background: rgba(255, 255, 255, 0.90);
+  border-color: var(--border);
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08), 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+}
+
+/* Bento Split Showcase Active Button */
+.bento-tab-active {
+  border-color: var(--accent) !important;
+  background-color: var(--surface-active) !important;
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+html.light .bento-tab-active {
+  border-color: #059669 !important;
+  background-color: #ECFDF5 !important;
+  box-shadow: inset 0 0 0 1px #059669;
+}
+
+/* Micro-Tag Pill */
+.micro-tag-pill {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid var(--border);
+  background: var(--surface-subtle);
+  color: var(--muted);
+  transition: all var(--duration-fast) ease;
+}
+
+.micro-tag-pill:hover {
+  border-color: var(--accent-border);
+  color: var(--accent-fg);
+}
+
+/* ==========================================================================
+   12. DUAL THEME SPECIFICATION - LIGHT MODE (Linear / Apple Alabaster Studio)
+   Human-crafted, studio-grade aesthetic:
+   - True alabaster canvas (#F8F9FA)
+   - Pure white elevated cards (#FFFFFF)
+   - Slate hairline borders (#E2E8F0 / #CBD5E1)
+   - High-contrast Slate-900 typography (#0F172A)
+   - Strictly rationed engineering emerald (#059669)
+   ========================================================================== */
+
+html.light body {
+  background-color: var(--bg);
+  color: var(--fg);
+}
+
+/* Base Surfaces & Elevators */
+html.light .glass-card {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.04) !important;
+}
+
+html.light .glass-card:hover {
+  background: var(--surface) !important;
+  border-color: var(--border-strong) !important;
+  box-shadow: 0 6px 18px -3px rgba(0, 0, 0, 0.08), 0 2px 6px -2px rgba(0, 0, 0, 0.04) !important;
+}
+
+html.light .glass-card-static {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.04) !important;
+}
+
+html.light .surface-well {
+  background: var(--surface-subtle) !important;
+  border-color: var(--border-subtle) !important;
+}
+
+/* Clean Solid Navigation */
+html.light .glass-nav {
+  background: var(--nav-bg) !important;
+  border-bottom: 1px solid var(--border) !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05) !important;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+html.light #nav-center-indicator {
+  background-color: #F1F3F5 !important;
+  border-color: #E2E8F0 !important;
+  color: #0F172A !important;
+  box-shadow: none !important;
+}
+
+html.light #nav-mode-switch {
+  background-color: #F1F3F5 !important;
+  border-color: #E2E8F0 !important;
+  color: #334155 !important;
+}
+
+html.light #nav-mode-switch:hover {
+  background-color: #E2E8F0 !important;
+  color: #0F172A !important;
+}
+
+/* Typography & Headings */
+html.light h1, 
+html.light h2, 
+html.light h3, 
+html.light h4, 
+html.light .font-heading {
+  color: var(--fg-heading) !important;
+}
+
+html.light .text-white {
+  color: #0F172A !important;
+}
+
+html.light .text-slate-100 {
+  color: #0F172A !important;
+}
+
+html.light .text-slate-200 {
+  color: #1E293B !important;
+}
+
+html.light .text-slate-300 {
+  color: #334155 !important;
+}
+
+html.light .text-slate-400 {
+  color: #475569 !important;
+}
+
+html.light .text-slate-500 {
+  color: #64748B !important;
+}
+
+html.light .prose-reading {
+  color: #334155 !important;
+}
+
+/* Background Color Class Overrides */
+html.light .bg-slate-950 {
+  background-color: #F8F9FA !important;
+}
+
+html.light .bg-slate-950\/80 {
+  background-color: rgba(248, 249, 250, 0.88) !important;
+}
+
+html.light .bg-slate-950\/90 {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+}
+
+html.light .bg-slate-950\/95 {
+  background-color: rgba(255, 255, 255, 0.96) !important;
+}
+
+html.light .bg-slate-900 {
+  background-color: #F1F3F5 !important;
+}
+
+html.light .bg-slate-900\/80 {
+  background-color: rgba(241, 243, 245, 0.9) !important;
+}
+
+html.light .bg-slate-800 {
+  background-color: #E2E8F0 !important;
+}
+
+html.light .bg-slate-800\/80 {
+  background-color: #E2E8F0 !important;
+}
+
+html.light .bg-\[\#16181D\] {
+  background-color: #F1F3F5 !important;
+}
+
+html.light .bg-\[\#101216\] {
+  background-color: #F8F9FA !important;
+}
+
+html.light .bg-\[\#1C1F26\] {
+  background-color: #E2E8F0 !important;
+}
+
+html.light .bg-\[\#0D0E11\] {
+  background-color: #F1F3F5 !important;
+}
+
+html.light .bg-\[\#070B14\] {
+  background-color: #F8F9FA !important;
+}
+
+/* Border Class Overrides */
+html.light .border-slate-800,
+html.light .border-slate-800\/80,
+html.light .border-slate-800\/90 {
+  border-color: #E2E8F0 !important;
+}
+
+html.light .border-slate-700,
+html.light .border-slate-700\/80 {
+  border-color: #CBD5E1 !important;
+}
+
+html.light .border-\[\#262933\] {
+  border-color: #E2E8F0 !important;
+}
+
+html.light .border-\[\#1E2028\] {
+  border-color: #EDF2F7 !important;
+}
+
+html.light .border-\[\#333745\] {
+  border-color: #CBD5E1 !important;
+}
+
+html.light .divide-slate-800 > * + * {
+  border-color: #E2E8F0 !important;
+}
+
+html.light .divide-slate-800\/80 > * + * {
+  border-color: #E2E8F0 !important;
+}
+
+/* Buttons & Tactile Actions */
+html.light .btn-primary-action {
+  background-color: var(--accent) !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.06) !important;
+}
+
+html.light .btn-primary-action:hover {
+  background-color: var(--accent-hover) !important;
+}
+
+html.light .btn-secondary {
+  background-color: #F1F3F5 !important;
+  color: #0F172A !important;
+  border-color: #CBD5E1 !important;
+}
+
+html.light .btn-secondary:hover {
+  background-color: #E2E8F0 !important;
+  color: #0F172A !important;
+}
+
+/* Badges & Chips */
+html.light .chip-accent {
+  background: var(--accent-subtle) !important;
+  color: var(--accent-fg) !important;
+  border-color: var(--accent-border) !important;
+}
+
+html.light .chip-neutral {
+  background: #F1F3F5 !important;
+  color: var(--muted) !important;
+  border-color: var(--border) !important;
+}
+
+/* Semantics Color Chips in Light Mode */
+html.light .bg-emerald-950,
+html.light .bg-emerald-950\/80,
+html.light .bg-emerald-950\/70 {
+  background-color: #ECFDF5 !important;
+  border-color: #A7F3D0 !important;
+  color: #065F46 !important;
+}
+
+html.light .text-emerald-400,
+html.light .text-emerald-300 {
+  color: #059669 !important;
+}
+
+html.light .bg-cyan-950,
+html.light .bg-cyan-950\/40 {
+  background-color: #ECFEFF !important;
+  border-color: #A5F3FC !important;
+  color: #0E7490 !important;
+}
+
+html.light .text-cyan-400,
+html.light .text-cyan-300 {
+  color: #0891B2 !important;
+}
+
+html.light .bg-amber-950,
+html.light .bg-amber-950\/40 {
+  background-color: #FFFBEB !important;
+  border-color: #FDE68A !important;
+  color: #B45309 !important;
+}
+
+html.light .text-amber-400,
+html.light .text-amber-300 {
+  color: #D97706 !important;
+}
+
+html.light .bg-rose-950,
+html.light .bg-rose-950\/40 {
+  background-color: #FFF1F2 !important;
+  border-color: #FECDD3 !important;
+  color: #BE123C !important;
+}
+
+html.light .text-rose-400,
+html.light .text-rose-300 {
+  color: #E11D48 !important;
+}
+
+html.light .bg-blue-950 {
+  background-color: #EFF6FF !important;
+  border-color: #BFDBFE !important;
+  color: #1D4ED8 !important;
+}
+
+html.light .text-blue-400,
+html.light .text-blue-300 {
+  color: #2563EB !important;
+}
+
+html.light .bg-purple-950,
+html.light .bg-purple-950\/40 {
+  background-color: #FAF5FF !important;
+  border-color: #E9D5FF !important;
+  color: #7E22CE !important;
+}
+
+html.light .text-purple-400,
+html.light .text-purple-300 {
+  color: #9333EA !important;
+}
+
+/* Form Inputs, Selects, and Textareas */
+html.light input:not([type="checkbox"]):not([type="radio"]),
+html.light select,
+html.light textarea {
+  background-color: #FFFFFF !important;
+  border-color: #CBD5E1 !important;
+  color: #0F172A !important;
+}
+
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: #94A3B8 !important;
+}
+
+html.light input:focus,
+html.light select:focus,
+html.light textarea:focus {
+  border-color: #059669 !important;
+  box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.18) !important;
+}
+
+html.light .otp-digit-input {
+  background-color: #FFFFFF !important;
+  border-color: #CBD5E1 !important;
+  color: #0F172A !important;
+}
+
+html.light .otp-digit-input:focus {
+  border-color: #059669 !important;
+  box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.25) !important;
+}
+
+/* Sidebar Navigation Drawer in Light Mode */
+html.light #sidebar-drawer {
+  background-color: #FFFFFF !important;
+  border-right-color: #E2E8F0 !important;
+  color: #0F172A !important;
+}
+
+html.light #sidebar-drawer .bg-slate-950,
+html.light #sidebar-drawer .bg-slate-950\/90 {
+  background-color: #FFFFFF !important;
+}
+
+html.light #sidebar-drawer .border-slate-800,
+html.light #sidebar-drawer .border-slate-800\/80 {
+  border-color: #E2E8F0 !important;
+}
+
+html.light #sidebar-drawer button:hover {
+  background-color: #F1F3F5 !important;
+  color: #0F172A !important;
+}
+
+html.light #sidebar-drawer-overlay {
+  background-color: rgba(15, 23, 42, 0.35) !important;
+}
+
+/* Modals & Dialogs */
+html.light #modal-edit-module > div,
+html.light #modal-edit-lesson > div,
+html.light #modal-add-member > div,
+html.light #modal-add-resource > div,
+html.light #modal-edit-quickaction > div {
+  background-color: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Learning Calendar in Light Mode */
+html.light .calendar-day-cell {
+  background: #F8F9FA !important;
+  border-color: #E2E8F0 !important;
+}
+
+html.light .calendar-day-cell:hover {
+  border-color: #CBD5E1 !important;
+  background: #EDF2F7 !important;
+}
+
+html.light .calendar-day-empty {
+  background: #F1F3F5 !important;
+  border-color: #E2E8F0 !important;
+}
+
+html.light .calendar-day-active {
+  background: #ECFDF5 !important;
+  border-color: #10B981 !important;
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.8) !important;
+}
+
+html.light .calendar-day-active .day-number {
+  color: #065F46 !important;
+  font-weight: 700 !important;
+}
+
+html.light .calendar-day-active:hover {
+  background: #D1FAE5 !important;
+  border-color: #059669 !important;
+}
+
+html.light .calendar-day-today {
+  border-color: #0F172A !important;
+}
+
+/* Mobile Bottom Navigation Bar */
+html.light #mobile-bottom-nav {
+  background-color: rgba(255, 255, 255, 0.96) !important;
+  border-top-color: #E2E8F0 !important;
+  box-shadow: 0 -1px 3px 0 rgba(0, 0, 0, 0.04) !important;
+}
+
+html.light #mobile-bottom-nav button {
+  color: #64748B !important;
+}
+
+html.light #mobile-bottom-nav button.text-emerald-400,
+html.light #mobile-bottom-nav button.text-white {
+  color: #059669 !important;
+}
+
+/* Floating Sticky Progress Pill */
+html.light #floating-progress-pill {
+  background: rgba(255, 255, 255, 0.96) !important;
+  border-color: #CBD5E1 !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Module Blueprint Cover */
+html.light .module-blueprint-cover {
+  background: #EDF2F7 !important;
+  background-image: 
+    radial-gradient(rgba(0, 0, 0, 0.07) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(5, 150, 105, 0.06) 0%, transparent 100%) !important;
+}
+
+/* Toast Notifications */
+html.light .toast-item.success {
+  background: #ECFDF5 !important;
+  color: #065F46 !important;
+  border-color: #A7F3D0 !important;
+}
+
+html.light .toast-item.error {
+  background: #FEF2F2 !important;
+  color: #991B1B !important;
+  border-color: #FECACA !important;
+}
+
+html.light .toast-item.info {
+  background: #F0F9FF !important;
+  color: #075985 !important;
+  border-color: #BAE6FD !important;
+}
+
+/* Light Scrollbars */
+html.light ::-webkit-scrollbar-track {
+  background: #F8F9FA;
+}
+
+html.light ::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+}
+
+html.light ::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Selection Color in Light Mode */
+html.light ::selection {
+  background: rgba(5, 150, 105, 0.2);
+  color: #065F46;
+}
+
+/* ------------------------------------------------------------------------
+   13. RUANG BELAJAR (VIEW-LEARN) LIGHT MODE FIX (Zero Dark-on-Dark Glitch)
+   ------------------------------------------------------------------------ */
+html.light #view-learn,
+html.light .bg-\[\#060A12\] {
+  background-color: var(--bg) !important;
+  color: var(--fg) !important;
+}
+
+html.light #view-learn .border-slate-800\/80,
+html.light #view-learn .border-slate-800,
+html.light #view-learn .border-b {
+  border-color: #E2E8F0 !important;
+}
+
+html.light #view-learn .bg-slate-950\/80,
+html.light #view-learn .bg-slate-950 {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+}
+
+html.light #view-learn h1,
+html.light #learn-lesson-title {
+  color: #0F172A !important;
+}
+
+html.light #learn-duration-badge {
+  background-color: #F1F3F5 !important;
+  color: #475569 !important;
+  border-color: #CBD5E1 !important;
+}
+
+html.light #btn-toggle-favorite-lesson {
+  background-color: #FFFFFF !important;
+  color: #334155 !important;
+  border-color: #CBD5E1 !important;
+}
+
+html.light #btn-prev-lesson,
+html.light #btn-next-lesson,
+html.light #btn-footer-prev-lesson,
+html.light #btn-footer-next-lesson {
+  background-color: #FFFFFF !important;
+  color: #334155 !important;
+  border-color: #CBD5E1 !important;
+}
+
+html.light #btn-prev-lesson:hover,
+html.light #btn-next-lesson:hover,
+html.light #btn-footer-prev-lesson:hover,
+html.light #btn-footer-next-lesson:hover {
+  background-color: #F1F3F5 !important;
+  color: #0F172A !important;
+}
+
+html.light #btn-mobile-curriculum-trigger {
+  background-color: #ECFDF5 !important;
+  color: #065F46 !important;
+  border-color: #A7F3D0 !important;
+}
+
+html.light #learn-curriculum-sidebar button {
+  color: #475569 !important;
+}
+
+html.light #learn-curriculum-sidebar button:hover {
+  background-color: #F1F3F5 !important;
+  color: #0F172A !important;
+}
+
+html.light #learn-curriculum-sidebar button.bg-slate-800\/90,
+html.light #learn-curriculum-sidebar button.active-sidebar-lesson {
+  background-color: #ECFDF5 !important;
+  color: #065F46 !important;
+  border-left-color: #059669 !important;
+  box-shadow: inset 0 0 0 1px rgba(5, 150, 105, 0.25) !important;
+}
+
+html.light .video-responsive-container {
+  background-color: #0F172A !important;
+  border: 1px solid #CBD5E1 !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08) !important;
+}
+
+html.light #learn-curriculum-sidebar > div > div:first-child {
+  color: #64748B !important;
+}
+
+html.light #mobile-curriculum-tree > div {
+  background-color: #F8F9FA !important;
+  border-color: #E2E8F0 !important;
+}
+
+html.light #mobile-curriculum-tree > div > div:first-child {
+  color: #0F172A !important;
+  border-bottom-color: #E2E8F0 !important;
+}
+
+html.light #learn-notion-content h1,
+html.light #learn-notion-content h2,
+html.light #learn-notion-content h3 {
+  color: #0F172A !important;
+}
+
+html.light #learn-notion-content p,
+html.light #learn-notion-content .prose-reading {
+  color: #334155 !important;
+}
+
+html.light #learn-notion-content .bg-emerald-950\/30 {
+  background-color: #ECFDF5 !important;
+  border-color: #A7F3D0 !important;
+  color: #065F46 !important;
+}
+
+html.light #learn-notion-content .text-emerald-200 {
+  color: #065F46 !important;
+}
+
+html.light #learn-notion-content .border-slate-800 {
+  border-color: #E2E8F0 !important;
+}
+
+html.light #learn-notion-content pre {
+  background-color: #0B0F17 !important;
+  color: #34D399 !important;
+}
+
+html.light #btn-toggle-complete.bg-emerald-950\/80 {
+  background-color: #ECFDF5 !important;
+  color: #065F46 !important;
+  border-color: #10B981 !important;
+}
+
+html.light #btn-toggle-favorite-lesson.bg-amber-950\/70 {
+  background-color: #FFFBEB !important;
+  color: #B45309 !important;
+  border-color: #FCD34D !important;
+}
+
+/* ------------------------------------------------------------------------
+   14. TRANSLUCENT FROSTED GLASS & ACCENT TINT CARDS (INSPIRASI REFERENSI.HTML)
+   ------------------------------------------------------------------------ */
+.glass-card-translucent {
+  background: rgba(22, 24, 29, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition: all var(--duration-fast) ease;
+}
+
+.glass-card-translucent:hover {
+  border-color: rgba(16, 185, 129, 0.4);
+  background: rgba(26, 29, 36, 0.85);
+  box-shadow: 0 14px 36px -5px rgba(0, 0, 0, 0.6), 0 0 20px -3px rgba(16, 185, 129, 0.12);
+}
+
+html.light .glass-card-translucent {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+html.light .glass-card-translucent:hover {
+  border-color: rgba(5, 150, 105, 0.5);
+  background: #FFFFFF;
+  box-shadow: 0 14px 30px -5px rgba(0, 0, 0, 0.1), 0 0 16px -2px rgba(5, 150, 105, 0.1);
+}
+
+/* Translucent Color Tints for Cards */
+.card-tint-emerald {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(22, 24, 29, 0.78) 100%) !important;
+  border: 1px solid rgba(16, 185, 129, 0.3) !important;
+}
+html.light .card-tint-emerald {
+  background: linear-gradient(135deg, #ECFDF5 0%, #FFFFFF 100%) !important;
+  border: 1px solid #A7F3D0 !important;
+}
+
+.card-tint-cyan {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.08) 0%, rgba(22, 24, 29, 0.78) 100%) !important;
+  border: 1px solid rgba(6, 182, 212, 0.3) !important;
+}
+html.light .card-tint-cyan {
+  background: linear-gradient(135deg, #ECFEFF 0%, #FFFFFF 100%) !important;
+  border: 1px solid #A5F3FC !important;
+}
+
+.card-tint-amber {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(22, 24, 29, 0.78) 100%) !important;
+  border: 1px solid rgba(245, 158, 11, 0.3) !important;
+}
+html.light .card-tint-amber {
+  background: linear-gradient(135deg, #FFFBEB 0%, #FFFFFF 100%) !important;
+  border: 1px solid #FDE68A !important;
+}
+
+.card-tint-purple {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.08) 0%, rgba(22, 24, 29, 0.78) 100%) !important;
+  border: 1px solid rgba(168, 85, 247, 0.3) !important;
+}
+html.light .card-tint-purple {
+  background: linear-gradient(135deg, #FAF5FF 0%, #FFFFFF 100%) !important;
+  border: 1px solid #E9D5FF !important;
+}
+
+/* Featured Lesson Hero Card with Lynk-inspired rich translucent gradient */
+.featured-lesson-hero-card {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(6, 182, 212, 0.05) 50%, rgba(22, 24, 29, 0.88) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  box-shadow: 0 14px 40px -10px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition: all var(--duration-fast) ease;
+}
+.featured-lesson-hero-card:hover {
+  border-color: rgba(16, 185, 129, 0.55);
+  box-shadow: 0 18px 46px -10px rgba(0, 0, 0, 0.7), 0 0 24px -4px rgba(16, 185, 129, 0.18);
+}
+html.light .featured-lesson-hero-card {
+  background: linear-gradient(135deg, #ECFDF5 0%, #F0FDFA 40%, #FFFFFF 100%);
+  border: 1px solid #A7F3D0;
+  box-shadow: 0 10px 30px -5px rgba(5, 150, 105, 0.1), 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+html.light .featured-lesson-hero-card:hover {
+  border-color: #059669;
+  box-shadow: 0 14px 36px -5px rgba(5, 150, 105, 0.15);
+}
+
+/* Horizontal Edge Mask Fade (referensi.html mask-image) */
+.fade-mask-x {
+  mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,1) 4%, rgba(0,0,0,1) 96%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,1) 4%, rgba(0,0,0,1) 96%, transparent 100%);
+}
+
+/* ------------------------------------------------------------------------
+   15. HERO TYPEWRITER ANIMATION & CURSOR EFFECT
+   ------------------------------------------------------------------------ */
+.typewriter-blink-cursor {
+  display: inline-block;
+  width: 3.5px;
+  height: 0.85em;
+  background-color: #10B981;
+  vertical-align: -0.06em;
+  margin-left: 4px;
+  border-radius: 1.5px;
+  animation: cursorBlink 0.95s infinite ease-in-out;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.7);
+}
+
+@keyframes cursorBlink {
+  0%, 45% { opacity: 1; }
+  50%, 95% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+html.light .typewriter-blink-cursor {
+  background-color: #059669;
+  box-shadow: 0 0 8px rgba(5, 150, 105, 0.45);
+}
+
+#hero-typing-phrase {
+  display: inline-block;
+  padding-bottom: 0.16em;
+  margin-bottom: -0.16em;
+  line-height: 1.25;
+  vertical-align: baseline;
+  transition: all var(--duration-fast) ease;
+}
+
+html.light #hero-typing-phrase {
+  background-image: linear-gradient(135deg, #059669 0%, #0D9488 50%, #0891B2 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+.hero-ambient-spotlight {
+  position: absolute;
+  top: 5%;
+  left: 0%;
+  width: 520px;
+  height: 520px;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.09) 0%, rgba(6, 182, 212, 0.04) 40%, transparent 70%);
+  pointer-events: none;
+  filter: blur(60px);
+  z-index: 0;
+}
+
+html.light .hero-ambient-spotlight {
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.06) 0%, rgba(6, 182, 212, 0.02) 40%, transparent 70%);
+}
+
+/* ------------------------------------------------------------------------
+   16. BACKGROUND ATMOSPHERE (PURE PITCH BLACK OBSIDIAN + AMBIENT GLOW)
+   ------------------------------------------------------------------------ */
+.dot-matrix-bg {
+  background-image: none !important;
+}
+
+html.light .dot-matrix-bg {
+  background-image: none !important;
+}
+
+.landing-matrix-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 85% 65% at 50% 0%, rgba(16, 185, 129, 0.08) 0%, rgba(6, 182, 212, 0.03) 45%, transparent 80%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+html.light .landing-matrix-overlay {
+  background: radial-gradient(ellipse 85% 65% at 50% 0%, rgba(16, 185, 129, 0.04) 0%, rgba(6, 182, 212, 0.02) 45%, transparent 80%);
+}
+
+/* ------------------------------------------------------------------------
+   17. LYNK-STYLE TESTIMONIAL MARQUEE & ERGONOMIC CARDS
+   ------------------------------------------------------------------------ */
+.testimonial-marquee-container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,1) 6%, rgba(0,0,0,1) 94%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,1) 6%, rgba(0,0,0,1) 94%, transparent 100%);
+  padding: 16px 0;
+}
+
+.testimonial-marquee-track {
+  display: flex;
+  gap: 20px;
+  width: max-content;
+  animation: testimonialScroll 46s linear infinite;
+  will-change: transform;
+}
+
+.testimonial-marquee-track:hover,
+.testimonial-marquee-track:active {
+  animation-play-state: paused;
+}
+
+/* Proportioned Testimonial Card (Never over-stretched) */
+.testimonial-card {
+  width: 380px;
+  max-width: 88vw;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 18px;
+  background: rgba(13, 17, 26, 0.90);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 28px -4px rgba(0, 0, 0, 0.45);
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.testimonial-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.6), 0 0 20px rgba(16, 185, 129, 0.15);
+}
+
+html.light .testimonial-card {
+  background: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 8px 24px -2px rgba(0, 0, 0, 0.06), 0 2px 6px -1px rgba(0, 0, 0, 0.03) !important;
+}
+
+html.light .testimonial-card .text-white {
+  color: #0F172A !important;
+}
+
+html.light .testimonial-card .text-slate-300 {
+  color: #334155 !important;
+}
+
+html.light .testimonial-card .text-slate-400 {
+  color: #64748B !important;
+}
+
+html.light .testimonial-card .testi-divider {
+  border-color: #F1F5F9 !important;
+}
+
+@keyframes testimonialScroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .testimonial-marquee-track {
+    animation: none !important;
+  }
+  .testimonial-marquee-container {
+    overflow-x: auto;
+    mask-image: none;
+    -webkit-mask-image: none;
+  }
+  #particles-canvas {
+    display: none !important;
+  }
+}
+
+/* ------------------------------------------------------------------------
+   18. CYBER PARTICLE NETWORK BACKGROUND (INSPIRASI REFERENSI 2)
+   ------------------------------------------------------------------------ */
+#particles-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  opacity: 0.45;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+html.light #particles-canvas {
+  opacity: 0.22;
+}
+
+/* Ensure foreground app views & content render cleanly above particles */
+#view-landing,
+#view-home,
+#view-learn,
+#view-resources,
+#view-admin,
+#main-navbar,
+#sidebar-drawer,
+footer {
+  position: relative;
+  z-index: 1;
+}
+
+/* ------------------------------------------------------------------------
+   19. LIGHT MODE COLOR REFINEMENTS (HERO INPUT, DEMO PILLS & OVERLAP BANNER)
+   ------------------------------------------------------------------------ */
+html.light .hero-email-form {
+  background: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  box-shadow: 0 10px 25px -4px rgba(0, 0, 0, 0.06), 0 2px 6px -1px rgba(0, 0, 0, 0.03) !important;
+}
+
+html.light #landing-email-input {
+  color: #0F172A !important;
+}
+
+html.light #landing-email-input::placeholder {
+  color: #94A3B8 !important;
+}
+
+/* Demo Pills */
+.demo-pill {
+  border-radius: 8px;
+  font-size: 11px;
+  transition: all 0.2s ease;
+}
+
+.demo-pill-admin {
+  background: #022c22;
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+.demo-pill-admin:hover {
+  background: #064e3b;
+  color: #6ee7b7;
+}
+
+.demo-pill-student {
+  background: #082f49;
+  color: #38bdf8;
+  border: 1px solid rgba(14, 165, 233, 0.4);
+}
+.demo-pill-student:hover {
+  background: #0c4a6e;
+  color: #7dd3fc;
+}
+
+html.light .demo-pill-admin {
+  background: #ECFDF5 !important;
+  color: #065F46 !important;
+  border: 1px solid #A7F3D0 !important;
+  font-weight: 600 !important;
+  box-shadow: 0 1px 3px rgba(5, 150, 105, 0.1) !important;
+}
+html.light .demo-pill-admin:hover {
+  background: #D1FAE5 !important;
+  color: #047857 !important;
+}
+
+html.light .demo-pill-student {
+  background: #F0F9FF !important;
+  color: #0369A1 !important;
+  border: 1px solid #BAE6FD !important;
+  font-weight: 600 !important;
+  box-shadow: 0 1px 3px rgba(2, 132, 199, 0.1) !important;
+}
+html.light .demo-pill-student:hover {
+  background: #E0F2FE !important;
+  color: #0284C7 !important;
+}
+
+/* Floating Mockup Badges */
+.hero-float-badge {
+  background: rgba(13, 17, 26, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+}
+.hero-float-badge .hero-float-title {
+  color: #FFFFFF;
+}
+.hero-float-badge .hero-float-subtitle {
+  color: #94A3B8;
+}
+
+html.light .hero-float-badge {
+  background: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.03) !important;
+}
+
+html.light .hero-float-badge .hero-float-title {
+  color: #0F172A !important;
+}
+
+html.light .hero-float-badge .hero-float-subtitle {
+  color: #64748B !important;
+}
+
+html.light .hero-float-badge.hero-float-video .hero-float-icon-box {
+  background: #ECFDF5 !important;
+  color: #059669 !important;
+  border: 1px solid #A7F3D0 !important;
+}
+
+html.light .hero-float-badge.hero-float-progress .hero-float-icon-box {
+  background: #ECFEFF !important;
+  color: #0891B2 !important;
+  border: 1px solid #A5F3FC !important;
+}
+
+/* ------------------------------------------------------------------------
+   20. MINIMAL FROSTED GLASS STRIP (OPSI 1)
+   ------------------------------------------------------------------------ */
+.landing-frosted-strip {
+  background: rgba(13, 17, 26, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px -4px rgba(0, 0, 0, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+}
+
+.landing-frosted-strip:hover {
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.strip-icon-box {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #34D399;
+}
+
+.strip-badge {
+  background: rgba(16, 185, 129, 0.14);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #6EE7B7;
+}
+
+.strip-title {
+  color: #FFFFFF;
+}
+
+.strip-desc {
+  color: #94A3B8;
+}
+
+.strip-cta-btn {
+  background: rgba(16, 185, 129, 0.14);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #34D399;
+  font-weight: 600;
+}
+
+.strip-cta-btn:hover {
+  background: #10B981;
+  color: #07080A;
+  border-color: #10B981;
+  box-shadow: 0 0 18px rgba(16, 185, 129, 0.45);
+  transform: translateY(-1px);
+}
+
+/* Light Mode Polish for Frosted Glass Strip */
+html.light .landing-frosted-strip {
+  background: rgba(255, 255, 255, 0.88) !important;
+  border: 1px solid #E2E8F0 !important;
+  box-shadow: 0 10px 25px -4px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.02) !important;
+}
+
+html.light .landing-frosted-strip:hover {
+  border-color: #CBD5E1 !important;
+}
+
+html.light .strip-icon-box {
+  background: #ECFDF5 !important;
+  border: 1px solid #A7F3D0 !important;
+  color: #059669 !important;
+}
+
+html.light .strip-badge {
+  background: #ECFDF5 !important;
+  border: 1px solid #A7F3D0 !important;
+  color: #065F46 !important;
+}
+
+html.light .strip-title {
+  color: #0F172A !important;
+}
+
+html.light .strip-desc {
+  color: #475569 !important;
+}
+
+html.light .strip-cta-btn {
+  background: #ECFDF5 !important;
+  border: 1px solid #A7F3D0 !important;
+  color: #065F46 !important;
+  box-shadow: 0 1px 3px rgba(5, 150, 105, 0.1) !important;
+}
+
+html.light .strip-cta-btn:hover {
+  background: #059669 !important;
+  color: #FFFFFF !important;
+  border-color: #059669 !important;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25) !important;
+}
+
+/* ==========================================================================
+   SIDEBAR DRAWER PANEL (ELEVATED CRISP MODAL DRAWER - PC & MOBILE)
+   ========================================================================== */
+.sidebar-drawer-panel {
+  background: #0E121B !important;
+  border-right: 1px solid #232938 !important;
+  box-shadow: 18px 0 60px rgba(0, 0, 0, 0.8), 0 0 25px rgba(0, 255, 132, 0.05) !important;
+  color: #F1F5F9;
+  z-index: 60 !important;
+}
+
+.sidebar-drawer-panel .drawer-header {
+  border-bottom: 1px solid #1E2433 !important;
+  background: #0B0E17 !important;
+}
+
+.sidebar-drawer-panel .drawer-brand-title {
+  color: #FFFFFF !important;
+}
+
+.sidebar-drawer-panel .drawer-close-btn {
+  color: #94A3B8;
+}
+.sidebar-drawer-panel .drawer-close-btn:hover {
+  color: #FFFFFF;
+  background: #1C2230;
+}
+
+.sidebar-drawer-panel .drawer-section-label {
+  color: #64748B;
+}
+
+.sidebar-drawer-panel .drawer-footer {
+  border-top: 1px solid #1E2433 !important;
+  background: #0B0E17 !important;
+}
+
+.sidebar-drawer-panel #drawer-user-name {
+  color: #FFFFFF !important;
+}
+
+/* Light Mode Overrides for Drawer */
+html.light .sidebar-drawer-panel {
+  background: #FFFFFF !important;
+  border-right: 1px solid #E2E8F0 !important;
+  box-shadow: 18px 0 50px rgba(0, 0, 0, 0.14) !important;
+  color: #0F172A !important;
+}
+
+html.light .sidebar-drawer-panel .drawer-header {
+  border-bottom: 1px solid #E2E8F0 !important;
+  background: #F8FAFC !important;
+}
+
+html.light .sidebar-drawer-panel .drawer-brand-title {
+  color: #0F172A !important;
+}
+
+html.light .sidebar-drawer-panel .drawer-close-btn {
+  color: #64748B;
+}
+html.light .sidebar-drawer-panel .drawer-close-btn:hover {
+  color: #0F172A;
+  background: #F1F5F9;
+}
+
+html.light .sidebar-drawer-panel .drawer-section-label {
+  color: #64748B;
+}
+
+html.light .sidebar-drawer-panel .drawer-footer {
+  border-top: 1px solid #E2E8F0 !important;
+  background: #F8FAFC !important;
+}
+
+html.light .sidebar-drawer-panel #drawer-user-name {
+  color: #0F172A !important;
+}
+
+html.light .sidebar-drawer-panel #drawer-theme-label {
+  background: #FEF3C7 !important;
+  color: #92400E !important;
+  border-color: #FCD34D !important;
+}
+
