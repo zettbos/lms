@@ -271,6 +271,123 @@ const ZettSupabase = {
       showToast('Gagal upload ke cloud: ' + (e.message || 'Cek konsol'), 'error');
       return false;
     }
+  },
+
+  async syncCurriculumFromCloud(silent = true) {
+    if (!this.isConnected()) return false;
+    try {
+      // 1. Fetch modules ordered by order_index
+      const { data: mods, error: modErr } = await this.client
+        .from('curriculum_modules')
+        .select('*')
+        .order('order_index');
+
+      // 2. Fetch lessons ordered by order_index
+      const { data: less, error: lesErr } = await this.client
+        .from('curriculum_lessons')
+        .select('*')
+        .order('order_index');
+
+      let hasChanges = false;
+
+      if (!modErr && Array.isArray(mods) && mods.length > 0) {
+        AppState.modules = mods.map(m => ({
+          id: m.id,
+          title: m.title,
+          description: m.description,
+          category: m.category || 'ai',
+          badge: m.badge || 'MODUL',
+          coverImage: m.cover_image || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80',
+          orderIndex: m.order_index || 1,
+          isLocked: !!m.is_locked,
+          lockReason: m.lock_reason || ''
+        }));
+        hasChanges = true;
+      }
+
+      if (!lesErr && Array.isArray(less) && less.length > 0) {
+        AppState.lessons = less.map(l => ({
+          id: l.id,
+          moduleId: l.module_id,
+          title: l.title,
+          youtubeUrl: l.youtube_url || '',
+          durationMinutes: l.duration_minutes || 15,
+          orderIndex: l.order_index || 1,
+          blocks: l.blocks || []
+        }));
+        hasChanges = true;
+      }
+
+      if (hasChanges) {
+        saveState();
+        if (!silent && typeof showToast === 'function') {
+          showToast('Kurikulum Cloud berhasil disinkronkan ke layar!', 'success');
+        }
+        // Auto re-render active view
+        if (AppState.currentView === 'home' && typeof renderHome === 'function') renderHome();
+        else if (AppState.currentView === 'admin' && typeof renderAdminCurriculum === 'function') renderAdminCurriculum();
+        else if (AppState.currentView === 'landing' && typeof renderLandingCurriculumBento === 'function') renderLandingCurriculumBento();
+        else if (AppState.currentView === 'learn' && typeof renderLearningRoom === 'function') renderLearningRoom(AppState.currentLessonId);
+      }
+      return true;
+    } catch (e) {
+      console.warn('[ZettSupabase Auto-Sync Curriculum Error]', e);
+      return false;
+    }
+  },
+
+  async syncCurriculumToCloudLive(showNotification = true) {
+    if (!this.isConnected()) {
+      if (showNotification) showToast('Supabase belum terhubung. Periksa konfigurasi URL & Key.', 'warning');
+      return false;
+    }
+
+    try {
+      if (showNotification) showToast('Sedang mengunggah seluruh kurikulum ke Supabase Cloud...', 'info');
+
+      // 1. Push modules
+      if (Array.isArray(AppState.modules) && AppState.modules.length > 0) {
+        const payloadMods = AppState.modules.map(m => ({
+          id: m.id,
+          title: m.title,
+          description: m.description,
+          category: m.category || 'ai',
+          badge: m.badge || 'MODUL',
+          cover_image: m.coverImage,
+          order_index: m.orderIndex || 1,
+          is_locked: !!m.isLocked,
+          lock_reason: m.lockReason || null
+        }));
+        const { error: modErr } = await this.client.from('curriculum_modules').upsert(payloadMods, { onConflict: 'id' });
+        if (modErr) throw modErr;
+      }
+
+      // 2. Push lessons
+      if (Array.isArray(AppState.lessons) && AppState.lessons.length > 0) {
+        const payloadLess = AppState.lessons.map(l => ({
+          id: l.id,
+          module_id: l.moduleId,
+          title: l.title,
+          youtube_url: l.youtubeUrl || '',
+          duration_minutes: l.durationMinutes || 15,
+          order_index: l.orderIndex || 1,
+          blocks: l.blocks || []
+        }));
+        const { error: lesErr } = await this.client.from('curriculum_lessons').upsert(payloadLess, { onConflict: 'id' });
+        if (lesErr) throw lesErr;
+      }
+
+      if (showNotification) {
+        showToast(`Sukses! ${AppState.modules.length} Modul & ${AppState.lessons.length} Materi berhasil LIVE di Cloud Supabase!`, 'success');
+      }
+      return true;
+    } catch (e) {
+      console.error('[ZettSupabase Sync Curriculum Error]', e);
+      if (showNotification) {
+        showToast('Gagal upload kurikulum ke Cloud: ' + (e.message || 'Error Supabase'), 'error');
+      }
+      return false;
+    }
   }
 };
 

@@ -1165,6 +1165,10 @@
                   <button type="button" onclick="deleteCurrentModule()" title="Hapus Modul Terpilih" class="text-[11px] text-rose-400 hover:text-rose-300 px-1.5 py-0.5 rounded hover:bg-rose-950/60 transition-colors">
                     Hapus
                   </button>
+                  <button type="button" onclick="ZettSupabase.syncCurriculumToCloudLive(true)" title="Upload dan sinkronkan kurikulum lokal langsung ke Supabase Cloud agar muncul di semua siswa" class="text-[11px] text-cyan-400 hover:text-cyan-300 font-semibold px-2 py-0.5 rounded hover:bg-cyan-950/60 transition-colors flex items-center gap-1">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                    <span>Sync ke Cloud</span>
+                  </button>
                 </div>
               </div>
               <select id="admin-module-select" onchange="handleAdminModuleChange(this.value)" class="w-full bg-slate-900 text-white border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-medium focus:border-emerald-500 focus:outline-none transition-all">
@@ -2672,18 +2676,18 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- Application Scripts (Modular Architecture with Cache Buster) -->
-  <script src="js/whitelist-data.js?v=36"></script>
-  <script src="js/mock-data.js?v=36"></script>
-  <script src="js/editor.js?v=36"></script>
-  <script src="js/core/state.js?v=36"></script>
-  <script src="js/core/supabase.js?v=36"></script>
-  <script src="js/core/router.js?v=36"></script>
-  <script src="js/core/particles.js?v=36"></script>
-  <script src="js/controllers/auth.js?v=36"></script>
-  <script src="js/controllers/landing.js?v=36"></script>
-  <script src="js/controllers/classroom.js?v=36"></script>
-  <script src="js/controllers/resources.js?v=36"></script>
-  <script src="js/controllers/admin.js?v=36"></script>
-  <script src="js/app.js?v=36"></script>
+  <script src="js/whitelist-data.js?v=37"></script>
+  <script src="js/mock-data.js?v=37"></script>
+  <script src="js/editor.js?v=37"></script>
+  <script src="js/core/state.js?v=37"></script>
+  <script src="js/core/supabase.js?v=37"></script>
+  <script src="js/core/router.js?v=37"></script>
+  <script src="js/core/particles.js?v=37"></script>
+  <script src="js/controllers/auth.js?v=37"></script>
+  <script src="js/controllers/landing.js?v=37"></script>
+  <script src="js/controllers/classroom.js?v=37"></script>
+  <script src="js/controllers/resources.js?v=37"></script>
+  <script src="js/controllers/admin.js?v=37"></script>
+  <script src="js/app.js?v=37"></script>
 </body>
 </html>

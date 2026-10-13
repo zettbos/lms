@@ -16,9 +16,12 @@ document.addEventListener('DOMContentLoaded', () => {
     initStorage();
   }
 
-  // 2B. Initialize Supabase Cloud Engine (Auto-connect or Local fallback)
+  // 2B. Initialize Supabase Cloud Engine & Auto-Sync Curriculum for all users
   if (window.ZettSupabase && typeof window.ZettSupabase.init === 'function') {
-    window.ZettSupabase.init();
+    const isReady = window.ZettSupabase.init();
+    if (isReady && typeof window.ZettSupabase.syncCurriculumFromCloud === 'function') {
+      window.ZettSupabase.syncCurriculumFromCloud(true);
+    }
   }
 
   // 3. Setup OTP Modal listeners

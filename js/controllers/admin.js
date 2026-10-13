@@ -674,6 +674,26 @@ function renderAdminCurriculum() {
   const moduleMoveSelect = document.getElementById('admin-edit-module');
   if (!moduleSelect || !lessonSelect) return;
 
+  // Background check: Auto-sync jika lokal ada modul tapi Supabase belum punya
+  if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+    if (AppState.modules.length > 0 && !window._isSyncingCurriculumBackground) {
+      window._isSyncingCurriculumBackground = true;
+      ZettSupabase.client.from('curriculum_modules').select('id').limit(1).then(({ data, error }) => {
+        window._isSyncingCurriculumBackground = false;
+        if (!error && Array.isArray(data) && data.length === 0 && AppState.modules.length > 0) {
+          ZettSupabase.syncCurriculumToCloudLive(false);
+        }
+      }).catch(() => {
+        window._isSyncingCurriculumBackground = false;
+      });
+    } else if (AppState.modules.length === 0 && !window._isPullingCurriculumBackground) {
+      window._isPullingCurriculumBackground = true;
+      ZettSupabase.syncCurriculumFromCloud(true).finally(() => {
+        window._isPullingCurriculumBackground = false;
+      });
+    }
+  }
+
   // Jika belum ada modul sama sekali
   if (AppState.modules.length === 0) {
     moduleSelect.innerHTML = '<option value="">(Belum ada modul kurikulum)</option>';
@@ -854,6 +874,22 @@ function saveLessonFromEditor() {
   lesson.blocks = AppState.editorInstance.getBlocks();
 
   saveState();
+
+  // Live Auto-Push ke Supabase Cloud
+  if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+    ZettSupabase.client.from('curriculum_lessons').upsert({
+      id: lesson.id,
+      module_id: lesson.moduleId,
+      title: lesson.title,
+      youtube_url: lesson.youtubeUrl || '',
+      duration_minutes: lesson.durationMinutes || 15,
+      order_index: lesson.orderIndex || 1,
+      blocks: lesson.blocks || []
+    }, { onConflict: 'id' }).then(({ error }) => {
+      if (error) console.warn('[Supabase Lesson Editor Save Error]', error);
+    });
+  }
+
   showToast('Perubahan materi berhasil disimpan!', 'success');
   renderAdminCurriculum();
   if (typeof renderLandingCurriculumBento === 'function') renderLandingCurriculumBento();
@@ -939,6 +975,27 @@ function handleSaveModuleSubmit(e) {
   }
 
   saveState();
+
+  // Live Auto-Push ke Supabase Cloud
+  if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+    const targetMod = id ? AppState.modules.find(m => m.id === id) : AppState.modules[AppState.modules.length - 1];
+    if (targetMod) {
+      ZettSupabase.client.from('curriculum_modules').upsert({
+        id: targetMod.id,
+        title: targetMod.title,
+        description: targetMod.description || '',
+        category: targetMod.category || 'ai',
+        badge: targetMod.badge || 'MODUL',
+        cover_image: targetMod.coverImage || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80',
+        order_index: targetMod.orderIndex || 1,
+        is_locked: !!targetMod.isLocked,
+        lock_reason: targetMod.lockReason || null
+      }, { onConflict: 'id' }).then(({ error }) => {
+        if (error) console.warn('[Supabase Module Save Error]', error);
+      });
+    }
+  }
+
   closeManageModuleModal();
   renderAdminCurriculum();
   if (typeof renderLandingCurriculumBento === 'function') renderLandingCurriculumBento();
@@ -957,12 +1014,20 @@ function deleteCurrentModule() {
     cancelText: 'Batal',
     isDanger: true,
     onConfirm: () => {
-      AppState.modules = AppState.modules.filter(m => m.id !== mod.id);
-      AppState.lessons = AppState.lessons.filter(l => l.moduleId !== mod.id);
+      const delModId = mod.id;
+      AppState.modules = AppState.modules.filter(m => m.id !== delModId);
+      AppState.lessons = AppState.lessons.filter(l => l.moduleId !== delModId);
       AppState.adminSelectedModuleId = AppState.modules[0]?.id || null;
       AppState.adminSelectedLessonId = null;
 
       saveState();
+
+      if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+        ZettSupabase.client.from('curriculum_modules').delete().eq('id', delModId).then(({ error }) => {
+          if (error) console.warn('[Supabase Module Delete Error]', error);
+        });
+      }
+
       showToast(`Modul "${mod.title}" telah dihapus.`, 'info');
       renderAdminCurriculum();
       if (typeof renderLandingCurriculumBento === 'function') renderLandingCurriculumBento();
@@ -1054,6 +1119,21 @@ function handleSaveAddLessonSubmit(e) {
   AppState.adminSelectedLessonId = newId;
 
   saveState();
+
+  if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+    ZettSupabase.client.from('curriculum_lessons').upsert({
+      id: newLesson.id,
+      module_id: newLesson.moduleId,
+      title: newLesson.title,
+      youtube_url: newLesson.youtubeUrl || '',
+      duration_minutes: newLesson.durationMinutes || 15,
+      order_index: newLesson.orderIndex || 1,
+      blocks: newLesson.blocks || []
+    }, { onConflict: 'id' }).then(({ error }) => {
+      if (error) console.warn('[Supabase Lesson Save Error]', error);
+    });
+  }
+
   closeAddLessonModal();
   showToast(`Materi "${title}" berhasil ditambahkan!`, 'success');
 
@@ -1078,9 +1158,17 @@ function deleteCurrentLesson() {
     cancelText: 'Batal',
     isDanger: true,
     onConfirm: () => {
-      AppState.lessons = AppState.lessons.filter(l => l.id !== lesson.id);
+      const delLesId = lesson.id;
+      AppState.lessons = AppState.lessons.filter(l => l.id !== delLesId);
       AppState.adminSelectedLessonId = null;
       saveState();
+
+      if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+        ZettSupabase.client.from('curriculum_lessons').delete().eq('id', delLesId).then(({ error }) => {
+          if (error) console.warn('[Supabase Lesson Delete Error]', error);
+        });
+      }
+
       showToast('Materi telah dihapus', 'info');
       renderAdminCurriculum();
       if (typeof renderLandingCurriculumBento === 'function') renderLandingCurriculumBento();

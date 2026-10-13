@@ -1,69 +1,52 @@
-# ZETTBOS MEMBER HUB - DOKUMEN REVISI AKTIF (REVISI 37)
+# ZETTBOS MEMBER HUB - DOKUMEN REVISI AKTIF (REVISI 38)
 ================================================================================
 STATUS: SUKSES DITERAPKAN (READY TO PUSH TO GITHUB & VERCEL)
-FOKUS: 1. SOLUSI STATUS KATA SANDI SISWA & LIVE SYNC SUPABASE
-       2. PAGINASI & FILTER CEPAT TAB PROGRES SISWA (2.319 SISWA TIDAK LAGI SCROLL PANJANG)
-       3. FULL RBAC AUDIT: ELIMINASI SELURUH TOMBOL ADMIN DARI MENU SISWA
+FOKUS: 1. AUTO-SYNC KURIKULUM KE SUPABASE CLOUD (PENYEBAB MODUL BELUM MUNCUL DI USER LAIN)
+       2. LIVE AUTO-PUSH SAAT ADMIN MENYIMPAN / EDIT / HAPUS MODUL & MATERI
+       3. AUTO-PULL KURIKULUM CLOUD SAAT SISWA / DEVICE LAIN MEMBUKA LMS
+       4. TOMBOL CEPAT "SYNC KE CLOUD" DI HEADER PANEL ADMIN KURIKULUM
 ================================================================================
 
-## 1. PENJELASAN & PENYELESAIAN 3 POIN REQUEST:
+## 1. INVESTIGASI & PENYEBAB:
+**Pertanyaan Pengguna:** *"ini kan gw udh bikin modul, tapi kenapa di user lain belum muncul ya?"*
 
-### Poin 1: "Kenapa ini belum buat sandi ya, padahal tadi udah daftar?"
-- **Penyebab:**
-  1. Pada sistem registrasi Zettbos LMS, alurnya adalah dua tahap:
-     - Tahap A: Member memasukkan email dan menerima kode 6 digit OTP.
-     - Tahap B: Setelah OTP terverifikasi, muncul modal **"Lengkapi Profil & Buat Kata Sandi Akun"** (`#modal-set-password`).
-     - Jika pengguna hanya memverifikasi OTP lalu menutup browser / merefresh halaman sebelum mengisi formulir kata sandi di modal tahap B, akun mereka tetap berstatus **"Belum Buat Sandi"** (`passwordHash: null`).
-  2. Selain itu, jika akun siswa baru saja menyelesaikan pembuatan kata sandi di jendela incognito / device lain ke cloud Supabase, browser admin sebelumnya belum melakukan sinkronisasi otomatis background ke Supabase sehingga data lokal masih menampilkan cache lama.
-- **Solusi yang Diterapkan:**
-  1. **Live Background Sync dari Supabase:** Saat Admin membuka menu Whitelist atau memuat data, sistem secara background menyinkronkan status `password_hash`, `full_name`, dan `is_active` langsung dari tabel `whitelist_members` Supabase ke local state tanpa membuat browser lag. Jika siswa sudah membuat kata sandi di cloud, statusnya akan langsung berubah menjadi **"Password Aktif"**.
-  2. **Direct Password Input di Modal Admin:** Admin kini bisa langsung membuatkan atau mengubah kata sandi siswa secara instan tanpa siswa harus melalui OTP:
-     - Pada modal `+ Tambah Siswa` (`#modal-add-member`), ditambahkan field `#add-member-password`.
-     - Pada modal `Edit Member` (`#modal-edit-member`), ditambahkan field `#edit-member-newpass`.
-     - Kata sandi yang dimasukkan oleh Admin otomatis dienkripsi dengan standar kriptografi SHA-256 dan disimpan ke local state serta di-update ke Supabase Cloud.
+- **Akar Masalah Utama:**
+  1. **Tersimpan Hanya di LocalStorage Browser Admin:**
+     - Sebelumnya, fungsi `handleSaveModuleSubmit()` dan `handleSaveAddLessonSubmit()` hanya menyimpan modul/materi baru ke dalam `localStorage` browser milik Admin (`localStorage.setItem('zett_modules', ...)`).
+     - Tidak ada baris kode yang secara otomatis mengirimkan (*push*) data modul tersebut ke tabel `curriculum_modules` dan `curriculum_lessons` di Supabase Cloud saat tombol simpan ditekan.
+  2. **Browser Siswa Terisolasi & Tanpa Auto-Pull:**
+     - Di komputer, HP, atau jendela penyamaran (incognito) milik siswa lain, browser mereka memiliki `localStorage` yang terpisah dan kosong.
+     - Saat siswa membuka web `https://lms-zettbos.vercel.app/`, aplikasi sebelumnya hanya membaca `localStorage` lokal mereka yang kosong (atau seed data `[]`).
+     - Aplikasi tidak pernah memanggil `pull` dari Supabase saat startup, sehingga siswa tidak pernah menerima modul yang dibuat admin di komputernya.
 
 ---
 
-### Poin 2: "Progress siswa bikinin halaman biar tidak vertikal jauh kebawah"
-- **Masalah Sebelumnya:** Tab 6 Progres Siswa sebelumnya me-render seluruh 2.319 siswa dalam satu tabel tanpa paginasi, menyebabkan halaman scroll ke bawah sangat panjang dan membebani performa browser.
-- **Solusi yang Diterapkan:**
-  1. **Ultra-Fast Pagination (25, 50, 100 per halaman):**
-     - Tabel progres siswa kini dipaginasi dengan render super cepat (< 1ms).
-     - Tombol navigasi lengkap: Awal (`«`), Sebelumnya (`Sebelumnya`), Indikator Halaman Aktif (`Hal 1 / 93`), Selanjutnya (`Selanjutnya`), dan Akhir (`»`).
-  2. **Kartu Metrik & Ringkasan Siswa:**
-     - Menampilkan 4 kartu ringkasan di bagian atas:
-       - Total Siswa (2.319)
-       - Lulus 100%
-       - Sedang Belajar (>0%)
-       - Belum Mulai (0%)
-  3. **Filter Tab & Pencarian Live:**
-     - Tab filter: `Semua`, `Lulus 100%`, `Sedang Belajar`, dan `Belum Mulai`.
-     - Pencarian instan berdasarkan Nama Siswa atau Alamat Email Siswa.
-     - Dropdown pemilihan limit per halaman: 25, 50, atau 100 data per halaman.
+## 2. SOLUSI & PEMBARUAN SISTEM (REVISI 38):
 
----
+1. **Auto-Push Real-Time ke Supabase Cloud saat Admin Beraksi (`admin.js`):**
+   - **Tambah / Edit Modul (`handleSaveModuleSubmit`):** Otomatis melakukan `upsert` data modul lengkap (`id`, `title`, `description`, `badge`, `cover_image`, `order_index`) ke tabel `curriculum_modules` Supabase Cloud secara live detik itu juga.
+   - **Hapus Modul (`deleteCurrentModule`):** Otomatis menghapus modul dari Cloud Supabase (`delete().eq('id', mod.id)`).
+   - **Tambah Materi Baru (`handleSaveAddLessonSubmit`):** Otomatis melakukan `upsert` materi dan block editor ke tabel `curriculum_lessons` Supabase Cloud.
+   - **Simpan Materi dari Block Editor (`saveLessonFromEditor`):** Otomatis mengunggah block Notion, YouTube URL, dan durasi ke Supabase Cloud.
+   - **Hapus Materi (`deleteCurrentLesson`):** Otomatis menghapus materi dari Cloud Supabase.
 
-### Poin 3: "FULL AUDIT: Di menu siswa masih ada tombol admin, hilangkan sesuai role"
-- **Hasil Audit & Perbaikan Hak Akses (RBAC Audit):**
-  1. **Tombol "Reset Data" di Home (`#btn-home-reset-data`):**
-     - Sebelumnya bisa terlihat oleh siswa di atas katalog modul.
-     - **Status:** Di-hide secara default dan diikat logika ketat hanya muncul untuk Super Admin (`zettbos2025@gmail.com`).
-  2. **Tombol "+ Bagikan Link Dokumen" di Dokumen & Resources (`#btn-admin-add-resource`):**
-     - Sebelumnya terlihat oleh semua pengguna di header halaman Resources.
-     - **Status:** Di-hide secara default dan hanya di-render untuk Super Admin (`zettbos2025@gmail.com`).
-  3. **Tombol Hapus Dokumen (Ikon Sampah) di Kartu Resource (`deleteResource`):**
-     - Sebelumnya menggunakan pengecekan longgar `isAdmin`.
-     - **Status:** Diperketat menjadi `isSuperAdmin` (`zettbos2025@gmail.com`). Siswa dan akun reguler tidak akan melihat ikon sampah ini dan aksi hapus di-guard di level JavaScript.
-  4. **Tombol "Buka Panel Kurikulum Admin" pada State Modul Kosong (`dash-modules-grid`):**
-     - Saat modul kurikulum kosong, siswa sebelumnya melihat tombol mengarah ke admin panel.
-     - **Status:** Diperbarui agar jika siswa yang melihat, teks yang muncul adalah info persiapan kurikulum dan tombol mengarahkan siswa ke Dokumen & Resource Hub (`navigate('resources')`), bukan ke Admin Panel.
-  5. **Tombol "Buka Admin Kurikulum" pada State Banner Materi Selesai / Kosong (`feat-btn-resume`):**
-     - Saat belum ada materi atau materi tuntas, tombol rekomendasi sebelumnya mengarahkan ke Admin Panel.
-     - **Status:** Diperbarui agar untuk siswa berubah menjadi tombol "Jelajahi Resource & SOP" (`navigate('resources')`).
-  6. **Drawer Sidebar & Header Role Badge:**
-     - Pengecekan peran `ADMIN / OWNER` dan menu `Area Owner / Admin` diperketat ke alamat email spesifik Super Admin (`zettbos2025@gmail.com`). Semua akun lain otomatis diberi peran `MEMBER SISWA` tanpa menu admin.
-  7. **Cache Buster Versi 36 (`index.html`):**
-     - Diperbarui ke `?v=36` pada seluruh file JavaScript aplikasi.
+2. **Auto-Pull Kurikulum Cloud untuk Seluruh Siswa & Perangkat (`supabase.js` & `app.js`):**
+   - Ditambahkan metode resmi `ZettSupabase.syncCurriculumFromCloud()`:
+     - Dijalankan secara otomatis di latar belakang saat aplikasi dimuat di browser manapun (`app.js`).
+     - Mengambil seluruh modul dari `curriculum_modules` (terurut berdasarkan `order_index`) dan materi dari `curriculum_lessons`.
+     - Otomatis memperbarui `AppState.modules` & `AppState.lessons` di browser siswa dan me-render ulang katalog modul secara live.
+   - Menjamin bahwa modul yang dibuat oleh Admin **langsung muncul di layar semua siswa tanpa perlu setting manual**.
+
+3. **Tombol Cepat "Sync ke Cloud" di Tab Kurikulum Admin (`index.html`):**
+   - Di header Tier 1 Modul Kurikulum, ditambahkan tombol:
+     `[Sync ke Cloud]` (`ZettSupabase.syncCurriculumToCloudLive(true)`).
+   - Admin bisa menekan tombol ini satu kali untuk langsung mengunggah modul-modul yang sebelumnya sudah dibuat di laptop/browser lokal ke Cloud Supabase agar detik ini juga tersedia untuk semua member.
+
+4. **Self-Healing Background Sync di Panel Admin:**
+   - Saat Admin membuka tab Kurikulum, sistem otomatis mengecek apakah ada modul di local storage yang belum ada di Supabase Cloud. Jika Cloud masih kosong, sistem langsung mengunggahnya secara mandiri.
+
+5. **Cache Buster Versi 37:**
+   - Ditingkatkan ke `?v=37` di seluruh file JavaScript [`index.html`](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/index.html) agar browser siswa langsung mengunduh update controller terbaru.
 
 ================================================================================
 SIAP DI-PUSH KE GITHUB & VERCEL VIA TERMINAL
