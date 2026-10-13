@@ -627,115 +627,153 @@ function resetQuickActionsToDefault() {
 // ==========================================
 
 function renderAdminCurriculum() {
+  const moduleSelect = document.getElementById('admin-module-select');
   const lessonSelect = document.getElementById('admin-lesson-select');
-  const moduleSelect = document.getElementById('admin-edit-module');
-  if (!lessonSelect) return;
+  const moduleMoveSelect = document.getElementById('admin-edit-module');
+  if (!moduleSelect || !lessonSelect) return;
 
+  // Jika belum ada modul sama sekali
   if (AppState.modules.length === 0) {
-    lessonSelect.innerHTML = '<option value="">(Belum ada modul & materi)</option>';
-    if (moduleSelect) moduleSelect.innerHTML = '<option value="">(Belum ada modul)</option>';
+    moduleSelect.innerHTML = '<option value="">(Belum ada modul kurikulum)</option>';
+    lessonSelect.innerHTML = '<option value="">(Belum ada materi)</option>';
+    if (moduleMoveSelect) moduleMoveSelect.innerHTML = '<option value="">(Belum ada modul)</option>';
+    AppState.adminSelectedModuleId = null;
     AppState.adminSelectedLessonId = null;
-    const titleInp = document.getElementById('admin-edit-title');
-    const ytInp = document.getElementById('admin-edit-youtube');
-    const durInp = document.getElementById('admin-edit-duration');
-    if (titleInp) titleInp.value = '';
-    if (ytInp) ytInp.value = '';
-    if (durInp) durInp.value = '15';
-    const previewContainer = document.getElementById('editor-live-preview');
-    if (previewContainer) {
-      previewContainer.innerHTML = `
-        <div class="py-12 text-center text-slate-400">
-          <p class="text-sm font-semibold text-white mb-1">Kurikulum Bersih (0 Modul)</p>
-          <p class="text-xs">Klik tombol <strong>+ Modul Baru</strong> di atas untuk membuat modul dan mulai menyusun materi.</p>
-        </div>
-      `;
-    }
-    const editorRoot = document.getElementById('notion-editor-root');
-    if (editorRoot) {
-      editorRoot.innerHTML = `
-        <div class="py-10 text-center text-slate-500 font-mono text-xs">
-          [Editor Standby - Buat Modul &amp; Tambahkan Materi Baru untuk Mulai Mengetik Blok Notion]
-        </div>
-      `;
-    }
+
+    clearEditorFields();
+    showEditorEmptyState('Kurikulum Bersih (0 Modul)', 'Klik tombol <strong>+ Modul Baru</strong> di atas untuk membuat modul dan mulai menyusun materi.');
     return;
   }
 
-  if (moduleSelect) {
-    moduleSelect.innerHTML = '';
-    AppState.modules.sort((a, b) => a.orderIndex - b.orderIndex).forEach(mod => {
-      const mOpt = document.createElement('option');
-      mOpt.value = mod.id;
-      mOpt.textContent = mod.title;
-      moduleSelect.appendChild(mOpt);
-    });
-  }
+  // 1. Render Daftar Modul ke Tier 1 Select
+  moduleSelect.innerHTML = '';
+  if (moduleMoveSelect) moduleMoveSelect.innerHTML = '';
 
-  lessonSelect.innerHTML = '';
   AppState.modules.sort((a, b) => a.orderIndex - b.orderIndex).forEach(mod => {
-    const optgroup = document.createElement('optgroup');
-    optgroup.label = mod.title;
-    const modLessons = AppState.lessons.filter(l => l.moduleId === mod.id);
-    modLessons.forEach(l => {
-      const opt = document.createElement('option');
-      opt.value = l.id;
-      opt.textContent = l.title;
-      if (l.id === AppState.adminSelectedLessonId) opt.selected = true;
-      optgroup.appendChild(opt);
-    });
-    lessonSelect.appendChild(optgroup);
+    const opt = document.createElement('option');
+    opt.value = mod.id;
+    opt.textContent = `${mod.badge || 'MODUL'}: ${mod.title}`;
+    moduleSelect.appendChild(opt);
+
+    if (moduleMoveSelect) {
+      const moveOpt = document.createElement('option');
+      moveOpt.value = mod.id;
+      moveOpt.textContent = mod.title;
+      moduleMoveSelect.appendChild(moveOpt);
+    }
   });
 
-  const selectedLesson = AppState.lessons.find(l => l.id === lessonSelect.value) || AppState.lessons[0];
-  if (selectedLesson) {
-    loadLessonToEditor(selectedLesson);
-  } else {
+  // Pastikan ada modul aktif terpilih
+  if (!AppState.adminSelectedModuleId || !AppState.modules.some(m => m.id === AppState.adminSelectedModuleId)) {
+    AppState.adminSelectedModuleId = AppState.modules[0].id;
+  }
+  moduleSelect.value = AppState.adminSelectedModuleId;
+
+  // 2. Render Materi Milik Modul Terpilih ke Tier 2 Select
+  renderLessonsForSelectedModule();
+}
+
+function renderLessonsForSelectedModule() {
+  const lessonSelect = document.getElementById('admin-lesson-select');
+  if (!lessonSelect) return;
+
+  const currentModuleId = AppState.adminSelectedModuleId;
+  const modLessons = AppState.lessons.filter(l => l.moduleId === currentModuleId);
+
+  lessonSelect.innerHTML = '';
+
+  if (modLessons.length === 0) {
+    lessonSelect.innerHTML = '<option value="">(Belum ada materi di modul ini)</option>';
     AppState.adminSelectedLessonId = null;
-    const titleInp = document.getElementById('admin-edit-title');
-    const ytInp = document.getElementById('admin-edit-youtube');
-    const durInp = document.getElementById('admin-edit-duration');
-    if (titleInp) titleInp.value = '';
-    if (ytInp) ytInp.value = '';
-    if (durInp) durInp.value = '15';
-    const previewContainer = document.getElementById('editor-live-preview');
-    if (previewContainer) {
-      previewContainer.innerHTML = `
-        <div class="py-12 text-center text-slate-400">
-          <p class="text-sm font-semibold text-white mb-1">Belum ada materi dalam modul</p>
-          <p class="text-xs">Klik tombol <strong>+ Materi Baru</strong> di atas untuk menambahkan materi ke modul ini.</p>
-        </div>
-      `;
-    }
-    const editorRoot = document.getElementById('notion-editor-root');
-    if (editorRoot) {
-      editorRoot.innerHTML = `
-        <div class="py-10 text-center text-slate-500 font-mono text-xs">
-          [Pilih atau Tambahkan Materi Baru untuk Membuka Blok Editor Notion]
-        </div>
-      `;
-    }
+    clearEditorFields();
+    showEditorEmptyState('Belum ada materi dalam modul ini', 'Klik tombol <strong>+ Materi Baru</strong> di atas untuk menambahkan video ke modul ini.');
+    return;
   }
 
-  lessonSelect.onchange = (e) => {
-    const target = AppState.lessons.find(l => l.id === e.target.value);
-    if (target) loadLessonToEditor(target);
-  };
+  modLessons.sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0)).forEach(les => {
+    const opt = document.createElement('option');
+    opt.value = les.id;
+    opt.textContent = les.title;
+    lessonSelect.appendChild(opt);
+  });
+
+  // Pilih lesson aktif
+  if (!AppState.adminSelectedLessonId || !modLessons.some(l => l.id === AppState.adminSelectedLessonId)) {
+    AppState.adminSelectedLessonId = modLessons[0].id;
+  }
+  lessonSelect.value = AppState.adminSelectedLessonId;
+
+  const targetLesson = modLessons.find(l => l.id === AppState.adminSelectedLessonId) || modLessons[0];
+  if (targetLesson) {
+    loadLessonToEditor(targetLesson);
+  }
+}
+
+function handleAdminModuleChange(moduleId) {
+  if (!moduleId) return;
+  AppState.adminSelectedModuleId = moduleId;
+  AppState.adminSelectedLessonId = null;
+  renderLessonsForSelectedModule();
+}
+window.handleAdminModuleChange = handleAdminModuleChange;
+
+function handleAdminLessonChange(lessonId) {
+  if (!lessonId) return;
+  AppState.adminSelectedLessonId = lessonId;
+  const lesson = AppState.lessons.find(l => l.id === lessonId);
+  if (lesson) {
+    loadLessonToEditor(lesson);
+  }
+}
+window.handleAdminLessonChange = handleAdminLessonChange;
+
+function clearEditorFields() {
+  const titleInp = document.getElementById('admin-edit-title');
+  const ytInp = document.getElementById('admin-edit-youtube');
+  const durInp = document.getElementById('admin-edit-duration');
+  if (titleInp) titleInp.value = '';
+  if (ytInp) ytInp.value = '';
+  if (durInp) durInp.value = '15';
+}
+
+function showEditorEmptyState(title, subtitle) {
+  const previewContainer = document.getElementById('editor-live-preview');
+  if (previewContainer) {
+    previewContainer.innerHTML = `
+      <div class="py-12 text-center text-slate-400">
+        <p class="text-sm font-semibold text-white mb-1">${title}</p>
+        <p class="text-xs">${subtitle}</p>
+      </div>
+    `;
+  }
+  const editorRoot = document.getElementById('notion-editor-root');
+  if (editorRoot) {
+    editorRoot.innerHTML = `
+      <div class="py-12 text-center text-slate-500 font-mono text-xs">
+        [Pilih atau Tambahkan Materi Baru untuk Membuka Blok Editor Notion]
+      </div>
+    `;
+  }
 }
 
 function loadLessonToEditor(lesson) {
   AppState.adminSelectedLessonId = lesson.id;
-  document.getElementById('admin-edit-title').value = lesson.title;
-  document.getElementById('admin-edit-youtube').value = lesson.youtubeUrl || '';
-  document.getElementById('admin-edit-duration').value = lesson.durationMinutes || 15;
+  const titleInp = document.getElementById('admin-edit-title');
+  const ytInp = document.getElementById('admin-edit-youtube');
+  const durInp = document.getElementById('admin-edit-duration');
   const moduleSelect = document.getElementById('admin-edit-module');
+
+  if (titleInp) titleInp.value = lesson.title || '';
+  if (ytInp) ytInp.value = lesson.youtubeUrl || '';
+  if (durInp) durInp.value = lesson.durationMinutes || 15;
   if (moduleSelect) moduleSelect.value = lesson.moduleId;
 
   const editorContainer = document.getElementById('notion-editor-root');
   if (editorContainer) {
-    AppState.editorInstance = new NotionBlockEditor('notion-editor-root', lesson.blocks, (updatedBlocks) => {
+    AppState.editorInstance = new NotionBlockEditor('notion-editor-root', lesson.blocks || [], (updatedBlocks) => {
       updateEditorLivePreview(updatedBlocks);
     });
-    updateEditorLivePreview(lesson.blocks);
+    updateEditorLivePreview(lesson.blocks || []);
   }
 }
 
@@ -747,63 +785,154 @@ function updateEditorLivePreview(blocks) {
 }
 
 function saveLessonFromEditor() {
-  if (!AppState.editorInstance || !AppState.adminSelectedLessonId) return;
+  if (!AppState.editorInstance || !AppState.adminSelectedLessonId) {
+    showToast('Pilih materi yang ingin disimpan terlebih dahulu', 'error');
+    return;
+  }
 
   const lesson = AppState.lessons.find(l => l.id === AppState.adminSelectedLessonId);
   if (!lesson) return;
 
-  lesson.title = document.getElementById('admin-edit-title').value.trim();
-  lesson.youtubeUrl = document.getElementById('admin-edit-youtube').value.trim();
-  lesson.durationMinutes = parseInt(document.getElementById('admin-edit-duration').value) || 15;
-  const moduleSelect = document.getElementById('admin-edit-module');
-  if (moduleSelect) lesson.moduleId = moduleSelect.value;
-  lesson.blocks = AppState.editorInstance.getBlocks();
-
-  saveState();
-  showToast('Perubahan materi berhasil disimpan ke sistem', 'success');
-  renderAdminCurriculum();
-  if (typeof renderLandingCurriculumBento === 'function') renderLandingCurriculumBento();
-}
-
-function addNewModulePrompt() {
-  const title = prompt('Masukkan Judul Modul Baru:');
-  if (!title || !title.trim()) return;
-
-  const desc = prompt('Masukkan Deskripsi Singkat Modul:', 'Modul pembelajaran web app.');
-  const newModId = 'mod-' + Date.now();
-  const modCount = AppState.modules.length + 1;
-  const newMod = {
-    id: newModId,
-    title: title.trim(),
-    category: 'ai',
-    description: (desc || '').trim(),
-    coverImage: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80',
-    orderIndex: modCount,
-    badge: `MODUL 0${modCount}`,
-    isLocked: false
-  };
-
-  AppState.modules.push(newMod);
-  saveState();
-  showToast(`Modul '${newMod.title}' berhasil dibuat! Sekarang Anda dapat menambahkan materi ke modul ini.`, 'success');
-  renderAdminCurriculum();
-  if (typeof renderLandingCurriculumBento === 'function') renderLandingCurriculumBento();
-}
-window.addNewModulePrompt = addNewModulePrompt;
-
-function addNewLessonPrompt() {
-  if (AppState.modules.length === 0) {
-    showToast('Belum ada modul kurikulum. Buat modul pertama terlebih dahulu dengan tombol [+ Modul Baru]', 'warning');
-    addNewModulePrompt();
+  const titleVal = document.getElementById('admin-edit-title')?.value.trim();
+  if (!titleVal) {
+    showToast('Judul materi tidak boleh kosong!', 'error');
     return;
   }
 
-  const title = prompt('Masukkan Judul Video/Materi Baru:');
+  lesson.title = titleVal;
+  lesson.youtubeUrl = document.getElementById('admin-edit-youtube')?.value.trim() || '';
+  lesson.durationMinutes = parseInt(document.getElementById('admin-edit-duration')?.value) || 15;
+  
+  const moduleMoveSelect = document.getElementById('admin-edit-module');
+  if (moduleMoveSelect && moduleMoveSelect.value && moduleMoveSelect.value !== lesson.moduleId) {
+    lesson.moduleId = moduleMoveSelect.value;
+    AppState.adminSelectedModuleId = moduleMoveSelect.value;
+  }
+
+  lesson.blocks = AppState.editorInstance.getBlocks();
+
+  saveState();
+  showToast('Perubahan materi berhasil disimpan!', 'success');
+  renderAdminCurriculum();
+  if (typeof renderLandingCurriculumBento === 'function') renderLandingCurriculumBento();
+}
+window.saveLessonFromEditor = saveLessonFromEditor;
+
+// Modal Modul Management
+function openAddModuleModal() {
+  document.getElementById('modal-module-title').innerHTML = `
+    <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+    <span>Tambah Modul Kurikulum Baru</span>
+  `;
+  document.getElementById('manage-module-id').value = '';
+  document.getElementById('manage-module-title').value = '';
+  document.getElementById('manage-module-badge').value = `MODUL 0${AppState.modules.length + 1}`;
+  document.getElementById('manage-module-desc').value = '';
+  document.getElementById('modal-manage-module').classList.remove('hidden');
+}
+window.openAddModuleModal = openAddModuleModal;
+
+function openEditModuleModal() {
+  if (!AppState.adminSelectedModuleId) {
+    showToast('Pilih modul yang ingin diedit terlebih dahulu', 'error');
+    return;
+  }
+  const mod = AppState.modules.find(m => m.id === AppState.adminSelectedModuleId);
+  if (!mod) return;
+
+  document.getElementById('modal-module-title').innerHTML = `
+    <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+    <span>Edit Modul Kurikulum</span>
+  `;
+  document.getElementById('manage-module-id').value = mod.id;
+  document.getElementById('manage-module-title').value = mod.title;
+  document.getElementById('manage-module-badge').value = mod.badge || '';
+  document.getElementById('manage-module-desc').value = mod.description || '';
+  document.getElementById('modal-manage-module').classList.remove('hidden');
+}
+window.openEditModuleModal = openEditModuleModal;
+
+function closeManageModuleModal() {
+  document.getElementById('modal-manage-module')?.classList.add('hidden');
+}
+window.closeManageModuleModal = closeManageModuleModal;
+
+function handleSaveModuleSubmit(e) {
+  if (e) e.preventDefault();
+  const id = document.getElementById('manage-module-id').value;
+  const title = document.getElementById('manage-module-title').value.trim();
+  const badge = document.getElementById('manage-module-badge').value.trim() || `MODUL 0${AppState.modules.length + 1}`;
+  const desc = document.getElementById('manage-module-desc').value.trim();
+
+  if (!title) {
+    showToast('Judul modul wajib diisi', 'error');
+    return;
+  }
+
+  if (id) {
+    // Edit existing module
+    const mod = AppState.modules.find(m => m.id === id);
+    if (mod) {
+      mod.title = title;
+      mod.badge = badge;
+      mod.description = desc;
+      showToast(`Modul '${title}' berhasil diperbarui!`, 'success');
+    }
+  } else {
+    // Add new module
+    const newModId = 'mod-' + Date.now();
+    const newMod = {
+      id: newModId,
+      title: title,
+      badge: badge,
+      description: desc,
+      category: 'ai',
+      coverImage: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80',
+      orderIndex: AppState.modules.length + 1,
+      isLocked: false
+    };
+    AppState.modules.push(newMod);
+    AppState.adminSelectedModuleId = newModId;
+    showToast(`Modul '${title}' berhasil dibuat!`, 'success');
+  }
+
+  saveState();
+  closeManageModuleModal();
+  renderAdminCurriculum();
+  if (typeof renderLandingCurriculumBento === 'function') renderLandingCurriculumBento();
+}
+window.handleSaveModuleSubmit = handleSaveModuleSubmit;
+
+function deleteCurrentModule() {
+  if (!AppState.adminSelectedModuleId) return;
+  const mod = AppState.modules.find(m => m.id === AppState.adminSelectedModuleId);
+  if (!mod) return;
+
+  if (confirm(`Hapus modul '${mod.title}' beserta seluruh materi di dalamnya?`)) {
+    AppState.modules = AppState.modules.filter(m => m.id !== mod.id);
+    AppState.lessons = AppState.lessons.filter(l => l.moduleId !== mod.id);
+    AppState.adminSelectedModuleId = AppState.modules[0]?.id || null;
+    AppState.adminSelectedLessonId = null;
+
+    saveState();
+    showToast(`Modul '${mod.title}' telah dihapus.`, 'info');
+    renderAdminCurriculum();
+    if (typeof renderLandingCurriculumBento === 'function') renderLandingCurriculumBento();
+  }
+}
+window.deleteCurrentModule = deleteCurrentModule;
+
+function addNewLessonPrompt() {
+  if (AppState.modules.length === 0) {
+    showToast('Buat modul kurikulum terlebih dahulu dengan tombol [+ Modul Baru]', 'warning');
+    openAddModuleModal();
+    return;
+  }
+
+  const title = prompt('Masukkan Judul Materi/Video Baru:');
   if (!title || !title.trim()) return;
 
-  const moduleSelect = document.getElementById('admin-edit-module');
-  const targetModuleId = (moduleSelect && moduleSelect.value) ? moduleSelect.value : AppState.modules[0].id;
-
+  const targetModuleId = AppState.adminSelectedModuleId || AppState.modules[0].id;
   const newId = 'les-' + Date.now();
   const newLesson = {
     id: newId,
@@ -822,7 +951,7 @@ function addNewLessonPrompt() {
   AppState.lessons.push(newLesson);
   AppState.adminSelectedLessonId = newId;
   saveState();
-  showToast('Materi video baru berhasil ditambahkan! Silakan lengkapi isi blok dan link YouTube videonya.', 'success');
+  showToast('Materi video baru berhasil ditambahkan!', 'success');
   renderAdminCurriculum();
   if (typeof renderLandingCurriculumBento === 'function') renderLandingCurriculumBento();
 }
@@ -838,149 +967,477 @@ function deleteCurrentLesson() {
   if (!lesson) return;
 
   if (confirm(`Hapus materi '${lesson.title}' dari kurikulum?`)) {
-    const idx = AppState.lessons.findIndex(l => l.id === lesson.id);
-    if (idx > -1) {
-      AppState.lessons.splice(idx, 1);
-      AppState.adminSelectedLessonId = AppState.lessons[0]?.id || null;
-      saveState();
-      showToast('Materi telah dihapus', 'info');
-      renderAdminCurriculum();
-      if (typeof renderLandingCurriculumBento === 'function') renderLandingCurriculumBento();
-    }
+    AppState.lessons = AppState.lessons.filter(l => l.id !== lesson.id);
+    AppState.adminSelectedLessonId = null;
+    saveState();
+    showToast('Materi telah dihapus', 'info');
+    renderAdminCurriculum();
+    if (typeof renderLandingCurriculumBento === 'function') renderLandingCurriculumBento();
   }
 }
 window.deleteCurrentLesson = deleteCurrentLesson;
 
 // ==========================================
-// 6. WHITELIST MEMBER & ACCESS
+// 6. WHITELIST MEMBER FULL CRUD & ULTRA-FAST PAGINATION
 // ==========================================
+
+let whitelistState = {
+  currentPage: 1,
+  perPage: 25,
+  search: '',
+  filter: 'all'
+};
 
 function renderAdminWhitelist() {
   const tableBody = document.getElementById('whitelist-table-body');
   if (!tableBody) return;
 
-  tableBody.innerHTML = '';
-  const searchVal = (document.getElementById('whitelist-search')?.value || '').toLowerCase();
+  // 1. Hitung statistik filter
+  const total = AppState.whitelist.length;
+  const activeCount = AppState.whitelist.filter(m => m.isActive).length;
+  const hasPassCount = AppState.whitelist.filter(m => !!m.passwordHash).length;
+  const noPassCount = AppState.whitelist.filter(m => !m.passwordHash).length;
+  const adminCount = AppState.whitelist.filter(m => m.role === 'admin').length;
 
-  const filtered = AppState.whitelist.filter(m => 
-    m.email.toLowerCase().includes(searchVal) || 
-    (m.fullName && m.fullName.toLowerCase().includes(searchVal))
-  );
+  const countBadge = document.getElementById('whitelist-total-badge');
+  if (countBadge) countBadge.textContent = `${total} Member`;
 
-  const countBadge = document.getElementById('whitelist-total-count');
-  if (countBadge) {
-    countBadge.textContent = `${AppState.whitelist.length} Member Terdaftar`;
+  const elAll = document.getElementById('wl-count-all');
+  const elAct = document.getElementById('wl-count-active');
+  const elHasPass = document.getElementById('wl-count-haspass');
+  const elNoPass = document.getElementById('wl-count-nopass');
+  const elAdm = document.getElementById('wl-count-admin');
+  if (elAll) elAll.textContent = total;
+  if (elAct) elAct.textContent = activeCount;
+  if (elHasPass) elHasPass.textContent = hasPassCount;
+  if (elNoPass) elNoPass.textContent = noPassCount;
+  if (elAdm) elAdm.textContent = adminCount;
+
+  // 2. Filter data
+  const searchLower = whitelistState.search.toLowerCase().trim();
+  let filtered = AppState.whitelist.filter(m => {
+    // Search
+    const matchSearch = !searchLower ||
+      (m.email && m.email.toLowerCase().includes(searchLower)) ||
+      (m.fullName && m.fullName.toLowerCase().includes(searchLower));
+
+    if (!matchSearch) return false;
+
+    // Filter tab
+    if (whitelistState.filter === 'active') return m.isActive;
+    if (whitelistState.filter === 'haspass') return !!m.passwordHash;
+    if (whitelistState.filter === 'nopass') return !m.passwordHash;
+    if (whitelistState.filter === 'admin') return m.role === 'admin';
+    return true;
+  });
+
+  // 3. Hitung pagination
+  const totalPages = Math.ceil(filtered.length / whitelistState.perPage) || 1;
+  if (whitelistState.currentPage > totalPages) whitelistState.currentPage = totalPages;
+  if (whitelistState.currentPage < 1) whitelistState.currentPage = 1;
+
+  const startIndex = (whitelistState.currentPage - 1) * whitelistState.perPage;
+  const endIndex = Math.min(startIndex + whitelistState.perPage, filtered.length);
+  const pageItems = filtered.slice(startIndex, endIndex);
+
+  // 4. Update Pagination Controls
+  const pageInfo = document.getElementById('whitelist-page-info');
+  if (pageInfo) {
+    pageInfo.textContent = filtered.length > 0 
+      ? `Menampilkan ${startIndex + 1} - ${endIndex} dari ${filtered.length} member (Total: ${total})`
+      : 'Tidak ada member yang cocok dengan filter';
   }
 
-  filtered.forEach(m => {
+  const pageIndicator = document.getElementById('whitelist-page-indicator');
+  if (pageIndicator) {
+    pageIndicator.textContent = `Hal ${whitelistState.currentPage} / ${totalPages}`;
+  }
+
+  // 5. Render Baris Tabel (Hanya 25 item, super cepat < 1ms)
+  tableBody.innerHTML = '';
+
+  if (pageItems.length === 0) {
+    tableBody.innerHTML = `
+      <tr>
+        <td colspan="6" class="py-12 text-center text-slate-500 font-mono text-xs">
+          Tidak ada data member yang sesuai dengan pencarian atau filter.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  pageItems.forEach((m, idx) => {
     const row = document.createElement('tr');
     row.className = 'border-b border-slate-800/80 hover:bg-slate-900/50 text-xs transition-colors';
 
+    const rowNum = startIndex + idx + 1;
+    const hasPassword = !!m.passwordHash;
+    const isSuperAdmin = m.email.toLowerCase() === 'zettbos2025@gmail.com';
+
     row.innerHTML = `
-      <td class="py-3 px-4 font-medium text-white">${m.fullName || '-'}</td>
-      <td class="py-3 px-4 text-emerald-400 font-mono">${m.email}</td>
+      <td class="py-3 px-4 text-center font-mono text-slate-500">${rowNum}</td>
+      <td class="py-3 px-4">
+        <div class="font-bold text-white flex items-center gap-1.5">
+          <span>${escapeHtml(m.fullName || '-')}</span>
+          ${isSuperAdmin ? '<span class="text-[9px] px-1.5 py-0.2 rounded bg-amber-950 text-amber-300 border border-amber-800 font-mono font-bold">OWNER</span>' : ''}
+        </div>
+        <div class="text-[10px] mt-0.5 flex items-center gap-1 font-mono">
+          ${hasPassword 
+            ? '<span class="text-emerald-400 flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Password Aktif</span>' 
+            : '<span class="text-slate-500 flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg> Belum Buat Sandi</span>'}
+        </div>
+      </td>
+      <td class="py-3 px-4 text-emerald-400 font-mono text-xs font-medium">${escapeHtml(m.email)}</td>
       <td class="py-3 px-4">
         <span class="px-2 py-0.5 rounded text-[10px] font-bold ${m.role === 'admin' ? 'bg-rose-950 text-rose-300 border border-rose-800' : 'bg-slate-800 text-slate-300'}">
-          ${m.role.toUpperCase()}
+          ${(m.role || 'member').toUpperCase()}
         </span>
       </td>
-      <td class="py-3 px-4">
-        <button onclick="toggleMemberActive('${m.id}')" class="px-2.5 py-1 rounded-full text-[10px] font-semibold ${m.isActive ? 'bg-emerald-950 text-emerald-400 border border-emerald-800/60' : 'bg-rose-950 text-rose-400 border border-rose-800/60'}">
+      <td class="py-3 px-4 text-center">
+        <button onclick="toggleMemberActive('${m.id}')" ${isSuperAdmin ? 'disabled' : ''} class="px-2.5 py-1 rounded-full text-[10px] font-semibold transition-all ${m.isActive ? 'bg-emerald-950 text-emerald-400 border border-emerald-800/60 hover:bg-emerald-900/60' : 'bg-rose-950 text-rose-400 border border-rose-800/60 hover:bg-rose-900/60'}">
           ${m.isActive ? 'Aktif' : 'Diblokir'}
         </button>
       </td>
       <td class="py-3 px-4 text-right">
-        <button onclick="deleteMember('${m.id}')" class="text-rose-400 hover:text-rose-300 p-1 hover:bg-rose-950/40 rounded transition-colors" title="Hapus dari Whitelist">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-        </button>
+        <div class="inline-flex items-center gap-1.5 justify-end">
+          <button onclick="openEditMemberModal('${m.id}')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-cyan-400 border border-slate-800 transition-colors inline-flex items-center gap-1" title="Edit Data Member">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+            <span>Edit</span>
+          </button>
+          ${!isSuperAdmin ? `
+          <button onclick="deleteMember('${m.id}')" class="p-1 rounded-lg text-rose-400 hover:text-rose-300 hover:bg-rose-950/60 border border-transparent hover:border-rose-900 transition-colors" title="Hapus Member">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+          </button>
+          ` : ''}
+        </div>
       </td>
     `;
     tableBody.appendChild(row);
   });
 }
 
-function handleAddSingleMember(e) {
-  e.preventDefault();
-  const emailInput = document.getElementById('add-member-email');
-  const nameInput = document.getElementById('add-member-name');
-
-  const email = emailInput.value.trim().toLowerCase();
-  const name = nameInput.value.trim() || email.split('@')[0];
-
-  if (!email) return;
-
-  if (AppState.whitelist.some(m => m.email.toLowerCase() === email)) {
-    showToast('Email ini sudah ada di dalam whitelist!', 'error');
-    return;
-  }
-
-  AppState.whitelist.push({
-    id: 'wl-' + Date.now(),
-    email: email,
-    fullName: name,
-    role: 'member',
-    isActive: true,
-    enrolledAt: new Date().toISOString()
-  });
-
-  saveState();
-  emailInput.value = '';
-  nameInput.value = '';
-  showToast(`Berhasil menambahkan ${email} ke Whitelist!`, 'success');
+function handleWhitelistSearch(val) {
+  whitelistState.search = val || '';
+  whitelistState.currentPage = 1;
   renderAdminWhitelist();
 }
+window.handleWhitelistSearch = handleWhitelistSearch;
 
-function handleBatchAddMembers() {
-  const textarea = document.getElementById('batch-emails-textarea');
-  const rawText = textarea.value.trim();
-  if (!rawText) {
-    showToast('Masukkan daftar email terlebih dahulu', 'error');
-    return;
-  }
+function setWhitelistFilter(filterName) {
+  whitelistState.filter = filterName;
+  whitelistState.currentPage = 1;
 
-  const emails = rawText.split(/[\n,;\s]+/).map(e => e.trim().toLowerCase()).filter(e => e && e.includes('@'));
-  let addedCount = 0;
-
-  emails.forEach(email => {
-    if (!AppState.whitelist.some(m => m.email.toLowerCase() === email)) {
-      AppState.whitelist.push({
-        id: 'wl-' + (Date.now() + Math.random()),
-        email: email,
-        fullName: email.split('@')[0],
-        role: 'member',
-        isActive: true,
-        enrolledAt: new Date().toISOString()
-      });
-      addedCount++;
+  ['all', 'active', 'haspass', 'nopass', 'admin'].forEach(f => {
+    const btn = document.getElementById(`wl-filter-${f}`);
+    if (btn) {
+      if (f === filterName) {
+        btn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-950 text-emerald-300 border border-emerald-500/40 whitespace-nowrap';
+      } else {
+        btn.className = 'px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800 whitespace-nowrap';
+      }
     }
   });
 
-  saveState();
-  textarea.value = '';
-  document.getElementById('modal-batch-whitelist').classList.add('hidden');
-  showToast(`Selesai! ${addedCount} email baru berhasil didaftarkan ke Whitelist.`, 'success');
   renderAdminWhitelist();
 }
+window.setWhitelistFilter = setWhitelistFilter;
 
-function toggleMemberActive(id) {
+function changeWhitelistPerPage(val) {
+  whitelistState.perPage = parseInt(val, 10) || 25;
+  whitelistState.currentPage = 1;
+  renderAdminWhitelist();
+}
+window.changeWhitelistPerPage = changeWhitelistPerPage;
+
+function gotoWhitelistPage(action) {
+  const searchLower = whitelistState.search.toLowerCase().trim();
+  let filtered = AppState.whitelist.filter(m => {
+    const matchSearch = !searchLower ||
+      (m.email && m.email.toLowerCase().includes(searchLower)) ||
+      (m.fullName && m.fullName.toLowerCase().includes(searchLower));
+    if (!matchSearch) return false;
+    if (whitelistState.filter === 'active') return m.isActive;
+    if (whitelistState.filter === 'haspass') return !!m.passwordHash;
+    if (whitelistState.filter === 'nopass') return !m.passwordHash;
+    if (whitelistState.filter === 'admin') return m.role === 'admin';
+    return true;
+  });
+
+  const totalPages = Math.ceil(filtered.length / whitelistState.perPage) || 1;
+
+  if (action === 'first') whitelistState.currentPage = 1;
+  else if (action === 'prev') whitelistState.currentPage = Math.max(1, whitelistState.currentPage - 1);
+  else if (action === 'next') whitelistState.currentPage = Math.min(totalPages, whitelistState.currentPage + 1);
+  else if (action === 'last') whitelistState.currentPage = totalPages;
+
+  renderAdminWhitelist();
+}
+window.gotoWhitelistPage = gotoWhitelistPage;
+
+// Whitelist CRUD Modals
+function openAddMemberModal() {
+  document.getElementById('add-member-fullname').value = '';
+  document.getElementById('add-member-email').value = '';
+  document.getElementById('add-member-role').value = 'member';
+  document.getElementById('modal-add-member').classList.remove('hidden');
+}
+window.openAddMemberModal = openAddMemberModal;
+
+function closeAddMemberModal() {
+  document.getElementById('modal-add-member')?.classList.add('hidden');
+}
+window.closeAddMemberModal = closeAddMemberModal;
+
+async function handleSaveAddMemberSubmit(e) {
+  if (e) e.preventDefault();
+  const name = document.getElementById('add-member-fullname').value.trim();
+  const email = document.getElementById('add-member-email').value.trim().toLowerCase();
+  const role = document.getElementById('add-member-role').value;
+
+  if (!email || !email.includes('@')) {
+    showToast('Masukkan alamat email yang valid', 'error');
+    return;
+  }
+
+  if (AppState.whitelist.some(m => m.email.toLowerCase() === email)) {
+    showToast('Email ini sudah terdaftar di whitelist!', 'error');
+    return;
+  }
+
+  const newMember = {
+    id: 'wl-' + Date.now(),
+    email: email,
+    fullName: name || email.split('@')[0],
+    role: role || 'member',
+    isActive: true,
+    passwordHash: null,
+    registeredAt: new Date().toISOString()
+  };
+
+  AppState.whitelist.unshift(newMember);
+  saveState();
+
+  // Simpan ke Supabase jika terhubung
+  if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+    try {
+      await ZettSupabase.client.from('whitelist_members').insert([{
+        id: newMember.id,
+        email: newMember.email,
+        full_name: newMember.fullName,
+        role: newMember.role,
+        is_active: true,
+        password_hash: null
+      }]);
+    } catch (err) {
+      console.warn('[Supabase Insert Member Error]', err);
+    }
+  }
+
+  closeAddMemberModal();
+  showToast(`Siswa ${newMember.fullName} (${email}) berhasil ditambahkan ke whitelist!`, 'success');
+  renderAdminWhitelist();
+}
+window.handleSaveAddMemberSubmit = handleSaveAddMemberSubmit;
+
+function openEditMemberModal(id) {
   const member = AppState.whitelist.find(m => m.id === id);
   if (!member) return;
+
+  document.getElementById('edit-member-id').value = member.id;
+  document.getElementById('edit-member-name').value = member.fullName || '';
+  document.getElementById('edit-member-email').value = member.email || '';
+  document.getElementById('edit-member-role').value = member.role || 'member';
+  document.getElementById('edit-member-active').value = member.isActive ? 'true' : 'false';
+
+  const passStatusEl = document.getElementById('edit-member-pass-status');
+  const resetPassBtn = document.getElementById('btn-reset-member-pass');
+
+  if (member.passwordHash) {
+    if (passStatusEl) {
+      passStatusEl.textContent = 'Sudah Disetel';
+      passStatusEl.className = 'font-mono text-[11px] text-emerald-400 font-bold';
+    }
+    if (resetPassBtn) resetPassBtn.classList.remove('hidden');
+  } else {
+    if (passStatusEl) {
+      passStatusEl.textContent = 'Belum Dibuat (Wajib OTP saat login)';
+      passStatusEl.className = 'font-mono text-[11px] text-amber-400 font-bold';
+    }
+    if (resetPassBtn) resetPassBtn.classList.add('hidden');
+  }
+
+  document.getElementById('modal-edit-member').classList.remove('hidden');
+}
+window.openEditMemberModal = openEditMemberModal;
+
+function closeEditMemberModal() {
+  document.getElementById('modal-edit-member')?.classList.add('hidden');
+}
+window.closeEditMemberModal = closeEditMemberModal;
+
+async function handleSaveEditMemberSubmit(e) {
+  if (e) e.preventDefault();
+  const id = document.getElementById('edit-member-id').value;
+  const member = AppState.whitelist.find(m => m.id === id);
+  if (!member) return;
+
+  const newName = document.getElementById('edit-member-name').value.trim();
+  const newEmail = document.getElementById('edit-member-email').value.trim().toLowerCase();
+  const newRole = document.getElementById('edit-member-role').value;
+  const newActive = document.getElementById('edit-member-active').value === 'true';
+
+  if (!newEmail) {
+    showToast('Email tidak boleh kosong', 'error');
+    return;
+  }
+
+  // Cek duplikasi jika ganti email
+  if (newEmail !== member.email.toLowerCase() && AppState.whitelist.some(m => m.id !== id && m.email.toLowerCase() === newEmail)) {
+    showToast('Alamat email tersebut sudah dipakai oleh member lain!', 'error');
+    return;
+  }
+
+  member.fullName = newName;
+  member.email = newEmail;
+  member.role = newRole;
+  member.isActive = newActive;
+
+  saveState();
+
+  // Sinkronkan ke Supabase jika terhubung
+  if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+    try {
+      await ZettSupabase.client.from('whitelist_members').update({
+        full_name: newName,
+        email: newEmail,
+        role: newRole,
+        is_active: newActive
+      }).eq('id', member.id);
+    } catch (err) {
+      console.warn('[Supabase Update Member Error]', err);
+    }
+  }
+
+  closeEditMemberModal();
+  showToast(`Data member ${member.fullName} berhasil diperbarui!`, 'success');
+  renderAdminWhitelist();
+}
+window.handleSaveEditMemberSubmit = handleSaveEditMemberSubmit;
+
+async function handleResetMemberPasswordFromModal() {
+  const id = document.getElementById('edit-member-id').value;
+  const member = AppState.whitelist.find(m => m.id === id);
+  if (!member) return;
+
+  if (confirm(`Reset kata sandi untuk ${member.email}? Siswa akan diwajibkan verifikasi OTP email dan membuat password baru saat login berikutnya.`)) {
+    member.passwordHash = null;
+    saveState();
+
+    if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+      try {
+        await ZettSupabase.client.from('whitelist_members').update({
+          password_hash: null
+        }).eq('email', member.email);
+      } catch (err) {
+        console.warn('[Supabase Reset Pass Error]', err);
+      }
+    }
+
+    showToast(`Kata sandi untuk ${member.email} berhasil di-reset!`, 'success');
+    closeEditMemberModal();
+    renderAdminWhitelist();
+  }
+}
+window.handleResetMemberPasswordFromModal = handleResetMemberPasswordFromModal;
+
+async function toggleMemberActive(id) {
+  const member = AppState.whitelist.find(m => m.id === id);
+  if (!member) return;
+
+  if (member.email.toLowerCase() === 'zettbos2025@gmail.com') {
+    showToast('Akun Super Admin tidak dapat dinonaktifkan!', 'warning');
+    return;
+  }
+
   member.isActive = !member.isActive;
   saveState();
+
+  if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+    try {
+      await ZettSupabase.client.from('whitelist_members').update({
+        is_active: member.isActive
+      }).eq('id', member.id);
+    } catch (err) {
+      console.warn('[Supabase Toggle Active Error]', err);
+    }
+  }
+
   renderAdminWhitelist();
   showToast(`Status ${member.email} diubah menjadi ${member.isActive ? 'Aktif' : 'Diblokir'}`, 'info');
 }
+window.toggleMemberActive = toggleMemberActive;
 
-function deleteMember(id) {
+async function deleteMember(id) {
   const member = AppState.whitelist.find(m => m.id === id);
   if (!member) return;
-  if (confirm(`Hapus ${member.email} dari daftar whitelist pendaftar?`)) {
+
+  if (member.email.toLowerCase() === 'zettbos2025@gmail.com') {
+    showToast('Akun Super Admin tidak boleh dihapus!', 'error');
+    return;
+  }
+
+  if (confirm(`Hapus ${member.email} (${member.fullName || 'Siswa'}) secara permanen dari whitelist?`)) {
     AppState.whitelist = AppState.whitelist.filter(m => m.id !== id);
     saveState();
+
+    if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+      try {
+        await ZettSupabase.client.from('whitelist_members').delete().eq('id', member.id);
+      } catch (err) {
+        console.warn('[Supabase Delete Member Error]', err);
+      }
+    }
+
     renderAdminWhitelist();
-    showToast(`Email ${member.email} telah dihapus dari Whitelist`, 'info');
+    showToast(`Email ${member.email} telah dihapus dari whitelist.`, 'info');
   }
 }
+window.deleteMember = deleteMember;
+
+async function syncWhitelistToSupabaseLive() {
+  if (typeof ZettSupabase === 'undefined' || !ZettSupabase.isConnected()) {
+    showToast('Supabase belum terhubung. Silakan atur URL & Key di tombol "Database Cloud".', 'warning');
+    openSupabaseSettingsModal();
+    return;
+  }
+
+  showToast('Sedang menyinkronkan seluruh database whitelist ke Supabase Cloud...', 'info', 10000);
+
+  try {
+    const payload = AppState.whitelist.map(m => ({
+      id: m.id,
+      email: m.email.toLowerCase(),
+      full_name: m.fullName || 'Siswa Zettbos',
+      role: m.role || 'member',
+      is_active: m.isActive !== false,
+      password_hash: m.passwordHash || null
+    }));
+
+    const batchSize = 100;
+    for (let i = 0; i < payload.length; i += batchSize) {
+      const chunk = payload.slice(i, i + batchSize);
+      const { error } = await ZettSupabase.client.from('whitelist_members').upsert(chunk, { onConflict: 'email' });
+      if (error) throw error;
+    }
+
+    showToast(`Sukses menyinkronkan seluruh ${payload.length} akun whitelist ke Supabase Cloud!`, 'success');
+  } catch (err) {
+    console.error('[Sync Whitelist Error]', err);
+    showToast(`Gagal menyinkronkan ke Supabase: ${err.message || err.toString()}`, 'error');
+  }
+}
+window.syncWhitelistToSupabaseLive = syncWhitelistToSupabaseLive;
 
 // ==========================================
 // 7. SISWA PROGRESS ANALYTICS

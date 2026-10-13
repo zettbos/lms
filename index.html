@@ -1087,73 +1087,120 @@
   <main id="view-admin" class="flex-1 max-w-[1440px] 2xl:max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 hidden">
     
     <!-- Admin Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-      <div>
-        <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded text-[11px] font-bold bg-rose-950 text-rose-300 border border-rose-800/80 mb-2">
-          PANEL KONTROL OWNER
+    <div class="mb-6 space-y-4">
+      <!-- Top Bar: Brand Title & Global Action Buttons -->
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-800/80">
+        <div>
+          <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded text-[11px] font-bold bg-rose-950 text-rose-300 border border-rose-800/80 mb-1.5">
+            PANEL KONTROL OWNER
+          </div>
+          <h1 class="text-2xl font-extrabold text-white tracking-tight">Manajemen LMS Zettbos</h1>
+          <p class="text-xs text-slate-400 mt-0.5">Kelola kurikulum video & materi, database whitelist member (CRUD), CMS landing portal, dan shared resources.</p>
         </div>
-        <h1 class="text-2xl font-extrabold text-white tracking-tight">Manajemen LMS Zettbos</h1>
-        <p class="text-xs text-slate-400 mt-0.5">Kelola kurikulum, susun materi dengan block editor Notion, dan atur whitelist email pendaftar.</p>
+
+        <!-- Global Utilities: Supabase & Reset -->
+        <div class="flex items-center gap-2.5 flex-wrap">
+          <button onclick="openSupabaseSettingsModal()" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-emerald-950/80 text-emerald-300 border border-emerald-500/50 hover:bg-emerald-900/60 flex items-center gap-2 transition-all shadow-sm">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Database Cloud (Supabase)</span>
+          </button>
+          <button onclick="resetAllDataToZero()" title="Bersihkan seluruh data & kembali ke 0" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-rose-950/60 text-rose-300 border border-rose-800/60 hover:bg-rose-900/60 flex items-center gap-1.5 transition-all">
+            <svg class="w-3.5 h-3.5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            <span>Bersihkan ke 0</span>
+          </button>
+        </div>
       </div>
 
-      <!-- Admin Tabs -->
-      <div class="flex flex-wrap gap-2">
-        <button id="tab-btn-curriculum" onclick="switchAdminTab('curriculum')" class="px-4 py-2 rounded-lg text-sm font-semibold bg-emerald-950 text-emerald-300 border border-emerald-500/40">
-          Kurikulum & Editor
+      <!-- Segmented Navigation Tabs (Pill Bar) -->
+      <div class="p-1.5 rounded-2xl bg-slate-950/80 border border-slate-800/90 flex items-center gap-1.5 overflow-x-auto scrollbar-none">
+        <button id="tab-btn-curriculum" onclick="switchAdminTab('curriculum')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap transition-all bg-emerald-950 text-emerald-300 border border-emerald-500/40">
+          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+          <span>Kurikulum & Editor</span>
         </button>
-        <button id="tab-btn-landing_cms" onclick="switchAdminTab('landing_cms')" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800">
-          CMS Landing Portal
+        <button id="tab-btn-whitelist" onclick="switchAdminTab('whitelist')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-900 flex items-center gap-2 whitespace-nowrap transition-all">
+          <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          <span>Whitelist Member (CRUD)</span>
         </button>
-        <button id="tab-btn-resources_cms" onclick="switchAdminTab('resources_cms')" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800">
-          CMS Resource Hub
+        <button id="tab-btn-landing_cms" onclick="switchAdminTab('landing_cms')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-900 flex items-center gap-2 whitespace-nowrap transition-all">
+          <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+          <span>CMS Landing Portal</span>
         </button>
-        <button id="tab-btn-quickactions" onclick="switchAdminTab('quickactions')" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800">
-          Quick Action Hub
+        <button id="tab-btn-resources_cms" onclick="switchAdminTab('resources_cms')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-900 flex items-center gap-2 whitespace-nowrap transition-all">
+          <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          <span>CMS Resource Hub</span>
         </button>
-        <button id="tab-btn-whitelist" onclick="switchAdminTab('whitelist')" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800">
-          Whitelist Member
+        <button id="tab-btn-quickactions" onclick="switchAdminTab('quickactions')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-900 flex items-center gap-2 whitespace-nowrap transition-all">
+          <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          <span>Quick Action Hub</span>
         </button>
-        <button id="tab-btn-analytics" onclick="switchAdminTab('analytics')" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800">
-          Progres Siswa
-        </button>
-        <button onclick="openSupabaseSettingsModal()" class="px-3.5 py-2 rounded-lg text-sm font-semibold bg-emerald-950/90 text-emerald-300 border border-emerald-500/50 hover:bg-emerald-900/60 flex items-center gap-2 transition-all shadow-sm">
-          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-          <span>Database Cloud (Supabase)</span>
-        </button>
-        <button onclick="resetAllDataToZero()" title="Bersihkan seluruh kurikulum & progress kembali ke 0" class="px-3 py-2 rounded-lg text-xs font-semibold bg-rose-950/60 text-rose-300 border border-rose-800/60 hover:bg-rose-900/60 flex items-center gap-1.5 transition-all">
-          <svg class="w-3.5 h-3.5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-          <span>Bersihkan ke 0</span>
+        <button id="tab-btn-analytics" onclick="switchAdminTab('analytics')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-900 flex items-center gap-2 whitespace-nowrap transition-all">
+          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          <span>Progres Siswa</span>
         </button>
       </div>
     </div>
 
     <!-- TAB 1: KURIKULUM & NOTION BLOCK EDITOR -->
     <div id="tab-pane-curriculum" class="space-y-6">
-      <div class="glass-card-static rounded-xl p-6">
+      <div class="glass-card-static rounded-2xl p-6 border border-slate-800/90 shadow-xl">
         
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 mb-5 border-b border-slate-800">
-          <div class="flex-1">
-            <label for="admin-lesson-select" class="block text-xs font-semibold text-slate-400 mb-1">Pilih Materi yang Ingin Diedit:</label>
-            <select id="admin-lesson-select" class="w-full bg-slate-950 text-white border border-slate-800 rounded-lg px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none">
-              <!-- Filled dynamically -->
-            </select>
-          </div>
-          <div class="flex items-center gap-2 self-end sm:self-auto flex-wrap">
-            <button onclick="addNewModulePrompt()" class="px-3.5 py-2 rounded-lg text-xs font-semibold bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 border border-emerald-500/40 flex items-center gap-1.5 shadow-sm">
-              <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-              <span>+ Modul Baru</span>
-            </button>
-            <button onclick="addNewLessonPrompt()" class="px-3.5 py-2 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5">
-              <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-              <span>+ Materi Baru</span>
-            </button>
-            <button onclick="deleteCurrentLesson()" title="Hapus materi aktif" class="px-3 py-2 rounded-lg text-xs font-semibold bg-rose-950/60 hover:bg-rose-900/80 text-rose-300 border border-rose-800/60 flex items-center gap-1">
-              <svg class="w-3.5 h-3.5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-            </button>
-            <button onclick="saveLessonFromEditor()" class="btn-primary-action px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
-              <span>Simpan Perubahan</span>
-            </button>
+        <!-- Two-Tier Curriculum Navigation Bar (Anti-Bug & Super Clear) -->
+        <div class="p-4 sm:p-5 rounded-2xl bg-slate-950/90 border border-slate-800/90 mb-6 shadow-inner">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-end">
+            
+            <!-- Tier 1: Pilih Modul Kurikulum -->
+            <div class="lg:col-span-5">
+              <div class="flex items-center justify-between mb-1.5">
+                <label for="admin-module-select" class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                  <span class="w-4 h-4 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px] font-mono">1</span>
+                  <span>Modul Kurikulum:</span>
+                </label>
+                <div class="flex items-center gap-1">
+                  <button type="button" onclick="openAddModuleModal()" class="text-[11px] text-emerald-400 hover:text-emerald-300 font-semibold px-2 py-0.5 rounded hover:bg-emerald-950/60 transition-colors">
+                    + Modul Baru
+                  </button>
+                  <button type="button" onclick="openEditModuleModal()" title="Edit Modul Terpilih" class="text-[11px] text-slate-400 hover:text-white px-1.5 py-0.5 rounded hover:bg-slate-800 transition-colors">
+                    Edit
+                  </button>
+                  <button type="button" onclick="deleteCurrentModule()" title="Hapus Modul Terpilih" class="text-[11px] text-rose-400 hover:text-rose-300 px-1.5 py-0.5 rounded hover:bg-rose-950/60 transition-colors">
+                    Hapus
+                  </button>
+                </div>
+              </div>
+              <select id="admin-module-select" onchange="handleAdminModuleChange(this.value)" class="w-full bg-slate-900 text-white border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-medium focus:border-emerald-500 focus:outline-none transition-all">
+                <!-- Injected clean module list -->
+              </select>
+            </div>
+
+            <!-- Tier 2: Pilih Materi Video di Modul Ini -->
+            <div class="lg:col-span-5">
+              <div class="flex items-center justify-between mb-1.5">
+                <label for="admin-lesson-select" class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                  <span class="w-4 h-4 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-[10px] font-mono">2</span>
+                  <span>Materi / Video Pembelajaran:</span>
+                </label>
+                <div class="flex items-center gap-1">
+                  <button type="button" onclick="addNewLessonPrompt()" class="text-[11px] text-cyan-400 hover:text-cyan-300 font-semibold px-2 py-0.5 rounded hover:bg-cyan-950/60 transition-colors">
+                    + Materi Baru
+                  </button>
+                  <button type="button" onclick="deleteCurrentLesson()" title="Hapus Materi Ini" class="text-[11px] text-rose-400 hover:text-rose-300 px-1.5 py-0.5 rounded hover:bg-rose-950/60 transition-colors">
+                    Hapus
+                  </button>
+                </div>
+              </div>
+              <select id="admin-lesson-select" onchange="handleAdminLessonChange(this.value)" class="w-full bg-slate-900 text-white border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-medium focus:border-cyan-500 focus:outline-none transition-all">
+                <!-- Injected clean lesson list -->
+              </select>
+            </div>
+
+            <!-- Tombol Simpan Perubahan -->
+            <div class="lg:col-span-2">
+              <button onclick="saveLessonFromEditor()" class="w-full btn-primary-action py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/50">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+                <span>Simpan Materi</span>
+              </button>
+            </div>
+
           </div>
         </div>
 
@@ -1161,26 +1208,26 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <div class="md:col-span-2">
             <label for="admin-edit-title" class="block text-xs font-semibold text-slate-400 mb-1">Judul Materi</label>
-            <input id="admin-edit-title" type="text" class="w-full bg-slate-950 text-white border border-slate-800 rounded-lg px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none">
+            <input id="admin-edit-title" type="text" placeholder="Contoh: Pengantar Vibe Coding dengan AI" class="w-full bg-slate-950 text-white border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm focus:border-emerald-500 focus:outline-none">
           </div>
           <div>
-            <label for="admin-edit-module" class="block text-xs font-semibold text-slate-400 mb-1">Modul Induk</label>
-            <select id="admin-edit-module" class="w-full bg-slate-950 text-white border border-slate-800 rounded-lg px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none">
+            <label for="admin-edit-module" class="block text-xs font-semibold text-slate-400 mb-1">Pindahkan ke Modul</label>
+            <select id="admin-edit-module" class="w-full bg-slate-950 text-white border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm focus:border-emerald-500 focus:outline-none">
               <!-- Filled dynamically -->
             </select>
           </div>
           <div>
-            <label for="admin-edit-duration" class="block text-xs font-semibold text-slate-400 mb-1">Estimasi Menit</label>
-            <input id="admin-edit-duration" type="number" class="w-full bg-slate-950 text-white border border-slate-800 rounded-lg px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none">
+            <label for="admin-edit-duration" class="block text-xs font-semibold text-slate-400 mb-1">Estimasi Durasi (Menit)</label>
+            <input id="admin-edit-duration" type="number" min="1" value="15" class="w-full bg-slate-950 text-white border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm focus:border-emerald-500 focus:outline-none">
           </div>
           <div class="md:col-span-4">
-            <label for="admin-edit-youtube" class="block text-xs font-semibold text-slate-400 mb-1">Link URL Video YouTube Unlisted (Video Utama)</label>
-            <input id="admin-edit-youtube" type="text" placeholder="https://www.youtube.com/watch?v=..." class="w-full bg-slate-950 text-white border border-slate-800 rounded-lg px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none font-mono text-xs">
+            <label for="admin-edit-youtube" class="block text-xs font-semibold text-slate-400 mb-1">Link URL Video YouTube Unlisted (Video Pembelajaran)</label>
+            <input id="admin-edit-youtube" type="text" placeholder="https://www.youtube.com/watch?v=..." class="w-full bg-slate-950 text-emerald-400 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm focus:border-emerald-500 focus:outline-none font-mono text-xs">
           </div>
         </div>
 
         <!-- 2 Columns: Notion Block Editor (Left) & Live Preview (Right) -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-4 border-t border-slate-800">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-5 border-t border-slate-800">
           
           <!-- Notion Block Editor -->
           <div>
@@ -1191,7 +1238,7 @@
               </span>
             </div>
             
-            <div id="notion-editor-root" class="min-h-[300px]">
+            <div id="notion-editor-root" class="min-h-[320px]">
               <!-- Injected by js/editor.js -->
             </div>
           </div>
@@ -1205,7 +1252,7 @@
               </span>
             </div>
 
-            <div class="p-5 rounded-lg bg-slate-950/80 border border-slate-800 min-h-[300px] max-h-[600px] overflow-y-auto">
+            <div class="p-5 rounded-2xl bg-slate-950/80 border border-slate-800 min-h-[320px] max-h-[600px] overflow-y-auto">
               <div id="editor-live-preview">
                 <!-- Injected live preview -->
               </div>
@@ -1217,36 +1264,73 @@
       </div>
     </div>
 
-    <!-- TAB 2: WHITELIST MANAGER -->
+    <!-- TAB 2: WHITELIST MANAGER (FULL CRUD & FAST PAGINATION) -->
     <div id="tab-pane-whitelist" class="space-y-6 hidden">
-      <div class="glass-card-static rounded-xl p-6">
+      <div class="glass-card-static rounded-2xl p-6 border border-slate-800/90 shadow-xl">
         
+        <!-- Header & Action Toolbar -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 mb-5 border-b border-slate-800">
           <div>
-            <h2 class="text-lg font-bold text-white">Whitelist Email Terdaftar</h2>
-            <p id="whitelist-total-count" class="text-xs text-slate-400">0 Member Terdaftar</p>
+            <div class="flex items-center gap-2">
+              <h2 class="text-lg font-bold text-white">Database Whitelist Member</h2>
+              <span id="whitelist-total-badge" class="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-cyan-950 text-cyan-300 border border-cyan-800">
+                2.319 Member
+              </span>
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5">Kelola data siswa resmi (CRUD), periksa status kata sandi, dan sinkronkan live ke Supabase.</p>
           </div>
-          <div class="flex items-center gap-2">
-            <button onclick="document.getElementById('modal-batch-whitelist').classList.remove('hidden')" class="btn-primary-action px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-              + Import Batch Banyak Email (Paste Sekaligus)
+
+          <div class="flex items-center gap-2 flex-wrap">
+            <button onclick="openAddMemberModal()" class="btn-primary-action px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-sm">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              <span>+ Tambah Siswa</span>
+            </button>
+            <button onclick="document.getElementById('modal-batch-whitelist').classList.remove('hidden')" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5 transition-colors">
+              <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              <span>Import Batch</span>
+            </button>
+            <button onclick="syncWhitelistToSupabaseLive()" title="Unggah seluruh whitelist ke Supabase Cloud" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 border border-emerald-500/40 flex items-center gap-1.5 transition-colors">
+              <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+              <span>Sync ke Cloud</span>
             </button>
           </div>
         </div>
 
-        <!-- Add Single Member Form & Search Bar -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
-          <form onsubmit="handleAddSingleMember(event)" class="md:col-span-2 flex flex-col sm:flex-row gap-2">
-            <input id="add-member-name" type="text" placeholder="Nama Lengkap Siswa" class="w-full sm:w-1/3 bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
-            <input id="add-member-email" type="email" required placeholder="email.member@gmail.com" class="w-full sm:w-1/2 bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono">
-            <button type="submit" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700 flex-shrink-0">
-              + Tambah 1
+        <!-- Filter, Search & Pagination Controls Bar -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-5">
+          
+          <!-- Filter Tabs -->
+          <div class="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
+            <button id="wl-filter-all" onclick="setWhitelistFilter('all')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-950 text-emerald-300 border border-emerald-500/40 whitespace-nowrap">
+              Semua (<span id="wl-count-all">0</span>)
             </button>
-          </form>
-
-          <div>
-            <input id="whitelist-search" type="text" oninput="renderAdminWhitelist()" placeholder="Cari nama atau email..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+            <button id="wl-filter-active" onclick="setWhitelistFilter('active')" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800 whitespace-nowrap">
+              Aktif (<span id="wl-count-active">0</span>)
+            </button>
+            <button id="wl-filter-haspass" onclick="setWhitelistFilter('haspass')" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800 whitespace-nowrap">
+              Sudah Buat Sandi (<span id="wl-count-haspass">0</span>)
+            </button>
+            <button id="wl-filter-nopass" onclick="setWhitelistFilter('nopass')" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800 whitespace-nowrap">
+              Belum Buat Sandi (<span id="wl-count-nopass">0</span>)
+            </button>
+            <button id="wl-filter-admin" onclick="setWhitelistFilter('admin')" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800 whitespace-nowrap">
+              Admin (<span id="wl-count-admin">0</span>)
+            </button>
           </div>
+
+          <!-- Search & Per Page -->
+          <div class="flex items-center gap-2">
+            <div class="relative flex-1 md:w-64">
+              <input id="whitelist-search" type="text" oninput="handleWhitelistSearch(this.value)" placeholder="Cari nama atau email..." class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+              <svg class="w-4 h-4 text-slate-500 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            </div>
+            <select id="whitelist-per-page" onchange="changeWhitelistPerPage(this.value)" class="bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-2 text-xs text-slate-300 focus:outline-none focus:border-emerald-500">
+              <option value="25" selected>25 per hal</option>
+              <option value="50">50 per hal</option>
+              <option value="100">100 per hal</option>
+            </select>
+          </div>
+
         </div>
 
         <!-- Table of Whitelisted Members -->
@@ -1254,17 +1338,43 @@
           <table class="w-full text-left border-collapse">
             <thead>
               <tr class="bg-slate-950 text-slate-400 text-[11px] uppercase tracking-wider border-b border-slate-800">
-                <th class="py-3 px-4">Nama Lengkap</th>
+                <th class="py-3 px-4 w-12 text-center font-mono">No</th>
+                <th class="py-3 px-4">Nama Lengkap &amp; Status Sandi</th>
                 <th class="py-3 px-4">Email Terdaftar</th>
                 <th class="py-3 px-4">Peran</th>
-                <th class="py-3 px-4">Status Akses</th>
-                <th class="py-3 px-4 text-right">Aksi</th>
+                <th class="py-3 px-4 text-center">Status Akses</th>
+                <th class="py-3 px-4 text-right">Aksi Manajemen</th>
               </tr>
             </thead>
             <tbody id="whitelist-table-body">
-              <!-- Rendered by js/app.js -->
+              <!-- Rendered with ultra-fast pagination by admin.js -->
             </tbody>
           </table>
+        </div>
+
+        <!-- Pagination Controls Footer -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-4 border-t border-slate-800/80 mt-4 text-xs text-slate-400">
+          <div id="whitelist-page-info">
+            Menampilkan 1 - 25 dari 2.319 member
+          </div>
+          
+          <div class="flex items-center gap-1.5 self-center sm:self-auto">
+            <button onclick="gotoWhitelistPage('first')" class="px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed">
+              &laquo;
+            </button>
+            <button onclick="gotoWhitelistPage('prev')" class="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed">
+              Sebelumnya
+            </button>
+            <span class="px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-800 font-mono text-emerald-400 font-bold" id="whitelist-page-indicator">
+              Hal 1 / 93
+            </span>
+            <button onclick="gotoWhitelistPage('next')" class="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed">
+              Selanjutnya
+            </button>
+            <button onclick="gotoWhitelistPage('last')" class="px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed">
+              &raquo;
+            </button>
+          </div>
         </div>
 
       </div>
@@ -1711,6 +1821,166 @@
           Daftarkan Semua ke Whitelist
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL: TAMBAH SISWA WHITELIST (SINGLE CRUD)
+       ========================================== -->
+  <div id="modal-add-member" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md hidden">
+    <div class="glass-card rounded-2xl p-6 sm:p-7 max-w-md w-full relative shadow-2xl">
+      <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+          Tambah Siswa ke Whitelist
+        </h3>
+        <button onclick="closeAddMemberModal()" class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <form onsubmit="handleSaveAddMemberSubmit(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Nama Lengkap</label>
+          <input id="add-member-fullname" type="text" placeholder="Contoh: Asep Solihin" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Alamat Email Terdaftar</label>
+          <input id="add-member-email" type="email" placeholder="nama.siswa@gmail.com" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-emerald-400 font-mono focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Peran / Hak Akses</label>
+          <select id="add-member-role" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+            <option value="member" selected>Member (Siswa Resmi)</option>
+            <option value="admin">Admin (Pengelola Kurikulum)</option>
+          </select>
+        </div>
+
+        <div class="pt-3 border-t border-slate-800 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeAddMemberModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
+            Batal
+          </button>
+          <button type="submit" class="btn-primary-action px-5 py-2 rounded-xl text-xs font-semibold">
+            Daftarkan Member
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL: EDIT MEMBER WHITELIST (FULL CRUD)
+       ========================================== -->
+  <div id="modal-edit-member" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md hidden">
+    <div class="glass-card rounded-2xl p-6 sm:p-7 max-w-md w-full relative shadow-2xl">
+      <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+          Edit Data Member Whitelist
+        </h3>
+        <button onclick="closeEditMemberModal()" class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <form onsubmit="handleSaveEditMemberSubmit(event)" class="space-y-4">
+        <input type="hidden" id="edit-member-id" />
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Nama Lengkap</label>
+          <input id="edit-member-name" type="text" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Alamat Email Terdaftar</label>
+          <input id="edit-member-email" type="email" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-emerald-400 font-mono focus:outline-none focus:border-cyan-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Peran Akses</label>
+            <select id="edit-member-role" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+              <option value="member">Member</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Status Akun</label>
+            <select id="edit-member-active" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+              <option value="true">Aktif</option>
+              <option value="false">Diblokir</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Password Management Box -->
+        <div class="p-3.5 rounded-xl bg-slate-950/90 border border-slate-800/90 flex flex-col gap-2">
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-slate-400 font-semibold">Status Sandi Akun:</span>
+            <span id="edit-member-pass-status" class="font-mono text-[11px] text-emerald-400 font-bold">Sudah Disetel</span>
+          </div>
+          <button type="button" id="btn-reset-member-pass" onclick="handleResetMemberPasswordFromModal()" class="w-full py-2 px-3 rounded-lg text-xs font-semibold bg-rose-950/40 text-rose-300 border border-rose-800/60 hover:bg-rose-900/60 transition-colors flex items-center justify-center gap-1.5">
+            <svg class="w-3.5 h-3.5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            <span>Reset Sandi (Wajibkan OTP Ulang)</span>
+          </button>
+        </div>
+
+        <div class="pt-3 border-t border-slate-800 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeEditMemberModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
+            Batal
+          </button>
+          <button type="submit" class="btn-primary-action px-5 py-2 rounded-xl text-xs font-semibold">
+            Simpan Perubahan
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL: KELOLA MODUL KURIKULUM (ADD/EDIT MODUL)
+       ========================================== -->
+  <div id="modal-manage-module" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md hidden">
+    <div class="glass-card rounded-2xl p-6 sm:p-7 max-w-md w-full relative shadow-2xl">
+      <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+        <h3 id="modal-module-title" class="text-base font-bold text-white flex items-center gap-2">
+          <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+          Tambah Modul Kurikulum
+        </h3>
+        <button onclick="closeManageModuleModal()" class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <form onsubmit="handleSaveModuleSubmit(event)" class="space-y-4">
+        <input type="hidden" id="manage-module-id" />
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Judul Bab Modul</label>
+          <input id="manage-module-title" type="text" placeholder="Contoh: Modul 1: Membangun Web App AI dari Nol" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Label Badge</label>
+          <input id="manage-module-badge" type="text" placeholder="Contoh: MODUL 01" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Deskripsi Singkat</label>
+          <textarea id="manage-module-desc" rows="3" placeholder="Jelaskan apa yang dipelajari member di modul ini..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-emerald-500"></textarea>
+        </div>
+
+        <div class="pt-3 border-t border-slate-800 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeManageModuleModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
+            Batal
+          </button>
+          <button type="submit" class="btn-primary-action px-5 py-2 rounded-xl text-xs font-semibold">
+            Simpan Modul
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -2214,18 +2484,18 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- Application Scripts (Modular Architecture with Cache Buster) -->
-  <script src="js/whitelist-data.js?v=33"></script>
-  <script src="js/mock-data.js?v=33"></script>
-  <script src="js/editor.js?v=33"></script>
-  <script src="js/core/state.js?v=33"></script>
-  <script src="js/core/supabase.js?v=33"></script>
-  <script src="js/core/router.js?v=33"></script>
-  <script src="js/core/particles.js?v=33"></script>
-  <script src="js/controllers/auth.js?v=33"></script>
-  <script src="js/controllers/landing.js?v=33"></script>
-  <script src="js/controllers/classroom.js?v=33"></script>
-  <script src="js/controllers/resources.js?v=33"></script>
-  <script src="js/controllers/admin.js?v=33"></script>
-  <script src="js/app.js?v=33"></script>
+  <script src="js/whitelist-data.js?v=34"></script>
+  <script src="js/mock-data.js?v=34"></script>
+  <script src="js/editor.js?v=34"></script>
+  <script src="js/core/state.js?v=34"></script>
+  <script src="js/core/supabase.js?v=34"></script>
+  <script src="js/core/router.js?v=34"></script>
+  <script src="js/core/particles.js?v=34"></script>
+  <script src="js/controllers/auth.js?v=34"></script>
+  <script src="js/controllers/landing.js?v=34"></script>
+  <script src="js/controllers/classroom.js?v=34"></script>
+  <script src="js/controllers/resources.js?v=34"></script>
+  <script src="js/controllers/admin.js?v=34"></script>
+  <script src="js/app.js?v=34"></script>
 </body>
 </html>
