@@ -266,13 +266,20 @@ async function verifyOtpCode() {
     if (targetEmailLabel) targetEmailLabel.textContent = member.email;
     if (modalSetPass) modalSetPass.classList.remove('hidden');
 
+    const nameInput = document.getElementById('set-fullname-input');
     const passInput = document.getElementById('new-password-input');
     const confInput = document.getElementById('confirm-password-input');
+    
+    if (nameInput) {
+      nameInput.value = (member.fullName && member.fullName !== 'Siswa Zettbos') ? member.fullName : '';
+      nameInput.focus();
+    } else if (passInput) {
+      passInput.focus();
+    }
     if (passInput) passInput.value = '';
     if (confInput) confInput.value = '';
-    if (passInput) passInput.focus();
 
-    showToast('OTP Berhasil! Wajib buat kata sandi akun untuk akses selanjutnya.', 'success');
+    showToast('OTP Berhasil! Silakan lengkapi nama dan buat kata sandi akun.', 'success');
   } else {
     // Jika sudah punya password sebelumnya, langsung masuk
     AppState.currentUser = member;
@@ -289,10 +296,19 @@ async function verifyOtpCode() {
 async function handleSetPasswordSubmit(event) {
   if (event) event.preventDefault();
 
+  const fullNameInput = document.getElementById('set-fullname-input');
   const newPassInput = document.getElementById('new-password-input');
   const confirmPassInput = document.getElementById('confirm-password-input');
+
+  const fullName = fullNameInput ? fullNameInput.value.trim() : '';
   const newPass = newPassInput ? newPassInput.value : '';
   const confirmPass = confirmPassInput ? confirmPassInput.value : '';
+
+  if (!fullName || fullName.length < 2) {
+    showToast('Silakan tulis nama lengkap Anda (minimal 2 karakter)!', 'error');
+    if (fullNameInput) fullNameInput.focus();
+    return;
+  }
 
   if (!newPass || newPass.length < 8) {
     showToast('Kata sandi minimal 8 karakter!', 'error');
@@ -313,10 +329,11 @@ async function handleSetPasswordSubmit(event) {
     return;
   }
 
-  showToast('Mengenkripsi & menyimpan kata sandi...', 'info');
+  showToast('Menyimpan profil dan mengenkripsi kata sandi...', 'info');
 
   // Enkripsi password menggunakan SHA-256 Web Crypto API
   const hashedPassword = await hashPassword(newPass);
+  member.fullName = fullName;
   member.passwordHash = hashedPassword;
 
   // Simpan ke Supabase Database Cloud
@@ -324,12 +341,18 @@ async function handleSetPasswordSubmit(event) {
     try {
       await ZettSupabase.client
         .from('whitelist_members')
-        .update({ password_hash: hashedPassword })
+        .update({ 
+          full_name: fullName,
+          password_hash: hashedPassword 
+        })
         .eq('email', member.email);
 
       // Sinkronkan juga password ke Supabase Auth
       try {
-        await ZettSupabase.client.auth.updateUser({ password: newPass });
+        await ZettSupabase.client.auth.updateUser({ 
+          password: newPass,
+          data: { full_name: fullName }
+        });
       } catch (authErr) {
         console.warn('[Supabase Auth Password Update]', authErr);
       }
@@ -346,7 +369,7 @@ async function handleSetPasswordSubmit(event) {
   AppState.currentUser = member;
   saveState();
 
-  showToast('Kata sandi berhasil dibuat dan dienkripsi (SHA-256)! Selamat datang.', 'success');
+  showToast(`Selamat datang, ${fullName}! Profil dan kata sandi berhasil disimpan.`, 'success');
   navigate(member.role === 'admin' ? 'admin' : 'home');
 }
 
