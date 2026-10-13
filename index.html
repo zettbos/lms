@@ -40,7 +40,7 @@
   </script>
 
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="css/style.css?v=44" />
+  <link rel="stylesheet" href="css/style.css?v=45" />
 </head>
 <body class="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--fg)] selection:bg-emerald-500/30 selection:text-emerald-300 transition-colors duration-150">
 
@@ -552,7 +552,7 @@
       </div>
 
       <div class="mt-6 text-center text-xs text-slate-500">
-        Butuh bantuan atau belum mendaftar? <a href="https://wa.me/6281234567890?text=Halo%20Admin%20Zettbos,%20saya%20ingin%20mendaftar%20kelas%20web%20app%20AI" target="_blank" class="text-emerald-400 hover:underline">Hubungi Admin Zettbos</a>
+        Butuh bantuan atau belum mendaftar? <a href="mailto:zettbos2025@gmail.com?subject=Bantuan%20Akses%20Zettbos%20Member%20Hub" class="text-emerald-400 hover:underline">Hubungi Admin Zettbos</a>
       </div>
 
     </div>
@@ -625,8 +625,8 @@
         <!-- Schematic / IDE Video Thumbnail Preview -->
         <div class="relative w-full sm:w-56 h-32 rounded-xl bg-[#0D0E11] border border-[var(--border)] flex flex-col justify-between p-3 overflow-hidden flex-shrink-0 group-hover:border-emerald-500/40 transition-colors">
           <div class="flex items-center justify-between text-[10px] text-slate-500 font-mono">
-            <span class="text-emerald-400 font-semibold">&lt;GAS WebApp /&gt;</span>
-            <span>doGet.js</span>
+            <span class="text-emerald-400 font-semibold">&lt;LMS Zettbos /&gt;</span>
+            <span>index.html</span>
           </div>
           <!-- Center Play Overlay -->
           <div class="self-center my-auto flex items-center justify-center">
@@ -635,8 +635,8 @@
             </div>
           </div>
           <div class="flex items-center justify-between text-[10px] font-mono text-slate-400">
-            <span class="text-slate-500">google.script.run</span>
-            <span id="feat-lesson-duration" class="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-300">18 Menit</span>
+            <span class="text-slate-500">zettbos.com</span>
+            <span id="feat-lesson-duration" class="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-300">0 Menit</span>
           </div>
         </div>
 
@@ -646,10 +646,10 @@
             <span class="text-[10px] font-bold uppercase tracking-caps px-2 py-0.5 rounded bg-emerald-950/80 text-emerald-300 border border-emerald-500/40">
               Rekomendasi Lanjutkan Belajar
             </span>
-            <span id="feat-lesson-module-tag" class="text-xs text-slate-400 font-medium">Modul 1: Tutorial Wajib</span>
+            <span id="feat-lesson-module-tag" class="text-xs text-slate-400 font-medium">Setup Awal Kurikulum</span>
           </div>
           <h2 id="feat-lesson-title" class="text-base sm:text-lg font-bold text-white leading-snug line-clamp-2 mb-2">
-            Video Pembelajaran: Membuat Web App dengan Google Apps Script
+            Mulai Buat Modul &amp; Materi Pelajaran Pertama
           </h2>
           <!-- Micro Progress -->
           <div class="max-w-md">
@@ -688,7 +688,7 @@
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <div class="flex items-center gap-2.5">
           <h2 class="text-lg sm:text-xl font-bold text-white tracking-tight">Katalog Modul Pembelajaran</h2>
-          <span id="dash-module-count-badge" class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-900 text-emerald-400 border border-slate-800 font-mono">5 Modul Lengkap</span>
+          <span id="dash-module-count-badge" class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-900 text-emerald-400 border border-slate-800 font-mono">0 Modul</span>
         </div>
         <button id="btn-home-reset-data" onclick="resetAllToDefault()" class="hidden text-xs text-slate-500 hover:text-slate-300 underline self-start sm:self-auto">
           Reset Data
@@ -869,7 +869,7 @@
             <span class="hidden sm:inline">Kembali ke Home</span>
           </button>
           <span class="text-slate-700 hidden sm:inline">|</span>
-          <span id="learn-module-badge" class="text-xs font-semibold text-emerald-400 truncate max-w-[200px]">Modul 1</span>
+          <span id="learn-module-badge" class="text-xs font-semibold text-emerald-400 truncate max-w-[200px]">-</span>
         </div>
 
         <div class="flex items-center gap-2">
@@ -898,11 +898,11 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-800/80 mb-6">
           <div>
             <div class="flex items-center gap-2 mb-1.5">
-              <span id="learn-duration-badge" class="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-900 text-slate-400 border border-slate-800 font-mono">18 Menit</span>
+              <span id="learn-duration-badge" class="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-900 text-slate-400 border border-slate-800 font-mono">0 Menit</span>
               <span class="text-xs text-emerald-400 font-medium">Kurikulum Resmi Zettbos</span>
             </div>
             <h1 id="learn-lesson-title" class="text-xl sm:text-2xl font-extrabold text-white leading-tight">
-              Video Pembelajaran: Membuat Web App dengan Google Apps Script
+              Materi Pembelajaran
             </h1>
           </div>
 
@@ -1063,23 +1063,23 @@
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-6 pb-4 border-b border-slate-800">
       <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
         <button id="res-tab-all" onclick="filterResourceCategory('all')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-950 text-emerald-300 border border-emerald-500/40">
-          Semua Dokumen (<span id="res-count-all">5</span>)
+          Semua Dokumen (<span id="res-count-all">0</span>)
         </button>
         <button id="res-tab-sheet" onclick="filterResourceCategory('sheet')" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800 transition-colors inline-flex items-center gap-1.5">
           <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-          <span>Google Sheets</span> (<span id="res-count-sheet">1</span>)
+          <span>Google Sheets</span> (<span id="res-count-sheet">0</span>)
         </button>
         <button id="res-tab-code" onclick="filterResourceCategory('code')" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800 transition-colors inline-flex items-center gap-1.5">
           <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
-          <span>Starter Code</span> (<span id="res-count-code">1</span>)
+          <span>Starter Code</span> (<span id="res-count-code">0</span>)
         </button>
         <button id="res-tab-prompt" onclick="filterResourceCategory('prompt')" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800 transition-colors inline-flex items-center gap-1.5">
           <svg class="w-3.5 h-3.5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-          <span>Prompt & SOP</span> (<span id="res-count-prompt">2</span>)
+          <span>Prompt &amp; SOP</span> (<span id="res-count-prompt">0</span>)
         </button>
         <button id="res-tab-drive" onclick="filterResourceCategory('drive')" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800 transition-colors inline-flex items-center gap-1.5">
           <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
-          <span>Google Drive</span> (<span id="res-count-drive">1</span>)
+          <span>Google Drive</span> (<span id="res-count-drive">0</span>)
         </button>
       </div>
 
@@ -2859,18 +2859,18 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- Application Scripts (Modular Architecture with Cache Buster) -->
-  <script src="js/whitelist-data.js?v=44"></script>
-  <script src="js/mock-data.js?v=44"></script>
-  <script src="js/editor.js?v=44"></script>
-  <script src="js/core/state.js?v=44"></script>
-  <script src="js/core/supabase.js?v=44"></script>
-  <script src="js/core/router.js?v=44"></script>
-  <script src="js/core/particles.js?v=44"></script>
-  <script src="js/controllers/auth.js?v=44"></script>
-  <script src="js/controllers/landing.js?v=44"></script>
-  <script src="js/controllers/classroom.js?v=44"></script>
-  <script src="js/controllers/resources.js?v=44"></script>
-  <script src="js/controllers/admin.js?v=44"></script>
-  <script src="js/app.js?v=44"></script>
+  <script src="js/whitelist-data.js?v=45"></script>
+  <script src="js/mock-data.js?v=45"></script>
+  <script src="js/editor.js?v=45"></script>
+  <script src="js/core/state.js?v=45"></script>
+  <script src="js/core/supabase.js?v=45"></script>
+  <script src="js/core/router.js?v=45"></script>
+  <script src="js/core/particles.js?v=45"></script>
+  <script src="js/controllers/auth.js?v=45"></script>
+  <script src="js/controllers/landing.js?v=45"></script>
+  <script src="js/controllers/classroom.js?v=45"></script>
+  <script src="js/controllers/resources.js?v=45"></script>
+  <script src="js/controllers/admin.js?v=45"></script>
+  <script src="js/app.js?v=45"></script>
 </body>
 </html>

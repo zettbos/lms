@@ -82,7 +82,7 @@ const SEED_QUICK_ACTIONS = [
     subtitle: 'Sesi privat 1-on-1 pembahasan implementasi web app',
     icon: 'sparkles',
     actionType: 'url',
-    target: 'https://wa.me/628123456789',
+    target: 'https://wa.me/',
     badge: 'VIP',
     orderIndex: 4
   }

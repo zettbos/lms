@@ -54,11 +54,34 @@ function initStorage() {
   try { storedQuickActions = JSON.parse(localStorage.getItem('zett_quick_actions')); } catch (e) {}
   try { storedUser = JSON.parse(localStorage.getItem('zett_current_user')); } catch (e) {}
 
-  const DATA_CLEAN_VERSION = 'v31_whitelist_updated';
+  const DATA_CLEAN_VERSION = 'v45_clean_zero_data';
   const storedVersion = localStorage.getItem('zett_data_clean_version');
   
-  // Whitelist import migration: Import 2.318 siswa unik & pertahankan hash password yang sudah diset
+  // Definisi judul dummy hardcode untuk pembersihan total
+  const DUMMY_RESOURCE_TITLES = [
+    'template google sheet',
+    'starter codebase',
+    'library prompt zettprompt',
+    'google drive folder',
+    'template sop revisi 2 lapis'
+  ];
+  window.DUMMY_RESOURCE_TITLES = DUMMY_RESOURCE_TITLES;
+
+  // Auto-purge dummy data & normalisasi whitelist 2.318 siswa
   if (storedVersion !== DATA_CLEAN_VERSION) {
+    // 1. Purge sisa dokumen dummy dari localStorage
+    if (Array.isArray(storedResources)) {
+      storedResources = storedResources.filter(r => {
+        const titleLower = (r.title || '').toLowerCase();
+        return !DUMMY_RESOURCE_TITLES.some(dt => titleLower.includes(dt));
+      });
+      localStorage.setItem('zett_resources', JSON.stringify(storedResources));
+    } else {
+      storedResources = [];
+      localStorage.setItem('zett_resources', JSON.stringify([]));
+    }
+
+    // 2. Normalisasi Whitelist & Preservasi Password Hash
     const existingPasswordMap = {};
     if (Array.isArray(storedWhitelist)) {
       storedWhitelist.forEach(item => {
@@ -308,6 +331,13 @@ function resetAllDataToZero() {
       }
       AppState.currentUser = AppState.whitelist[0];
       saveState();
+
+      if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+        ZettSupabase.client.from('shared_resources').delete().neq('id', '__keep_none__').then(({ error }) => {
+          if (error) console.warn('[Supabase Cloud Reset Warning]', error);
+        });
+      }
+
       showToast('Seluruh data berhasil dibersihkan kembali ke 0!', 'success');
       if (window.navigate) navigate(AppState.currentView || 'admin');
     }

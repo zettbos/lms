@@ -169,17 +169,8 @@ function renderResources() {
     );
   }
 
-  if (filtered.length === 0) {
-    container.innerHTML = '';
-    if (emptyState) emptyState.classList.remove('hidden');
-    return;
-  }
-
-  if (emptyState) emptyState.classList.add('hidden');
-  container.innerHTML = '';
-
   const user = AppState.currentUser;
-  const isSuperAdmin = user && user.role === 'admin' && user.email.toLowerCase() === 'zettbos2025@gmail.com';
+  const isSuperAdmin = user && user.role === 'admin' && user.email?.toLowerCase() === 'zettbos2025@gmail.com';
 
   // Toggle '+ Bagikan Link Dokumen' button strictly for Super Admin
   const addBtn = document.getElementById('btn-admin-add-resource');
@@ -187,6 +178,49 @@ function renderResources() {
     if (isSuperAdmin) addBtn.classList.remove('hidden');
     else addBtn.classList.add('hidden');
   }
+
+  if (filtered.length === 0) {
+    container.innerHTML = '';
+    if (emptyState) {
+      emptyState.classList.remove('hidden');
+      const emptyTitle = emptyState.querySelector('h3');
+      const emptyDesc = emptyState.querySelector('p');
+      let emptyAction = emptyState.querySelector('#btn-empty-add-res');
+
+      if (allResources.length === 0) {
+        if (emptyTitle) emptyTitle.textContent = isSuperAdmin ? 'Belum Ada Dokumen Dibagikan' : 'Belum Ada Dokumen Tersedia';
+        if (emptyDesc) emptyDesc.textContent = isSuperAdmin 
+          ? 'Belum ada template atau tautan shared resources yang dibagikan ke siswa. Klik tombol di bawah untuk menambahkan dokumen pertama.' 
+          : 'Mentor Zettbos akan segera membagikan template Google Sheets, boilerplate code, atau asset pendukung kelas di sini.';
+        
+        if (isSuperAdmin) {
+          if (!emptyAction) {
+            emptyAction = document.createElement('button');
+            emptyAction.id = 'btn-empty-add-res';
+            emptyAction.onclick = openAddResourceModal;
+            emptyAction.className = 'btn-primary-action px-4 py-2 rounded-lg text-xs font-semibold inline-flex items-center gap-1.5 mt-4';
+            emptyAction.innerHTML = `
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              <span>+ Bagikan Link Dokumen Pertama</span>
+            `;
+            emptyState.appendChild(emptyAction);
+          } else {
+            emptyAction.classList.remove('hidden');
+          }
+        } else if (emptyAction) {
+          emptyAction.classList.add('hidden');
+        }
+      } else {
+        if (emptyTitle) emptyTitle.textContent = 'Dokumen Tidak Ditemukan';
+        if (emptyDesc) emptyDesc.textContent = 'Tidak ada dokumen atau tautan yang cocok dengan kata kunci pencarian Anda.';
+        if (emptyAction) emptyAction.classList.add('hidden');
+      }
+    }
+    return;
+  }
+
+  if (emptyState) emptyState.classList.add('hidden');
+  container.innerHTML = '';
 
   filtered.forEach(item => {
     const card = document.createElement('div');

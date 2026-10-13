@@ -373,8 +373,28 @@ const ZettSupabase = {
         .select('*')
         .order('order_index');
 
-      if (!resErr && Array.isArray(sRes) && sRes.length > 0) {
-        AppState.resources = sRes.map(r => ({
+      if (!resErr && Array.isArray(sRes)) {
+        const dummyFilter = (window.DUMMY_RESOURCE_TITLES || [
+          'template google sheet',
+          'starter codebase',
+          'library prompt zettprompt',
+          'google drive folder',
+          'template sop revisi 2 lapis'
+        ]);
+
+        const dummyIds = sRes
+          .filter(r => dummyFilter.some(dt => (r.title || '').toLowerCase().includes(dt)))
+          .map(r => r.id);
+
+        if (dummyIds.length > 0) {
+          // Otomatis hapus baris dummy dari database Supabase Cloud
+          this.client.from('shared_resources').delete().in('id', dummyIds).then(({ error }) => {
+            if (!error) console.log('[Supabase Cloud Auto-Purge] Berhasil menghapus baris dummy:', dummyIds);
+          });
+        }
+
+        const cleanResources = sRes.filter(r => !dummyFilter.some(dt => (r.title || '').toLowerCase().includes(dt)));
+        AppState.resources = cleanResources.map(r => ({
           id: r.id,
           title: r.title,
           description: r.description || '',

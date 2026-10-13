@@ -505,9 +505,16 @@ function resetResourcesToDefault() {
       const zData = window.ZettData || {};
       AppState.resources = zData.SEED_RESOURCES ? JSON.parse(JSON.stringify(zData.SEED_RESOURCES)) : [];
       saveState();
+
+      if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+        ZettSupabase.client.from('shared_resources').delete().neq('id', '__keep_none__').then(({ error }) => {
+          if (error) console.warn('[Supabase Resources Wipe Warning]', error);
+        });
+      }
+
       renderAdminResourcesCms();
       if (typeof renderResources === 'function') renderResources();
-      showToast('Resource berhasil di-reset ke default!', 'info');
+      showToast('Resource berhasil di-reset ke default (0 dokumen)!', 'info');
     }
   });
 }

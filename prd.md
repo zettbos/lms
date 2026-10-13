@@ -401,3 +401,20 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
     5. Re-Order Beranda: Memindahkan seksi "Akses Cepat & Resource Hub" tepat di atas "Rekomendasi Lanjutkan Belajar".
     6. Terminal Dots Minimalis pada Code Block (`js/editor.js`): Mengganti label teks bahasa ("JAVASCRIPT", dll) dengan 3 titik terminal MacOS minimalis (`rose-500`, `amber-500`, `emerald-500`).
     7. Cache Buster: Menaikkan cache buster seluruh file JS dan CSS di `index.html` ke versi `?v=44`.
+  - [2026-10-13] Implementasi Revisi 45: Pembersihan Total Data Dummy Hardcode (LocalStorage, Supabase Cloud & HTML Markup).
+    1. Purge Dokumen Dummy Shared Resources:
+       - Menerapkan auto-purge data `v45_clean_zero_data` di `js/core/state.js`, membersihkan sisa 5 dokumen dummy dari `localStorage` saat dibuka oleh siapa pun.
+       - Menambahkan auto-delete ke Supabase Cloud di `js/core/supabase.js` (`syncCurriculumFromCloud()`) untuk mendeteksi dan menghapus baris dummy dari tabel `shared_resources` secara permanen.
+       - Menyiapkan script query SQL `supabase/clean_dummy_resources.sql`.
+    2. Pembersihan Markup HTML Statis (`index.html`):
+       - Menyetel seluruh angka tab kategori dokumen dari `(5)`, `(1)`, `(2)` ke `(0)`.
+       - Menetralkan teks fallback Featured Lesson ("Video Pembelajaran: Membuat Web App..." -> "Mulai Buat Modul & Materi Pelajaran Pertama", durasi "18 Menit" -> "0 Menit", "Modul 1" -> "Setup Awal Kurikulum").
+       - Menetralkan badge katalog modul ("5 Modul Lengkap" -> "0 Modul").
+       - Menetralkan teks fallback Ruang Belajar ("Modul 1" -> "-", "18 Menit" -> "0 Menit", "Materi Pembelajaran").
+       - Membersihkan nomor telepon dummy `6281234567890` ke kontak resmi.
+    3. Empty State Dokumen & Resource Hub:
+       - Menampilkan empty state interaktif jika 0 dokumen dengan tombol pintas `+ Bagikan Link Dokumen Pertama` bagi Super Admin dan pesan informatif bagi Siswa.
+       - Memperbaiki bug toggle tombol tambah dokumen di header saat dokumen berjumlah 0.
+    4. Cloud Wipe di Panel Admin:
+       - Fungsi `resetResourcesToDefault()` dan `resetAllDataToZero()` kini ikut mengeksekusi penghapusan baris di cloud Supabase (`shared_resources`).
+    5. Cache Buster: Menaikkan seluruh query string script dan stylesheet di `index.html` ke versi `?v=45`.

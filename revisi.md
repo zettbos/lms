@@ -1,59 +1,70 @@
-# ZETTBOS MEMBER HUB - DOKUMEN REVISI AKTIF (REVISI 44)
+# ZETTBOS MEMBER HUB - DOKUMEN REVISI AKTIF (REVISI 45)
 ================================================================================
-STATUS: SUKSES DITERAPKAN (REVISI 44 SELESAI)
+STATUS: SUKSES DITERAPKAN (REVISI 45 SELESAI)
 ARSITEK SISTEM: ZettBOT by Zettbos (Universal Product Architect & Lead Engineering Mentor)
-WAKTU EKSEKUSI: 2026-10-13T20:01:00+07:00
-FOKUS REVISI:
-  1. RE-LAYOUT MARGIN RUANG BELAJAR (SIMETRIS, PROPORSIONAL, ANTI-KOSONG KANAN)
-  2. LIGHT MODE FIX KARTU PINNED HERO & DUKUNGAN MULTI-PIN HERO BERTUMPUK (STACKED)
-  3. REDESAIN WELCOME GREETING JADI SLEEK COMPACT BAR (HEMAT 70% RUANG VERTIKAL)
-  4. ELIMINASI TEKS HELPER "KLIK DI MANA SAJA..." (CLEAN & ANTI-AI LOOK)
-  5. RE-ORDER BERANDA: AKSES CEPAT DIPINDAH KE ATAS REKOMENDASI LANJUTAN
-  6. BERSIHKAN BADGE BAHASA PADA CODE BLOCK (HAPUS TEKS "JAVASCRIPT DLL")
+WAKTU EKSEKUSI: 2026-10-13T20:25:00+07:00
+FOKUS REVISI: PEMBERSIHAN TOTAL DATA DUMMY HARDCODE DI SELURUH SISTEM LMS
+  1. PURGE 5 DOKUMEN DUMMY SHARED RESOURCES (LOCALSTORAGE & CLOUD SUPABASE)
+  2. ELIMINASI SELURUH TEKS HARDCODE FALLBACK DI HTML (BERANDA, RUANG BELAJAR, CATALOG)
+  3. RESET SELURUH ANGKA STATIS DI TAB DOKUMEN & LINK KE 0
+  4. OPTIMALISASI EMPTY STATE DOKUMEN RESOURCE UNTUK ADMIN & SISWA
+  5. SINKRONISASI PEMBERSIHAN SUPABASE CLOUD (AUTO-DELETE DUMMY ROWS VIA CLIENT & SQL)
 ================================================================================
 
 ## 1. REALISASI & PERUBAHAN YANG DILAKUKAN:
 
-### A. Simetri & Margin Ruang Belajar (`#view-learn`)
-- Sub-bar navigasi atas dan kontainer utama ruang belajar disejajarkan ke layout terpusat yang presisi (`max-w-5xl xl:max-w-6xl w-full mx-auto px-4 sm:px-6`).
-- Mengeliminasi ruang hitam kosong melompong di sebelah kanan pada monitor resolusi besar, menghasilkan pengalaman membaca fokus (distraction-free) ala Notion/Medium yang seimbang.
+### A. Auto-Purge 5 Dokumen Dummy Shared Resources
+- Di `js/core/state.js`, versi data dinaikkan ke `v45_clean_zero_data`.
+- Ditambahkan detektor daftar judul dummy (`DUMMY_RESOURCE_TITLES`):
+  1. "Template Google Sheet: Database Web App &..."
+  2. "Starter Codebase: Boilerplate Frontend Web Ap..."
+  3. "Library Prompt ZettPrompt (Formula Anti-..."
+  4. "Google Drive Folder: Asset Gambar, Icon & Slide..."
+  5. "Template SOP Revisi 2 Lapis (revisi.md Standar..."
+- Saat peramban dibuka oleh siapapun, seluruh 5 dokumen dummy di `localStorage.getItem('zett_resources')` otomatis dibuang dan disetel ke `[]`.
+- Di `js/core/supabase.js`, pada fungsi `syncCurriculumFromCloud()`:
+  * 5 dokumen dummy disaring agar tidak pernah masuk ke `AppState.resources`.
+  * Sistem otomatis mengeksekusi `.delete().in('id', dummyIds)` ke database Supabase Cloud sehingga baris dummy di cloud ikut terhapus permanen.
+- Disediakan file query `supabase/clean_dummy_resources.sql` yang siap dijalankan di Supabase SQL Editor.
 
-### B. Light Mode Fix Pinned Hero Card & Multi-Pin Stacked Support
-- Ditambahkan aturan CSS khusus `html.light .pinned-hero-card` dengan background gradien putih bersih (`#FFFFFF` ke `#F8FAFC`), border abu-abu halus (`#CBD5E1`), shadow lembut, judul hitam pekat `#0F172A`, dan badge pill yang kontras tinggi.
-- Logika `renderPinnedModuleHero()` di `js/controllers/classroom.js` menggunakan `.filter(m => m.isPinned)`. Jika Admin menandai lebih dari 1 modul, seluruh kartu hero tersusun bertumpuk rapi ke bawah (`space-y-6`).
-- Di `js/controllers/admin.js`, Admin dapat menyematkan beberapa modul sekaligus tanpa saling menimpa atau auto-unpin.
+### B. Pembersihan Teks Hardcode & Angka Statis di HTML (`index.html`)
+- Tab counter di Dokumen & Link Resource di-reset dari `(5)`, `(1)`, `(1)`, `(2)`, `(1)` menjadi `(0)`.
+- Featured Lesson hero di Beranda:
+  * Tag kurikulum diubah dari `"Modul 1: Tutorial Wajib"` menjadi `"Setup Awal Kurikulum"`.
+  * Judul diubah dari `"Video Pembelajaran: Membuat Web App dengan Google Apps Script"` menjadi `"Mulai Buat Modul & Materi Pelajaran Pertama"`.
+  * Durasi diubah dari `"18 Menit"` menjadi `"0 Menit"`.
+  * Label IDE thumbnail diubah dari `"doGet.js"` & `"<GAS WebApp />"` menjadi `"index.html"` & `"<LMS Zettbos />"`.
+- Badge katalog modul diubah dari `"5 Modul Lengkap"` menjadi `"0 Modul"`.
+- Sub-bar dan judul di Ruang Belajar (`#view-learn`):
+  * Badge modul diubah dari `"Modul 1"` menjadi `"-"`.
+  * Durasi diubah dari `"18 Menit"` menjadi `"0 Menit"`.
+  * Judul materi diubah dari `"Video Pembelajaran: Membuat Web App dengan Google Apps Script"` menjadi `"Materi Pembelajaran"`.
+- Nomor telepon palsu `6281234567890` pada link login diganti ke email resmi `mailto:zettbos2025@gmail.com`.
+- Link WhatsApp di `SEED_QUICK_ACTIONS` (`mock-data.js`) dibersihkan dari nomor dummy.
 
-### C. Sleek Compact Welcome Bar di Beranda
-- Kartu sambutan didesain ulang menjadi bar 1 baris berprofil ramping (`p-3.5 sm:p-4 mb-5`):
-  * Kiri: Icon user, sapaan "Selamat Datang, [Nama]", badge status "Member Aktif", serta deskripsi singkat.
-  * Kanan: Widget mini progress bar horizontal lengkap dengan persentase angka dan tombol "Detail &rarr;".
-- Menghemat 70% ruang vertikal sehingga konten kurikulum langsung terlihat tanpa perlu scroll jauh.
+### C. Desain Empty State Bersih di Dokumen & Resource Hub (`js/controllers/resources.js`)
+- Memperbaiki bug di mana tombol `+ Bagikan Link Dokumen` di header sempat tidak muncul saat dokumen berjumlah 0.
+- Jika dokumen berjumlah 0 (`AppState.resources.length === 0`):
+  * **Super Admin**: Menampilkan pesan `"Belum Ada Dokumen Dibagikan"` dengan tombol aktif `+ Bagikan Link Dokumen Pertama`.
+  * **Member / Siswa**: Menampilkan pesan `"Belum Ada Dokumen Tersedia. Mentor akan segera membagikan template dan resource pendukung kelas di sini."`.
+  * **Pencarian 0 Hasil**: Menampilkan `"Dokumen Tidak Ditemukan"`.
 
-### D. Eliminasi Teks Helper Kaku (Anti-AI Feel)
-- Teks `"Klik di mana saja pada kartu ini untuk langsung masuk modul."` telah dihapus sepenuhnya dari kartu pinned hero.
-- Mengutamakan interaktivitas natural dengan hover effect halus dan tombol aksi utama.
+### D. Fitur Reset Database Cloud di Panel Admin
+- Pada fungsi `resetResourcesToDefault()` (`admin.js`) dan `resetAllDataToZero()` (`state.js`), ditambahkan perintah hapus cloud Supabase (`shared_resources.delete()`) sehingga reset tidak hanya membersihkan peramban lokal tetapi juga membersihkan cloud database.
 
-### E. Penataan Urutan Beranda (Home)
-- Seksi **Akses Cepat & Resource Hub** diposisikan tepat di atas **Rekomendasi Lanjutkan Belajar (Featured Lesson)**.
-- Alur hierarki Beranda:
-  1. Sleek Compact Welcome Bar
-  2. Akses Cepat & Resource Hub (4 Kartu Quick Actions)
-  3. Rekomendasi Lanjutkan Belajar (Featured Lesson)
-  4. Pinned Module Hero (Modul Unggulan Pilihan Mentor - Stacked)
-  5. Katalog Modul Pembelajaran (Filter Pills & Grid)
-
-### F. Terminal Dots Minimalis pada Code Block
-- Di `js/editor.js`, badge teks bahasa seperti `${block.language || 'CODE'}` (misal "JAVASCRIPT", "HTML") telah dihapus.
-- Digantikan oleh 3 titik terminal MacOS minimalis (`rose-500`, `amber-500`, `emerald-500`) yang estetik, bersih, dan profesional. Tombol "Simpan" dan "Salin" tetap berfungsi sempurna.
+### E. Cache Buster
+- Seluruh script di `index.html` dan `css/style.css` dinaikkan ke versi `?v=45`.
 
 ---
 
 ## 2. FILE YANG DIUPDATE & DIUJI:
-1. `index.html`: Re-order seksi Home, compact bar header, centering layout `#view-learn`, bump cache buster ke `?v=44`.
-2. `css/style.css`: Light mode styling untuk `.pinned-hero-card` (`#FFFFFF` alabaster contrast), bump cache buster ke `?v=44`.
-3. `js/controllers/classroom.js`: Logika multi-pin hero bertumpuk (`.filter()`), pembersihan teks helper kaku.
-4. `js/controllers/admin.js`: Dukungan multi-pin modul tanpa auto-unpin.
-5. `js/editor.js`: 3 titik terminal minimalis pada block kode & pembersihan badge bahasa teks.
+1. `js/core/state.js`: Cache migrasi `v45_clean_zero_data`, purge `zett_resources`, Supabase wipe di `resetAllDataToZero()`.
+2. `js/core/supabase.js`: Auto-delete baris dummy dari tabel `shared_resources` Supabase Cloud di `syncCurriculumFromCloud()`.
+3. `index.html`: Reset angka tab ke `0`, netralkan fallback Featured Lesson, Ruang Belajar, Catalog, dan bump ke `?v=45`.
+4. `js/controllers/resources.js`: Fixed add button toggle & dynamic empty state (Admin vs Siswa).
+5. `js/controllers/admin.js`: Cloud delete call pada `resetResourcesToDefault()`.
+6. `js/mock-data.js`: Pembersihan fake number di `SEED_QUICK_ACTIONS`.
+7. `supabase/clean_dummy_resources.sql`: Query SQL pembersihan manual Supabase Cloud.
 
 ================================================================================
 SIAP DI-PUSH KE REPOSITORI GITHUB MELALUI TERMINAL ANTIGRAVITY.
