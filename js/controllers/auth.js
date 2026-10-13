@@ -152,6 +152,13 @@ async function requestOtpLoginForEmail(emailOverride) {
   await sendOtpToEmail(targetEmail);
 }
 
+function getApiEndpoint(path) {
+  if (window.location && window.location.protocol === 'file:') {
+    return 'https://lms-zettbos.vercel.app' + path;
+  }
+  return path;
+}
+
 async function sendOtpToEmail(targetEmail) {
   const emailEl = document.getElementById('otp-target-email');
   const modalEl = document.getElementById('modal-otp');
@@ -163,29 +170,27 @@ async function sendOtpToEmail(targetEmail) {
   inputs.forEach(inp => inp.value = '');
   if (inputs[0]) inputs[0].focus();
 
-  showToast(`Mengirim kode OTP aman ke ${targetEmail}...`, 'info');
+  showToast(`Mengirim kode OTP asli via Resend ke ${targetEmail}...`, 'info');
 
-  if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
-    try {
-      const { data, error } = await ZettSupabase.client.auth.signInWithOtp({
-        email: targetEmail,
-        options: {
-          shouldCreateUser: true
-        }
-      });
+  try {
+    const res = await fetch(getApiEndpoint('/api/send-otp'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: targetEmail })
+    });
 
-      if (error) {
-        console.warn('[Supabase OTP Dispatch Warning]', error);
-        showToast(`Info Pengiriman OTP: ${error.message || 'Cek email Anda'}`, 'info', 7000);
-      } else {
-        showToast(`Kode OTP 6-digit berhasil dikirim ke ${targetEmail}. Periksa kotak masuk / spam email Anda.`, 'success', 8000);
-      }
-    } catch (err) {
-      console.error('[Supabase OTP Dispatch Exception]', err);
-      showToast('Gagal menghubungi server email OTP. Periksa koneksi internet.', 'error');
+    const data = await res.json();
+
+    if (data.success && data.otpToken) {
+      AppState.activeOtpToken = data.otpToken;
+      showToast(`Kode OTP 6-digit berhasil dikirim ke ${targetEmail}! Periksa kotak masuk / spam email Anda.`, 'success', 8000);
+    } else {
+      console.warn('[Resend API Warning]', data);
+      showToast(`Gagal mengirim OTP: ${data.error || 'Periksa konfigurasi Resend'}`, 'error', 7000);
     }
-  } else {
-    showToast('Koneksi database cloud Supabase belum aktif.', 'error');
+  } catch (err) {
+    console.error('[Send OTP Error]', err);
+    showToast('Gagal menghubungi server email Resend. Periksa koneksi internet.', 'error');
   }
 }
 
@@ -213,30 +218,31 @@ async function verifyOtpCode() {
     return;
   }
 
-  showToast('Memverifikasi kode OTP...', 'info');
+  showToast('Memverifikasi kode OTP via Resend...', 'info');
 
-  // 1. Verifikasi dengan Supabase Auth
   let isVerified = false;
-  if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
-    try {
-      const { data, error } = await ZettSupabase.client.auth.verifyOtp({
+  try {
+    const res = await fetch(getApiEndpoint('/api/verify-otp'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
         email: targetEmail,
-        token: enteredOtp,
-        type: 'email'
-      });
+        code: enteredOtp,
+        token: AppState.activeOtpToken
+      })
+    });
 
-      if (error) {
-        showToast(`Kode OTP tidak cocok atau sudah kadaluarsa: ${error.message}`, 'error');
-        return;
-      }
+    const data = await res.json();
+
+    if (data.success && data.verified) {
       isVerified = true;
-    } catch (err) {
-      console.error('[Supabase OTP Verify Error]', err);
-      showToast('Terjadi kesalahan saat memverifikasi OTP ke cloud server.', 'error');
+    } else {
+      showToast(`Kode OTP salah atau telah kadaluarsa: ${data.error || 'Coba periksa kembali'}`, 'error');
       return;
     }
-  } else {
-    showToast('Koneksi Supabase tidak terhubung. Tidak dapat memverifikasi OTP cloud.', 'error');
+  } catch (err) {
+    console.error('[Verify OTP Error]', err);
+    showToast('Gagal menghubungi server verifikasi OTP.', 'error');
     return;
   }
 
