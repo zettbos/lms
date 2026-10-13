@@ -832,15 +832,15 @@ function renderAdminCurriculum() {
   AppState.modules.sort((a, b) => a.orderIndex - b.orderIndex).forEach(mod => {
     const opt = document.createElement('option');
     opt.value = mod.id;
-    const statusText = mod.isDraft ? '🟡 [DRAFT]' : '🟢 [LIVE]';
+    const statusText = mod.isDraft ? '[DRAFT] ' : '';
     const pinText = mod.isPinned ? '📌 ' : '';
-    opt.textContent = `${pinText}${statusText} ${mod.badge || 'MODUL'}: ${mod.title}`;
+    opt.textContent = `${pinText}${statusText}${mod.badge || 'MODUL'}: ${mod.title}`;
     moduleSelect.appendChild(opt);
 
     if (moduleMoveSelect) {
       const moveOpt = document.createElement('option');
       moveOpt.value = mod.id;
-      moveOpt.textContent = `${pinText}${statusText} ${mod.title}`;
+      moveOpt.textContent = `${pinText}${statusText}${mod.title}`;
       moduleMoveSelect.appendChild(moveOpt);
     }
   });
@@ -857,11 +857,11 @@ function renderAdminCurriculum() {
     const curMod = AppState.modules.find(m => m.id === AppState.adminSelectedModuleId);
     if (curMod && curMod.isPinned) {
       pinBtn.innerHTML = '📌 Pinned';
-      pinBtn.className = 'text-[11px] text-amber-300 bg-amber-500/20 hover:bg-amber-500/30 font-bold px-1.5 py-0.5 rounded transition-colors flex items-center gap-0.5 border border-amber-500/40';
+      pinBtn.className = 'btn-micro-action bg-amber-500/20 text-amber-300 font-bold border-amber-500/40';
       pinBtn.title = 'Modul ini disematkan di Beranda. Klik untuk melepas sematan.';
     } else {
       pinBtn.innerHTML = '📌 Pin';
-      pinBtn.className = 'text-[11px] text-amber-400 hover:text-amber-300 font-semibold px-1 py-0.5 rounded hover:bg-amber-950/60 transition-colors flex items-center gap-0.5';
+      pinBtn.className = 'btn-micro-action bg-amber-500/15 text-amber-300 border-amber-500/30 hover:bg-amber-500/25 flex items-center gap-0.5';
       pinBtn.title = 'Sematkan modul ini di bagian atas Beranda';
     }
   }
@@ -890,8 +890,8 @@ function renderLessonsForSelectedModule() {
   modLessons.sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0)).forEach(les => {
     const opt = document.createElement('option');
     opt.value = les.id;
-    const statusText = les.isDraft ? '🟡 [DRAFT]' : '🟢 [LIVE]';
-    opt.textContent = `${statusText} ${les.title}`;
+    const statusText = les.isDraft ? '[DRAFT] ' : '';
+    opt.textContent = `${statusText}${les.title}`;
     lessonSelect.appendChild(opt);
   });
 

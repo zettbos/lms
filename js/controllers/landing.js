@@ -6,36 +6,8 @@
 let landingActiveModuleId = 'mod-1';
 
 function getModuleMicroTags(mod) {
-  const cat = mod.category || 'ai';
-  if (cat === 'gas') {
-    return [
-      { label: 'GAS API', icon: 'sparkles' },
-      { label: 'Sheets DB', icon: 'folder' },
-      { label: 'Free Tier', icon: 'code' }
-    ];
-  } else if (cat === 'ai') {
-    return [
-      { label: 'Web App AI', icon: 'code' },
-      { label: 'AI Workflow', icon: 'sparkles' },
-      { label: 'Zero Syntax', icon: 'play' }
-    ];
-  } else if (cat === 'webhook') {
-    return [
-      { label: 'Webhook API', icon: 'code' },
-      { label: 'Auto Sync', icon: 'sparkles' },
-      { label: 'Real-time', icon: 'folder' }
-    ];
-  } else if (cat === 'cloud') {
-    return [
-      { label: 'Cloud Deploy', icon: 'folder' },
-      { label: 'Production', icon: 'sparkles' },
-      { label: 'SSL Auto', icon: 'code' }
-    ];
-  }
-  return [
-    { label: 'Tutorial AI', icon: 'code' },
-    { label: 'Studi Kasus', icon: 'sparkles' }
-  ];
+  // Purged for clean visual hierarchy (Revisi 47)
+  return [];
 }
 
 function renderLandingCurriculumBento(activeModuleId) {
@@ -148,15 +120,17 @@ function renderLandingCurriculumBento(activeModuleId) {
           ${escapeHtml(activeMod.description || 'Pelajari materi terstruktur ini dengan studi kasus langsung.')}
         </p>
 
-        <!-- Micro-Tag Chips -->
-        <div class="flex flex-wrap items-center gap-2 mb-5">
-          ${microTags.map(tag => `
-            <span class="micro-tag-pill">
-              ${getMonolineSvgIcon(tag.icon, 'w-3 h-3 text-emerald-400')}
-              <span>${escapeHtml(tag.label)}</span>
-            </span>
-          `).join('')}
-        </div>
+        <!-- Micro-Tag Chips (Render only if present) -->
+        ${microTags && microTags.length > 0 ? `
+          <div class="flex flex-wrap items-center gap-2 mb-5">
+            ${microTags.map(tag => `
+              <span class="micro-tag-pill">
+                ${getMonolineSvgIcon(tag.icon, 'w-3 h-3 text-emerald-400')}
+                <span>${escapeHtml(tag.label)}</span>
+              </span>
+            `).join('')}
+          </div>
+        ` : ''}
 
         <!-- Lessons Syllabus List -->
         <div class="text-[10px] font-bold text-slate-400 uppercase tracking-caps mb-2 flex items-center justify-between">
@@ -382,6 +356,7 @@ function renderLandingFromCms() {
 
   // Auto-center hero overlap banner dynamically like referensi.html
   initHeroBannerOverlapCentering();
+  if (typeof initLandingScrollSpy === 'function') initLandingScrollSpy();
 }
 
 const HeroTypewriterController = {
@@ -586,6 +561,40 @@ function initHeroBannerOverlapCentering() {
   centerBanner();
 }
 
+// Smooth Landing Scroll-Spy Navigation (Revisi 47)
+function initLandingScrollSpy() {
+  const sections = document.querySelectorAll('#view-landing section[id]');
+  const navLinks = document.querySelectorAll('header.fixed nav a');
+  if (!sections.length || !navLinks.length) return;
+
+  const onScroll = () => {
+    let currentId = '';
+    const scrollPos = window.scrollY + 160;
+
+    sections.forEach(sec => {
+      const top = sec.offsetTop;
+      const height = sec.offsetHeight;
+      if (scrollPos >= top && scrollPos < top + height) {
+        currentId = sec.getAttribute('id');
+      }
+    });
+
+    navLinks.forEach(link => {
+      const href = link.getAttribute('href');
+      if (href === '#' + currentId) {
+        link.classList.add('text-emerald-400', 'font-bold');
+        link.classList.remove('text-slate-300');
+      } else {
+        link.classList.remove('text-emerald-400', 'font-bold');
+        link.classList.add('text-slate-300');
+      }
+    });
+  };
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+}
+
 // Window bindings
 window.getModuleMicroTags = getModuleMicroTags;
 window.renderLandingCurriculumBento = renderLandingCurriculumBento;
@@ -594,4 +603,5 @@ window.handleLandingEmailSubmit = handleLandingEmailSubmit;
 window.renderLandingFromCms = renderLandingFromCms;
 window.HeroTypewriterController = HeroTypewriterController;
 window.initHeroBannerOverlapCentering = initHeroBannerOverlapCentering;
+window.initLandingScrollSpy = initLandingScrollSpy;
 

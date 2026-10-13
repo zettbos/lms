@@ -2215,3 +2215,145 @@ html.light #lesson-blocks-root .bg-emerald-950\/30 {
   color: #065F46 !important;
 }
 
+/* ==========================================================================
+   REVISI 47: DESKTOP PUSH SIDEBAR, MICRO-TOOLBAR & UX TRANSITION SYSTEM
+   ========================================================================== */
+
+/* 1. Global Smooth Scroll & Scroll Padding */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5.5rem;
+}
+
+/* 2. Micro Action Button for Admin Curriculum Toolbar */
+.btn-micro-action {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 7px;
+  border-width: 1px;
+  border-style: solid;
+  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  line-height: 1.25;
+}
+.btn-micro-action:hover {
+  transform: translateY(-1px);
+}
+.btn-micro-action:active {
+  transform: translateY(0);
+}
+
+/* Light Mode Overrides for Micro Action Buttons */
+html.light .btn-micro-action.bg-slate-800 {
+  background-color: #F1F5F9 !important;
+  color: #334155 !important;
+  border-color: #CBD5E1 !important;
+}
+html.light .btn-micro-action.bg-slate-800:hover {
+  background-color: #E2E8F0 !important;
+  color: #0F172A !important;
+}
+html.light .btn-micro-action.bg-emerald-500\/15 {
+  background-color: #ECFDF5 !important;
+  color: #059669 !important;
+  border-color: #A7F3D0 !important;
+}
+html.light .btn-micro-action.bg-cyan-500\/15 {
+  background-color: #ECFEFF !important;
+  color: #0891B2 !important;
+  border-color: #A5F3FC !important;
+}
+html.light .btn-micro-action.bg-amber-500\/15,
+html.light .btn-micro-action.bg-amber-500\/20 {
+  background-color: #FFFBEB !important;
+  color: #D97706 !important;
+  border-color: #FDE68A !important;
+}
+html.light .btn-micro-action.bg-purple-500\/15 {
+  background-color: #FAF5FF !important;
+  color: #9333EA !important;
+  border-color: #E9D5FF !important;
+}
+html.light .btn-micro-action.bg-rose-500\/15 {
+  background-color: #FFF1F2 !important;
+  color: #E11D48 !important;
+  border-color: #FECDD3 !important;
+}
+
+/* 3. Soft Page Transition Micro-Animation */
+@keyframes pageEnterFade {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-page-enter {
+  animation: pageEnterFade 240ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: opacity, transform;
+}
+
+/* 4. Desktop Persistent Push Sidebar Architecture (≥ 1024px) */
+@media (min-width: 1024px) {
+  /* Overlay is strictly hidden on desktop */
+  #sidebar-drawer-overlay {
+    display: none !important;
+  }
+
+  /* Default closed state */
+  #sidebar-drawer {
+    position: fixed !important;
+    top: 3.5rem !important; /* Under main header */
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 18rem !important; /* 288px */
+    z-index: 40 !important;
+    transform: translateX(-100%);
+    transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.25) !important;
+  }
+
+  /* When desktop sidebar is expanded (push active) */
+  body.sidebar-desktop-open #sidebar-drawer {
+    display: flex !important;
+    transform: translateX(0) !important;
+  }
+
+  /* Push and resize main content views to the right */
+  body.sidebar-desktop-open main[id^="view-"] {
+    margin-left: 18rem !important;
+    width: calc(100% - 18rem) !important;
+    max-width: calc(100% - 18rem) !important;
+    transition: margin-left 300ms cubic-bezier(0.16, 1, 0.3, 1), width 300ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+
+  /* When collapsed: fluidly expand to full width */
+  body:not(.sidebar-desktop-open) main[id^="view-"] {
+    margin-left: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    transition: margin-left 300ms cubic-bezier(0.16, 1, 0.3, 1), width 300ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+}
+
+/* Light mode adjustments for persistent desktop drawer */
+html.light #sidebar-drawer {
+  background-color: #FFFFFF !important;
+  border-right: 1px solid #E2E8F0 !important;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* 5. Physical Micro-Elevation on Hover */
+.glass-card,
+.testimonial-card,
+.bento-tab-active {
+  transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 180ms cubic-bezier(0.16, 1, 0.3, 1), border-color 180ms ease !important;
+}
+

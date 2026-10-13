@@ -1,94 +1,110 @@
-# ZETTBOS MEMBER HUB - DOKUMEN REVISI AKTIF (REVISI 46)
+# ZETTBOS MEMBER HUB - DOKUMEN REVISI AKTIF (REVISI 47)
 ================================================================================
-STATUS: SUKSES DITERAPKAN (REVISI 46 SELESAI)
+STATUS: SUKSES DITERAPKAN (REVISI 47 SELESAI)
 ARSITEK SISTEM: ZettBOT by Zettbos (Universal Product Architect & Lead Engineering Mentor)
 FOKUS REVISI:
-  1. LIGHT MODE FIX: MINI PROGRESS WIDGET DI WELCOME BAR BERANDA (GAMBAR 1)
-  2. ELIMINASI DATA DUMMY HARDCODE: KALENDER BELAJAR BULANAN DASHBOARD (GAMBAR 2)
-  3. FIX CODE SNIPPET FAVORIT & RE-STYLING LIGHT MODE ITEM TERSIMPAN (GAMBAR 3)
-  4. HAPUS INPUT YOUTUBE UNLISTED & FIX WARNA LIGHT MODE EDITOR NOTION (GAMBAR 4)
-  5. STICKY SCROLLING UNTUK LIVE PREVIEW EDITOR DI ADMIN (GAMBAR 5)
+  1. PERAPIHAN TOOLBAR KURIKULUM & HAPUS BULETAN HIJAU LIVE (GAMBAR 1)
+  2. DESKTOP PUSH SIDEBAR: DOCKED & SHIFT KONTEN DI LAPTOP (GAMBAR 2)
+  3. HAPUS SUB-TEKS "WEB APP AI ACADEMY" DI LOGO NAVBAR (GAMBAR 3)
+  4. INTEGRASI TOMBOL "JOIN KELAS" MENUJU LYNK.ID (GAMBAR 4)
+  5. HAPUS CHIP PILL TAG "TUTORIAL AI" & "STUDI KASUS" (GAMBAR 5)
+  6. UPGRADE SISTEM UX: FLUID PAGE TRANSITIONS & SCROLL REVEAL (SARAN ARSITEK)
 ================================================================================
 
 ## 1. DETAIL ANALISIS MASALAH & RENCANA SOLUSI TEKNIS:
 
-### A. Gambar 1: Light Mode Glitch Mini Progress Widget di Beranda
-- **Masalah**: Kotak mini progress di bar sambutan Beranda memiliki kelas `bg-slate-950/70 border-slate-800/80` yang menjadikannya blok hitam gelap kotor di tengah-tengah banner putih saat Light Mode, dengan teks `text-slate-400` yang sulit dibaca (kontras rendah).
+### A. Gambar 1: Perapihan Toolbar Kurikulum & Hapus Buletan Hijau `🟢 [LIVE]`
+- **Masalah**:
+  1. Deretan tombol aksi di atas dropdown modul (`+ Modul`, `Edit`, `Hapus`, `Pinned`, `Sync`, `Rapikan ID`) tampil bertumpuk tidak beraturan seperti link teks biasa yang berdesakan.
+  2. Dropdown modul dan materi memuat emoji `🟢 [LIVE]` yang mengotori teks judul materi dan dianggap berlebihan ("gapenting").
 - **Solusi Teknis**:
-  * Menambahkan class `.dash-progress-mini-card` pada widget tersebut.
-  * Menambahkan styling CSS khusus `html.light .dash-progress-mini-card`:
-    - Latar belakang: `#F8FAFC` (slate alabaster bersih).
-    - Border: `#E2E8F0` dengan shadow halus.
-    - Teks: label abu-abu tegas `#64748B`, angka progress emerald `#059669`.
-    - Track progress bar: `#E2E8F0` dan tombol Detail cyan `#0891B2` yang kontras dan elegan.
+  * Desain Ulang Toolbar Admin:
+    - Membuat **Segmented Micro-Toolbar** dengan tombol-tombol berdesain chip modern (tinggi seragam, border terdefinisi, ikon SVG monoline, dan hover feedback).
+    - Memisahkan aksi Primer (`+ Modul` / `+ Materi`), aksi CRUD (`Edit`, `Hapus`, `Pin`), dan utilitas Cloud (`Sync`, `Rapikan ID`) secara rapi dan simetris.
+  * Hapus Embel-embel `🟢 [LIVE]`:
+    - Di `js/controllers/admin.js`, hilangkan `🟢 [LIVE]` dari pemformatan dropdown modul dan pelajaran. Jika materi bertatus draft, cukup tampilkan `[DRAFT]`. Jika materi sudah dipublikasikan, tampilkan bersih: `MODUL 01: Judul Modul` dan `EP0: Judul Materi`.
 
 ---
 
-### B. Gambar 2: Data Dummy Hardcode di Kalender Belajar Bulanan
-- **Masalah**: Pada `renderMonthlyLearningCalendar()` di `js/controllers/classroom.js` baris 686, terdapat fallback array tanggal statis yang di-hardcode:
-  `['2026-10-02', '2026-10-04', '2026-10-07', '2026-10-09', '2026-10-11', '2026-10-12']` serta `isToday = (day === 12)`. Akibatnya, kalender selalu menampilkan 6 hari belajar aktif buatan (fake data) meskipun pengguna belum belajar.
+### B. Gambar 2: Desktop Push Sidebar (Docked & Fluid Content Shift di Layar Laptop)
+- **Masalah**:
+  Sidebar menu saat ini selalu berperilaku sebagai modal drawer popup dengan backdrop hitam pekat (`bg-black/60`) yang menutup layar penuh di laptop/desktop, menghalangi pandangan pengguna ke konten utama.
 - **Solusi Teknis**:
-  * Menghapus array fallback statis tersebut dan menggantinya murni dengan data aktivitas riil pengguna:
-    `let studiedDates = (userActivity && Array.isArray(userActivity.studiedDates)) ? userActivity.studiedDates : [];`
-  * Menghitung tanggal hari ini secara dinamis menggunakan `new Date()`.
-  * Jika belum ada aktivitas, kalender akan bersih (0 Hari Belajar Bulan Ini) tanpa tanda centang hijau palsu.
+  * Menerapkan pola **Push / Persistent Desktop Sidebar** (standar Notion / Linear / Raycast):
+    - Pada layar laptop/desktop (`lg:` / `>= 1024px`):
+      1. Sidebar otomatis terbuka di sisi kiri (`w-72` / `288px`), menempel di bawah navbar atau full-height docked.
+      2. Backdrop overlay hitam **dinonaktifkan** (`lg:hidden`), sehingga layar utama tetap terlihat jernih dan interaktif.
+      3. Konten halaman utama (`main` views) otomatis bergeser dan menyesuaikan lebar (`lg:pl-72` atau transisi margin fluid).
+      4. Tombol hamburger di navbar berfungsi sebagai toggle collapse/expand: jika ditutup, sidebar meluncur keluar layar (`-translate-x-full`) dan konten utama melebar penuh secara dinamis (`pl-0`).
+    - Pada layar mobile (`< 1024px`):
+      Tetap berperilaku sebagai drawer overlay dengan backdrop blur agar nyaman dioperasikan satu tangan pada smartphone.
 
 ---
 
-### C. Gambar 3: Code Snippet Pecah di Favorit & Warna Light Mode Item Tersimpan
-- **Masalah 1 (Code Snippet Rusak)**: Pada `renderFavorites()` di `js/controllers/classroom.js` baris 1389, atribut inline:
-  `onclick="navigator.clipboard.writeText(${JSON.stringify(item.content)})..."`
-  menggunakan kutip dua di dalam kutip dua. Kutip pada `JSON.stringify` langsung menutup atribut `onclick`, menyebabkan sisa kode JavaScript dan tombol HTML tumpah ke layar sebagai teks mentah (`antigravity-ide > projek").then(() => ...`).
-- **Masalah 2 (Badge Light Mode)**: Badge `"ITEM TERSIMPAN"` (`bg-amber-950/80`) dan tag `"SNIPPET JAVASCRIPT"` berlatar gelap pekat di Light Mode.
+### C. Gambar 3: Hapus Sub-Teks "Web App AI Academy" di Logo Header
+- **Masalah**:
+  Di samping logo `ZB ZETTBOS MEMBER HUB`, terdapat baris teks kecil kedua: `WEB APP AI ACADEMY` yang membuat header terlihat penuh dan ingin dihilangkan oleh pengguna.
 - **Solusi Teknis**:
-  * Membuat fungsi global yang aman: `window.copyFavoriteSnippet(favId)` untuk menyalin kode tanpa string escaping di markup HTML. Tombol salin cukup memanggil `onclick="copyFavoriteSnippet('${item.id}')"`.
-  * Menambahkan CSS Light Mode untuk `#view-favorites`:
-    - Badge `"ITEM TERSIMPAN"`: latar `#FEF3C7`, teks `#92400E`, border `#FDE68A`.
-    - Tag Snippet: latar `#F3E8FF`, teks `#7E22CE`, border `#DDD6FE`.
-    - Pre code block: border rapi `#E2E8F0`, teks emerald `#059669` pada background terminal yang bersih.
+  * Menghapus elemen `<span class="hidden sm:block text-[10px] text-slate-400 tracking-caps uppercase -mt-0.5 whitespace-nowrap">Web App AI Academy</span>` pada header navbar di `index.html` (baris ~75).
+  * Brand logo kini tampil minimalis, tegas, dan eksklusif: `ZB ZETTBOS` dengan badge emerald `MEMBER HUB`.
 
 ---
 
-### D. Gambar 4: Hapus Input YouTube Unlisted & Warna Light Mode Editor Notion
-- **Masalah 1**: Kolom input standalone *"Link URL Video YouTube Unlisted (Video Pembelajaran)"* sudah tidak diperlukan karena admin memasukkan video langsung sebagai blok modular di konten materi.
-- **Masalah 2 (Warna Light Mode Editor)**: Blok editor (Heading 1, Teks Normal, Blok Kode) berlatar gelap (`bg-slate-900/60`, dropdown `bg-slate-950`) sehingga terlihat kotor dan bertabrakan dengan background putih di Light Mode.
+### D. Gambar 4: Tombol "Join Kelas" Otomatis ke Link Lynk.id
+- **Masalah**:
+  Pengguna menginginkan tombol aksi langsung bagi calon siswa untuk join/membeli kelas yang langsung mengarahkan ke link registrasi:
+  `https://lynk.id/zettbos/50nxdkpjmowm`
 - **Solusi Teknis**:
-  * Menghapus kolom input `#admin-edit-youtube` dari grid di `index.html`.
-  * Menyesuaikan `js/controllers/admin.js` agar tidak mewajibkan/membaca field tersebut.
-  * Menambahkan CSS Light Mode khusus untuk `#notion-editor-root`:
-    - Kartu blok: latar belakang putih `#FFFFFF`, border halus `#E2E8F0`, shadow ringan ala Notion.
-    - Dropdown tipe blok & format bar: latar `#F8FAFC`, border `#CBD5E1`, teks pekat `#0F172A`.
-    - Input & Textarea editor: teks hitam pekat `#0F172A`, placeholder abu-abu `#94A3B8`.
-    - Blok kode di editor: kontras terminal bersih `#0F172A` dengan teks kode emerald `#059669`.
+  * Menambahkan tombol CTA **"Join Kelas Sekarang"**:
+    1. **Di Floating Pill Navbar Landing**: Tombol utama `Join Kelas →` bergradien emerald dengan link langsung ke `https://lynk.id/zettbos/50nxdkpjmowm` (target `_blank`), bersanding elegan dengan tombol sekunder `Masuk Member`.
+    2. **Di Hero Section Landing**: Tombol aksi prominent di samping/bawah formulir email dengan teks `Daftar & Join Kelas (Lynk.id) →` agar pengunjung yang siap mendaftar tidak perlu melalui tahapan berbelit.
 
 ---
 
-### E. Gambar 5: Sticky Scrolling untuk Live Preview di Admin Editor
-- **Masalah**: Saat admin membuat materi panjang dengan banyak blok ke bawah, panel *"LIVE PREVIEW (TAMPILAN SISWA)"* di sebelah kanan tertinggal di atas layar, sehingga admin harus scroll jauh ke atas untuk mengecek preview.
+### E. Gambar 5: Hapus Chip Pill Tag "Tutorial AI" & "Studi Kasus"
+- **Masalah**:
+  Pada kartu preview bento kurikulum di halaman depan, muncul tag buatan seperti `</> Tutorial AI` dan `✨ Studi Kasus` yang tidak diinginkan oleh pengguna.
 - **Solusi Teknis**:
-  * Mengatur kolom Live Preview di `index.html` menjadi **Sticky Column**:
-    `class="lg:sticky lg:top-20 self-start"`
-  * Memberikan batasan tinggi adaptif viewport dengan scroll mandiri:
-    `max-h-[calc(100vh-140px)] overflow-y-auto custom-scrollbar`
-  * Hasil: Saat admin scroll ke bawah menambahkan blok sebanyak apa pun, panel Live Preview akan selalu menempel di sisi kanan layar dan otomatis menampilkan pembaruan secara real-time!
+  * Di `js/controllers/landing.js`:
+    - Mengosongkan kembalian tag di fungsi `getModuleMicroTags()`.
+    - Menghilangkan container render chip tag `<div class="flex flex-wrap items-center gap-2 mb-5">` di `renderLandingCurriculumBento()`.
+    - Kartu modul kini langsung menampilkan judul, deskripsi, dan silabus materi secara bersih tanpa noise visual tag palsu.
+
+---
+
+### F. Saran Arsitektur UX Premium (Transisi Menu, Perpindahan Section, dan Scroll Halus)
+Pengguna meminta rekomendasi untuk membuat UX website terasa hidup, menarik, dan elegan. Berikut rancangan sistem UX kelas dunia yang akan kita terapkan:
+1. **View Transition Micro-Animation (`.animate-page-enter`)**:
+   - Setiap kali user berpindah halaman (`navigate('home')`, `navigate('learn')`, `navigate('dashboard')`, dll.), halaman baru akan masuk dengan efek *soft entrance fade-and-rise* (`opacity: 0 -> 1`, `translateY(8px) -> 0`, durasi 240ms). Perpindahan antar menu terasa instan namun selembut aplikasi desktop Apple/Linear.
+2. **Smooth Kinetic Scroll & Scroll-Padding**:
+   - Menambahkan `html { scroll-behavior: smooth; scroll-padding-top: 5.5rem; }` agar saat pengguna mengklik menu anchor di navbar (misal: *Kurikulum Modul*, *Testimoni*), scroll meluncur halus dan berhenti tepat di atas judul tanpa tertabrak floating navbar.
+3. **Scroll-Spy Active Navigation**:
+   - Menambahkan event listener scroll cerdas di `js/controllers/landing.js` yang secara otomatis menandai link menu di navbar (Beranda, Kurikulum Modul, Target Siswa, Testimoni) sesuai section yang sedang berada di layar pengguna.
+4. **Interactive Card Micro-Elevation**:
+   - Memberikan transisi hover fisik halus (`transform: translateY(-2px); box-shadow: ...`) pada seluruh kartu kurikulum dan modul tanpa efek neon berlebihan ("Anti-AI Slop Compliant").
 
 ---
 
 ## 2. FILE YANG AKAN DIUBAH:
 1. `index.html`:
-   - Tambah class `.dash-progress-mini-card` pada mini progress widget.
-   - Hapus field input YouTube Unlisted di editor kurikulum admin.
-   - Pasang sticky wrapper pada Live Preview (`lg:sticky lg:top-20 self-start`).
-   - Bump cache buster ke `?v=46`.
+   - Redesain toolbar admin di Tier 1 & Tier 2 kurikulum.
+   - Hapus sub-teks `Web App AI Academy` di navbar brand.
+   - Tambahkan tombol `Join Kelas` (link Lynk.id) di navbar landing & hero section.
+   - Konfigurasi wrapper desktop push layout untuk `#sidebar-drawer` dan kontainer konten utama.
+   - Bump cache buster ke `?v=47`.
 2. `css/style.css`:
-   - Light mode styles untuk `.dash-progress-mini-card`.
-   - Light mode styles untuk `#view-favorites` (badge Item Tersimpan & snippet tags).
-   - Light mode styles untuk `#notion-editor-root` (Notion block editor, inputs, selects, & live preview container).
-3. `js/controllers/classroom.js`:
-   - Hapus array tanggal dummy statis di `renderMonthlyLearningCalendar()` & gunakan tanggal dinamis real-time.
-   - Buat fungsi `copyFavoriteSnippet()` dan perbaiki render snippet di `renderFavorites()`.
-4. `js/controllers/admin.js`:
-   - Hilangkan ketergantungan pada `#admin-edit-youtube`.
+   - Aturan layout desktop push sidebar (`lg:pl-72`, transition fluid).
+   - Keyframe dan utility class `.animate-page-enter` untuk transisi halaman lembut.
+   - Styling segmented micro-toolbar kurikulum admin.
+   - Smooth scroll behavior & scroll-padding-top.
+3. `js/controllers/admin.js`:
+   - Hapus karakter `🟢 [LIVE]` pada generate option select modul dan pelajaran.
+4. `js/controllers/landing.js`:
+   - Hapus micro-tag pills `Tutorial AI` & `Studi Kasus`.
+   - Tambahkan scroll-spy active state untuk navigasi landing.
+5. `js/core/router.js`:
+   - Integrasikan animasi `.animate-page-enter` saat view berganti.
+   - Sesuaikan fungsi toggle sidebar untuk desktop push layout & mobile drawer.
 
 ================================================================================
 PANDUAN EKSEKUSI: TUNGGU INSTRUKSI "OKE TERAPKAN" DARI PENGGUNA SEBELUM MENGUBAH KODE

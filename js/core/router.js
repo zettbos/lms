@@ -4,30 +4,61 @@
  */
 
 function toggleSidebarDrawer() {
-  const drawer = document.getElementById('sidebar-drawer');
-  const overlay = document.getElementById('sidebar-drawer-overlay');
-  if (!drawer) return;
-  const isHidden = drawer.classList.contains('hidden');
-  if (isHidden) {
-    openSidebarDrawer();
+  const isDesktop = window.innerWidth >= 1024;
+  if (isDesktop) {
+    const isExpanded = document.body.classList.contains('sidebar-desktop-open');
+    if (isExpanded) {
+      document.body.classList.remove('sidebar-desktop-open');
+      localStorage.setItem('sidebar_desktop_collapsed', '1');
+    } else {
+      document.body.classList.add('sidebar-desktop-open');
+      localStorage.setItem('sidebar_desktop_collapsed', '0');
+    }
   } else {
-    closeSidebarDrawer();
+    const drawer = document.getElementById('sidebar-drawer');
+    const overlay = document.getElementById('sidebar-drawer-overlay');
+    if (!drawer) return;
+    const isHidden = drawer.classList.contains('hidden');
+    if (isHidden) {
+      openSidebarDrawer();
+    } else {
+      closeSidebarDrawer();
+    }
   }
 }
 
 function openSidebarDrawer() {
-  const drawer = document.getElementById('sidebar-drawer');
-  const overlay = document.getElementById('sidebar-drawer-overlay');
-  if (drawer) drawer.classList.remove('hidden');
-  if (overlay) overlay.classList.remove('hidden');
+  const isDesktop = window.innerWidth >= 1024;
+  if (isDesktop) {
+    document.body.classList.add('sidebar-desktop-open');
+    localStorage.setItem('sidebar_desktop_collapsed', '0');
+  } else {
+    const drawer = document.getElementById('sidebar-drawer');
+    const overlay = document.getElementById('sidebar-drawer-overlay');
+    if (drawer) drawer.classList.remove('hidden');
+    if (overlay) overlay.classList.remove('hidden');
+  }
   updateDrawerState();
 }
 
 function closeSidebarDrawer() {
-  const drawer = document.getElementById('sidebar-drawer');
-  const overlay = document.getElementById('sidebar-drawer-overlay');
-  if (drawer) drawer.classList.add('hidden');
-  if (overlay) overlay.classList.add('hidden');
+  const isDesktop = window.innerWidth >= 1024;
+  if (isDesktop) {
+    document.body.classList.remove('sidebar-desktop-open');
+    localStorage.setItem('sidebar_desktop_collapsed', '1');
+  } else {
+    const drawer = document.getElementById('sidebar-drawer');
+    const overlay = document.getElementById('sidebar-drawer-overlay');
+    if (drawer) drawer.classList.add('hidden');
+    if (overlay) overlay.classList.add('hidden');
+  }
+}
+
+function handleDrawerNavClick(viewName) {
+  navigate(viewName);
+  if (window.innerWidth < 1024) {
+    closeSidebarDrawer();
+  }
 }
 
 function updateDrawerState() {
@@ -119,7 +150,24 @@ function navigate(viewName, params = {}) {
   const targetView = document.getElementById('view-' + viewName);
   if (targetView) {
     targetView.classList.remove('hidden');
+    targetView.classList.remove('animate-page-enter');
+    void targetView.offsetWidth; // Force DOM reflow for smooth re-trigger
+    targetView.classList.add('animate-page-enter');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Manage Desktop Push Sidebar auto-docking
+  if (viewName !== 'landing' && viewName !== 'login') {
+    if (window.innerWidth >= 1024) {
+      const isCollapsed = localStorage.getItem('sidebar_desktop_collapsed') === '1';
+      if (!isCollapsed) {
+        document.body.classList.add('sidebar-desktop-open');
+      } else {
+        document.body.classList.remove('sidebar-desktop-open');
+      }
+    }
+  } else {
+    document.body.classList.remove('sidebar-desktop-open');
   }
 
   // Render view-specific content
@@ -236,6 +284,7 @@ function updateNavbarState(currentView) {
 window.toggleSidebarDrawer = toggleSidebarDrawer;
 window.openSidebarDrawer = openSidebarDrawer;
 window.closeSidebarDrawer = closeSidebarDrawer;
+window.handleDrawerNavClick = handleDrawerNavClick;
 window.updateDrawerState = updateDrawerState;
 window.navigate = navigate;
 window.updateNavbarState = updateNavbarState;

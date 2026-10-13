@@ -436,3 +436,22 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
        - Memasang sticky layout `lg:sticky lg:top-20 self-start` dan `max-h-[calc(100vh-140px)] overflow-y-auto custom-scrollbar` pada panel Live Preview siswa di editor admin.
        - Live Preview kini tetap menempel di viewport saat admin scrolling ke bawah menyusun blok materi panjang.
     6. Cache Buster: Menaikkan seluruh query string script dan stylesheet di `index.html` ke versi `?v=46`.
+  - [2026-10-13] Implementasi Revisi 47: Segmented Micro-Toolbar Kurikulum, Desktop Push Sidebar, Pembersihan Teks Navbar, Tombol Join Kelas Lynk.id, Eliminasi Chip Tag, & Sistem UX Transition.
+    1. Segmented Micro-Toolbar Kurikulum & Hapus `🟢 [LIVE]` (`index.html`, `js/controllers/admin.js`, `css/style.css`):
+       - Menata ulang tombol aksi modul dan materi di panel admin menggunakan class `.btn-micro-action` yang seragam, rapi, dan simetris (Emerald untuk Tambah, Slate untuk Edit, Rose untuk Hapus, Amber untuk Pin, Cyan untuk Sync, Purple untuk Rapikan ID).
+       - Menghapus emoji `🟢 [LIVE]` dari seluruh opsi dropdown modul dan pelajaran; hanya materi berstatus draft yang menampilkan penanda `[DRAFT]`.
+    2. Desktop Push Sidebar Architecture (`index.html`, `js/core/router.js`, `css/style.css`):
+       - Menerapkan docked push sidebar pada layar laptop/desktop (`lg:` / `≥ 1024px`) di mana sidebar otomatis terbuka tanpa backdrop gelap penutup layar (`#sidebar-drawer-overlay` disembunyikan di desktop via `lg:hidden`).
+       - Konten utama otomatis bergeser ke kanan (`lg:pl-72`) dan menyesuaikan ukurannya secara fluid.
+       - Tombol hamburger dapat diklik untuk menyembunyikan/menampilkan sidebar dengan transisi animasi halus (`300ms cubic-bezier(0.16, 1, 0.3, 1)`). Status persistensi disimpan di `localStorage` (`sidebar_desktop_collapsed`).
+    3. Hapus Sub-Teks "Web App AI Academy" (`index.html`):
+       - Menghapus baris teks penjelas di samping brand logo header, menghasilkan logo yang bersih dan ringkas: `ZB ZETTBOS` + badge `MEMBER HUB`.
+    4. Integrasi Tombol "Join Kelas" Otomatis ke Lynk.id (`index.html`):
+       - Memasang tombol CTA prominent "Join Kelas" yang langsung mengarah ke `https://lynk.id/zettbos/50nxdkpjmowm` pada floating pill navbar dan hero section landing page.
+    5. Eliminasi Chip Tag "Tutorial AI" & "Studi Kasus" (`js/controllers/landing.js`):
+       - Mengosongkan kembalian `getModuleMicroTags()` dan meniadakan rendering tag pill palsu pada kartu preview bento kurikulum di halaman depan.
+    6. Sistem UX Premium & Animasi Transisi (`js/core/router.js`, `js/controllers/landing.js`, `css/style.css`):
+       - Menerapkan `.animate-page-enter` pada setiap perpindahan view via `navigate()` untuk transisi *soft entrance fade-and-rise* (durasi 240ms).
+       - Mengaktifkan `scroll-behavior: smooth` dan `scroll-padding-top: 5.5rem` serta Scroll-Spy otomatis pada navbar landing page.
+       - Cache buster seluruh skrip & CSS dinaikkan ke versi `?v=47`.
+
