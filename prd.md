@@ -1,8 +1,8 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 # Projek: Zettbos LMS (Member Hub & Notion-Style Learning Management System)
 ================================================================================
-VERSI DOKUMEN : v1.2.4
-STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 53 SELESAI)
+VERSI DOKUMEN : v1.2.5
+STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 54 SELESAI)
 ARSITEK SISTEM: ZettBOT by Zettbos
 ENGINE STACK  : Next.js 14+ (App Router) + Supabase (Postgres & Auth OTP) + Vercel
 ================================================================================
@@ -558,4 +558,21 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
         - Kartu fasilitas pada panel CMS `#admin-facilities-grid` kini menampilkan thumbnail gambar langsung saat URL gambar aktif.
         - Modal edit fasilitas `#modal-edit-facility` dilengkapi pratinjau real-time saat link Google Drive atau direct web URL dimasukkan.
      5. Cache Buster: Menaikkan seluruh query string script dan stylesheet di `index.html` ke versi `?v=53`.
+  - [2026-10-14] Implementasi Revisi 54: Peningkatan Proporsi Kartu Fasilitas Menjadi Lebih Tinggi & Gendut (Plump & Roomy), Keseimbangan 3 Baris Sejajar Penuh dengan Smartphone Mockup, serta Sinkronisasi Otomatis Cloud Supabase Real-Time untuk Seluruh CMS.
+     1. Proporsi Kartu Fasilitas Lebih Gendut & Leluasa (`index.html`, `js/controllers/landing.js`, `css/style.css`):
+        - Meningkatkan padding dalam kartu menjadi `p-5 sm:p-5.5 lg:p-6` dengan min-height `140px` (mobile), `155px` (tablet), dan `165px` s/d `175px` (desktop).
+        - Membesarkan kotak ikon menjadi `w-12 h-12 sm:w-14 sm:h-14` dengan ikon monoline SVG `w-6 h-6 sm:w-7 sm:h-7` dan sudut melengkung `rounded-2xl`.
+        - Mempertegas tipografi: judul `text-sm sm:text-base font-bold text-white`, deskripsi 2-3 baris santai `text-xs sm:text-[13px] text-slate-300 leading-relaxed`.
+     2. Keseimbangan Total Tinggi 3 Baris Kartu = Tinggi Frame Smartphone Mockup (`index.html`, `css/style.css`):
+        - Mengatur pembagian grid split showcase menggunakan `items-stretch`, dengan kontainer kartu kiri `sm:grid-rows-3 h-full` dan kartu aksi ke-6 berdimensi identik.
+        - Layar smartphone frame di kanan menggunakan `flex-1 min-h-[380px] sm:min-h-[440px]`, sehingga tinggi 3 baris kartu kiri dan tinggi HP di kanan sejajar 100% tanpa menyisakan ruang kosong hitam.
+     3. Sinkronisasi Real-Time Otomatis CMS ke Supabase Cloud (`js/core/supabase.js`, `js/controllers/admin.js`):
+        - Menambahkan fungsi `pushLandingCmsToSupabase(silent)` di Supabase Client.
+        - Menyematkan `autoPushLandingCmsIfConnected()` di setiap handler simpan & reset CMS (`hero`, `facilities`, `useCases`, `testimonials`) sehingga perubahan seketika tersimpan ke tabel cloud `landing_cms` tanpa perlu upload manual.
+     4. Auto-Pull CMS Latar Belakang untuk Seluruh Pengunjung & Member (`js/core/supabase.js`, `js/app.js`):
+        - Memasukkan query `landing_cms` ke dalam siklus startup `syncCurriculumFromCloud` yang otomatis dieksekusi saat website dibuka oleh siapa saja di dunia.
+        - Saat Admin memperbarui gambar fasilitas atau copy landing, seketika seluruh browser pengunjung menampilkan data terbaru secara instan.
+     5. Cloud Sync Action Bar & Cache Buster Bump:
+        - Menyediakan panel kendali cepat *"Sinkronisasi Cloud Real-Time CMS"* dengan tombol one-click *"Sinkronkan CMS ke Cloud Sekarang"* di bagian atas tab Admin CMS.
+        - Menaikkan seluruh query string script dan stylesheet di `index.html` ke versi `?v=54`.
 

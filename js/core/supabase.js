@@ -291,6 +291,32 @@ const ZettSupabase = {
     }
   },
 
+  async pushLandingCmsToSupabase(silent = true) {
+    if (!this.isConnected() || !AppState.landingCms) return false;
+    try {
+      const payload = {
+        id: 'active_cms',
+        hero: AppState.landingCms.hero || {},
+        facilities: AppState.landingCms.facilities || [],
+        use_cases: AppState.landingCms.useCases || [],
+        testimonials: AppState.landingCms.testimonials || [],
+        updated_at: new Date().toISOString()
+      };
+      const { error } = await this.client.from('landing_cms').upsert(payload, { onConflict: 'id' });
+      if (error) throw error;
+      if (!silent && typeof showToast === 'function') {
+        showToast('CMS Landing Page berhasil disinkronkan ke Cloud Supabase!', 'success');
+      }
+      return true;
+    } catch (e) {
+      console.warn('[ZettSupabase Push CMS Error]', e);
+      if (!silent && typeof showToast === 'function') {
+        showToast('Gagal upload CMS ke cloud: ' + (e.message || 'Error'), 'error');
+      }
+      return false;
+    }
+  },
+
   async syncCurriculumFromCloud(silent = true) {
     if (!this.isConnected()) return false;
     try {
@@ -410,6 +436,29 @@ const ZettSupabase = {
         hasChanges = true;
       }
 
+      // 5. Fetch Landing CMS for All Users & Public Visitors
+      try {
+        const { data: cms, error: cmsErr } = await this.client
+          .from('landing_cms')
+          .select('*')
+          .eq('id', 'active_cms')
+          .single();
+
+        if (!cmsErr && cms && cms.hero) {
+          const zData = window.ZettData || {};
+          AppState.landingCms = {
+            hero: cms.hero,
+            facilities: (Array.isArray(cms.facilities) && cms.facilities.length > 0) ? cms.facilities : (zData.SEED_LANDING_CMS?.facilities || []),
+            useCases: (Array.isArray(cms.use_cases) && cms.use_cases.length > 0) ? cms.use_cases : (zData.SEED_LANDING_CMS?.useCases || []),
+            testimonials: (Array.isArray(cms.testimonials) && cms.testimonials.length > 0) ? cms.testimonials : (zData.SEED_LANDING_CMS?.testimonials || [])
+          };
+          localStorage.setItem('zett_landing_cms', JSON.stringify(AppState.landingCms));
+          hasChanges = true;
+        }
+      } catch (cmsFetchErr) {
+        console.warn('[ZettSupabase Auto-Sync CMS Warning]', cmsFetchErr);
+      }
+
       if (hasChanges) {
         saveState();
         if (!silent && typeof showToast === 'function') {
@@ -426,11 +475,17 @@ const ZettSupabase = {
         else if (AppState.currentView === 'admin') {
           if (typeof renderAdminCurriculum === 'function') renderAdminCurriculum();
           if (typeof renderAdminQuickActions === 'function') renderAdminQuickActions();
+          if (typeof renderAdminLandingCms === 'function') renderAdminLandingCms();
         }
         else if (AppState.currentView === 'resources') {
           if (typeof renderResources === 'function') renderResources();
         }
-        else if (AppState.currentView === 'landing' && typeof renderLandingCurriculumBento === 'function') renderLandingCurriculumBento();
+        else if (AppState.currentView === 'landing') {
+          if (typeof renderLandingFromCms === 'function') renderLandingFromCms();
+          if (typeof renderLandingCurriculumBento === 'function') renderLandingCurriculumBento();
+          if (typeof renderLandingFacilitiesShowcase === 'function') renderLandingFacilitiesShowcase(AppState.landingCms);
+          if (typeof renderLandingUseCases === 'function') renderLandingUseCases(AppState.landingCms);
+        }
         else if (AppState.currentView === 'learn' && typeof renderLearningRoom === 'function') renderLearningRoom(AppState.currentLessonId);
       }
       return true;

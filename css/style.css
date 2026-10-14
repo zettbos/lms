@@ -2628,6 +2628,27 @@ html.light .feature-action-card {
   border-color: rgba(16, 185, 129, 0.5) !important;
 }
 
+/* Revisi 54: Plump & Balanced 3x2 Grid Facilities Matching Smartphone Mockup Height */
+.feature-interactive-card,
+.feature-action-card {
+  min-height: 135px;
+}
+
+@media (min-width: 640px) {
+  .feature-interactive-card,
+  .feature-action-card {
+    min-height: 155px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .feature-interactive-card,
+  .feature-action-card {
+    min-height: 165px;
+    height: 100%;
+  }
+}
+
 @keyframes previewFade {
   from {
     opacity: 0;

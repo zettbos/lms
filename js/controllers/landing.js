@@ -426,11 +426,11 @@ function selectLandingFacilityPreview(facilityId) {
       if (isCardActive) {
         card.classList.add('feature-card-active');
         const iconBox = card.querySelector('.feature-icon-box');
-        if (iconBox) iconBox.className = 'feature-icon-box w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center flex-shrink-0 bg-emerald-500/20 border border-emerald-500/50 text-emerald-400';
+        if (iconBox) iconBox.className = 'feature-icon-box w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center flex-shrink-0 bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.25)]';
       } else {
         card.classList.remove('feature-card-active');
         const iconBox = card.querySelector('.feature-icon-box');
-        if (iconBox) iconBox.className = 'feature-icon-box w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center flex-shrink-0 bg-slate-900 border border-slate-800 text-slate-400 group-hover:text-emerald-300';
+        if (iconBox) iconBox.className = 'feature-icon-box w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center flex-shrink-0 bg-slate-900 border border-slate-800 text-slate-400 group-hover:text-emerald-300';
       }
     });
   }
@@ -485,20 +485,20 @@ function renderLandingFacilitiesShowcase(cms) {
       <div 
         data-facility-id="${uc.id}" 
         onclick="selectLandingFacilityPreview('${uc.id}')"
-        class="feature-interactive-card glass-card rounded-2xl p-3.5 sm:p-4 border transition-all duration-300 group cursor-pointer flex flex-col justify-between ${activeClass}"
+        class="feature-interactive-card glass-card rounded-2xl p-5 sm:p-5.5 lg:p-6 border transition-all duration-300 group cursor-pointer flex flex-col justify-center min-h-[140px] sm:min-h-[155px] lg:min-h-[170px] ${activeClass}"
       >
-        <div class="flex items-start gap-3">
-          <div class="feature-icon-box w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center flex-shrink-0 transition-all ${isActive ? 'bg-emerald-500/20 border border-emerald-500/50 text-emerald-400' : 'bg-slate-900 border border-slate-800 text-slate-400 group-hover:text-emerald-300'}">
-            ${getMonolineSvgIcon(uc.icon || 'bot', 'w-5 h-5')}
+        <div class="flex items-start gap-3.5 sm:gap-4">
+          <div class="feature-icon-box w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all ${isActive ? 'bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.25)]' : 'bg-slate-900 border border-slate-800 text-slate-400 group-hover:text-emerald-300'}">
+            ${getMonolineSvgIcon(uc.icon || 'bot', 'w-6 h-6 sm:w-7 sm:h-7')}
           </div>
           <div class="min-w-0 flex-1">
-            <div class="flex items-center justify-between gap-1 mb-1">
-              <h3 class="text-xs sm:text-sm font-bold text-white group-hover:text-emerald-300 transition-colors leading-snug truncate">
+            <div class="flex items-center justify-between gap-1.5 mb-1.5">
+              <h3 class="text-sm sm:text-base font-bold text-white group-hover:text-emerald-300 transition-colors leading-snug">
                 ${escapeHtml(uc.title)}
               </h3>
-              ${isActive ? '<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>' : ''}
+              ${isActive ? '<span class="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_10px_#10B981] animate-pulse shrink-0"></span>' : ''}
             </div>
-            <p class="text-[11px] sm:text-xs text-slate-400 leading-relaxed line-clamp-3">
+            <p class="text-xs sm:text-[13px] text-slate-300 sm:text-slate-400 leading-relaxed">
               ${escapeHtml(uc.description || uc.desc || '')}
             </p>
           </div>
@@ -512,17 +512,17 @@ function renderLandingFacilitiesShowcase(cms) {
       href="https://lynk.id/zettbos/50nxdkpjmowm" 
       target="_blank" 
       rel="noopener noreferrer" 
-      class="feature-action-card rounded-2xl p-3.5 sm:p-4 border-2 border-dashed border-emerald-500/40 hover:border-emerald-400 bg-emerald-950/20 hover:bg-emerald-950/40 transition-all flex flex-col justify-between group cursor-pointer shadow-sm"
+      class="feature-action-card rounded-2xl p-5 sm:p-5.5 lg:p-6 border-2 border-dashed border-emerald-500/40 hover:border-emerald-400 bg-emerald-950/20 hover:bg-emerald-950/35 transition-all flex flex-col justify-center min-h-[140px] sm:min-h-[155px] lg:min-h-[170px] group cursor-pointer shadow-sm"
     >
-      <div class="flex items-start gap-3">
-        <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center shrink-0 text-emerald-400 group-hover:scale-105 transition-transform">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+      <div class="flex items-start gap-3.5 sm:gap-4">
+        <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center shrink-0 text-emerald-400 group-hover:scale-105 group-hover:bg-emerald-500/25 transition-all">
+          <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
         </div>
         <div class="min-w-0 flex-1">
-          <h3 class="text-xs sm:text-sm font-bold text-emerald-300 group-hover:text-emerald-200 transition-colors leading-snug">
+          <h3 class="text-sm sm:text-base font-bold text-emerald-300 group-hover:text-emerald-200 transition-colors leading-snug">
             Daftar &amp; Join Kelas Sekarang
           </h3>
-          <p class="text-[11px] sm:text-xs text-emerald-400/80 mt-1 leading-relaxed">
+          <p class="text-xs sm:text-[13px] text-emerald-400/90 mt-1.5 leading-relaxed">
             Amankan slot mentoring 1-on-1 &amp; akses ZettBOT via Lynk.id &rarr;
           </p>
         </div>

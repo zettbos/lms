@@ -211,6 +211,25 @@ function renderAdminLandingCms() {
   }
 }
 
+function autoPushLandingCmsIfConnected() {
+  if (window.ZettSupabase && typeof window.ZettSupabase.pushLandingCmsToSupabase === 'function' && window.ZettSupabase.isConnected()) {
+    window.ZettSupabase.pushLandingCmsToSupabase(true);
+  }
+}
+
+async function handleManualSyncCmsToCloud() {
+  if (!window.ZettSupabase || !window.ZettSupabase.isConnected()) {
+    showToast('Supabase belum terhubung. Periksa konfigurasi di tab Database.', 'warning');
+    return;
+  }
+  showToast('Menyinkronkan seluruh konten CMS ke Cloud Supabase...', 'info');
+  const ok = await window.ZettSupabase.pushLandingCmsToSupabase(false);
+  if (ok) {
+    showToast('CMS Landing Page berhasil dipublikasikan ke seluruh dunia via Supabase!', 'success');
+  }
+}
+window.handleManualSyncCmsToCloud = handleManualSyncCmsToCloud;
+
 function handleSaveLandingHeroCms(e) {
   if (e) e.preventDefault();
   if (!AppState.landingCms) AppState.landingCms = {};
@@ -231,6 +250,7 @@ function handleSaveLandingHeroCms(e) {
   hero.bannerDesc = document.getElementById('admin-cms-hero-bannerdesc').value.trim();
 
   saveState();
+  autoPushLandingCmsIfConnected();
   if (typeof renderLandingFromCms === 'function') renderLandingFromCms();
   if (window.HeroTypewriterController) window.HeroTypewriterController.init();
   showToast('Pengaturan Hero Banner & Typewriter berhasil disimpan!', 'success');
@@ -248,6 +268,7 @@ function resetLandingHeroToDefault() {
       if (zData.SEED_LANDING_CMS?.hero) {
         AppState.landingCms.hero = JSON.parse(JSON.stringify(zData.SEED_LANDING_CMS.hero));
         saveState();
+        autoPushLandingCmsIfConnected();
         renderAdminLandingCms();
         if (typeof renderLandingFromCms === 'function') renderLandingFromCms();
         if (window.HeroTypewriterController) window.HeroTypewriterController.init();
@@ -317,6 +338,7 @@ function handleSaveFacilitySubmit(e) {
   fac.imageUrl = imgInp ? imgInp.value.trim() : '';
 
   saveState();
+  autoPushLandingCmsIfConnected();
   closeEditFacilityModal();
   renderAdminLandingCms();
   if (typeof renderLandingFromCms === 'function') renderLandingFromCms();
@@ -335,6 +357,7 @@ function resetLandingFacilitiesToDefault() {
       if (zData.SEED_LANDING_CMS?.facilities) {
         AppState.landingCms.facilities = JSON.parse(JSON.stringify(zData.SEED_LANDING_CMS.facilities));
         saveState();
+        autoPushLandingCmsIfConnected();
         renderAdminLandingCms();
         if (typeof renderLandingFromCms === 'function') renderLandingFromCms();
         showToast('Kartu fasilitas berhasil di-reset!', 'info');
@@ -380,6 +403,7 @@ function handleSaveUseCaseSubmit(e) {
   uc.desc = descVal;
 
   saveState();
+  autoPushLandingCmsIfConnected();
   closeEditUseCaseModal();
   renderAdminLandingCms();
   if (typeof renderLandingFromCms === 'function') renderLandingFromCms();
@@ -398,6 +422,7 @@ function resetLandingUseCasesToDefault() {
       if (zData.SEED_LANDING_CMS?.useCases) {
         AppState.landingCms.useCases = JSON.parse(JSON.stringify(zData.SEED_LANDING_CMS.useCases));
         saveState();
+        autoPushLandingCmsIfConnected();
         renderAdminLandingCms();
         if (typeof renderLandingFromCms === 'function') renderLandingFromCms();
         showToast('Kartu target siswa berhasil di-reset!', 'info');
@@ -482,6 +507,7 @@ function handleSaveTestimonialSubmit(e) {
   }
 
   saveState();
+  autoPushLandingCmsIfConnected();
   closeEditTestimonialModal();
   renderAdminLandingCms();
   if (typeof renderLandingFromCms === 'function') renderLandingFromCms();
@@ -498,6 +524,7 @@ function deleteTestimonial(id) {
     onConfirm: () => {
       AppState.landingCms.testimonials = (AppState.landingCms.testimonials || []).filter(t => t.id !== id);
       saveState();
+      autoPushLandingCmsIfConnected();
       renderAdminLandingCms();
       if (typeof renderLandingFromCms === 'function') renderLandingFromCms();
       showToast('Testimoni telah dihapus', 'info');
@@ -517,6 +544,7 @@ function resetLandingTestimonialsToDefault() {
       if (zData.SEED_LANDING_CMS?.testimonials) {
         AppState.landingCms.testimonials = JSON.parse(JSON.stringify(zData.SEED_LANDING_CMS.testimonials));
         saveState();
+        autoPushLandingCmsIfConnected();
         renderAdminLandingCms();
         if (typeof renderLandingFromCms === 'function') renderLandingFromCms();
         showToast('Daftar testimoni berhasil di-reset!', 'info');
