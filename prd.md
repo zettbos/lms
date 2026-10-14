@@ -454,4 +454,21 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
        - Menerapkan `.animate-page-enter` pada setiap perpindahan view via `navigate()` untuk transisi *soft entrance fade-and-rise* (durasi 240ms).
        - Mengaktifkan `scroll-behavior: smooth` dan `scroll-padding-top: 5.5rem` serta Scroll-Spy otomatis pada navbar landing page.
        - Cache buster seluruh skrip & CSS dinaikkan ke versi `?v=47`.
+  - [2026-10-14] Implementasi Revisi 48: Swap Pinned Module & Recommendation, Penyatuan Hamburger Sidebar Desktop, Hapus Reset Data, Mobile Bottom Navigation Bar & Elevated Popover Sheet (Refrensi), dan Locked Fixed Top Navbar.
+     1. Swap Posisi Sematan Modul (Pin) & Rekomendasi Belajar (`index.html`):
+        - Memindahkan kontainer `#dash-pinned-module-container` (Modul Unggulan Pilihan Mentor) tepat ke atas `#dash-featured-lesson` (Rekomendasi Lanjutkan Belajar) pada Beranda, sehingga modul prioritas utama tampil paling atas.
+     2. Penyatuan Hamburger Menu & Eliminasi Header Ganda Sidebar Desktop (`index.html`, `css/style.css`):
+        - Menyembunyikan `.drawer-header` duplikat di dalam panel drawer pada desktop (`lg:hidden`), sehingga tidak ada lagi visual penumpukan dua logo dan tombol silang ganda.
+        - Panel drawer pada desktop menempel rapi di bawah fixed navbar (`top: 4rem; height: calc(100vh - 4rem)`), menjadikan tombol hamburger `[ ☰ ]` dan logo brand di kiri atas navbar sebagai satu-satunya header pengendali resmi.
+     3. Pembersihan Tombol "Reset Data" (`index.html`, `js/controllers/classroom.js`):
+        - Menghapus elemen `#btn-home-reset-data` dari antarmuka Beranda dan membersihkan logika role-based toggle di controller `classroom.js`.
+     4. Mobile Bottom Navigation Bar & Elevated Popover Menu (`index.html`, `js/core/router.js`, `css/style.css`):
+        - Mengimplementasikan navigasi bawah paten khusus smartphone (`#mobile-bottom-nav`, `fixed bottom-0 inset-x-0 z-40 md:hidden` dengan frosted glass matte `bg-[#07080A]/95 backdrop-blur-xl border-t border-[#262933]`).
+        - 4 Tombol Menu Utama: `Home` (Beranda), `Dashboard` (Data Belajar), `Belajar` (Ruang Video), dan `Dokumen` (Resource Hub).
+        - 1 Tombol `[ ☰ Menu ]` yang membuka Elevated Floating Popover Sheet (`#mobile-menu-popover`) di sudut kanan bawah, memuat: `Item Favorit & Simpanan`, `Tema Tampilan (Dark/Light)`, `Admin Panel Kurikulum` (Role-based), `Edit Profil Saya`, dan `Keluar` (warna merah/rose sesuai gambar referensi).
+        - Dilengkapi backdrop overlay blur (`#mobile-menu-backdrop`) dan penyesuaian padding bawah (`pb-20 md:pb-6`) pada seluruh view agar konten tidak tertutup bar navigasi.
+     5. Locked Fixed Top Navbar (`index.html`, `css/style.css`):
+        - Mengubah `#main-navbar` menjadi `fixed top-0 inset-x-0 z-50 glass-nav` sehingga 100% terkunci kokoh di puncak viewport saat scroll ke bawah tanpa pernah hilang.
+        - Menambahkan padding-top kompensasi pada seluruh view (`pt-20 sm:pt-24` / `padding-top: 5.25rem !important`) untuk mencegah konten tertutup navbar.
+     6. Cache Buster: Menaikkan seluruh query string script dan stylesheet di `index.html` ke versi `?v=48`.
 

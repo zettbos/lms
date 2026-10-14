@@ -520,14 +520,6 @@ function renderHome() {
   if (percentEl) percentEl.textContent = `${progressPercent}%`;
   if (progressBar) progressBar.style.width = `${progressPercent}%`;
 
-  // Role-Based Toggle Reset Data Button (Super Admin Only)
-  const isSuperAdmin = user && user.role === 'admin' && user.email.toLowerCase() === 'zettbos2025@gmail.com';
-  const resetBtn = document.getElementById('btn-home-reset-data');
-  if (resetBtn) {
-    if (isSuperAdmin) resetBtn.classList.remove('hidden');
-    else resetBtn.classList.add('hidden');
-  }
-
   let nextLesson = AppState.lessons.find(l => !userCompletedLessonIds.includes(l.id));
   if (!nextLesson && AppState.lessons.length > 0) {
     nextLesson = AppState.lessons[0];

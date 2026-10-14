@@ -2310,10 +2310,11 @@ html.light .btn-micro-action.bg-rose-500\/15 {
   /* Default closed state */
   #sidebar-drawer {
     position: fixed !important;
-    top: 3.5rem !important; /* Under main header */
+    top: 4rem !important; /* Under fixed 64px main navbar */
     bottom: 0 !important;
     left: 0 !important;
     width: 18rem !important; /* 288px */
+    height: calc(100vh - 4rem) !important;
     z-index: 40 !important;
     transform: translateX(-100%);
     transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1) !important;
@@ -2355,5 +2356,65 @@ html.light #sidebar-drawer {
 .testimonial-card,
 .bento-tab-active {
   transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 180ms cubic-bezier(0.16, 1, 0.3, 1), border-color 180ms ease !important;
+}
+
+/* 6. Locked Fixed Top Navbar Layout Offset & Mobile Clearance (Gambar 5) */
+#main-navbar {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  z-index: 50 !important;
+}
+
+main[id^="view-"] {
+  padding-top: 5.25rem !important; /* 84px clearance for fixed 64px header */
+  padding-bottom: 2rem !important;
+}
+
+@media (max-width: 767px) {
+  main[id^="view-"] {
+    padding-top: 4.5rem !important; /* 72px for mobile 56px navbar */
+    padding-bottom: 5.5rem !important; /* 88px clearance for mobile bottom navigation bar */
+  }
+}
+
+/* 7. Mobile Bottom Navigation Bar & Elevated Popover Menu (Gambar 4 Referensi) */
+#mobile-bottom-nav {
+  background-color: rgba(7, 8, 10, 0.95);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -4px 20px -2px rgba(0, 0, 0, 0.6);
+}
+
+#mobile-menu-popover {
+  background-color: rgba(22, 24, 29, 0.96);
+  border: 1px solid var(--border);
+  box-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.7);
+}
+
+html.light #mobile-bottom-nav {
+  background-color: rgba(255, 255, 255, 0.96) !important;
+  border-top-color: #E2E8F0 !important;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06) !important;
+}
+
+html.light #mobile-menu-popover {
+  background-color: rgba(255, 255, 255, 0.98) !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12) !important;
+}
+
+html.light #mobile-menu-popover button:hover {
+  background-color: #F1F5F9 !important;
+  color: #0F172A !important;
+}
+
+html.light #mobile-bottom-nav button {
+  color: #64748B;
+}
+
+html.light #mobile-bottom-nav button:hover {
+  color: #0F172A;
 }
 

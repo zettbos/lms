@@ -108,6 +108,9 @@ function updateDrawerState() {
 }
 
 function navigate(viewName, params = {}) {
+  // Always close mobile menu popover if open
+  if (typeof closeMobileMenuPopover === 'function') closeMobileMenuPopover();
+
   // Aliases
   if (viewName === 'dashboard') viewName = 'user-dashboard';
 
@@ -234,34 +237,49 @@ function updateNavbarState(currentView) {
   const mDash = document.getElementById('mobile-nav-dashboard');
   const mLearn = document.getElementById('mobile-nav-learn');
   const mRes = document.getElementById('mobile-nav-resources');
-  const mFav = document.getElementById('mobile-nav-favorites');
+  const mMenu = document.getElementById('mobile-nav-menu');
+  const mUser = document.getElementById('mobile-popover-user');
+  const mTheme = document.getElementById('mobile-theme-label');
+  const mAdminBtn = document.getElementById('mobile-menu-admin-btn');
 
   const resetMobileBtn = (el) => {
     if (!el) return;
-    el.className = 'flex flex-col items-center gap-0.5 py-1 px-2 rounded-lg text-slate-400 hover:text-slate-200 transition-colors';
+    el.className = 'flex flex-col items-center justify-center gap-0.5 py-1 px-2.5 rounded-xl text-slate-400 hover:text-white transition-colors';
   };
   const setMobileActive = (el, colorClass) => {
     if (!el) return;
-    el.className = `flex flex-col items-center gap-0.5 py-1 px-2 rounded-lg font-bold transition-colors ${colorClass}`;
+    el.className = `flex flex-col items-center justify-center gap-0.5 py-1 px-2.5 rounded-xl font-bold transition-colors ${colorClass}`;
   };
 
   resetMobileBtn(mHome);
   resetMobileBtn(mDash);
   resetMobileBtn(mLearn);
   resetMobileBtn(mRes);
-  resetMobileBtn(mFav);
+  resetMobileBtn(mMenu);
 
   if (currentView === 'home') setMobileActive(mHome, 'text-emerald-400');
   else if (currentView === 'user-dashboard') setMobileActive(mDash, 'text-cyan-400');
   else if (currentView === 'learn') setMobileActive(mLearn, 'text-emerald-400');
   else if (currentView === 'resources') setMobileActive(mRes, 'text-blue-400');
-  else if (currentView === 'favorites') setMobileActive(mFav, 'text-amber-400');
+  else if (currentView === 'favorites' || currentView === 'admin') setMobileActive(mMenu, 'text-emerald-400');
+
+  // Update theme label inside mobile popover
+  if (mTheme) {
+    const isLight = document.documentElement.classList.contains('light');
+    mTheme.textContent = isLight ? 'LIGHT' : 'DARK';
+  }
 
   if (AppState.currentUser) {
     if (userSection) userSection.classList.remove('hidden');
     if (userNameEl) userNameEl.textContent = AppState.currentUser.fullName || AppState.currentUser.email;
+    if (mUser) mUser.textContent = AppState.currentUser.fullName || AppState.currentUser.email;
 
     const isSuperAdmin = AppState.currentUser.role === 'admin' && AppState.currentUser.email.toLowerCase() === 'zettbos2025@gmail.com';
+    if (mAdminBtn) {
+      if (isSuperAdmin) mAdminBtn.classList.remove('hidden');
+      else mAdminBtn.classList.add('hidden');
+    }
+
     if (isSuperAdmin) {
       if (roleBadge) {
         roleBadge.textContent = 'ADMIN';
@@ -280,6 +298,33 @@ function updateNavbarState(currentView) {
   }
 }
 
+// Mobile Bottom Nav Elevated Popover Handlers (Gambar 4)
+function toggleMobileMenuPopover() {
+  const popover = document.getElementById('mobile-menu-popover');
+  const backdrop = document.getElementById('mobile-menu-backdrop');
+  if (!popover) return;
+  const isHidden = popover.classList.contains('hidden');
+  if (isHidden) {
+    popover.classList.remove('hidden');
+    if (backdrop) backdrop.classList.remove('hidden');
+  } else {
+    popover.classList.add('hidden');
+    if (backdrop) backdrop.classList.add('hidden');
+  }
+}
+
+function closeMobileMenuPopover() {
+  const popover = document.getElementById('mobile-menu-popover');
+  const backdrop = document.getElementById('mobile-menu-backdrop');
+  if (popover) popover.classList.add('hidden');
+  if (backdrop) backdrop.classList.add('hidden');
+}
+
+function handleMobilePopoverNav(viewName) {
+  closeMobileMenuPopover();
+  navigate(viewName);
+}
+
 // Window bindings
 window.toggleSidebarDrawer = toggleSidebarDrawer;
 window.openSidebarDrawer = openSidebarDrawer;
@@ -288,3 +333,6 @@ window.handleDrawerNavClick = handleDrawerNavClick;
 window.updateDrawerState = updateDrawerState;
 window.navigate = navigate;
 window.updateNavbarState = updateNavbarState;
+window.toggleMobileMenuPopover = toggleMobileMenuPopover;
+window.closeMobileMenuPopover = closeMobileMenuPopover;
+window.handleMobilePopoverNav = handleMobilePopoverNav;
