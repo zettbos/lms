@@ -40,7 +40,7 @@
   </script>
 
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="css/style.css?v=57" />
+  <link rel="stylesheet" href="css/style.css?v=58" />
 </head>
 <body class="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--fg)] selection:bg-emerald-500/30 selection:text-emerald-300 transition-colors duration-150">
 
@@ -51,7 +51,7 @@
        MAIN NAVBAR (Locked at Top Viewport & Clean Mobile View)
        ========================================== -->
   <header id="main-navbar" class="fixed top-0 inset-x-0 z-50 glass-nav hidden">
-    <div class="max-w-[1440px] 2xl:max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
+    <div class="w-full px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
       
       <!-- Left: Hamburger Button + Brand Logo -->
       <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
@@ -909,13 +909,60 @@
        VIEW 3: RUANG BELAJAR (DISTRACTION-FREE PLAYER)
        ========================================== -->
   <main id="view-learn" class="flex-1 flex flex-col hidden bg-[var(--bg)]">
-    <!-- Top Sub-Bar for Learning Room (Wide Viewport Edge-to-Edge Alignment) -->
-    <div class="border-b border-[var(--border)] bg-[var(--surface)] px-4 sm:px-6 lg:px-8 py-3">
-      <div class="max-w-[1440px] 2xl:max-w-[1600px] w-full mx-auto flex items-center justify-between">
+    <!-- STATE 1: KATALOG DAFTAR MODUL RUANG BELAJAR (Default Saat Masuk Ruang Belajar) -->
+    <div id="learn-catalog-view" class="flex-1 w-full max-w-[1440px] 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-24 lg:pb-12">
+      <!-- Catalog Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
+        <div>
+          <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-[11px] font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-800/80 mb-2 tracking-caps uppercase">
+            <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+            RUANG BELAJAR &amp; VIDEO
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Katalog Modul Pembelajaran</h1>
+          <p class="text-xs sm:text-sm text-slate-400 mt-1">Pilih modul kurikulum yang ingin Anda pelajari atau tonton video materinya.</p>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <!-- Search input for learn modules -->
+          <div class="relative w-full sm:w-64">
+            <input 
+              id="learn-input-module-search" 
+              type="text" 
+              placeholder="Cari modul atau materi..." 
+              oninput="handleLearnModuleSearch()" 
+              class="w-full pl-9 pr-8 py-2 rounded-xl text-xs bg-slate-900/90 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors"
+            />
+            <svg class="w-4 h-4 text-slate-500 absolute left-3 top-2.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <button onclick="clearLearnModuleSearch()" class="absolute right-2.5 top-2.5 text-slate-500 hover:text-white transition-colors" title="Bersihkan pencarian">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category Filter Pills -->
+      <div id="learn-module-category-pills" class="flex flex-wrap items-center gap-2 mb-6">
+        <!-- Rendered by renderLearnModuleCategoryPills() -->
+      </div>
+
+      <!-- Modules Catalog Grid -->
+      <div id="learn-catalog-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Rendered by renderLearnModulesCatalog() -->
+      </div>
+    </div>
+
+    <!-- STATE 2: DISTRACTION-FREE VIDEO & LESSON PLAYER -->
+    <!-- Top Sub-Bar for Learning Room (Edge-to-Edge Alignment) -->
+    <div id="learn-player-subnav" class="border-b border-[var(--border)] bg-[var(--surface)] px-4 sm:px-6 lg:px-8 py-3 hidden">
+      <div class="w-full flex items-center justify-between">
         <div class="flex items-center gap-3 truncate">
+          <button onclick="showLearnModulesCatalog()" class="px-2.5 py-1.5 rounded-lg bg-emerald-950/70 hover:bg-emerald-900/80 text-emerald-300 border border-emerald-500/40 transition-colors flex items-center gap-1.5 text-xs font-semibold shadow-sm">
+            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            <span>&larr; Daftar Modul</span>
+          </button>
+          <span class="text-slate-700 hidden sm:inline">|</span>
           <button onclick="navigate('home')" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-1 text-xs">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-            <span class="hidden sm:inline">Kembali ke Home</span>
+            <span class="hidden sm:inline">Home</span>
           </button>
           <span class="text-slate-700 hidden sm:inline">|</span>
           <span id="learn-module-badge" class="text-xs font-semibold text-emerald-400 truncate max-w-[200px]">-</span>
@@ -938,7 +985,7 @@
     </div>
 
     <!-- Main Learning Layout: Wide Viewport with Spacious Reading Area & Right-Aligned Curriculum -->
-    <div class="flex-1 max-w-[1440px] 2xl:max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex flex-col lg:flex-row gap-8 items-start pb-24 lg:pb-8">
+    <div id="learn-player-view" class="flex-1 max-w-[1440px] 2xl:max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex flex-col lg:flex-row gap-8 items-start pb-24 lg:pb-8 hidden">
       
       <!-- Left Column: Lesson Header & Notion Content Area (Expanded Reading Space) -->
       <div class="w-full flex-1 min-w-0 max-w-4xl xl:max-w-5xl">
@@ -3262,18 +3309,18 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- Application Scripts (Modular Architecture with Cache Buster) -->
-  <script src="js/whitelist-data.js?v=57"></script>
-  <script src="js/mock-data.js?v=57"></script>
-  <script src="js/editor.js?v=57"></script>
-  <script src="js/core/state.js?v=57"></script>
-  <script src="js/core/supabase.js?v=57"></script>
-  <script src="js/core/router.js?v=57"></script>
-  <script src="js/core/particles.js?v=57"></script>
-  <script src="js/controllers/auth.js?v=57"></script>
-  <script src="js/controllers/landing.js?v=57"></script>
-  <script src="js/controllers/classroom.js?v=57"></script>
-  <script src="js/controllers/resources.js?v=57"></script>
-  <script src="js/controllers/admin.js?v=57"></script>
-  <script src="js/app.js?v=57"></script>
+  <script src="js/whitelist-data.js?v=58"></script>
+  <script src="js/mock-data.js?v=58"></script>
+  <script src="js/editor.js?v=58"></script>
+  <script src="js/core/state.js?v=58"></script>
+  <script src="js/core/supabase.js?v=58"></script>
+  <script src="js/core/router.js?v=58"></script>
+  <script src="js/core/particles.js?v=58"></script>
+  <script src="js/controllers/auth.js?v=58"></script>
+  <script src="js/controllers/landing.js?v=58"></script>
+  <script src="js/controllers/classroom.js?v=58"></script>
+  <script src="js/controllers/resources.js?v=58"></script>
+  <script src="js/controllers/admin.js?v=58"></script>
+  <script src="js/app.js?v=58"></script>
 </body>
 </html>

@@ -189,8 +189,16 @@ function navigate(viewName, params = {}) {
     } else if (viewName === 'user-dashboard') {
       if (window.renderUserDashboard) window.renderUserDashboard();
     } else if (viewName === 'learn') {
-      const lessonId = params.lessonId || AppState.currentLessonId || AppState.lessons[0]?.id;
-      if (window.renderLearningRoom) window.renderLearningRoom(lessonId);
+      const lessonId = params.lessonId;
+      if (lessonId) {
+        if (window.renderLearningRoom) window.renderLearningRoom(lessonId);
+      } else {
+        if (window.showLearnModulesCatalog) {
+          window.showLearnModulesCatalog();
+        } else if (window.renderLearningRoom) {
+          window.renderLearningRoom(AppState.currentLessonId || AppState.lessons[0]?.id);
+        }
+      }
     } else if (viewName === 'resources') {
       if (window.renderResources) window.renderResources();
     } else if (viewName === 'favorites') {

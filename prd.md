@@ -1,8 +1,8 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 # Projek: Zettbos LMS (Member Hub & Notion-Style Learning Management System)
 ================================================================================
-VERSI DOKUMEN : v1.2.8
-STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 57 SELESAI)
+VERSI DOKUMEN : v1.2.9
+STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 58 SELESAI)
 ARSITEK SISTEM: ZettBOT by Zettbos
 ENGINE STACK  : Next.js 14+ (App Router) + Supabase (Postgres & Auth OTP) + Vercel
 ================================================================================
@@ -594,6 +594,21 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
         - Memperbarui skema tabel `landing_cms` dengan `facilities JSONB DEFAULT '[]'::jsonb`.
         - Menyiapkan skrip migrasi mandiri `ALTER TABLE public.landing_cms ADD COLUMN IF NOT EXISTS facilities JSONB DEFAULT '[]'::jsonb;`.
      3. Cache Buster: Menaikkan seluruh query string script dan stylesheet di `index.html` ke versi `?v=56`.
+  - [2026-10-14] Implementasi Revisi 58: Transparent Brand Logo, 2-State Ruang Belajar (Katalog Modul & Player), Fluid Top Navbar on Zoom Out, Pembesaran Font Judul Modul Kurikulum, dan Cache Buster ?v=58.
+     1. Penghapusan Kotak Latar Belakang Logo (`js/controllers/classroom.js`):
+        - `renderAppBrandLogo()` kini mengatur container logo menjadi 100% transparan (`bg-transparent border-0 shadow-none p-0 overflow-visible`) saat gambar logo kustom aktif.
+        - Gambar logo dirender murni tanpa kotak hijau gelap atau garis batas mengelilinginya.
+     2. Arsitektur 2-State Ruang Belajar (`index.html`, `js/controllers/classroom.js`, `js/core/router.js`):
+        - State 1: `#learn-catalog-view` menampilkan katalog seluruh modul yang dibuat admin, dilengkapi pencarian kata kunci dan filter kategori interaktif.
+        - State 2: `#learn-player-subnav` & `#learn-player-view` menampilkan player video dan modul baca Notion-style.
+        - Navigasi menu "Ruang Belajar & Video" membuka katalog modul secara default, bukan langsung memaksa user ke materi yang sedang dibuka.
+        - Tersedia tombol `← Daftar Modul` di sub-bar player untuk kembali melihat daftar modul kapan saja.
+     3. Top Navbar Responsif Menyesuaikan Zoom Out (`index.html`):
+        - Mengganti `max-w-[1440px] 2xl:max-w-[1600px] mx-auto` pada navbar container dengan `w-full px-4 sm:px-6 lg:px-8`.
+        - Navbar kini membentang penuh edge-to-edge di berbagai skala zoom (90%, 80%) maupun monitor ultrawide.
+     4. Pembesaran Tipografi Judul Modul (`js/controllers/classroom.js`):
+        - Judul modul di grid kurikulum diperbesar menjadi `font-extrabold text-base sm:text-lg lg:text-xl text-white group-hover:text-emerald-400`.
+     5. Cache Buster: Menaikkan seluruh query string script dan stylesheet di `index.html` ke versi `?v=58`.
   - [2026-10-14] Implementasi Revisi 57: Audit Total CMS, Sinkronisasi Cloud Logo Brand (hero.brandLogoUrl JSONB), Live Push Edit Dokumen Shared Resources, Cascading Deletion Modul, dan Cache Buster ?v=57.
      1. Integrasi Penuh Logo Brand ke Supabase Cloud (`js/controllers/admin.js`, `js/core/supabase.js`, `js/core/state.js`):
         - Logo brand kini diwadahi ke dalam container `AppState.landingCms.hero.brandLogoUrl` (kolom JSONB yang dijamin valid di Supabase).

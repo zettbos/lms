@@ -85,8 +85,11 @@ function renderAppBrandLogo() {
     const el = document.getElementById(t.id);
     if (!el) return;
     if (convertedUrl) {
-      el.innerHTML = `<img src="${escapeHtml(convertedUrl)}" alt="Logo ZETTBOS" class="w-full h-full object-contain" onerror="this.onerror=null; this.parentElement.innerHTML='<span class=\\'font-mono font-bold text-xs text-emerald-400\\'>ZB</span>';">`;
+      // Hapus kotak hijau, border & shadow saat logo gambar kustom aktif
+      el.className = `flex items-center justify-center flex-shrink-0 bg-transparent border-0 shadow-none p-0 overflow-visible`;
+      el.innerHTML = `<img src="${escapeHtml(convertedUrl)}" alt="Logo ZETTBOS" class="${t.size === 'xs' ? 'h-6' : 'h-7 sm:h-8'} w-auto max-w-[140px] object-contain" onerror="this.onerror=null; this.parentElement.className='w-8 h-8 rounded-lg bg-emerald-950/80 border border-emerald-500/40 flex items-center justify-center shadow-sm flex-shrink-0 overflow-hidden'; this.parentElement.innerHTML='<span class=\\'font-mono font-bold text-xs text-emerald-400\\'>ZB</span>';">`;
     } else {
+      el.className = `w-8 h-8 rounded-lg bg-emerald-950/80 border border-emerald-500/40 flex items-center justify-center shadow-sm flex-shrink-0 overflow-hidden`;
       el.innerHTML = `<span class="font-mono font-black ${t.size === 'xs' ? 'text-[11px]' : 'text-xs'} text-emerald-400">ZB</span>`;
     }
   });
@@ -463,7 +466,7 @@ function renderModuleCatalogGrid() {
         </div>
 
         <div class="p-4 sm:p-5 pb-3">
-          <h3 class="font-bold text-sm sm:text-base text-white group-hover:text-emerald-400 transition-colors leading-snug line-clamp-2 mb-1.5">
+          <h3 class="font-extrabold text-base sm:text-lg lg:text-xl text-white group-hover:text-emerald-400 transition-colors leading-snug tracking-tight mb-2">
             ${escapeHtml(mod.title)}
           </h3>
           <p class="text-xs text-slate-400 line-clamp-2 leading-relaxed mb-3">
@@ -811,14 +814,233 @@ function showCalendarDayDetail(dateStr, isStudied, isToday, day) {
 }
 
 // ==========================================
-// 4. LEARNING ROOM & VIDEO PLAYER
+// 4. LEARNING ROOM & VIDEO PLAYER (2-STATE ARCHITECTURE)
 // ==========================================
 
+let learnModuleSearchQuery = '';
+let activeLearnModuleCategory = 'all';
+
+function setLearnModuleCategory(category) {
+  activeLearnModuleCategory = category;
+  renderLearnModuleCategoryPills();
+  renderLearnModulesCatalog();
+}
+
+function handleLearnModuleSearch() {
+  const inp = document.getElementById('learn-input-module-search');
+  learnModuleSearchQuery = (inp ? inp.value : '').toLowerCase().trim();
+  renderLearnModulesCatalog();
+}
+
+function clearLearnModuleSearch() {
+  const inp = document.getElementById('learn-input-module-search');
+  if (inp) inp.value = '';
+  learnModuleSearchQuery = '';
+  activeLearnModuleCategory = 'all';
+  renderLearnModuleCategoryPills();
+  renderLearnModulesCatalog();
+}
+
+function renderLearnModuleCategoryPills() {
+  const container = document.getElementById('learn-module-category-pills');
+  if (!container) return;
+
+  const user = AppState.currentUser;
+  const isSuperAdmin = user && user.role === 'admin' && user.email?.toLowerCase() === 'zettbos2025@gmail.com';
+  const visibleModules = (AppState.modules || []).filter(m => isSuperAdmin || !m.isDraft);
+
+  const rawCategories = visibleModules
+    .map(m => (m.category || '').trim())
+    .filter(cat => cat.length > 0);
+  const uniqueCategories = Array.from(new Set(rawCategories));
+
+  const categories = [
+    { id: 'all', label: 'Semua Modul', count: visibleModules.length },
+    ...uniqueCategories.map(cat => ({
+      id: cat,
+      label: cat,
+      count: visibleModules.filter(m => (m.category || '').trim() === cat).length
+    }))
+  ];
+
+  if (activeLearnModuleCategory !== 'all' && !uniqueCategories.includes(activeLearnModuleCategory)) {
+    activeLearnModuleCategory = 'all';
+  }
+
+  container.innerHTML = categories.map(cat => {
+    const isActive = activeLearnModuleCategory === cat.id;
+    const activeClass = isActive 
+      ? 'bg-emerald-950 text-emerald-300 border-emerald-500/60 shadow-sm' 
+      : 'bg-slate-900/80 text-slate-400 hover:text-white hover:bg-slate-800 border-slate-800';
+
+    const safeId = cat.id.replace(/'/g, "\\'");
+    return `
+      <button 
+        type="button" 
+        onclick="setLearnModuleCategory('${safeId}')"
+        class="px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all flex items-center gap-1.5 ${activeClass}"
+      >
+        <span>${escapeHtml(cat.label)}</span>
+        <span class="text-[10px] font-mono px-1.5 py-0.2 rounded-full ${isActive ? 'bg-emerald-900/60 text-emerald-300' : 'bg-slate-800 text-slate-500'}">
+          ${cat.count}
+        </span>
+      </button>
+    `;
+  }).join('');
+}
+
+function renderLearnModulesCatalog() {
+  const container = document.getElementById('learn-catalog-grid');
+  if (!container) return;
+
+  const user = AppState.currentUser;
+  const isSuperAdmin = user && user.role === 'admin' && user.email?.toLowerCase() === 'zettbos2025@gmail.com';
+  const userCompletedLessonIds = (user && AppState.progress[user.email]) ? AppState.progress[user.email] : [];
+
+  let filtered = (AppState.modules || []).filter(m => isSuperAdmin || !m.isDraft);
+
+  if (activeLearnModuleCategory !== 'all') {
+    filtered = filtered.filter(m => (m.category || '').trim() === activeLearnModuleCategory);
+  }
+
+  if (learnModuleSearchQuery) {
+    filtered = filtered.filter(m => {
+      const titleMatch = (m.title || '').toLowerCase().includes(learnModuleSearchQuery);
+      const descMatch = (m.description || '').toLowerCase().includes(learnModuleSearchQuery);
+      const lessonsMatch = AppState.lessons.some(l => l.moduleId === m.id && (l.title || '').toLowerCase().includes(learnModuleSearchQuery));
+      return titleMatch || descMatch || lessonsMatch;
+    });
+  }
+
+  filtered.sort((a, b) => (a.orderIndex || 1) - (b.orderIndex || 1));
+
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div class="col-span-full p-8 rounded-2xl glass-card border border-slate-800 text-center flex flex-col items-center justify-center gap-3">
+        <div class="w-12 h-12 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-500">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+        </div>
+        <h4 class="text-sm font-bold text-white">Tidak Ada Modul Ditemukan</h4>
+        <p class="text-xs text-slate-400">Belum ada modul yang sesuai pencarian atau filter.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = '';
+  filtered.forEach(mod => {
+    const moduleLessons = AppState.lessons.filter(l => l.moduleId === mod.id && (isSuperAdmin || !l.isDraft)).sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0));
+    const totalMinutes = moduleLessons.reduce((acc, l) => acc + (l.durationMinutes || 15), 0);
+    const modCompleted = moduleLessons.filter(l => userCompletedLessonIds.includes(l.id)).length;
+    const completionPercent = moduleLessons.length > 0 ? Math.round((modCompleted / moduleLessons.length) * 100) : 0;
+    const isModFullyCompleted = moduleLessons.length > 0 && modCompleted === moduleLessons.length;
+
+    const userFavs = (user && AppState.favorites[user.email]) ? AppState.favorites[user.email] : [];
+    const isModFav = userFavs.some(f => f.type === 'module' && f.targetId === mod.id);
+
+    const card = document.createElement('div');
+    card.className = 'glass-card rounded-2xl overflow-hidden border border-slate-800 hover:border-emerald-500/40 transition-all duration-300 flex flex-col justify-between group';
+
+    const firstLessonId = moduleLessons[0]?.id;
+
+    card.innerHTML = `
+      <div>
+        <div class="relative h-32 sm:h-36 w-full bg-slate-900 overflow-hidden border-b border-slate-800">
+          <img src="${mod.coverImage || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80'}" alt="${escapeHtml(mod.title)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-100">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
+          
+          <div class="absolute top-2.5 left-2.5 flex items-center gap-1.5 flex-wrap">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold tracking-caps uppercase ${isModFullyCompleted ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/50' : 'bg-slate-900 text-cyan-400 border border-cyan-500/40'}">
+              ${escapeHtml(mod.badge || 'MODUL')}
+            </span>
+            <span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold ${modCompleted > 0 ? 'bg-emerald-950/90 text-emerald-400 border border-emerald-500/30' : 'bg-slate-900 text-slate-400 border border-slate-800'}">
+              ${modCompleted}/${moduleLessons.length} Selesai (${completionPercent}%)
+            </span>
+          </div>
+
+          <button onclick="event.stopPropagation(); toggleModuleFavorite('${mod.id}')" title="${isModFav ? 'Hapus dari Favorit' : 'Simpan Modul ke Favorit'}" class="absolute top-2.5 right-2.5 p-1.5 rounded-lg ${isModFav ? 'bg-amber-950/90 text-amber-300 border border-amber-500/60' : 'bg-slate-900/90 hover:bg-slate-800 text-slate-300 border border-slate-800'} shadow-sm transition-colors z-10">
+            <svg class="w-3.5 h-3.5 ${isModFav ? 'fill-amber-400 text-amber-400' : 'text-slate-300'}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
+          </button>
+        </div>
+
+        <div class="p-4 sm:p-5 pb-3">
+          <h3 class="font-extrabold text-base sm:text-lg lg:text-xl text-white group-hover:text-emerald-400 transition-colors leading-snug tracking-tight mb-2">
+            ${escapeHtml(mod.title)}
+          </h3>
+          <p class="text-xs text-slate-400 line-clamp-2 leading-relaxed mb-3">
+            ${escapeHtml(mod.description || '')}
+          </p>
+
+          <div class="text-[10px] font-bold text-slate-500 uppercase tracking-caps mb-2 flex items-center justify-between">
+            <span>Materi di Modul Ini:</span>
+            <span class="font-mono text-slate-500">${moduleLessons.length} Materi</span>
+          </div>
+          
+          <div class="max-h-36 overflow-y-auto custom-scrollbar surface-well p-1 space-y-1 mb-2">
+            ${moduleLessons.map((les, idx) => {
+              const isDone = userCompletedLessonIds.includes(les.id);
+              return `
+                <div 
+                  onclick="event.stopPropagation(); navigate('learn', { lessonId: '${les.id}' })"
+                  class="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg text-xs hover:bg-slate-800/70 transition-colors cursor-pointer border border-transparent"
+                >
+                  <div class="flex items-center gap-2 truncate">
+                    <span class="text-slate-500 font-mono text-[10px]">${idx + 1}.</span>
+                    <span class="truncate ${isDone ? 'text-emerald-300' : 'text-slate-300'}">${escapeHtml(les.title)}</span>
+                  </div>
+                  <span class="text-[10px] font-mono text-slate-500 flex-shrink-0">${les.durationMinutes || 15}m</span>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      </div>
+
+      <div class="px-4 sm:p-5 py-3 border-t border-slate-800/80 flex items-center justify-between">
+        <span class="text-xs text-slate-400 font-mono">${moduleLessons.length} Materi • ${totalMinutes} Menit</span>
+        <button 
+          onclick="event.stopPropagation(); ${firstLessonId ? `navigate('learn', { lessonId: '${firstLessonId}' })` : `showToast('Modul belum memiliki materi', 'info')`}" 
+          class="btn-primary-action px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5"
+        >
+          <span>Masuk Modul</span>
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+function showLearnModulesCatalog() {
+  const catalogView = document.getElementById('learn-catalog-view');
+  const playerSubnav = document.getElementById('learn-player-subnav');
+  const playerView = document.getElementById('learn-player-view');
+
+  if (catalogView) catalogView.classList.remove('hidden');
+  if (playerSubnav) playerSubnav.classList.add('hidden');
+  if (playerView) playerView.classList.add('hidden');
+
+  const centerLabel = document.getElementById('nav-current-page-label');
+  if (centerLabel) centerLabel.textContent = 'Ruang Belajar & Modul';
+
+  renderLearnModuleCategoryPills();
+  renderLearnModulesCatalog();
+}
+
 function renderLearningRoom(lessonId) {
+  const catalogView = document.getElementById('learn-catalog-view');
+  const playerSubnav = document.getElementById('learn-player-subnav');
+  const playerView = document.getElementById('learn-player-view');
+
+  if (catalogView) catalogView.classList.add('hidden');
+  if (playerSubnav) playerSubnav.classList.remove('hidden');
+  if (playerView) playerView.classList.remove('hidden');
+
   const lesson = AppState.lessons.find(l => l.id === lessonId) || AppState.lessons[0];
   if (!lesson) {
     showToast('Materi tidak ditemukan', 'error');
-    navigate('home');
+    showLearnModulesCatalog();
     return;
   }
 
@@ -826,7 +1048,7 @@ function renderLearningRoom(lessonId) {
   const isSuperAdmin = user && user.role === 'admin' && user.email?.toLowerCase() === 'zettbos2025@gmail.com';
   if (lesson.isDraft && !isSuperAdmin) {
     showToast('Materi ini masih berupa draf dan belum dipublikasikan oleh mentor ke Supabase.', 'info');
-    navigate('home');
+    showLearnModulesCatalog();
     return;
   }
 
@@ -1579,3 +1801,8 @@ window.convertGoogleDriveUrl = convertGoogleDriveUrl;
 window.renderAppBrandLogo = renderAppBrandLogo;
 window.openWhatsAppContactModal = openWhatsAppContactModal;
 window.closeWhatsAppContactModal = closeWhatsAppContactModal;
+window.showLearnModulesCatalog = showLearnModulesCatalog;
+window.renderLearnModulesCatalog = renderLearnModulesCatalog;
+window.setLearnModuleCategory = setLearnModuleCategory;
+window.handleLearnModuleSearch = handleLearnModuleSearch;
+window.clearLearnModuleSearch = clearLearnModuleSearch;

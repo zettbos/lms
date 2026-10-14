@@ -550,7 +550,17 @@ const ZettSupabase = {
             window.HeroTypewriterController.init();
           }
         }
-        else if (AppState.currentView === 'learn' && typeof renderLearningRoom === 'function') renderLearningRoom(AppState.currentLessonId);
+        else if (AppState.currentView === 'learn') {
+          const catalogView = document.getElementById('learn-catalog-view');
+          if (catalogView && !catalogView.classList.contains('hidden')) {
+            if (typeof renderLearnModulesCatalog === 'function') {
+              renderLearnModuleCategoryPills();
+              renderLearnModulesCatalog();
+            }
+          } else if (typeof renderLearningRoom === 'function') {
+            renderLearningRoom(AppState.currentLessonId);
+          }
+        }
       }
       return true;
     } catch (e) {
