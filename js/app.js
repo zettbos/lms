@@ -52,4 +52,23 @@ document.addEventListener('DOMContentLoaded', () => {
       navigate('landing');
     }
   }
+
+  // 7. Initialize Landing Scroll UX (Progress Bar & Scroll Reveal) (Revisi 60)
+  if (typeof initLandingScrollProgress === 'function') {
+    initLandingScrollProgress();
+  }
+  if (typeof initLandingScrollReveal === 'function') {
+    initLandingScrollReveal();
+  }
+
+  // 8. Elegant Dismissal of Initial Boot Loader (Revisi 60)
+  const bootLoader = document.getElementById('app-boot-loader');
+  if (bootLoader) {
+    setTimeout(() => {
+      bootLoader.classList.add('boot-loader-finish');
+      setTimeout(() => {
+        bootLoader.style.display = 'none';
+      }, 450);
+    }, 350);
+  }
 });

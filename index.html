@@ -40,9 +40,29 @@
   </script>
 
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="css/style.css?v=59" />
+  <link rel="stylesheet" href="css/style.css?v=60" />
 </head>
 <body class="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--fg)] selection:bg-emerald-500/30 selection:text-emerald-300 transition-colors duration-150">
+
+  <!-- Micro Global Scroll Progress Bar (Revisi 60) -->
+  <div id="app-scroll-progress"></div>
+
+  <!-- Sleek Initial Boot Loader / Splash Screen (Revisi 60) -->
+  <div id="app-boot-loader">
+    <div class="relative flex flex-col items-center">
+      <!-- Ambient pulsing logo container -->
+      <div class="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-emerald-950/80 border border-emerald-500/40 flex items-center justify-center shadow-2xl shadow-emerald-500/20 mb-5">
+        <div class="boot-loader-pulse-ring"></div>
+        <span class="font-mono font-black text-xl sm:text-2xl text-emerald-400 tracking-tighter">ZB</span>
+      </div>
+      <h2 class="text-sm sm:text-base font-extrabold text-white tracking-wider mb-2">ZETTBOS ACADEMY</h2>
+      <p id="boot-loader-status-text" class="text-xs text-slate-400 font-mono mb-4">Memuat Ekosistem Zettbos...</p>
+      <!-- Micro Progress Track -->
+      <div class="boot-loader-bar">
+        <div class="boot-loader-bar-fill"></div>
+      </div>
+    </div>
+  </div>
 
   <!-- Fixed Cyber Particle Network Canvas (Inspirasi referensi2.html) -->
   <canvas id="particles-canvas"></canvas>
@@ -255,7 +275,7 @@
     </header>
 
     <!-- 2. Hero Section (Inspirasi hp-mobile-hero) -->
-    <section id="landing-hero" class="pt-20 sm:pt-32 pb-12 sm:pb-20 px-4 sm:px-8 lg:px-12 max-w-[1440px] 2xl:max-w-[1600px] mx-auto w-full relative">
+    <section id="landing-hero" class="pt-24 sm:pt-36 pb-16 sm:pb-24 px-4 sm:px-8 lg:px-12 max-w-[1440px] 2xl:max-w-[1600px] mx-auto w-full min-h-[calc(100vh-4rem)] flex flex-col justify-center relative scroll-reveal">
       <!-- Ambient Background Spotlight -->
       <div class="hero-ambient-spotlight"></div>
 
@@ -360,7 +380,7 @@
     </section>
 
     <!-- 3. Floating Overlap Banner: Minimal Frosted Glass Strip (Opsi 1) -->
-    <div id="landing-overlap-banner" class="relative z-20 max-w-[1440px] 2xl:max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-12 w-full -mt-6 sm:-mt-8 mb-12">
+    <div id="landing-overlap-banner" class="relative z-20 max-w-[1440px] 2xl:max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-12 w-full -mt-6 sm:-mt-8 mb-16 scroll-reveal">
       <div class="landing-frosted-strip rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 transition-all">
         <div class="flex items-center gap-3.5 sm:gap-4 min-w-0">
           <!-- Monoline Icon Container with Subtle Glow -->
@@ -386,76 +406,80 @@
     </div>
 
     <!-- 4. Bento Split Curriculum Showcase (Inspirasi #features di referensi.html) -->
-    <section id="landing-curriculum" class="py-12 sm:py-16 px-4 sm:px-8 lg:px-12 max-w-[1440px] 2xl:max-w-[1600px] mx-auto w-full">
-      <div class="text-center mb-10">
-        <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">Tahapan Praktek: Dari Nol Sampai Aplikasi Jadi &amp; Online</h2>
-        <p class="text-xs sm:text-sm text-slate-400 mt-2 max-w-lg mx-auto">
-          Bukan tutorial potongan. Anda dipandu alur lengkapnya: dari menyusun prompt awal, menghubungkan database Google Sheets, mendesain tampilan, menuntaskan error bareng AI, hingga aplikasi live dengan nama domain Anda sendiri.
-        </p>
-      </div>
-
-      <!-- Bento Big Card Container with Frosted Glass -->
-      <div class="glass-card-translucent rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-[var(--border)] shadow-2xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-        <!-- Left: 5 Interactive Tab Buttons -->
-        <div class="lg:col-span-5 flex flex-col gap-2.5" id="landing-module-tabs">
-          <!-- Populated by JS -->
+    <section id="landing-curriculum" class="section-architectural-grid border-y border-slate-800/80 min-h-screen flex flex-col justify-center py-16 sm:py-24 px-4 sm:px-8 lg:px-12 w-full relative z-10 scroll-reveal">
+      <div class="max-w-[1440px] 2xl:max-w-[1600px] mx-auto w-full">
+        <div class="text-center mb-10">
+          <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">Tahapan Praktek: Dari Nol Sampai Aplikasi Jadi &amp; Online</h2>
+          <p class="text-xs sm:text-sm text-slate-400 mt-2 max-w-lg mx-auto">
+            Bukan tutorial potongan. Anda dipandu alur lengkapnya: dari menyusun prompt awal, menghubungkan database Google Sheets, mendesain tampilan, menuntaskan error bareng AI, hingga aplikasi live dengan nama domain Anda sendiri.
+          </p>
         </div>
 
-        <!-- Right: Dynamic Preview Card -->
-        <div class="lg:col-span-7 surface-well rounded-2xl p-5 sm:p-6 flex flex-col justify-between" id="landing-module-preview">
-          <!-- Populated by JS -->
+        <!-- Bento Big Card Container with Frosted Glass -->
+        <div class="glass-card-translucent rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-[var(--border)] shadow-2xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+          <!-- Left: 5 Interactive Tab Buttons -->
+          <div class="lg:col-span-5 flex flex-col gap-2.5" id="landing-module-tabs">
+            <!-- Populated by JS -->
+          </div>
+
+          <!-- Right: Dynamic Preview Card -->
+          <div class="lg:col-span-7 surface-well rounded-2xl p-5 sm:p-6 flex flex-col justify-between" id="landing-module-preview">
+            <!-- Populated by JS -->
+          </div>
         </div>
       </div>
     </section>
 
     <!-- 5. Fasilitas & Ekosistem Belajar (Lynk.id Style Interactive Feature Showcase) -->
-    <section id="landing-facilities" class="py-12 sm:py-20 px-4 sm:px-8 lg:px-12 max-w-[1440px] 2xl:max-w-[1600px] mx-auto w-full">
-      <div class="text-center mb-10 sm:mb-14">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 mb-3">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-          <span>Fasilitas &amp; Ekosistem Belajar</span>
-        </div>
-        <h2 class="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
-          Lebih Dari Sekadar Kelas Video Biasa
-        </h2>
-        <p class="text-xs sm:text-sm text-slate-400 mt-2.5 max-w-xl mx-auto leading-relaxed">
-          Semua fasilitas penunjang kami siapkan dari prompt AI khusus, template siap pakai, bimbingan langsung, hingga komunitas eksklusif agar Anda benar-benar bisa membuat dan meluncurkan sistem sendiri.
-        </p>
-      </div>
-
-      <!-- Interactive Split Showcase: Left Cards in 2 Columns + Right Dynamic Preview Mockup -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch">
-        <!-- Left Column: Interactive Feature Cards (2-Column Grid ala Lynk.id, 3 Rows Full Height) -->
-        <div class="lg:col-span-7 xl:col-span-8 grid grid-cols-1 sm:grid-cols-2 sm:grid-rows-3 gap-3.5 sm:gap-4 lg:gap-5 h-full" id="landing-facilities-container">
-          <!-- Rendered dynamically by js/controllers/landing.js from AppState.landingCms.facilities -->
+    <section id="landing-facilities" class="section-radial-emerald min-h-screen flex flex-col justify-center py-16 sm:py-24 px-4 sm:px-8 lg:px-12 w-full relative z-10 scroll-reveal">
+      <div class="max-w-[1440px] 2xl:max-w-[1600px] mx-auto w-full">
+        <div class="text-center mb-10 sm:mb-14">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 mb-3">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            <span>Fasilitas &amp; Ekosistem Belajar</span>
+          </div>
+          <h2 class="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
+            Lebih Dari Sekadar Kelas Video Biasa
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-400 mt-2.5 max-w-xl mx-auto leading-relaxed">
+            Semua fasilitas penunjang kami siapkan dari prompt AI khusus, template siap pakai, bimbingan langsung, hingga komunitas eksklusif agar Anda benar-benar bisa membuat dan meluncurkan sistem sendiri.
+          </p>
         </div>
 
-        <!-- Right Column: Lynk-Style Phone Frame Device Mockup with Dynamic Image Screen -->
-        <div class="lg:col-span-5 xl:col-span-4 flex justify-center items-stretch h-full">
-          <div class="w-full max-w-sm sm:max-w-md feature-device-mockup relative rounded-[32px] p-4 sm:p-5 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 border border-slate-700/80 shadow-2xl flex flex-col justify-between h-full">
-            <!-- Top Status Bar & Island -->
-            <div class="flex items-center justify-between px-3 py-1.5 mb-3 border-b border-slate-800/80 text-[10px] text-slate-400 font-mono shrink-0">
-              <span id="facility-preview-tag" class="text-emerald-400 font-bold uppercase tracking-wider">ZETTBOS ECOSYSTEM</span>
-              <span class="flex items-center gap-1.5 text-slate-300">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>Live Preview</span>
-              </span>
-            </div>
+        <!-- Interactive Split Showcase: Left Cards in 2 Columns + Right Dynamic Preview Mockup -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch">
+          <!-- Left Column: Interactive Feature Cards (2-Column Grid ala Lynk.id, 3 Rows Full Height) -->
+          <div class="lg:col-span-7 xl:col-span-8 grid grid-cols-1 sm:grid-cols-2 sm:grid-rows-3 gap-3.5 sm:gap-4 lg:gap-5 h-full" id="landing-facilities-container">
+            <!-- Rendered dynamically by js/controllers/landing.js from AppState.landingCms.facilities -->
+          </div>
 
-            <!-- Dynamic Preview Screen Container (Flex 1 to Fill Available Space Elegantly) -->
-            <div id="landing-facility-preview-screen" class="relative w-full flex-1 min-h-[380px] sm:min-h-[440px] rounded-2xl overflow-hidden bg-slate-950 border border-slate-800/90 flex items-center justify-center shadow-inner">
-              <!-- Rendered by landing.js selectLandingFacilityPreview(id) -->
-            </div>
-
-            <!-- Screen Caption Footer -->
-            <div class="mt-3.5 px-1 flex items-center justify-between text-xs shrink-0">
-              <div class="min-w-0 pr-2">
-                <h4 id="facility-preview-title" class="font-bold text-white tracking-tight truncate">Akses ZettBOT</h4>
-                <p id="facility-preview-desc" class="text-[11px] text-slate-400 truncate">AI Custom khusus untuk membantu membuat prompt dan koding.</p>
+          <!-- Right Column: Lynk-Style Phone Frame Device Mockup with Dynamic Image Screen -->
+          <div class="lg:col-span-5 xl:col-span-4 flex justify-center items-stretch h-full">
+            <div class="w-full max-w-sm sm:max-w-md feature-device-mockup relative rounded-[32px] p-4 sm:p-5 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 border border-slate-700/80 shadow-2xl flex flex-col justify-between h-full">
+              <!-- Top Status Bar & Island -->
+              <div class="flex items-center justify-between px-3 py-1.5 mb-3 border-b border-slate-800/80 text-[10px] text-slate-400 font-mono shrink-0">
+                <span id="facility-preview-tag" class="text-emerald-400 font-bold uppercase tracking-wider">ZETTBOS ECOSYSTEM</span>
+                <span class="flex items-center gap-1.5 text-slate-300">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span>Live Preview</span>
+                </span>
               </div>
-              <span class="px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-400 text-[10px] font-bold border border-emerald-500/30 whitespace-nowrap flex-shrink-0">
-                Fasilitas Resmi
-              </span>
+
+              <!-- Dynamic Preview Screen Container (Flex 1 to Fill Available Space Elegantly) -->
+              <div id="landing-facility-preview-screen" class="relative w-full flex-1 min-h-[380px] sm:min-h-[440px] rounded-2xl overflow-hidden bg-slate-950 border border-slate-800/90 flex items-center justify-center shadow-inner">
+                <!-- Rendered by landing.js selectLandingFacilityPreview(id) -->
+              </div>
+
+              <!-- Screen Caption Footer -->
+              <div class="mt-3.5 px-1 flex items-center justify-between text-xs shrink-0">
+                <div class="min-w-0 pr-2">
+                  <h4 id="facility-preview-title" class="font-bold text-white tracking-tight truncate">Akses ZettBOT</h4>
+                  <p id="facility-preview-desc" class="text-[11px] text-slate-400 truncate">AI Custom khusus untuk membantu membuat prompt dan koding.</p>
+                </div>
+                <span class="px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-400 text-[10px] font-bold border border-emerald-500/30 whitespace-nowrap flex-shrink-0">
+                  Fasilitas Resmi
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -463,28 +487,30 @@
     </section>
 
     <!-- 6. Target Audiens Siswa (Original 4 Target Audiens Grid Cards) -->
-    <section id="landing-usecases" class="py-12 sm:py-20 px-4 sm:px-8 lg:px-12 max-w-[1440px] 2xl:max-w-[1600px] mx-auto w-full">
-      <div class="text-center mb-10 sm:mb-14">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 mb-3">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-          <span>Target Siswa</span>
+    <section id="landing-usecases" class="section-deep-navy border-y border-cyan-950/40 min-h-[85vh] flex flex-col justify-center py-16 sm:py-24 px-4 sm:px-8 lg:px-12 w-full relative z-10 scroll-reveal">
+      <div class="max-w-[1440px] 2xl:max-w-[1600px] mx-auto w-full">
+        <div class="text-center mb-10 sm:mb-14">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 mb-3">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            <span>Target Siswa</span>
+          </div>
+          <h2 class="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
+            Siapa Saja yang Butuh Bikin Web App Pakai AI?
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-400 mt-2.5 max-w-xl mx-auto leading-relaxed">
+            Bukan cuma untuk orang IT. Siapapun Anda yang butuh sistem bisnis sendiri, ingin kerjaan kantor lebih cepat beres, atau mau cari penghasilan tambahan—sekarang semuanya bisa bikin sendiri full pakai AI.
+          </p>
         </div>
-        <h2 class="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
-          Siapa Saja yang Butuh Bikin Web App Pakai AI?
-        </h2>
-        <p class="text-xs sm:text-sm text-slate-400 mt-2.5 max-w-xl mx-auto leading-relaxed">
-          Bukan cuma untuk orang IT. Siapapun Anda yang butuh sistem bisnis sendiri, ingin kerjaan kantor lebih cepat beres, atau mau cari penghasilan tambahan—sekarang semuanya bisa bikin sendiri full pakai AI.
-        </p>
-      </div>
 
-      <!-- 4 Target Audiens Cards Grid -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5" id="landing-usecases-container">
-        <!-- Rendered dynamically by js/controllers/landing.js from AppState.landingCms.useCases -->
+        <!-- 4 Target Audiens Cards Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5" id="landing-usecases-container">
+          <!-- Rendered dynamically by js/controllers/landing.js from AppState.landingCms.useCases -->
+        </div>
       </div>
     </section>
 
     <!-- 6. Social Proof & Testimonials (CMS-Driven Lynk-Style Marquee) -->
-    <section id="landing-testimonials" class="py-12 sm:py-16 overflow-hidden w-full relative">
+    <section id="landing-testimonials" class="section-golden-amber min-h-[60vh] flex flex-col justify-center py-16 sm:py-20 overflow-hidden w-full relative z-10 scroll-reveal">
       <div class="text-center mb-8 sm:mb-10 px-4 max-w-[1440px] mx-auto">
         <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">Cerita Member Zettbos</h2>
         <p class="text-xs sm:text-sm text-slate-400 mt-2 max-w-lg mx-auto">
@@ -501,7 +527,7 @@
     </section>
 
     <!-- 7. Footer (Inspirasi footer di referensi.html) -->
-    <footer class="mt-auto border-t border-[var(--border)] py-10 px-4 sm:px-8 lg:px-12">
+    <footer class="mt-auto border-t border-slate-800/80 bg-[#050608] py-10 px-4 sm:px-8 lg:px-12 relative z-10">
       <div class="max-w-[1440px] 2xl:max-w-[1600px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
         <div class="flex items-center gap-2.5">
           <div id="brand-logo-footer" class="w-7 h-7 rounded-lg bg-emerald-950 border border-emerald-500/40 flex items-center justify-center font-mono font-bold text-xs text-emerald-400 overflow-hidden flex-shrink-0">ZB</div>
@@ -3356,18 +3382,18 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- Application Scripts (Modular Architecture with Cache Buster) -->
-  <script src="js/whitelist-data.js?v=59"></script>
-  <script src="js/mock-data.js?v=59"></script>
-  <script src="js/editor.js?v=59"></script>
-  <script src="js/core/state.js?v=59"></script>
-  <script src="js/core/supabase.js?v=59"></script>
-  <script src="js/core/router.js?v=59"></script>
-  <script src="js/core/particles.js?v=59"></script>
-  <script src="js/controllers/auth.js?v=59"></script>
-  <script src="js/controllers/landing.js?v=59"></script>
-  <script src="js/controllers/classroom.js?v=59"></script>
-  <script src="js/controllers/resources.js?v=59"></script>
-  <script src="js/controllers/admin.js?v=59"></script>
-  <script src="js/app.js?v=59"></script>
+  <script src="js/whitelist-data.js?v=60"></script>
+  <script src="js/mock-data.js?v=60"></script>
+  <script src="js/editor.js?v=60"></script>
+  <script src="js/core/state.js?v=60"></script>
+  <script src="js/core/supabase.js?v=60"></script>
+  <script src="js/core/router.js?v=60"></script>
+  <script src="js/core/particles.js?v=60"></script>
+  <script src="js/controllers/auth.js?v=60"></script>
+  <script src="js/controllers/landing.js?v=60"></script>
+  <script src="js/controllers/classroom.js?v=60"></script>
+  <script src="js/controllers/resources.js?v=60"></script>
+  <script src="js/controllers/admin.js?v=60"></script>
+  <script src="js/app.js?v=60"></script>
 </body>
 </html>

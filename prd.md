@@ -1,8 +1,8 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 # Projek: Zettbos LMS (Member Hub & Notion-Style Learning Management System)
 ================================================================================
-VERSI DOKUMEN : v1.3.0
-STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 59 SELESAI)
+VERSI DOKUMEN : v1.3.1
+STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 60 SELESAI)
 ARSITEK SISTEM: ZettBOT by Zettbos
 ENGINE STACK  : Next.js 14+ (App Router) + Supabase (Postgres & Auth OTP) + Vercel
 ================================================================================
@@ -594,6 +594,20 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
         - Memperbarui skema tabel `landing_cms` dengan `facilities JSONB DEFAULT '[]'::jsonb`.
         - Menyiapkan skrip migrasi mandiri `ALTER TABLE public.landing_cms ADD COLUMN IF NOT EXISTS facilities JSONB DEFAULT '[]'::jsonb;`.
      3. Cache Buster: Menaikkan seluruh query string script dan stylesheet di `index.html` ke versi `?v=56`.
+  - [2026-10-14] Implementasi Revisi 60: Section Atmospheric Backgrounds, Full-Viewport Framing (1 Layar Laptop), Micro Scroll Progress Bar, IntersectionObserver Scroll Reveal, Initial Boot Loader Splash Screen, Elevated Card Outlines, dan Cache Buster ?v=60.
+     1. Section Atmospheric Backgrounds & Full-Viewport Framing (`css/style.css`, `index.html`):
+        - Setiap section Landing Page kini memiliki tema atmosfer background yang khas dan bergantian: Hero (Cyber Particle Canvas), Kurikulum (`.section-architectural-grid` Blueprint Engineering), Fasilitas (`.section-radial-emerald` Glow Aura), Target Audiens (`.section-deep-navy` Tech Cyan Gradient), Testimoni (`.section-golden-amber` Radiant Ambient), dan Footer (Obsidian Carbon Matte).
+        - Menerapkan `min-h-screen` / `min-h-[85vh]` dan `flex flex-col justify-center` pada setiap section sehingga framed pas 1 layar laptop saat di-scroll tanpa terasa berdesakan, dengan pembungkus konten `max-w-[1440px] 2xl:max-w-[1600px] mx-auto`.
+     2. Interactive Scroll UX (Progress Bar & Scroll Reveal) (`css/style.css`, `index.html`, `js/controllers/landing.js`, `js/app.js`):
+        - Micro Scroll Progress Indicator (`#app-scroll-progress`): Bar fixed setinggi 2.5px di puncak viewport dengan gradien emerald ke cyan (`from-emerald-400 via-emerald-500 to-cyan-400`), melacak pergerakan scroll pengguna secara presisi (0% - 100%).
+        - Staggered Scroll Reveal (`.scroll-reveal`): Menggunakan browser native `IntersectionObserver` ringan (tanpa library berat), menganimasikan section perlahan meluncur naik (`translate-y-0` dan `opacity-1`) dengan cubic-bezier motion premium.
+     3. Sleek Initial Boot Loader / Splash Screen (`css/style.css`, `index.html`, `js/app.js`):
+        - Menyediakan layar splash `#app-boot-loader` berdesain minimalis mewah dengan glowing pulse ring logo ZB dan progress bar mini saat halaman pertama kali dimuat.
+        - Otomatis dissolve/fade-out secara halus (`.boot-loader-finish`) dalam 450ms setelah DOM terhidrasi sehingga tidak pernah memblokir interaksi pengguna.
+     4. Elevated Card Outlines & Subtle Highlighting (`css/style.css`, `js/controllers/landing.js`):
+        - Menerapkan `.card-elevated-highlight` dengan inner top highlight (`inset 0 1px 0 0 rgba(255,255,255,0.09)`) pada kartu fasilitas dan target audiens.
+        - Kartu target audiens (`.card-usecase-item`) memiliki border top aksen emerald yang bereaksi dinamis saat kursor melakukan hover.
+     5. Cache Buster: Menaikkan seluruh query string script dan stylesheet di `index.html` ke versi ?v=60.
   - [2026-10-14] Implementasi Revisi 59: Universal Image Lightbox Modal, Interactive Facility Preview Photo (Click-to-Zoom), dan Cache Buster ?v=59.
      1. Komponen Universal Image Lightbox (`index.html`, `js/controllers/landing.js`):
         - Menghadirkan modal pop-up layar penuh `#modal-image-lightbox` dengan efek backdrop blur (`backdrop-blur-md bg-slate-950/90 z-[100]`), animasi pop-up halus (`animate-scale-up`), badge fasilitas, judul foto, tombol `↗ Buka Gambar Asli` di tab baru, serta tombol tutup `✕`.

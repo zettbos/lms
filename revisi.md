@@ -1,87 +1,111 @@
-# ZETTBOS MEMBER HUB - DOKUMEN LAPORAN REVISI (REVISI 59)
+# ZETTBOS MEMBER HUB - DOKUMEN LAPORAN REVISI (REVISI 60)
 ================================================================================
-STATUS: SUKSES DITERAPKAN (REVISI 59 SELESAI & TERVERIFIKASI)
+STATUS: SUKSES DITERAPKAN (REVISI 60 SELESAI & TERVERIFIKASI)
 ARSITEK SISTEM: ZettBOT by Zettbos (Universal Product Architect & Lead Engineering Mentor)
-FOKUS TUGAS: INTERACTIVE IMAGE LIGHTBOX MODAL PADA PREVIEW FASILITAS & FOTO LANDING
+FOKUS TUGAS: SECTION ATMOSPHERIC THEMING, FULL-VIEWPORT FRAMING, SCROLL UX & BOOT LOADER
 ================================================================================
 
-## RINGKASAN HASIL EKSEKUSI
-1. **Universal Image Lightbox Modal (`#modal-image-lightbox`) Berhasil Dibuat**:
-   - Ditempatkan di [index.html](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/index.html) dengan backdrop gelap blur (`backdrop-blur-md bg-slate-950/90 z-[100]`), animasi transisi halus (`animate-scale-up`), badge fasilitas, judul foto, tombol `↗ Buka Gambar Asli` di tab baru, dan tombol tutup silang `✕`.
-   - Mendukung penutupan instan via tombol keyboard `Escape` maupun klik di luar area foto (backdrop click).
-2. **Foto Preview Device Interaktif & Click-to-Zoom**:
-   - Di [landing.js](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/js/controllers/landing.js), foto fasilitas pada frame device preview kini memiliki class `cursor-zoom-in group/zoom` dengan hover scale yang halus.
-   - Dilengkapi floating chip badge melayang di pojok kanan bawah: **`🔍 Klik untuk Perbesar`** yang memberi visual cue jelas kepada pengunjung.
-   - Mengklik foto seketika memanggil `openFacilityImageLightbox(target.id)` yang menampilkan gambar dalam resolusi penuh tajam.
-3. **Fungsi Global Terbuka & Modular**:
-   - `openImageLightbox(imageUrl, title, badge)` dan `closeImageLightbox()` diekspos ke `window` sehingga dapat digunakan kembali di bagian lain LMS kapan saja.
-4. **Cache Buster**:
-   - Diperbarui ke `?v=59` di `index.html` pada stylesheet dan seluruh 13 modul skrip JS.
-
-
-## 1. DETAIL KEBUTUHAN & AKAR MASALAH (REVISI 59)
-
-### PERMINTAAN PENGGUNA
-Pengguna melampirkan tangkapan layar bagian *"Fasilitas & Ekosistem Belajar"* (bagian *"Lebih Dari Sekadar Kelas Video Biasa"*) pada Landing Page. Pada sisi kanan, terdapat mockup bingkai device (*Live Preview*) yang menampilkan gambar/foto preview dari fasilitas terpilih (contohnya: screenshot instalasi terminal ZettBOT). 
-Pengguna meminta:
-> *"gw pengen foto disini bisa dipencet untuk membuka fotonya"*
-
-### AKAR MASALAH TEKNIS
-1. Di `index.html` dan `js/controllers/landing.js`, elemen kontainer `#landing-facility-preview-screen` merender gambar fasilitas dengan elemen `<img>` standar tanpa event handler `onclick`, tanpa kursor interaktif (`cursor-zoom-in`), dan tanpa modal pratinjau resolusi tinggi (Lightbox Modal).
-2. Ketika pengunjung mengklik foto pada mockup device tersebut, tidak ada aksi apapun yang terjadi sehingga detail teks atau tangkapan layar yang padat (seperti kode terminal atau UI) sulit dibaca pada ukuran device mockup yang ringkas.
+## RINGKASAN HASIL EKSEKUSI REVISI 60
+1. **Section Atmospheric Backgrounds & Full-Viewport Framing**:
+   - Seluruh section Landing Page kini memiliki identitas visual & atmosfer warna tersendiri secara bergantian agar tidak monoton, membentang penuh 1 layar laptop (`min-h-screen` / `min-h-[calc(100vh-4rem)]`), dan tetap rapi dengan wrapper `max-w-[1440px] 2xl:max-w-[1600px] mx-auto`:
+     - **Hero Section**: Transparent dark canvas dengan animasi cyber particle network.
+     - **Bento Tahapan Kurikulum (`#landing-curriculum`)**: Dark Architectural Blueprint Grid (`.section-architectural-grid`) dengan border separator `border-slate-800/80`.
+     - **Fasilitas & Ekosistem Belajar (`#landing-facilities`)**: Deep Radial Emerald Aura (`.section-radial-emerald`) dengan fokus kilau di area kanan device mockup.
+     - **Target Siswa Audiens (`#landing-usecases`)**: Slate Navy Tech Cyan Gradient (`.section-deep-navy`).
+     - **Testimonial Member Alumni (`#landing-testimonials`)**: Warm Golden Amber Radial Glow (`.section-golden-amber`).
+     - **Footer Ekosistem**: Obsidian Carbon Matte (`bg-[#050608]`) dengan border tegas.
+2. **Interactive Scroll UX**:
+   - **Micro Scroll Progress Bar (`#app-scroll-progress`)**: Fixed di bagian paling atas layar setinggi 2.5px dengan gradien emerald ke cyan (`from-emerald-400 via-emerald-500 to-cyan-400`), melacak pergerakan scroll pengguna secara presisi (0% - 100%).
+   - **Scroll Reveal Animations (`.scroll-reveal`)**: Didukung `IntersectionObserver` ringan tanpa lag. Seluruh section meluncur naik perlahan (`translate-y-0` dan `opacity-1`) dengan kurva cubic-bezier premium saat pertama kali digulirkan masuk ke viewport.
+3. **Sleek Initial Boot Loader / Splash Screen (`#app-boot-loader`)**:
+   - Menghadirkan transisi loading saat website pertama kali dibuka: logo ZB berdenyut lembut (`.boot-loader-pulse-ring`) diiringi micro progress bar animasi.
+   - Otomatis dissolve/fade-out mulus dalam 450ms setelah DOM terhidrasi tanpa pernah menghalangi interaksi pengguna.
+4. **Elevated Card Outlines & Subtle Highlights**:
+   - Seluruh card di Landing Page (Fasilitas, Call-to-Action, Target Audiens) dipoles dengan class `.card-elevated-highlight`:
+     - Highlight tipis 1px pada sisi atas (`inset 0 1px 0 0 rgba(255,255,255,0.09)`) yang memberikan kedalaman fisik seperti hardware Apple.
+     - Kartu target audiens (`.card-usecase-item`) memiliki border top aksen warna emerald saat di-hover.
+     - Card action dan fasilitas merespons kursor dengan pergerakan `translate-y(-3px)` dan bayangan glow emerald.
+5. **Cache Buster**:
+   - Ditingkatkan ke `?v=60` di [index.html](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/index.html) pada [style.css](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/css/style.css) dan seluruh 13 modul skrip JS.
 
 ---
 
-## 2. RANCANGAN SOLUSI ARSITEKTUR ZETTBOT
+## 1. DETAIL KEBUTUHAN PENGGUNA (REVISI 60)
 
-### A. Komponen Modal Lightbox Gambar Global (`#modal-image-lightbox`) di `index.html`
-Tambahkan modal gambar universal berstandar Zettbos dengan spesifikasi:
-- **Backdrop Blur & Dimming**: Latar belakang gelap transparan dengan efek blur halus (`fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-slate-950/90 backdrop-blur-md`).
-- **Animasi Pop-Up Halus**: Transisi zoom dan fade-in (`animate-scale-up`).
-- **Header Info & Navigasi**:
-  - Badge kategori / nama fasilitas terpilih.
-  - Judul gambar (`#lightbox-image-title`).
-  - Tombol aksi `↗ Buka Ukuran Penuh` (membuka file asli di tab browser baru).
-  - Tombol `✕ Tutup` yang jelas dan mudah dijangkau.
-- **Tampilan Foto Maksimal & Responsif**:
-  - Kontainer gambar dibatasi `max-h-[82vh] max-w-5xl` dengan `object-contain`, mempertahankan rasio aspek gambar aslinya tanpa distorsi atau cropping.
-- **Interaksi Ramah Pengguna**:
-  - Klik di luar area gambar (pada backdrop) otomatis menutup modal.
-  - Tekan tombol keyboard `Escape` otomatis menutup modal.
+Pengguna menyampaikan kebutuhan estetika dan UX tingkat lanjut untuk Landing Page:
+> *"di landing page ini gw pengen deh setiap section ini punya warna sendiri dan full 1 layar laptop, jadi ada yg transparan melihat background ada juga yang ada latar belakangnya misal hitam/putih/hijau atau gradien gitu, jadi biar ga monoton, mungkin bisa dikasih juga sentuhan UX setiap scroll kebawah, saat buka pertama kali juga gw mau deh ada loading untuk render data awal. Atau lu ada saran lain biar terlihat profesional? gw juga pengen si lu maenin outline2 setiap cardnya, atau lu maenin warna card dan bentuk card, atau saran saran lain, lu bisa kasih gw saran yang bagus banget ya!"*
 
-### B. Interaktivitas pada Mockup Preview Fasilitas (`js/controllers/landing.js`)
-1. **Visual Affordance (Petunjuk Visual Bisa Diklik)**:
-   - Tambahkan class `cursor-zoom-in group/zoom relative` pada kontainer gambar di `#landing-facility-preview-screen`.
-   - Pasang floating chip di pojok kanan bawah gambar:
-     ```html
-     <div class="absolute bottom-3 right-3 px-2.5 py-1.5 rounded-xl bg-slate-950/85 backdrop-blur-md border border-emerald-500/40 text-emerald-300 text-[11px] font-semibold flex items-center gap-1.5 shadow-xl group-hover/zoom:scale-105 group-hover/zoom:border-emerald-400 transition-all pointer-events-none">
-       <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"/></svg>
-       <span>Klik untuk Perbesar</span>
-     </div>
-     ```
-2. **Event Trigger `openFacilityImageLightbox()`**:
-   - Jika fasilitas memiliki `imageUrl`, klik pada layar mockup device seketika memanggil `openImageLightbox(convertedUrl, target.title, target.badge)`.
-   - Jika fasilitas sedang menggunakan live mockup HTML (belum upload gambar kustom), klik layar menampilkan petunjuk toast ramah: *"Fasilitas ini sedang menggunakan live interactive preview."*
-
-### C. Fungsi Controller Universal (`openImageLightbox` & `closeImageLightbox`)
-- Dibuat modular dan diekspos ke `window` agar dapat dipakai tidak hanya di fasilitas landing page, tetapi juga di modul kurikulum, Notion image blocks, atau dokumen materi lainnya di masa depan.
-- Otomatis mendaftarkan event listener `keydown` (tombol `Escape`) saat modal dibuka dan melepaskannya saat ditutup untuk menjaga performa memori.
+Kebutuhan disetujui untuk dieksekusi dengan `/zettbot OKE TERAPKAN!`.
 
 ---
 
-## 3. BERKAS YANG AKAN DIUBAH
-1. **`index.html`**:
-   - Tambahkan markup `#modal-image-lightbox` di area modal global.
-   - Bump versi cache buster ke `?v=59`.
-2. **`js/controllers/landing.js`**:
-   - Update `selectLandingFacilityPreview` untuk menambahkan interaksi klik dan floating badge *"Klik untuk Perbesar"* pada gambar.
-   - Tambahkan implementasi `openImageLightbox(imageUrl, title, badge)` dan `closeImageLightbox()`.
-3. **`prd.md`**:
-   - Bump versi Master Context ke `v1.3.0` dan siapkan catatan arsitektur Revisi 59.
+## 2. ARSITEKTUR IMPLEMENTASI TEKNIS
+
+### A. CSS Atmospheric Engine & Animations (`css/style.css`)
+- **Scroll Progress Bar**:
+  ```css
+  #app-scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 2.5px;
+    width: 0%;
+    background: linear-gradient(90deg, #10B981, #06B6D4);
+    z-index: 9999;
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.7);
+    transition: width 80ms ease-out;
+  }
+  ```
+- **Initial Boot Loader**:
+  ```css
+  #app-boot-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: #070B14;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 450ms cubic-bezier(0.16, 1, 0.3, 1), visibility 450ms;
+  }
+  ```
+- **Section Atmospheres**:
+  - `.section-architectural-grid`: Blueprint engineering grid 48px x 48px dengan aksen subtle slate.
+  - `.section-deep-navy`: Obsidian navy tone dengan cyan ambient spotlight di bagian atas.
+  - `.section-radial-emerald`: Radial aura zamrud lembut di sisi kanan mengarahkan fokus ke preview device fasilitas.
+  - `.section-golden-amber`: Ambience keemasan di area testimoni member alumni.
+- **Card Elevated Outlines**:
+  - `.card-elevated-highlight`: Menggunakan inner highlight `inset 0 1px 0 0 rgba(255,255,255,0.09)` dan elevasi hover dengan box-shadow emerald glow.
+  - `.card-usecase-item`: Memberikan aksen garis atas tebal berwarna emerald interaktif pada hover.
+
+### B. Struktur HTML Viewport Framing (`index.html`)
+- Mengapit elemen kontainer dalam section dengan class background edge-to-edge, sementara isi teks dan grid diwadahi rapi di `<div class="max-w-[1440px] 2xl:max-w-[1600px] mx-auto w-full">`.
+- Menerapkan `min-h-screen` dan `flex flex-col justify-center` pada `#landing-curriculum` dan `#landing-facilities`.
+- Menerapkan `min-h-[85vh]` pada `#landing-usecases` dan `min-h-[60vh]` pada `#landing-testimonials`.
+
+### C. Kontroler Logika & Interaktivitas (`js/controllers/landing.js` & `js/app.js`)
+- `initLandingScrollProgress()`: Memantau `window.scrollY` berbanding tinggi dokumen, memperbarui lebar bar progress secara non-blocking dengan performa tinggi (`passive: true`).
+- `initLandingScrollReveal()`: Menggunakan `IntersectionObserver` asli peramban untuk mengaktifkan animasi slide-up dan fade-in begitu section mencapai batas penglihatan (threshold 0.1).
+- `app.js`: Mengorkestrasi peluncuran animasi scroll UX dan menghentikan splash loader secara halus setelah 350-450ms.
 
 ---
 
-## 4. JAMINAN KEAMANAN SISTEM
-- **Zero-Breaking Change**: Tidak merusak CMS sinkronisasi Supabase yang baru saja dituntaskan di Revisi 57-58.
-- **Responsif Mobile & Desktop**: Modal otomatis menyesuaikan layar HP maupun PC ultrawide.
-- **Fallback Aman**: Jika koneksi lambat atau gambar gagal memuat, modal menyediakan tombol buka link eksternal dan tetap bisa ditutup dengan lancar.
+## 3. FILE YANG TELAH DIMODIFIKASI
+
+| No | File Path | Jenis Perubahan |
+|----|-----------|-----------------|
+| 1 | [css/style.css](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/css/style.css) | Menambahkan styles untuk `#app-scroll-progress`, `#app-boot-loader`, atmosfer background section, `.scroll-reveal`, dan `.card-elevated-highlight`. |
+| 2 | [index.html](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/index.html) | Menambahkan elemen `#app-scroll-progress` dan `#app-boot-loader`, membungkus setiap section dengan atmosfer dan `min-h-screen`, memperbarui cache buster ke `?v=60`. |
+| 3 | [js/controllers/landing.js](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/js/controllers/landing.js) | Menambahkan fungsi `initLandingScrollProgress`, `initLandingScrollReveal`, kelas kartu elevasi, dan ekspor ke `window`. |
+| 4 | [js/app.js](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/js/app.js) | Memanggil inisialisasi scroll progress, scroll reveal, dan transisi dismissal `#app-boot-loader` di `DOMContentLoaded`. |
+| 5 | [revisi.md](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/revisi.md) | Mendokumentasikan laporan eksekusi arsitektur dan verifikasi Revisi 60. |
+| 6 | [prd.md](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/prd.md) | Memperbarui versi ke v1.3.1 dan mencatat riwayat perubahan arsitektur Revisi 60. |
+
+---
+
+## 4. VERIFIKASI AKHIR
+- [x] Tidak ada error sintaks JavaScript.
+- [x] Boot loader tampil anggun saat web pertama kali di-load dan hilang secara halus (fade-out) tanpa flickering.
+- [x] Progress bar di bagian atas layar bertambah panjang secara presisi saat halaman di-scroll ke bawah.
+- [x] Setiap section memiliki background yang khas dan penuh layar laptop tanpa mengorbankan keterbacaan teks dan fungsionalitas tombol/kartu.
+- [x] Card outline highlight memberikan sentuhan premium layaknya software kelas dunia.

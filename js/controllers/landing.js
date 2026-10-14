@@ -564,7 +564,7 @@ function renderLandingFacilitiesShowcase(cms) {
       <div 
         data-facility-id="${uc.id}" 
         onclick="selectLandingFacilityPreview('${uc.id}')"
-        class="feature-interactive-card glass-card rounded-2xl p-5 sm:p-6 lg:p-7 border transition-all duration-300 group cursor-pointer flex flex-col justify-center min-h-[140px] sm:min-h-[155px] lg:min-h-[170px] ${activeClass}"
+        class="feature-interactive-card glass-card card-elevated-highlight rounded-2xl p-5 sm:p-6 lg:p-7 border transition-all duration-300 group cursor-pointer flex flex-col justify-center min-h-[140px] sm:min-h-[155px] lg:min-h-[170px] ${activeClass}"
       >
         <div class="flex items-start gap-4 sm:gap-5">
           <div class="feature-icon-box w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all ${isActive ? 'bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.25)]' : 'bg-slate-900 border border-slate-800 text-slate-400 group-hover:text-emerald-300'}">
@@ -591,7 +591,7 @@ function renderLandingFacilitiesShowcase(cms) {
       href="https://lynk.id/zettbos/50nxdkpjmowm" 
       target="_blank" 
       rel="noopener noreferrer" 
-      class="feature-action-card rounded-2xl p-5 sm:p-6 lg:p-7 border-2 border-dashed border-emerald-500/40 hover:border-emerald-400 bg-emerald-950/20 hover:bg-emerald-950/35 transition-all flex flex-col justify-center min-h-[140px] sm:min-h-[155px] lg:min-h-[170px] group cursor-pointer shadow-sm"
+      class="feature-action-card card-elevated-highlight rounded-2xl p-5 sm:p-6 lg:p-7 border-2 border-dashed border-emerald-500/40 hover:border-emerald-400 bg-emerald-950/20 hover:bg-emerald-950/35 transition-all flex flex-col justify-center min-h-[140px] sm:min-h-[155px] lg:min-h-[170px] group cursor-pointer shadow-sm"
     >
       <div class="flex items-start gap-4 sm:gap-5">
         <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center shrink-0 text-emerald-400 group-hover:scale-105 group-hover:bg-emerald-500/25 transition-all">
@@ -645,7 +645,7 @@ function renderLandingUseCases(cms) {
     const iconBgClass = tintIconBgMap[uc.tint] || tintIconBgMap.emerald;
     const tags = Array.isArray(uc.tags) ? uc.tags : [];
     return `
-      <div class="glass-card rounded-2xl p-4 sm:p-5 flex flex-col justify-between border ${borderClass} transition-all duration-300 group hover:-translate-y-1 shadow-md">
+      <div class="glass-card card-usecase-item card-elevated-highlight rounded-2xl p-4 sm:p-5 flex flex-col justify-between border ${borderClass} transition-all duration-300 group hover:-translate-y-1 shadow-md">
         <div>
           <div class="flex items-center justify-between mb-3">
             <div class="w-9 h-9 rounded-xl ${iconBgClass} border flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
@@ -1032,6 +1032,48 @@ function initLandingScrollSpy() {
   onScroll();
 }
 
+// Micro Scroll Progress Bar Controller (Revisi 60)
+function initLandingScrollProgress() {
+  const bar = document.getElementById('app-scroll-progress');
+  if (!bar) return;
+
+  const updateProgress = () => {
+    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const percent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    bar.style.width = Math.min(100, Math.max(0, percent)) + '%';
+  };
+
+  window.addEventListener('scroll', updateProgress, { passive: true });
+  updateProgress();
+}
+
+// Scroll Reveal Observer for Section Animations (Revisi 60)
+function initLandingScrollReveal() {
+  const reveals = document.querySelectorAll('.scroll-reveal');
+  if (!reveals.length) return;
+
+  if (!('IntersectionObserver' in window)) {
+    reveals.forEach(el => el.classList.add('revealed'));
+    return;
+  }
+
+  const observer = new IntersectionObserver((entries, obs) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('revealed');
+        obs.unobserve(entry.target);
+      }
+    });
+  }, {
+    root: null,
+    rootMargin: '0px 0px -50px 0px',
+    threshold: 0.1
+  });
+
+  reveals.forEach(el => observer.observe(el));
+}
+
 // Window bindings
 window.getModuleMicroTags = getModuleMicroTags;
 window.renderLandingCurriculumBento = renderLandingCurriculumBento;
@@ -1049,6 +1091,8 @@ window.getFeatureFallbackMockupHtml = getFacilityFallbackMockupHtml;
 window.HeroTypewriterController = HeroTypewriterController;
 window.initHeroBannerOverlapCentering = initHeroBannerOverlapCentering;
 window.initLandingScrollSpy = initLandingScrollSpy;
+window.initLandingScrollProgress = initLandingScrollProgress;
+window.initLandingScrollReveal = initLandingScrollReveal;
 window.openImageLightbox = openImageLightbox;
 window.closeImageLightbox = closeImageLightbox;
 window.openFacilityImageLightbox = openFacilityImageLightbox;
