@@ -177,6 +177,18 @@ const ZettSupabase = {
           useCases: cms.use_cases || (zData.SEED_LANDING_CMS?.useCases) || [],
           testimonials: cms.testimonials || []
         };
+
+        // Extract Brand Logo from Cloud (hero.brandLogoUrl or top-level)
+        const cloudLogo = cms.brand_logo_url || cms.hero?.brandLogoUrl || '';
+        AppState.brandLogoUrl = cloudLogo;
+        if (cloudLogo) {
+          localStorage.setItem('zettbos_brand_logo_url', cloudLogo);
+        } else {
+          localStorage.removeItem('zettbos_brand_logo_url');
+        }
+        if (typeof renderAppBrandLogo === 'function') {
+          renderAppBrandLogo();
+        }
       }
 
       saveState();
@@ -292,9 +304,13 @@ const ZettSupabase = {
   async pushLandingCmsToSupabase(silent = true) {
     if (!this.isConnected() || !AppState.landingCms) return false;
     try {
+      const heroWithBrand = {
+        ...(AppState.landingCms.hero || {}),
+        brandLogoUrl: AppState.brandLogoUrl || ''
+      };
       const payload = {
         id: 'active_cms',
-        hero: AppState.landingCms.hero || {},
+        hero: heroWithBrand,
         facilities: AppState.landingCms.facilities || [],
         use_cases: AppState.landingCms.useCases || [],
         testimonials: AppState.landingCms.testimonials || [],
@@ -309,7 +325,8 @@ const ZettSupabase = {
           console.warn('[ZettSupabase] Kolom facilities belum ada di schema Supabase. Menggunakan payload fallback JSONB hero._facilities...');
           const fallbackHero = {
             ...(AppState.landingCms.hero || {}),
-            _facilities: AppState.landingCms.facilities || []
+            _facilities: AppState.landingCms.facilities || [],
+            brandLogoUrl: AppState.brandLogoUrl || ''
           };
           const fallbackPayload = {
             id: 'active_cms',
@@ -477,6 +494,18 @@ const ZettSupabase = {
             useCases: (Array.isArray(cms.use_cases) && cms.use_cases.length > 0) ? cms.use_cases : (zData.SEED_LANDING_CMS?.useCases || []),
             testimonials: (Array.isArray(cms.testimonials) && cms.testimonials.length > 0) ? cms.testimonials : (zData.SEED_LANDING_CMS?.testimonials || [])
           };
+
+          // Auto-Sync Brand Logo from Cloud to all client devices
+          const cloudLogo = cms.brand_logo_url || cms.hero?.brandLogoUrl || '';
+          if (cloudLogo !== undefined) {
+            AppState.brandLogoUrl = cloudLogo;
+            if (cloudLogo) {
+              localStorage.setItem('zettbos_brand_logo_url', cloudLogo);
+            } else {
+              localStorage.removeItem('zettbos_brand_logo_url');
+            }
+          }
+
           localStorage.setItem('zett_landing_cms', JSON.stringify(AppState.landingCms));
           hasChanges = true;
         }
@@ -489,6 +518,12 @@ const ZettSupabase = {
         if (!silent && typeof showToast === 'function') {
           showToast('Kurikulum Cloud berhasil disinkronkan ke layar!', 'success');
         }
+
+        // Always re-render brand logo across all 4 targets (nav, drawer, landing, footer)
+        if (typeof renderAppBrandLogo === 'function') {
+          renderAppBrandLogo();
+        }
+
         // Auto re-render active view
         if (AppState.currentView === 'home') {
           if (typeof renderHome === 'function') renderHome();
@@ -501,6 +536,7 @@ const ZettSupabase = {
           if (typeof renderAdminCurriculum === 'function') renderAdminCurriculum();
           if (typeof renderAdminQuickActions === 'function') renderAdminQuickActions();
           if (typeof renderAdminLandingCms === 'function') renderAdminLandingCms();
+          if (typeof renderAdminResourcesCms === 'function') renderAdminResourcesCms();
         }
         else if (AppState.currentView === 'resources') {
           if (typeof renderResources === 'function') renderResources();
@@ -510,6 +546,9 @@ const ZettSupabase = {
           if (typeof renderLandingCurriculumBento === 'function') renderLandingCurriculumBento();
           if (typeof renderLandingFacilitiesShowcase === 'function') renderLandingFacilitiesShowcase(AppState.landingCms);
           if (typeof renderLandingUseCases === 'function') renderLandingUseCases(AppState.landingCms);
+          if (window.HeroTypewriterController && typeof window.HeroTypewriterController.init === 'function') {
+            window.HeroTypewriterController.init();
+          }
         }
         else if (AppState.currentView === 'learn' && typeof renderLearningRoom === 'function') renderLearningRoom(AppState.currentLessonId);
       }

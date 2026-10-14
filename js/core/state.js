@@ -152,7 +152,7 @@ function initStorage() {
 
   AppState.activity = (storedActivity && typeof storedActivity === 'object') ? storedActivity : { ...seedActivity };
   AppState.quickActions = (Array.isArray(storedQuickActions) && storedQuickActions.length > 0) ? storedQuickActions : [...seedQuickActions];
-  AppState.brandLogoUrl = localStorage.getItem('zettbos_brand_logo_url') || '';
+  AppState.brandLogoUrl = localStorage.getItem('zettbos_brand_logo_url') || AppState.landingCms?.brandLogoUrl || AppState.landingCms?.hero?.brandLogoUrl || '';
   AppState.currentUser = storedUser || null;
 
   // Jika user yang tersimpan adalah dummy yang sudah dihapus, ganti ke akun Owner Farhan

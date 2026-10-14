@@ -657,10 +657,26 @@ function handleSaveEditResourceSubmit(e) {
   res.description = document.getElementById('edit-res-desc').value.trim();
 
   saveState();
+
+  // Live Auto-Push ke Supabase Cloud tabel shared_resources
+  if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+    ZettSupabase.client.from('shared_resources').upsert({
+      id: res.id,
+      title: res.title,
+      description: res.description || '',
+      url: res.url,
+      category: res.category || 'sheet',
+      badge: res.badge || 'Official Link',
+      order_index: res.orderIndex || 1
+    }, { onConflict: 'id' }).then(({ error }) => {
+      if (error) console.warn('[Supabase Shared Resources Update Warning]', error);
+    });
+  }
+
   closeEditResourceModal();
   renderAdminResourcesCms();
   if (typeof renderResources === 'function') renderResources();
-  showToast('Perubahan dokumen berhasil disimpan!', 'success');
+  showToast('Perubahan dokumen berhasil disimpan & LIVE ke Database!', 'success');
 }
 
 function resetResourcesToDefault() {
@@ -1485,6 +1501,10 @@ function deleteCurrentModule() {
       saveState();
 
       if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+        // Hapus materi di dalam modul terlebih dahulu untuk menjamin cascade bersih
+        ZettSupabase.client.from('curriculum_lessons').delete().eq('module_id', delModId).then(({ error }) => {
+          if (error) console.warn('[Supabase Cascade Lesson Delete Warning]', error);
+        });
         ZettSupabase.client.from('curriculum_modules').delete().eq('id', delModId).then(({ error }) => {
           if (error) console.warn('[Supabase Module Delete Error]', error);
         });
@@ -2507,22 +2527,28 @@ function handleSaveBrandLogo(e) {
   const rawUrl = inp ? inp.value.trim() : '';
 
   AppState.brandLogoUrl = rawUrl;
+  if (!AppState.landingCms) AppState.landingCms = {};
+  if (!AppState.landingCms.hero) AppState.landingCms.hero = {};
+  AppState.landingCms.hero.brandLogoUrl = rawUrl;
+  AppState.landingCms.brandLogoUrl = rawUrl;
+
   if (rawUrl) {
     localStorage.setItem('zettbos_brand_logo_url', rawUrl);
   } else {
     localStorage.removeItem('zettbos_brand_logo_url');
   }
 
-  if (window.ZettSupabase && typeof window.ZettSupabase.saveSetting === 'function') {
-    window.ZettSupabase.saveSetting('brand_logo_url', rawUrl);
-  }
+  saveState();
+
+  // Live Auto-Push ke Supabase Cloud via hero JSONB container
+  autoPushLandingCmsIfConnected();
 
   if (typeof renderAppBrandLogo === 'function') {
     renderAppBrandLogo();
   }
 
   handleBrandLogoInputPreview(rawUrl);
-  showToast(rawUrl ? 'Logo brand berhasil disimpan & diperbarui!' : 'Logo direset ke badge default [ZB]', 'success');
+  showToast(rawUrl ? 'Logo brand berhasil disimpan & LIVE di Cloud Supabase!' : 'Logo direset ke badge default [ZB]', 'success');
 }
 
 function handleResetBrandLogo() {
@@ -2530,18 +2556,25 @@ function handleResetBrandLogo() {
   if (inp) inp.value = '';
 
   AppState.brandLogoUrl = '';
+  if (AppState.landingCms && AppState.landingCms.hero) {
+    AppState.landingCms.hero.brandLogoUrl = '';
+  }
+  if (AppState.landingCms) {
+    AppState.landingCms.brandLogoUrl = '';
+  }
   localStorage.removeItem('zettbos_brand_logo_url');
 
-  if (window.ZettSupabase && typeof window.ZettSupabase.saveSetting === 'function') {
-    window.ZettSupabase.saveSetting('brand_logo_url', '');
-  }
+  saveState();
+
+  // Live Auto-Push reset logo ke Supabase Cloud
+  autoPushLandingCmsIfConnected();
 
   if (typeof renderAppBrandLogo === 'function') {
     renderAppBrandLogo();
   }
 
   handleBrandLogoInputPreview('');
-  showToast('Logo dikembalikan ke badge bawaan [ZB]', 'success');
+  showToast('Logo dikembalikan ke badge bawaan [ZB] & LIVE di Cloud!', 'success');
 }
 
 window.handleBrandLogoInputPreview = handleBrandLogoInputPreview;

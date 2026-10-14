@@ -1,8 +1,8 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 # Projek: Zettbos LMS (Member Hub & Notion-Style Learning Management System)
 ================================================================================
-VERSI DOKUMEN : v1.2.7
-STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 56 SELESAI)
+VERSI DOKUMEN : v1.2.8
+STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 57 SELESAI)
 ARSITEK SISTEM: ZettBOT by Zettbos
 ENGINE STACK  : Next.js 14+ (App Router) + Supabase (Postgres & Auth OTP) + Vercel
 ================================================================================
@@ -594,4 +594,16 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
         - Memperbarui skema tabel `landing_cms` dengan `facilities JSONB DEFAULT '[]'::jsonb`.
         - Menyiapkan skrip migrasi mandiri `ALTER TABLE public.landing_cms ADD COLUMN IF NOT EXISTS facilities JSONB DEFAULT '[]'::jsonb;`.
      3. Cache Buster: Menaikkan seluruh query string script dan stylesheet di `index.html` ke versi `?v=56`.
+  - [2026-10-14] Implementasi Revisi 57: Audit Total CMS, Sinkronisasi Cloud Logo Brand (hero.brandLogoUrl JSONB), Live Push Edit Dokumen Shared Resources, Cascading Deletion Modul, dan Cache Buster ?v=57.
+     1. Integrasi Penuh Logo Brand ke Supabase Cloud (`js/controllers/admin.js`, `js/core/supabase.js`, `js/core/state.js`):
+        - Logo brand kini diwadahi ke dalam container `AppState.landingCms.hero.brandLogoUrl` (kolom JSONB yang dijamin valid di Supabase).
+        - Saat Admin menyimpan atau mereset logo brand di Admin Panel, data seketika di-push secara live ke cloud via `autoPushLandingCmsIfConnected()`.
+        - Pada browser pengunjung atau siswa lain, startup sync (`syncCurriculumFromCloud` & `pullAllData`) otomatis mengekstrak logo brand dari cloud dan langsung memanggil `renderAppBrandLogo()` di 4 lokasi: navbar, mobile drawer, hero landing, dan footer.
+     2. Live Push Saat Edit Shared Resources (`js/controllers/admin.js`):
+        - Menambahkan pemanggilan langsung `ZettSupabase.client.from('shared_resources').upsert(...)` pada `handleSaveEditResourceSubmit` sehingga dokumen yang diedit Admin langsung terupdate bagi semua member.
+     3. Cascading Deletion Materi saat Modul Dihapus (`js/controllers/admin.js`):
+        - Menambahkan penghapusan materi terkait `curriculum_lessons.delete().eq('module_id', delModId)` saat modul dihapus untuk mencegah data materi yatim di Supabase.
+     4. Auto Re-rendering Antarmuka CMS & Typewriter (`js/core/supabase.js`):
+        - Menambahkan pemanggilan `HeroTypewriterController.init()`, `renderAdminResourcesCms()`, dan `renderAppBrandLogo()` setiap kali background sync Supabase selesai.
+     5. Cache Buster: Menaikkan seluruh query string script dan stylesheet di `index.html` ke versi `?v=57`.
 
