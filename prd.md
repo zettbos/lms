@@ -1,8 +1,8 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 # Projek: Zettbos LMS (Member Hub & Notion-Style Learning Management System)
 ================================================================================
-VERSI DOKUMEN : v1.3.4
-STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 63 SELESAI)
+VERSI DOKUMEN : v1.3.5
+STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 64 SELESAI)
 ARSITEK SISTEM: ZettBOT by Zettbos
 ENGINE STACK  : Next.js 14+ (App Router) + Supabase (Postgres & Auth OTP) + Vercel
 ================================================================================
@@ -689,4 +689,24 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
      4. Auto Re-rendering Antarmuka CMS & Typewriter (`js/core/supabase.js`):
         - Menambahkan pemanggilan `HeroTypewriterController.init()`, `renderAdminResourcesCms()`, dan `renderAppBrandLogo()` setiap kali background sync Supabase selesai.
      5. Cache Buster: Menaikkan seluruh query string script dan stylesheet di `index.html` ke versi `?v=57`.
+  - [2026-10-15] Implementasi Revisi 64: Peningkatan Keterbacaan Light Mode (Stabilo, Miring, Tebal, Kode), Bookmark Card Adaptif, Menu Hover Admin Panel & Eliminasi Tombol Reset Data ke 0, Filter Category Counter, Dynamic Favicon Browser, dan Penghalusan Bootloader Splash Screen.
+     1. Keterbacaan Tulisan & Stabilo Light Mode (`css/style.css`, `js/editor.js`):
+        - Memberikan class semantik `mark-pink`, `mark-green`, `mark-cyan`, `mark-purple`, `mark-amber`, `rich-bold`, dan `rich-italic`.
+        - Menetapkan warna teks stabilo di Light Mode dengan kontras tinggi (contoh: pink stabilo menggunakan background `#FFE4E6`, border `#FDA4AF`, teks `#9F1239` pekat).
+        - Menegaskan warna teks miring (`em`/`i`) dan tebal (`strong`/`b`) menjadi `#0F172A` pekat agar tidak samar atau putih di mode terang.
+     2. Tombol Bookmark Card Adaptif (`js/controllers/classroom.js`, `css/style.css`):
+        - Mengubah tombol bookmark modul menjadi class `btn-card-bookmark` bergaya *frosted white glass* di Light Mode tanpa kotak hitam pekat.
+     3. Penyelarasan Menu Admin & Eliminasi Tombol Reset Data (`index.html`, `js/controllers/admin.js`, `css/style.css`):
+        - Menghapus tombol `[Bersihkan ke 0]` dari header Admin Panel.
+        - Menghapus seluruh tombol `[Reset ke Default]` di CMS Resource Hub, Quick Actions, Landing Hero, Facilities, Use Cases, dan Testimonials.
+        - Memperbaiki hover tabs admin menjadi abu-abu terang halus (`#F1F5F9 text-[#0F172A]`) di Light Mode.
+     4. Counter Badge Filter Kategori (`js/controllers/classroom.js`, `css/style.css`):
+        - Menambahkan class `category-pill` dan `category-pill-count` dengan kontras tinggi di Light Mode sehingga angka tidak tenggelam.
+     5. Dynamic Favicon Browser (`index.html`, `js/controllers/classroom.js`):
+        - Memasang tag `<link id="app-favicon" rel="icon" ...>` di `<head>` dan menghubungkannya dengan auto-hydration sejak milidetik ke-0 mengikuti logo brand kustom yang diunggah.
+     6. Penghalusan Bootloader Loading Screen (`css/style.css`, `index.html`):
+        - Menghapus properti `transform: scale(1.04)` dari `.boot-loader-finish` yang menyebabkan efek logo membesar mendadak.
+        - Menyelaraskan dimensi awal logo bootloader (`h-16 sm:h-20 w-auto`) dengan transisi *pure smooth opacity fade-out*.
+     7. Cache Buster:
+        - Menaikkan seluruh query string stylesheet dan script JavaScript di `index.html` ke versi `?v=64`.
 

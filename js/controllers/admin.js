@@ -26,9 +26,9 @@ function switchAdminTab(tabName) {
     const tabPane = document.getElementById(`tab-pane-${t}`);
     if (tabBtn) {
       if (t === tabName) {
-        tabBtn.className = 'px-4 py-2 rounded-xl text-sm font-semibold bg-emerald-950 text-emerald-300 border border-emerald-500/40';
+        tabBtn.className = 'admin-tab-btn active px-4 py-2 rounded-xl text-sm font-semibold bg-emerald-950 text-emerald-300 border border-emerald-500/40 flex items-center gap-2 whitespace-nowrap transition-all shadow-sm';
       } else {
-        tabBtn.className = 'px-4 py-2 rounded-xl text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800';
+        tabBtn.className = 'admin-tab-btn px-4 py-2 rounded-xl text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-900/80 flex items-center gap-2 whitespace-nowrap transition-all border border-transparent';
       }
     }
     if (tabPane) {

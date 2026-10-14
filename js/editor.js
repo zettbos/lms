@@ -463,21 +463,21 @@ function formatRichText(text) {
 
   // 1. Stabilo / Highlighter (Multi-color background)
   // Green / Hijau: ==green:text== atau ==hijau:text==
-  str = str.replace(/==(?:green|hijau):([\s\S]+?)==/gi, '<mark class="bg-emerald-500/25 text-emerald-200 px-1.5 py-0.5 rounded border border-emerald-500/40 font-medium">$1</mark>');
+  str = str.replace(/==(?:green|hijau):([\s\S]+?)==/gi, '<mark class="mark-highlight mark-green bg-emerald-500/25 text-emerald-200 px-1.5 py-0.5 rounded border border-emerald-500/40 font-medium">$1</mark>');
   // Cyan / Biru: ==cyan:text== atau ==biru:text==
-  str = str.replace(/==(?:cyan|biru):([\s\S]+?)==/gi, '<mark class="bg-cyan-500/25 text-cyan-200 px-1.5 py-0.5 rounded border border-cyan-500/40 font-medium">$1</mark>');
+  str = str.replace(/==(?:cyan|biru):([\s\S]+?)==/gi, '<mark class="mark-highlight mark-cyan bg-cyan-500/25 text-cyan-200 px-1.5 py-0.5 rounded border border-cyan-500/40 font-medium">$1</mark>');
   // Pink / Rose: ==pink:text== atau ==rose:text==
-  str = str.replace(/==(?:pink|rose):([\s\S]+?)==/gi, '<mark class="bg-rose-500/25 text-rose-200 px-1.5 py-0.5 rounded border border-rose-500/40 font-medium">$1</mark>');
+  str = str.replace(/==(?:pink|rose):([\s\S]+?)==/gi, '<mark class="mark-highlight mark-pink bg-rose-500/25 text-rose-200 px-1.5 py-0.5 rounded border border-rose-500/40 font-medium">$1</mark>');
   // Purple / Ungu: ==purple:text== atau ==ungu:text==
-  str = str.replace(/==(?:purple|ungu):([\s\S]+?)==/gi, '<mark class="bg-purple-500/25 text-purple-200 px-1.5 py-0.5 rounded border border-purple-500/40 font-medium">$1</mark>');
+  str = str.replace(/==(?:purple|ungu):([\s\S]+?)==/gi, '<mark class="mark-highlight mark-purple bg-purple-500/25 text-purple-200 px-1.5 py-0.5 rounded border border-purple-500/40 font-medium">$1</mark>');
   // Standard Neon Yellow Stabilo: ==text==
-  str = str.replace(/==([\s\S]+?)==/g, '<mark class="bg-amber-400/30 text-amber-200 px-1.5 py-0.5 rounded border border-amber-400/40 font-medium shadow-sm">$1</mark>');
+  str = str.replace(/==([\s\S]+?)==/g, '<mark class="mark-highlight mark-amber bg-amber-400/30 text-amber-200 px-1.5 py-0.5 rounded border border-amber-400/40 font-medium shadow-sm">$1</mark>');
 
   // 2. Bold: **text**
-  str = str.replace(/\*\*([\s\S]+?)\*\*/g, '<strong class="font-bold text-white">$1</strong>');
+  str = str.replace(/\*\*([\s\S]+?)\*\*/g, '<strong class="rich-bold font-bold text-white">$1</strong>');
 
   // 3. Italic: *text* (excluding already formatted)
-  str = str.replace(/(^|[^*])\*(?!\*)([^*]+?)\*(?!\*)/g, '$1<em class="italic text-slate-100">$2</em>');
+  str = str.replace(/(^|[^*])\*(?!\*)([^*]+?)\*(?!\*)/g, '$1<em class="rich-italic italic text-slate-100">$2</em>');
 
   // 4. Line break support
   str = str.replace(/\n/g, '<br/>');

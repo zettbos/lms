@@ -107,6 +107,14 @@ function renderAppBrandLogo() {
       }
     }
   });
+
+  // Sinkronisasi Favicon Browser Tab
+  try {
+    const faviconEl = document.getElementById('app-favicon') || document.querySelector("link[rel*='icon']");
+    if (faviconEl && convertedUrl) {
+      faviconEl.href = convertedUrl;
+    }
+  } catch (e) {}
 }
 
 function openWhatsAppContactModal() {
@@ -884,7 +892,7 @@ function renderLearnModuleCategoryPills() {
   container.innerHTML = categories.map(cat => {
     const isActive = activeLearnModuleCategory === cat.id;
     const activeClass = isActive 
-      ? 'bg-emerald-950 text-emerald-300 border-emerald-500/60 shadow-sm' 
+      ? 'is-active bg-emerald-950 text-emerald-300 border-emerald-500/60 shadow-sm' 
       : 'bg-slate-900/80 text-slate-400 hover:text-white hover:bg-slate-800 border-slate-800';
 
     const safeId = cat.id.replace(/'/g, "\\'");
@@ -892,10 +900,10 @@ function renderLearnModuleCategoryPills() {
       <button 
         type="button" 
         onclick="setLearnModuleCategory('${safeId}')"
-        class="px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all flex items-center gap-1.5 ${activeClass}"
+        class="category-pill px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all flex items-center gap-1.5 ${activeClass}"
       >
         <span>${escapeHtml(cat.label)}</span>
-        <span class="text-[10px] font-mono px-1.5 py-0.2 rounded-full ${isActive ? 'bg-emerald-900/60 text-emerald-300' : 'bg-slate-800 text-slate-500'}">
+        <span class="category-pill-count text-[10px] font-mono px-1.5 py-0.2 rounded-full ${isActive ? 'bg-emerald-900/60 text-emerald-300 font-bold' : 'bg-slate-800 text-slate-500'}">
           ${cat.count}
         </span>
       </button>
@@ -972,7 +980,7 @@ function renderLearnModulesCatalog() {
             </span>
           </div>
 
-          <button onclick="event.stopPropagation(); toggleModuleFavorite('${mod.id}')" title="${isModFav ? 'Hapus dari Favorit' : 'Simpan Modul ke Favorit'}" class="absolute top-2.5 right-2.5 p-1.5 rounded-lg ${isModFav ? 'bg-amber-950/90 text-amber-300 border border-amber-500/60' : 'bg-slate-900/90 hover:bg-slate-800 text-slate-300 border border-slate-800'} shadow-sm transition-colors z-10">
+          <button onclick="event.stopPropagation(); toggleModuleFavorite('${mod.id}')" title="${isModFav ? 'Hapus dari Favorit' : 'Simpan Modul ke Favorit'}" class="btn-card-bookmark absolute top-2.5 right-2.5 p-1.5 rounded-lg ${isModFav ? 'is-active bg-amber-950/90 text-amber-300 border border-amber-500/60' : 'bg-slate-900/90 hover:bg-slate-800 text-slate-300 border border-slate-800'} shadow-sm transition-colors z-10">
             <svg class="w-3.5 h-3.5 ${isModFav ? 'fill-amber-400 text-amber-400' : 'text-slate-300'}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
           </button>
         </div>
