@@ -1,8 +1,8 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 # Projek: Zettbos LMS (Member Hub & Notion-Style Learning Management System)
 ================================================================================
-VERSI DOKUMEN : v1.2.0
-STATUS DOKUMEN: PENDING APPROVAL (MENUNGGU KONFIRMASI PENGGUNA)
+VERSI DOKUMEN : v1.2.1
+STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 50 SELESAI)
 ARSITEK SISTEM: ZettBOT by Zettbos
 ENGINE STACK  : Next.js 14+ (App Router) + Supabase (Postgres & Auth OTP) + Vercel
 ================================================================================
@@ -486,4 +486,25 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
         - Seluruh kartu modul pada section *Kemajuan Detail per Modul* di Dashboard kini interaktif (`.module-progress-interactive-card` + `cursor-pointer`). Mengklik kartu modul akan langsung membuka Ruang Belajar pada materi modul tersebut.
         - Setiap chip materi (`EP0`, `EP1`, dst.) dapat diklik secara mandiri untuk melompat langsung ke video materi terkait.
      6. Cache Buster: Menaikkan seluruh query string script dan stylesheet di `index.html` ke versi `?v=49`.
+  - [2026-10-14] Implementasi Revisi 50: Ruang Baca Mengisi Penuh & Font Putih Terang Jernih, Alignment Sub-Bar Ruang Belajar Edge-to-Edge, Dukungan Logo Kustom dari Link Google Drive & Direct URL, Simplifikasi Brand Logo, dan Dual-Admin WhatsApp Contact Selector.
+     1. Ruang Baca Penuh & Font Putih Terang Jernih (`index.html`, `js/editor.js`, `css/style.css`):
+        - Menghapus batasan kaku `max-width: 65ch` pada `#learn-notion-content` dan `.prose-reading`, mengubahnya menjadi `max-width: 100% !important; width: 100% !important;` dengan padding kartu yang lapang (`p-5 sm:p-8 md:p-10`) dan `line-height: 1.78`. Teks materi kini mengisi sisi kanan kartu secara proporsional dan harmonis.
+        - Meningkatkan kontras warna teks materi dari `text-slate-300` / `#CBD5E1` menjadi putih terang jernih `#F8FAFC` (`text-slate-100` dengan kecerahan 98%), heading H1–H3 diset ke `#FFFFFF` tebal, dan teks callout menjadi `#ECFDF5`. Di mode terang (light mode), teks otomatis menyesuaikan menjadi deep obsidian slate `#1E293B` / `#0F172A`.
+     2. Alignment Sub-Bar Ruang Belajar Edge-to-Edge (`index.html`):
+        - Mengubah kontainer sub-navbar Ruang Belajar dari `max-w-5xl xl:max-w-6xl` menjadi `max-w-[1440px] 2xl:max-w-[1600px] w-full mx-auto flex items-center justify-between`.
+        - Tombol `< Kembali ke Home` kini lurus sempurna di pinggir kiri (sejajar dengan logo navbar), dan tombol `<- Prev Next ->` lurus di pinggir kanan (sejajar dengan sidebar kurikulum).
+     3. Dukungan Logo Gambar Kustom dari Link Google Drive & Direct URL (`index.html`, `js/core/state.js`, `js/controllers/classroom.js`, `js/controllers/admin.js`, `js/app.js`):
+        - Menyediakan parser cerdas `convertGoogleDriveUrl(url)` yang otomatis mendeteksi ID file link Google Drive (`/file/d/{id}`, `?id={id}`, dll.) dan mengonversinya menjadi direct CDN embed `https://lh3.googleusercontent.com/d/{id}` tanpa kendala CORS.
+        - Menambahkan form kontrol "Pengaturan Logo Brand LMS" di Panel Kontrol Owner (`CMS Landing Portal`), lengkap dengan input URL, pratinjau langsung (live logo preview), tombol simpan ke `localStorage` / Supabase `app_settings`, dan tombol reset ke default.
+        - Menghubungkan fungsi `renderAppBrandLogo()` untuk memperbarui seluruh tampilan logo secara terpusat di Top Navbar, Sidebar Drawer, Header Landing, dan Footer Landing.
+     4. Simplifikasi Brand Logo Menjadi Logo + ZETTBOS Saja (`index.html`):
+        - Menghapus badge pill `[ACADEMY]` pada header mengambang landing page.
+        - Menghapus teks `ACADEMY` dan subjudul `• Belajar Web App AI` pada footer landing page.
+        - Keduanya kini tampil ringkas, bersih, dan konsisten: `[Logo] ZETTBOS`.
+     5. Dual-Admin WhatsApp Contact Selector (`index.html`, `js/controllers/classroom.js`):
+        - Membuat modal popover `#modal-whatsapp-contact` yang memuat 2 kartu admin resmi Zettbos:
+          1. **Admin Farhan**: `085111226452` (*Support & Operasional LMS*)
+          2. **Admin Asep**: `082195277812` (*Pendaftaran & Konsultasi Member*)
+        - Menghubungkan seluruh tombol WhatsApp (Quick Action "WhatsApp Admin" di Beranda, tombol kontak di footer landing, dan tombol konfirmasi di modal non-whitelist) untuk membuka modal kontak ini.
+     6. Cache Buster: Menaikkan seluruh query string script dan stylesheet di `index.html` ke versi `?v=50`.
 

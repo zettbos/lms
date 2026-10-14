@@ -190,12 +190,12 @@ pre, code, .font-mono, .font-numeric {
   letter-spacing: -0.01em;
 }
 
-/* Optimal Reading Measure (50-75 characters per line) */
+/* High-Contrast Expansive Reading Typography (Revisi 50) */
 .prose-reading {
-  max-width: 65ch;
-  line-height: 1.68;
-  color: #CBD5E1;
-  font-size: 0.9375rem; /* 15px */
+  max-width: 100%;
+  line-height: 1.78;
+  color: #F8FAFC;
+  font-size: 1rem; /* 16px */
 }
 
 /* Accessible Focus Ring (Fitts's & WCAG 2.4.7 compliant) */
@@ -2491,4 +2491,86 @@ html.light .module-progress-interactive-card:hover {
   background-color: #F8FAFC !important;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
 }
+
+/* ==========================================================================
+   REVISI 50: HIGH-CONTRAST EXPANSIVE READING ROOM & WHATSAPP MODAL
+   ========================================================================== */
+#learn-notion-content,
+#learn-notion-content .prose-reading {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+#learn-notion-content h1 {
+  color: #FFFFFF !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.025em !important;
+}
+
+#learn-notion-content h2 {
+  color: #FFFFFF !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+}
+
+#learn-notion-content h3 {
+  color: #F8FAFC !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.015em !important;
+}
+
+#learn-notion-content p,
+#learn-notion-content .prose-reading p {
+  color: #F8FAFC !important;
+  font-size: 1rem !important;
+  line-height: 1.78 !important;
+  letter-spacing: -0.005em !important;
+}
+
+#learn-notion-content li {
+  color: #F8FAFC !important;
+  line-height: 1.75 !important;
+}
+
+#learn-notion-content strong {
+  color: #FFFFFF !important;
+  font-weight: 700 !important;
+}
+
+#learn-notion-content em {
+  color: #F1F5F9 !important;
+}
+
+#learn-notion-content .callout-text {
+  color: #ECFDF5 !important;
+  font-weight: 500 !important;
+}
+
+/* Light Mode Overrides for High-Contrast Reading */
+html.light #learn-notion-content p,
+html.light #learn-notion-content .prose-reading p,
+html.light #learn-notion-content li {
+  color: #1E293B !important;
+}
+
+html.light #learn-notion-content strong {
+  color: #0F172A !important;
+}
+
+/* Modal Fade-In Micro Animation */
+.animate-fade-in {
+  animation: modalFadeIn 200ms ease-out forwards;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 

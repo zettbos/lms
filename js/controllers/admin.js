@@ -84,6 +84,13 @@ function renderAdminLandingCms() {
   if (bTitleInp) bTitleInp.value = hero.bannerTitle || '';
   if (bDescInp) bDescInp.value = hero.bannerDesc || '';
 
+  // Brand Logo Setting (Google Drive & Direct URL)
+  const logoInp = document.getElementById('admin-brand-logo-input');
+  if (logoInp) {
+    logoInp.value = AppState.brandLogoUrl || localStorage.getItem('zettbos_brand_logo_url') || '';
+    handleBrandLogoInputPreview(logoInp.value);
+  }
+
   // Use-Cases Grid
   const ucGrid = document.getElementById('admin-usecases-grid');
   if (ucGrid && Array.isArray(cms.useCases)) {
@@ -2300,3 +2307,77 @@ async function handleNormalizeAllIdsClick() {
   });
 }
 window.handleNormalizeAllIdsClick = handleNormalizeAllIdsClick;
+
+// ==========================================
+// PENGATURAN LOGO BRAND & GOOGLE DRIVE
+// ==========================================
+
+function handleBrandLogoInputPreview(val) {
+  const box = document.getElementById('admin-logo-preview-box');
+  const status = document.getElementById('admin-logo-preview-status');
+  if (!box) return;
+
+  const converted = typeof convertGoogleDriveUrl === 'function' ? convertGoogleDriveUrl(val) : val;
+
+  if (converted && converted.trim()) {
+    box.innerHTML = `<img src="${escapeHtml(converted.trim())}" alt="Logo Preview" class="w-full h-full object-contain" onerror="this.onerror=null; this.parentElement.innerHTML='<span class=\\'text-xs text-rose-400 font-mono\\'>Gagal</span>';">`;
+    if (status) {
+      status.innerText = (val && val.includes('drive.google.com')) ? 'Google Drive Link (Converted)' : 'Custom Image URL';
+      status.className = 'text-[10px] text-emerald-400 mt-1.5 font-mono';
+    }
+  } else {
+    box.innerHTML = `<span class="text-sm font-black text-emerald-400 font-mono">ZB</span>`;
+    if (status) {
+      status.innerText = 'Default Badge';
+      status.className = 'text-[10px] text-slate-500 mt-1.5 font-mono';
+    }
+  }
+}
+
+function handleSaveBrandLogo(e) {
+  if (e) e.preventDefault();
+  const inp = document.getElementById('admin-brand-logo-input');
+  const rawUrl = inp ? inp.value.trim() : '';
+
+  AppState.brandLogoUrl = rawUrl;
+  if (rawUrl) {
+    localStorage.setItem('zettbos_brand_logo_url', rawUrl);
+  } else {
+    localStorage.removeItem('zettbos_brand_logo_url');
+  }
+
+  if (window.ZettSupabase && typeof window.ZettSupabase.saveSetting === 'function') {
+    window.ZettSupabase.saveSetting('brand_logo_url', rawUrl);
+  }
+
+  if (typeof renderAppBrandLogo === 'function') {
+    renderAppBrandLogo();
+  }
+
+  handleBrandLogoInputPreview(rawUrl);
+  showToast(rawUrl ? 'Logo brand berhasil disimpan & diperbarui!' : 'Logo direset ke badge default [ZB]', 'success');
+}
+
+function handleResetBrandLogo() {
+  const inp = document.getElementById('admin-brand-logo-input');
+  if (inp) inp.value = '';
+
+  AppState.brandLogoUrl = '';
+  localStorage.removeItem('zettbos_brand_logo_url');
+
+  if (window.ZettSupabase && typeof window.ZettSupabase.saveSetting === 'function') {
+    window.ZettSupabase.saveSetting('brand_logo_url', '');
+  }
+
+  if (typeof renderAppBrandLogo === 'function') {
+    renderAppBrandLogo();
+  }
+
+  handleBrandLogoInputPreview('');
+  showToast('Logo dikembalikan ke badge bawaan [ZB]', 'success');
+}
+
+window.handleBrandLogoInputPreview = handleBrandLogoInputPreview;
+window.handleSaveBrandLogo = handleSaveBrandLogo;
+window.handleResetBrandLogo = handleResetBrandLogo;
+

@@ -16,7 +16,12 @@ document.addEventListener('DOMContentLoaded', () => {
     initStorage();
   }
 
-  // 2B. Initialize Supabase Cloud Engine & Auto-Sync Curriculum for all users
+  // 2B. Initialize Brand Logo (Google Drive / Custom URL or default [ZB] badge)
+  if (typeof renderAppBrandLogo === 'function') {
+    renderAppBrandLogo();
+  }
+
+  // 2C. Initialize Supabase Cloud Engine & Auto-Sync Curriculum for all users
   if (window.ZettSupabase && typeof window.ZettSupabase.init === 'function') {
     const isReady = window.ZettSupabase.init();
     if (isReady && typeof window.ZettSupabase.syncCurriculumFromCloud === 'function') {

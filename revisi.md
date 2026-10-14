@@ -1,113 +1,132 @@
-# ZETTBOS MEMBER HUB - DOKUMEN REVISI AKTIF (REVISI 49)
+# ZETTBOS MEMBER HUB - DOKUMEN REVISI AKTIF (REVISI 50)
 ================================================================================
-STATUS: SUKSES DITERAPKAN (REVISI 49 SELESAI)
+STATUS: SUKSES DITERAPKAN (REVISI 50 SELESAI)
 ARSITEK SISTEM: ZettBOT by Zettbos (Universal Product Architect & Lead Engineering Mentor)
-FOKUS REVISI:
-  1. EXPAND RUANG BACA & MARQUEE HORIZONTAL TITLE DI KURIKULUM (GAMBAR 1) - SELESAI
-  2. GANTI TEKS PIN MENJADI "Modul Pilihan" (GAMBAR 2) - SELESAI
-  3. SIMPLIFIKASI JUDUL NAVBAR: PLAIN TEXT TANPA KAPSUL AI PULSING (GAMBAR 3) - SELESAI
-  4. SOLUSI DESAIN ANTI-KOTAK / ANTI-AI DI BERANDA (GAMBAR 4) - SELESAI
-  5. INTERAKTIF KLIK KEMAJUAN MODUL DI DASHBOARD (GAMBAR 5) - SELESAI
+FOKUS REVISI 50:
+  1. PERBAIKAN RUANG BACA KONTEN MODUL (ISI RUANG KANAN & FONT PUTIH TERANG) - GAMBAR 1
+  2. PERBAIKAN SUB-NAVBAR RUANG BELAJAR BELUM DI PINGGIR (EDGE-TO-EDGE ALIGNMENT) - GAMBAR 2
+  3. DUKUNGAN LOGO GAMBAR KUSTOM DARI GOOGLE DRIVE & DIRECT URL - GAMBAR 3
+  4. SIMPLIFIKASI BRANDING HEADER & FOOTER: LOGO + ZETTBOS SAJA - GAMBAR 4 & 5
+  5. DUAL-ADMIN WHATSAPP CONTACT SELECTOR (FARHAN & ASEP)
 ================================================================================
 
 ## 1. DETAIL ANALISIS MASALAH & RENCANA SOLUSI TEKNIS:
 
-### A. Gambar 1: Perlebar Ruang Baca, Geser Kurikulum ke Kanan, & Marquee Text On-Hover
-- **Masalah Saat Ini**:
-  1. Di Ruang Belajar (`view-learn`), kontainer layout dibatasi pada `max-w-5xl` / `xl:max-w-6xl` di tengah layar, sehingga menyisakan ruang kosong lebar yang terbuang di sisi kiri dan kanan pada monitor desktop.
-  2. Sidebar "Kurikulum Kelas" posisinya terlalu menempel ke tengah dan memakan proporsi baca.
-  3. Judul materi pelajaran yang panjang terpotong kaku oleh elipsis `...` (`truncate`), sehingga siswa tidak bisa membaca judul materi secara utuh.
+### A. Gambar 1: Solusi Ruang Baca Isi Penuh Sisi Kanan & Font Putih Terang Jernih
+- **Analisis Akar Masalah**:
+  1. Pada kelas CSS `.prose-reading` di `css/style.css`, terdapat batasan kaku `max-width: 65ch` (panjang maksimal hanya ~65 karakter atau sekitar 550px). Sementara itu, kontainer kartu baca memiliki lebar 900px - 1100px. Akibatnya, teks berhenti di tengah dan menyisakan ruang kosong gelap melompong selebar ~45% di sisi kanan kartu.
+  2. Warna teks materi bacaan di `js/editor.js` saat ini menggunakan `text-slate-300` / `#CBD5E1`, yang bernuansa abu-abu kusam sehingga kurang kontras dan cepat membuat mata lelah saat membaca panduan panjang di mode gelap.
+- **Solusi Desain Arsitek (Human-Crafted Editorial Experience)**:
+  1. **Mengisi Ruang Kanan Secara Proporsional (`max-width: 100%`)**:
+     - Hilangkan batasan `max-width: 65ch` pada kontainer bacaan materi (`#learn-notion-content .prose-reading`).
+     - Terapkan `max-width: 100%;` dengan jarak baca yang bernafas alami: teks secara luwes mengisi lebar kartu baca hingga ke kanan secara harmonis tanpa ada kekosongan ganjil di sisi kanan.
+     - Tambahkan padding dalam kartu yang elegan (`p-6 sm:p-9`) dan `line-height: 1.75` untuk memberikan kenyamanan ergonomis tingkat tinggi (*comfortable typographic cadence*) seperti pada dokumentasi Linear, Stripe, dan Notion.
+  2. **Tingkatkan Kontras Font Menjadi Putih Terang Jernih**:
+     - Ubah teks paragraf menjadi `#F8FAFC` (`text-slate-100` dengan tingkat kecerahan >98% dan ketebalan `font-normal` hingga `font-medium`), menghasilkan kontras tajam yang sangat bersih dan mudah dibaca di latar gelap (*high-contrast readability*).
+     - Heading H1, H2, H3 diatur ke putih murni `#FFFFFF` dengan ketebalan `font-extrabold` / `font-bold`.
+     - Teks kutipan/callout disesuaikan menjadi warna emerald jernih berkilau (`text-emerald-100`), dan blok kode tetap kontras dengan aksen hijau emerald neon.
+     - Di mode terang (light mode), teks otomatis menyesuaikan menjadi deep obsidian slate `#0F172A` agar kontras tetap terjaga 100%.
+
+---
+
+### B. Gambar 2: Perbaikan Bug Sub-Bar Ruang Belajar Belum di Pinggir (Edge-to-Edge)
+- **Analisis Akar Masalah**:
+  - Pada baris 856 di `index.html`, sub-navbar Ruang Belajar (`< Kembali ke Home | [Judul Modul] ... <- Prev Next ->`) masih terkunci di dalam kontainer `max-w-5xl xl:max-w-6xl w-full mx-auto`.
+  - Sementara itu, Navbar Utama di atasnya (baris 54) dan kontainer layout materi di bawahnya (baris 883) sudah diperlebar menjadi `max-w-[1440px] 2xl:max-w-[1600px]`.
+  - Karena sub-navbar terjebak dalam batas `max-w-5xl`, tombol `< Kembali ke Home` menjorok terlalu ke dalam (~250px dari pinggir kiri) dan tombol `<- Prev Next ->` menjorok terlalu ke dalam dari pinggir kanan.
 - **Solusi Teknis Arsitektur**:
-  - **1. Perlebar Ruang Baca (Wide Viewport Container)**:
-    - Ubah kontainer layout utama `view-learn` menjadi `max-w-[1440px] 2xl:max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8`.
-    - Area baca artikel & materi Notion diperbesar secara leluasa (`max-w-4xl xl:max-w-5xl flex-1`).
-    - Sidebar "Kurikulum Kelas" didorong ke sisi paling kanan layar (`ml-auto lg:w-80 xl:w-96`) dengan sticky alignment rapi.
-  - **2. Marquee Text on Hover (Tanpa Potongan `...`)**:
-    - Terapkan sistem **Smooth Horizontal Kinetic Scroll on Hover** (`.marquee-hover-title`):
-      - Secara baku, teks tampil rapi dengan container terpotong halus (`overflow: hidden; white-space: nowrap`).
-      - Saat pengguna mengarahkan kursor (hover) atau saat materi aktif, teks judul materi yang panjang otomatis meluncur mulus ke arah kanan/kiri (`transform: translateX(...)`) hingga seluruh kata terbaca tuntas dari awal sampai akhir, lalu kembali ke posisi awal.
-      - Menyertakan atribut native `title="..."` untuk memastikan aksesibilitas judul 100%.
+  - Ubah baris 856 dari `max-w-5xl xl:max-w-6xl` menjadi `max-w-[1440px] 2xl:max-w-[1600px] w-full mx-auto flex items-center justify-between`.
+  - Hasil seketika: Tombol `< Kembali ke Home` otomatis bergeser tepat ke pinggir kiri (lurus sempurna secara vertikal dengan tombol Hamburger dan Logo ZETTBOS di navbar atas), dan tombol navigasi `<- Prev Next ->` bergeser tepat ke pinggir kanan (lurus sempurna dengan tepi sidebar kurikulum). 100% rapi dan presisi edge-to-edge.
 
 ---
 
-### B. Gambar 2: Ganti Teks Pin Badge Menjadi "Modul Pilihan"
-- **Masalah Saat Ini**:
-  Badge sematan modul unggulan mentor saat ini bertuliskan `📌 MODUL UNGGULAN PILIHAN MENTOR` dengan huruf kapital tebal dan animasi berkedip (`animate-pulse`). Pengguna ingin menggantinya menjadi lebih simpel: `Modul Pilihan`.
-- **Solusi Teknis**:
-  - Di `js/controllers/classroom.js` (fungsi `renderPinnedModuleHero`):
-    - Ubah teks badge dari `MODUL UNGGULAN PILIHAN MENTOR` menjadi `Modul Pilihan`.
-    - Hapus efek `animate-pulse` berlebihan agar tampilan lebih matang, elegan, dan tenang (*calm software aesthetic*).
-    - Format badge: `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/40 shadow-sm"><svg class="w-3.5 h-3.5 text-amber-400" .../><span>Modul Pilihan</span></span>`.
+### C. Gambar 3: Dukungan Memasukkan Logo Gambar dari Google Drive & Direct URL
+- **Analisis Kebutuhan**:
+  - Pengguna ingin mengganti badge default `[ZB]` dengan gambar logo asli, dan secara spesifik menginginkan kemudahan menginput link gambar dari Google Drive.
+  - Tantangan teknis: URL share Google Drive (`drive.google.com/file/d/{ID}/view?usp=sharing`) menyajikan antarmuka pratinjau HTML interaktif Google Drive yang ditolak oleh browser jika dipasang langsung ke `<img src="...">`.
+- **Solusi Teknis Arsitektur**:
+  1. **Konverter Cerdas Google Drive Direct CDN**:
+     - Buat parser regex otomatis yang mengekstrak File ID dari semua variasi link Google Drive (`/file/d/{id}`, `?id={id}`, dll.) dan mengonversinya secara instan menjadi direct embed stream: `https://lh3.googleusercontent.com/d/{id}` atau `https://drive.google.com/uc?export=view&id={id}`.
+     - Gambar Google Drive akan langsung termuat cepat, tajam, dan bebas kendala CORS.
+  2. **Panel Pengaturan Logo di CMS Owner**:
+     - Sediakan kartu konfigurasi "Pengaturan Logo & Branding LMS" di Panel Kontrol Owner (`CMS Landing Portal`):
+       - Input text: `URL Gambar Logo (Link Google Drive atau URL Langsung)`
+       - Live Preview Box: langsung memperlihatkan hasil tampilan logo secara real-time.
+       - Tombol "Simpan Logo" & "Reset ke Default [ZB]".
+  3. **Rendering Logo Terpusat di Seluruh Layar**:
+     - Terapkan fungsi `renderAppBrandLogo()` yang otomatis memperbarui seluruh elemen logo di aplikasi:
+       - Header Top Navbar (`#main-navbar`)
+       - Drawer Sidebar Mobile & Desktop (`#sidebar-drawer`)
+       - Header Mengambang Landing Page
+       - Footer Landing Page
+     - Jika URL logo diisi, sistem menampilkan gambar logo dengan rasio rapi `w-8 h-8 object-contain rounded-lg`. Jika kosong, sistem otomatis menampilkan badge fallback elegan `[ZB]`.
 
 ---
 
-### C. Gambar 3: Judul Header Sederhana (Plain Text Tanpa Kapsul AI & Pulsing Dot)
-- **Masalah Saat Ini**:
-  Di tengah navbar atas, indikator halaman aktif dibungkus dalam kapsul gelap (`bg-[#16181D] border-[#262933]`) dengan lingkaran hijau berdenyut (`animate-pulse`) bertuliskan `Home Kurikulum`. Desain kapsul ber-dot ini dinilai "terlihat AI banget" dan ingin diganti menjadi judul teks yang sederhana tanpa ornamen palsu.
-- **Solusi Teknis**:
-  - Di `index.html`:
-    - Hapus bungkus kapsul pill `#nav-center-indicator` (`bg-[#16181D] border rounded-full px-3.5 py-1.5 shadow-inner`).
-    - Hapus dot hijau pulsing `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>`.
-    - Jadikan judul teks bersih dan minimalis:
-      `<div id="nav-center-indicator" class="hidden md:flex items-center text-sm font-semibold text-slate-300 tracking-tight select-none"><span id="nav-current-page-label">Kurikulum</span></div>`.
-  - Di `js/core/router.js`:
-    - Sederhanakan label: untuk `home`, tampilkan `Kurikulum` (bukan `Home Kurikulum`).
+### D. Gambar 4 & 5: Simplifikasi Brand Logo Menjadi Logo + ZETTBOS Saja
+- **Analisis Masalah**:
+  - Gambar 4 (Footer Landing, baris 448-450) saat ini bertuliskan `ZB ZETTBOS ACADEMY • Belajar Web App AI`.
+  - Gambar 5 (Pill Header Landing, baris 226-230) saat ini bertuliskan `ZB ZETTBOS [ACADEMY]` dengan badge kapsul tambahan.
+- **Solusi Desain Arsitek**:
+  - Hapus embel-embel pill `[ACADEMY]` dan subjudul `• Belajar Web App AI`.
+  - Sederhanakan branding menjadi sangat bersih, tegas, dan berwibawa:
+    - **Header Landing**: `[Logo] ZETTBOS`
+    - **Footer Landing**: `[Logo] ZETTBOS`
+  - Selaras dengan prinsip desain modern minimalist: minim kebisingan visual (*zero visual clutter*).
 
 ---
 
-### D. Gambar 4: Solusi Desain Anti-Kotak / Anti-AI Slop (Dekonstruksi Bento Box Fatigue)
-- **Analisis & Masalah Kritis Pengguna**:
-  Pengguna merasa antarmuka saat ini "terlalu banyak hal yang dikotak-kotakin jadi terlalu AI".
-  Ini adalah fenomena nyata dalam desain modern yang disebut **"Bento Box / Card Fatigue"**, di mana generator AI selalu membungkus setiap kelompok teks, tombol, atau metrik ke dalam kartu persegi panjang gelap dengan garis tepi tebal (`border-slate-800 rounded-2xl`).
-- **Solusi Desain Arsitek (Human-Crafted Editorial Layout)**:
-  1. **Bongkar Kotak Sambutan (Open Editorial Header)**:
-     - Hapus kartu raksasa pembungkus `glass-card-static rounded-2xl p-4`.
-     - Ubah menjadi **Page Header Alami** yang menyatu langsung dengan kanvas latar belakang:
-       - Sapaan hangat: `Halo, Farhan` (`text-2xl sm:text-3xl font-extrabold text-white tracking-tight`).
-       - Subjudul informatif: `Akses seluruh kurikulum modul video & resource AI Anda di bawah ini.` (`text-xs sm:text-sm text-slate-400 mt-1`).
-       - Metrik progres di kanan disederhanakan tanpa kartu bersarang: angka persentase ringkas dengan garis tipis elegan 2px, menyatu sejajar dengan header.
-  2. **Ubah Akses Cepat Menjadi "Inline Action Strip" (Bukan 4 Kartu Kotak Kaku)**:
-     - Hapus grid 4 kotak kartu kaku (`grid-cols-4 glass-card`).
-     - Ganti dengan deretan **Horizontal Action Pills / Chip Toolbar** yang ramping dan mengambang mulus:
-       `[ 📁 ZettLink ↗ ]   [ 📚 Zettbos Library ↗ ]   [ 💬 WhatsApp Admin ↗ ]`
-     - Desain tombol chip: latar semi-transparan halus, border hairline tipis, tinggi 34px (hemat ruang vertikal 70%), dengan tanda panah mikro `↗` yang responsif saat disentuh.
-     - Tampilan beranda seketika terasa lapang (*spacious*), bernafas, dan berkelas selayaknya produk digital buatan tim desain manusia kelas dunia (Linear / Apple / Stripe).
-
----
-
-### E. Gambar 5: Navigasi Interaktif pada "Kemajuan Detail per Modul" di Dashboard
-- **Masalah Saat Ini**:
-  Di Dashboard Siswa (`view-user-dashboard`), pada kartu-kartu di section **"Kemajuan Detail per Modul"**, seluruh kartu dan chip materi di dalamnya bersifat statis (elemen `<div>` dan `<span>` biasa tanpa aksi klik). Siswa tidak bisa langsung membuka modul atau melanjutkan materi dari kartu tersebut.
-- **Solusi Teknis**:
-  - Di `js/controllers/classroom.js` (fungsi `renderUserDashboard`):
-    1. **Kartu Modul Interaktif**:
-       - Berikan event `onclick="navigate('learn', { lessonId: '${targetLessonId}' })"` pada kontainer kartu modul, sehingga saat pengguna mengklik kartu modul, sistem langsung membuka Ruang Belajar pada materi yang belum selesai dari modul tersebut.
-       - Tambahkan visual hover feedback: `cursor-pointer hover:border-emerald-500/50 hover:bg-slate-900/60 transition-all` dan ikon panah `→` yang bergeser halus saat di-hover.
-    2. **Chip Pelajaran Interaktif**:
-       - Setiap chip materi (`EP0`, `EP1`, dst.) dijadikan tombol interaktif:
-         `onclick="event.stopPropagation(); navigate('learn', { lessonId: '${l.id}' })"`.
-       - Saat diklik, siswa langsung melompat tepat ke video pelajaran yang dipilih.
-       - Tambahkan tooltip dan styling hover pada chip (`hover:border-emerald-400 hover:text-white cursor-pointer`).
+### E. Kontak WhatsApp Multi-Admin (Farhan & Asep)
+- **Analisis Kebutuhan**:
+  - Pengguna ingin saat tombol WhatsApp diklik, muncul 2 nomor admin resmi:
+    1. **Admin Farhan**: `085111226452`
+    2. **Admin Asep**: `082195277812`
+- **Solusi Teknis Arsitektur**:
+  1. **Modal Pemilihan Kontak Admin WhatsApp (`#modal-whatsapp-contact`)**:
+     - Hadirkan dialog popover modal yang sangat elegan dengan efek glassmorphism dan backdrop blur.
+     - Judul: `Hubungi Tim Support Zettbos` dengan subjudul `Pilih salah satu admin kami untuk konsultasi, bantuan materi, atau kendala akun.`
+     - **Kartu Kontak 1 - Admin Farhan**:
+       - Avatar monoline premium dengan badge online hijau aktif.
+       - Nama: **Admin Farhan**
+       - Nomor: `0851-1122-6452`
+       - Status / Peran: *Support & Operasional LMS*
+       - Tombol Aksi: `Chat Farhan di WhatsApp ↗` (`https://wa.me/6285111226452?text=Halo%20Admin%20Farhan%20Zettbos,%20saya%20ingin%20bertanya%20seputar%20LMS%20Zettbos`)
+     - **Kartu Kontak 2 - Admin Asep**:
+       - Avatar monoline premium dengan badge online hijau aktif.
+       - Nama: **Admin Asep**
+       - Nomor: `0821-9527-7812`
+       - Status / Peran: *Pendaftaran & Konsultasi Member*
+       - Tombol Aksi: `Chat Asep di WhatsApp ↗` (`https://wa.me/6282195277812?text=Halo%20Admin%20Asep%20Zettbos,%20saya%20ingin%20bertanya%20seputar%20LMS%20Zettbos`)
+  2. **Integrasi Seluruh Tombol WhatsApp**:
+     - Tombol Quick Action Hub "WhatsApp Admin" di Beranda otomatis membuka modal kontak 2 admin ini.
+     - Tautan WhatsApp di Footer Landing Page otomatis membuka modal kontak 2 admin ini.
+     - Tombol bantuan pada Modal Email Belum Terdaftar (Non-Whitelist) otomatis membuka modal kontak 2 admin ini.
 
 ---
 
 ## 2. FILE YANG AKAN DIUBAH:
 1. `index.html`:
-   - Perluas container `view-learn` (`max-w-[1440px] 2xl:max-w-[1600px]`), perluas area baca, dan geser sidebar kurikulum ke kanan (`ml-auto w-80 xl:w-96`).
-   - Ubah `#nav-center-indicator` dari kapsul ber-dot menjadi plain text minimalis.
-   - Dekonstruksi header Beranda: hapus kotak pembungkus kartu sambutan dan siapkan inline container untuk Akses Cepat.
-   - Bump versi script & css ke `?v=49`.
+   - Perbaiki lebar sub-navbar Ruang Belajar (baris 856) menjadi `max-w-[1440px] 2xl:max-w-[1600px]`.
+   - Simplifikasi logo di Pill Header Landing (baris 226) dan Footer Landing (baris 448) menjadi `[Logo] ZETTBOS`.
+   - Tambahkan form input Pengaturan Logo & Branding di tab `tab-pane-landing_cms` Admin Panel.
+   - Tambahkan komponen modal `#modal-whatsapp-contact` untuk pemilihan 2 admin WhatsApp.
+   - Naikkan cache buster ke `?v=50`.
 2. `css/style.css`:
-   - Keyframe dan styling `.marquee-hover-title` untuk scrolling judul materi panjang saat kursor diarahkan ke judul.
-   - Penyesuaian styling header unboxed dan chip strip Akses Cepat (dark mode & light mode).
-3. `js/controllers/classroom.js`:
-   - Ganti teks badge `MODUL UNGGULAN PILIHAN MENTOR` menjadi `Modul Pilihan` (dan hapus animate-pulse).
-   - Render Akses Cepat sebagai horizontal action chip strip (bukan grid 4 kotak besar).
-   - Terapkan kelas `.marquee-hover-title` pada render judul materi di sidebar kurikulum.
-   - Buat kartu dan chip materi di "Kemajuan Detail per Modul" dashboard interaktif (bisa diklik menuju modul/materi).
-4. `js/core/router.js`:
-   - Sederhanakan breadcrumb label 'home' menjadi 'Kurikulum'.
+   - Atur `#learn-notion-content .prose-reading` ke `max-width: 100%`, `color: #F8FAFC`, dan `line-height: 1.75`.
+   - Styling kontras tinggi untuk teks materi (H1-H3 putih murni `#FFFFFF`, p `#F8FAFC`).
+   - Styling modal kontak WhatsApp multi-admin.
+3. `js/editor.js`:
+   - Perbarui default class render teks menjadi `text-slate-100` / `#F8FAFC` agar kontras putih terang maksimal.
+4. `js/controllers/classroom.js`:
+   - Implementasi parser URL Google Drive `convertGoogleDriveUrl(url)`.
+   - Implementasi fungsi `renderAppBrandLogo()` untuk memperbarui seluruh logo di UI.
+   - Modifikasi `executeQuickAction` agar tombol WhatsApp membuka modal kontak multi-admin.
+   - Implementasi fungsi pembuka modal WhatsApp `openWhatsAppContactModal()`.
+5. `js/controllers/admin.js`:
+   - Handler simpan & reset logo gambar kustom di Panel Kontrol Owner.
+6. `prd.md`:
+   - Catat detail Revisi 50 ke dalam riwayat PRD.
 
 ================================================================================
-STATUS: SUKSES DITERAPKAN KE SELURUH KODE SUMBER (REVISI 49 SELESAI)
+STATUS: SUKSES DITERAPKAN KE SELURUH KODE SUMBER (REVISI 50 SELESAI)
 ================================================================================

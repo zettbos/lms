@@ -37,10 +37,74 @@ function executeQuickAction(id) {
   const qa = (AppState.quickActions || []).find(a => a.id === id);
   if (!qa) return;
 
+  // Dual-Admin WhatsApp Contact Selector Handler (Gambar 4 & WhatsApp Prompt)
+  if (qa.id === 'qa-whatsapp' || (qa.target && qa.target.includes('wa.me')) || (qa.title && qa.title.toLowerCase().includes('whatsapp'))) {
+    openWhatsAppContactModal();
+    return;
+  }
+
   if (qa.actionType === 'url') {
     if (qa.target) window.open(qa.target, '_blank');
   } else {
     navigate(qa.target || 'home');
+  }
+}
+
+// ==========================================
+// 1.2. GOOGLE DRIVE LINK CONVERTER & BRAND LOGO RENDERER
+// ==========================================
+
+function convertGoogleDriveUrl(url) {
+  if (!url || typeof url !== 'string') return url || '';
+  const trimmed = url.trim();
+  // Regex matches Google Drive file IDs across shareable formats:
+  // drive.google.com/file/d/{id}/...
+  // drive.google.com/open?id={id}
+  // drive.google.com/uc?id={id}
+  // lh3.googleusercontent.com/d/{id}
+  const driveRegex = /(?:drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=)|lh3\.googleusercontent\.com\/d\/)([a-zA-Z0-9_-]{20,})/i;
+  const match = trimmed.match(driveRegex);
+  if (match && match[1]) {
+    return `https://lh3.googleusercontent.com/d/${match[1]}`;
+  }
+  return trimmed;
+}
+
+function renderAppBrandLogo() {
+  const customLogo = (window.AppState && window.AppState.brandLogoUrl) || localStorage.getItem('zettbos_brand_logo_url') || '';
+  const convertedUrl = convertGoogleDriveUrl(customLogo);
+
+  const targets = [
+    { id: 'brand-logo-nav', size: 'sm' },
+    { id: 'brand-logo-drawer', size: 'sm' },
+    { id: 'brand-logo-landing', size: 'sm' },
+    { id: 'brand-logo-footer', size: 'xs' }
+  ];
+
+  targets.forEach(t => {
+    const el = document.getElementById(t.id);
+    if (!el) return;
+    if (convertedUrl) {
+      el.innerHTML = `<img src="${escapeHtml(convertedUrl)}" alt="Logo ZETTBOS" class="w-full h-full object-contain" onerror="this.onerror=null; this.parentElement.innerHTML='<span class=\\'font-mono font-bold text-xs text-emerald-400\\'>ZB</span>';">`;
+    } else {
+      el.innerHTML = `<span class="font-mono font-black ${t.size === 'xs' ? 'text-[11px]' : 'text-xs'} text-emerald-400">ZB</span>`;
+    }
+  });
+}
+
+function openWhatsAppContactModal() {
+  const modal = document.getElementById('modal-whatsapp-contact');
+  if (modal) {
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeWhatsAppContactModal() {
+  const modal = document.getElementById('modal-whatsapp-contact');
+  if (modal) {
+    modal.classList.add('hidden');
+    document.body.style.overflow = '';
   }
 }
 
@@ -581,6 +645,7 @@ function renderHome() {
   renderPinnedModuleHero();
   renderModuleCategoryPills();
   renderModuleCatalogGrid();
+  renderAppBrandLogo();
 }
 
 // ==========================================
@@ -1510,3 +1575,7 @@ window.removeFavorite = removeFavorite;
 window.filterFavorites = filterFavorites;
 window.handleSearchFavorites = handleSearchFavorites;
 window.renderFavorites = renderFavorites;
+window.convertGoogleDriveUrl = convertGoogleDriveUrl;
+window.renderAppBrandLogo = renderAppBrandLogo;
+window.openWhatsAppContactModal = openWhatsAppContactModal;
+window.closeWhatsAppContactModal = closeWhatsAppContactModal;

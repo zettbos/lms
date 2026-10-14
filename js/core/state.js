@@ -19,6 +19,7 @@ const AppState = {
   activeFavoritesTab: 'all',
   favoritesSearchQuery: '',
   quickActions: [], // Configurable Action Cards on Home
+  brandLogoUrl: '', // Custom Brand Logo URL (Google Drive / Direct)
   moduleSearchQuery: '',
   activeModuleCategory: 'all',
   currentLessonId: null,
@@ -151,6 +152,7 @@ function initStorage() {
 
   AppState.activity = (storedActivity && typeof storedActivity === 'object') ? storedActivity : { ...seedActivity };
   AppState.quickActions = (Array.isArray(storedQuickActions) && storedQuickActions.length > 0) ? storedQuickActions : [...seedQuickActions];
+  AppState.brandLogoUrl = localStorage.getItem('zettbos_brand_logo_url') || '';
   AppState.currentUser = storedUser || null;
 
   // Jika user yang tersimpan adalah dummy yang sudah dihapus, ganti ke akun Owner Farhan

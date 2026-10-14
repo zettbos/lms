@@ -350,24 +350,24 @@ function renderBlocksToHtml(blocks) {
     return '<p class="text-slate-400 italic">Belum ada catatan materi.</p>';
   }
 
-  let html = '<div class="space-y-5 text-slate-300 prose-reading">';
+  let html = '<div class="space-y-5 text-slate-100 prose-reading w-full">';
 
   blocks.forEach(block => {
     if (block.type === 'h1') {
       html += `<h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mt-6 mb-3 border-b border-slate-800/80 pb-3">${formatRichText(block.content)}</h1>`;
     } else if (block.type === 'h2') {
-      html += `<h2 class="text-xl sm:text-2xl font-bold text-slate-100 tracking-tight mt-6 mb-2">${formatRichText(block.content)}</h2>`;
+      html += `<h2 class="text-xl sm:text-2xl font-bold text-white tracking-tight mt-6 mb-2">${formatRichText(block.content)}</h2>`;
     } else if (block.type === 'h3') {
-      html += `<h3 class="text-lg font-semibold text-slate-200 mt-4 mb-2">${formatRichText(block.content)}</h3>`;
+      html += `<h3 class="text-lg font-bold text-slate-100 mt-4 mb-2">${formatRichText(block.content)}</h3>`;
     } else if (block.type === 'text') {
-      html += `<p class="leading-relaxed text-slate-300 text-sm sm:text-base">${formatRichText(block.content)}</p>`;
+      html += `<p class="leading-relaxed text-slate-100 text-sm sm:text-base">${formatRichText(block.content)}</p>`;
     } else if (block.type === 'callout') {
       html += `
         <div class="my-4 p-4 rounded-lg bg-emerald-950/30 border border-emerald-500/30 flex gap-3.5 items-start shadow-sm">
           <div class="text-emerald-400 mt-0.5">
             <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
           </div>
-          <div class="text-sm leading-relaxed text-emerald-200 font-medium">
+          <div class="text-sm leading-relaxed text-emerald-100 font-medium">
             ${formatRichText(block.content)}
           </div>
         </div>
