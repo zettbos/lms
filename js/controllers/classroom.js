@@ -1036,7 +1036,7 @@ function showLearnModulesCatalog() {
   if (playerView) playerView.classList.add('hidden');
 
   const centerLabel = document.getElementById('nav-current-page-label');
-  if (centerLabel) centerLabel.textContent = 'Ruang Belajar & Modul';
+  if (centerLabel) centerLabel.textContent = 'Modul Pembelajaran';
 
   renderLearnModuleCategoryPills();
   renderLearnModulesCatalog();

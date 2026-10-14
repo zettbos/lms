@@ -595,7 +595,7 @@ function openFacilityImageLightbox(facilityId) {
   const rawImg = (target.imageUrl || '').trim();
   if (rawImg) {
     const convertedUrl = typeof convertGoogleDriveUrl === 'function' ? convertGoogleDriveUrl(rawImg) : rawImg;
-    openImageLightbox(convertedUrl, target.title || 'Fasilitas Ekosistem Zettbos', target.badge || 'FASILITAS RESMI');
+    openImageLightbox(convertedUrl, target.title || 'Fasilitas Ekosistem Zettbos', target.badge || 'FASILITAS EKSKLUSIF');
   } else {
     if (typeof showToast === 'function') {
       showToast('Fasilitas ini sedang menggunakan live interactive preview. Belum ada foto khusus.', 'info');

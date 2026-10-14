@@ -1,8 +1,8 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 # Projek: Zettbos LMS (Member Hub & Notion-Style Learning Management System)
 ================================================================================
-VERSI DOKUMEN : v1.3.3
-STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 62 SELESAI)
+VERSI DOKUMEN : v1.3.4
+STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 63 SELESAI)
 ARSITEK SISTEM: ZettBOT by Zettbos
 ENGINE STACK  : Next.js 14+ (App Router) + Supabase (Postgres & Auth OTP) + Vercel
 ================================================================================
@@ -594,6 +594,23 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
         - Memperbarui skema tabel `landing_cms` dengan `facilities JSONB DEFAULT '[]'::jsonb`.
         - Menyiapkan skrip migrasi mandiri `ALTER TABLE public.landing_cms ADD COLUMN IF NOT EXISTS facilities JSONB DEFAULT '[]'::jsonb;`.
      3. Cache Buster: Menaikkan seluruh query string script dan stylesheet di `index.html` ke versi `?v=56`.
+  - [2026-10-14] Implementasi Revisi 63: Auto-Convert Google Drive ke LH3 pada Editor Modul, Navbar Brand 2-Line Stack, Eliminasi Badge BARU, Gemini ZettBOT, Fasilitas Eksklusif, Modul Pembelajaran, Sticky Floating Curriculum Sidebar, dan Cache Buster ?v=63.
+     1. Auto-Convert Google Drive ke LH3 pada Editor Modul (`js/editor.js`):
+        - Mengintegrasikan fungsi `convertGoogleDriveUrl()` pada blok editor `image`. Setiap link share Google Drive yang dimasukkan otomatis dikonversi ke format direct embed `https://lh3.googleusercontent.com/d/{id}`.
+        - Memperbaiki kotak live preview di editor dan rendering materi siswa (`renderBlockToHtml()`) agar foto tampil seketika tanpa kendala CORS/X-Frame-Options.
+     2. Re-Layout Brand Logo Top Navbar 2-Tingkat (`index.html`):
+        - Menyusun teks brand di samping logo secara vertikal (`flex-col justify-center leading-none`): baris atas `ZETTBOS` (font 13px bold) dan baris bawah `MEMBER HUB` (font mikro 8.5px tracking wide) sehingga total tinggi presisi sejajar dengan tinggi logo (32px).
+     3. Pembersihan Badge "BARU" pada Menu Dokumen & Resource (`index.html`):
+        - Menghapus badge pill biru `BARU` pada navigasi drawer menu `#drawer-btn-resources`.
+     4. Branding AI Simulator: "Gemini ZettBOT" (`index.html`):
+        - Mengganti label model AI pada jendela Simulator Hero dari "Gemini 1.5 Pro" menjadi "Gemini ZettBOT".
+     5. Penggantian Badge: "Fasilitas Eksklusif" (`index.html`, `js/controllers/landing.js`):
+        - Mengganti teks badge pratinjau fasilitas kelas dan lightbox dari "Fasilitas Resmi" menjadi "Fasilitas Eksklusif".
+     6. Penyelarasan Nomenklatur: "Modul Pembelajaran" (`index.html`, `js/core/router.js`, `js/controllers/classroom.js`):
+        - Mengganti teks "Ruang Belajar & Video" pada drawer menu navigasi, header katalog State 1, router breadcrumb, dan navbar center indicator menjadi "Modul Pembelajaran".
+     7. Sticky Floating Sidebar "Kurikulum Kelas" Saat Scroll (`index.html`):
+        - Memperbaiki layout aside sidebar di `#learn-player-view` menjadi `sticky top-20 self-start` sehingga card "Kurikulum Kelas" terus melayang dan mengikuti pandangan layar siswa saat membaca materi ke bawah.
+     8. Cache Buster: Menaikkan seluruh query string script dan stylesheet di `index.html` ke versi `?v=63`.
   - [2026-10-14] Implementasi Revisi 62: Harmonisasi Warna Fasilitas (#0D1322 Base), Color-Coded SVG Icons, Solid Glowing Emerald CTA Card, Eliminasi Teks Lynk.id, Hero AI Prompt to Live Web App Simulator (Opsi 1), dan Cache Buster ?v=62.
      1. Harmonisasi Warna Kartu Fasilitas (`js/controllers/landing.js`, `css/style.css`):
         - Mengatasi ketidakseragaman warna dasar kartu "Akses ZettBOT" dengan menetapkan seluruh 5 kartu fasilitas ke surface obsidian gelap `#0D1322` (`bg-[#0D1322]/90 border-slate-700/60`).

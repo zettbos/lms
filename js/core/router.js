@@ -232,7 +232,7 @@ function updateNavbarState(currentView) {
     const labels = {
       'home': 'Kurikulum',
       'user-dashboard': 'Data Belajar',
-      'learn': 'Ruang Belajar',
+      'learn': 'Modul Pembelajaran',
       'resources': 'Dokumen & Resource',
       'favorites': 'Koleksi Favorit',
       'admin': 'Admin Panel'

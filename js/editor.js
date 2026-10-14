@@ -1,7 +1,17 @@
-/**
- * Zettbos Notion-Style Block Editor Engine
- * Mengelola blok modular (H1, H2, H3, Text, Callout, Code, Image, Video)
- */
+function convertGoogleDriveUrl(url) {
+  if (!url || typeof url !== 'string') return '';
+  const trimmed = url.trim();
+  const fileIdMatch = trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (fileIdMatch && fileIdMatch[1]) {
+    return `https://lh3.googleusercontent.com/d/${fileIdMatch[1]}`;
+  }
+  const idParamMatch = trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (idParamMatch && idParamMatch[1]) {
+    return `https://lh3.googleusercontent.com/d/${idParamMatch[1]}`;
+  }
+  return trimmed;
+}
+if (typeof window !== 'undefined') window.convertGoogleDriveUrl = convertGoogleDriveUrl;
 
 class NotionBlockEditor {
   constructor(containerId, initialBlocks = [], onChange = null) {
@@ -275,17 +285,36 @@ class NotionBlockEditor {
         const imgInput = document.createElement('input');
         imgInput.type = 'text';
         imgInput.value = block.url || '';
-        imgInput.placeholder = 'Masukkan URL Gambar (https://...)';
-        imgInput.className = 'w-full bg-slate-950 text-xs text-slate-300 border border-slate-800 rounded px-2.5 py-1.5 focus:ring-1 focus:ring-emerald-500 outline-none mb-2';
-        imgInput.oninput = (e) => this.updateBlockMeta(index, 'url', e.target.value);
+        imgInput.placeholder = 'Masukkan URL Gambar (Google Drive link / Direct URL https://...)';
+        imgInput.className = 'w-full bg-slate-950 text-xs text-slate-300 border border-slate-800 rounded px-2.5 py-1.5 focus:ring-1 focus:ring-emerald-500 outline-none mb-2 font-mono';
 
         const imgPreview = document.createElement('div');
-        imgPreview.className = 'w-full h-32 rounded-lg bg-slate-950 border border-slate-800 overflow-hidden flex items-center justify-center';
-        if (block.url) {
-          imgPreview.innerHTML = `<img src="${block.url}" alt="Preview" class="w-full h-full object-cover">`;
-        } else {
-          imgPreview.innerHTML = `<span class="text-xs text-slate-600">Preview Gambar</span>`;
-        }
+        imgPreview.className = 'w-full min-h-[140px] max-h-80 rounded-lg bg-slate-950 border border-slate-800 overflow-hidden flex items-center justify-center relative p-2';
+
+        const updatePreview = (rawUrl) => {
+          const directUrl = convertGoogleDriveUrl(rawUrl);
+          if (directUrl) {
+            imgPreview.innerHTML = `
+              <img 
+                src="${escapeHtml(directUrl)}" 
+                alt="Preview" 
+                class="w-full h-full max-h-72 object-contain rounded-lg" 
+                onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'flex flex-col items-center justify-center p-3 text-center text-xs text-rose-400 gap-1\\'><span>⚠️ Gagal memuat gambar.</span><span class=\\'text-[11px] text-slate-400\\'>Pastikan izin share Google Drive disetel ke <b>\\'Anyone with the link\\' (Siapa saja yang memiliki link)</b>.</span></div>';"
+              />
+            `;
+          } else {
+            imgPreview.innerHTML = `<span class="text-xs text-slate-600">Preview Gambar (Paste link Google Drive atau URL gambar)</span>`;
+          }
+        };
+
+        imgInput.oninput = (e) => {
+          const raw = e.target.value;
+          const converted = convertGoogleDriveUrl(raw);
+          this.updateBlockMeta(index, 'url', converted);
+          updatePreview(converted);
+        };
+
+        updatePreview(block.url);
 
         blockEl.appendChild(imgInput);
         blockEl.appendChild(imgPreview);
@@ -397,9 +426,10 @@ function renderBlocksToHtml(blocks) {
         </div>
       `;
     } else if (block.type === 'image') {
+      const directUrl = typeof convertGoogleDriveUrl === 'function' ? convertGoogleDriveUrl(block.url || '') : (block.url || '');
       html += `
-        <div class="my-5 rounded-lg overflow-hidden border border-slate-800 bg-slate-900/50 shadow-md">
-          <img src="${escapeHtml(block.url || '')}" alt="Gambar Materi" class="w-full max-h-96 object-cover" onerror="this.style.display='none'">
+        <div class="my-5 rounded-xl overflow-hidden border border-slate-800 bg-slate-950/80 shadow-lg flex items-center justify-center p-1 sm:p-2">
+          <img src="${escapeHtml(directUrl)}" alt="Gambar Materi" class="w-full max-h-[560px] object-contain rounded-lg" onerror="this.style.display='none'">
         </div>
       `;
     } else if (block.type === 'video') {
