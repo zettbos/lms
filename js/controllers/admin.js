@@ -99,6 +99,7 @@ function renderAdminLandingCms() {
       const card = document.createElement('div');
       card.className = 'glass-card rounded-xl p-4 border border-slate-800 flex flex-col justify-between';
       const hasCustomImg = fac.imageUrl && fac.imageUrl.trim().length > 0;
+      const convertedImg = hasCustomImg && typeof convertGoogleDriveUrl === 'function' ? convertGoogleDriveUrl(fac.imageUrl) : (fac.imageUrl || '');
       card.innerHTML = `
         <div>
           <div class="flex items-center justify-between mb-2">
@@ -113,6 +114,11 @@ function renderAdminLandingCms() {
               <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-300 capitalize">${escapeHtml(fac.tint || 'emerald')}</span>
             </div>
           </div>
+          ${hasCustomImg ? `
+            <div class="mb-2.5 w-full h-24 rounded-lg overflow-hidden bg-slate-950 border border-slate-800 flex items-center justify-center p-1">
+              <img src="${escapeHtml(convertedImg)}" alt="Preview ${escapeHtml(fac.title)}" class="w-full h-full object-cover rounded" onerror="this.onerror=null; this.parentElement.innerHTML='<span class=\\'text-[10px] text-rose-400 font-mono\\'>Gagal memuat link</span>';">
+            </div>
+          ` : ''}
           <p class="text-xs text-slate-400 mb-3">${escapeHtml(fac.description || fac.desc || '')}</p>
           <div class="flex flex-wrap gap-1 mb-3">
             ${(fac.tags || []).map(t => `<span class="micro-tag-pill text-[10px]">${escapeHtml(t)}</span>`).join('')}

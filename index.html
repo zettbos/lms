@@ -40,7 +40,7 @@
   </script>
 
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="css/style.css?v=52" />
+  <link rel="stylesheet" href="css/style.css?v=53" />
 </head>
 <body class="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--fg)] selection:bg-emerald-500/30 selection:text-emerald-300 transition-colors duration-150">
 
@@ -423,15 +423,15 @@
         </p>
       </div>
 
-      <!-- Interactive Split Showcase: Left 5 Cards + Right Dynamic Preview Mockup -->
+      <!-- Interactive Split Showcase: Left Cards in 2 Columns + Right Dynamic Preview Mockup -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-center">
-        <!-- Left Column: 5 Interactive Feature Cards -->
-        <div class="lg:col-span-7 flex flex-col gap-3" id="landing-facilities-container">
+        <!-- Left Column: Interactive Feature Cards (2-Column Grid ala Lynk.id) -->
+        <div class="lg:col-span-7 xl:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-3.5" id="landing-facilities-container">
           <!-- Rendered dynamically by js/controllers/landing.js from AppState.landingCms.facilities -->
         </div>
 
         <!-- Right Column: Lynk-Style Phone Frame Device Mockup with Dynamic Image Screen -->
-        <div class="lg:col-span-5 flex justify-center items-center">
+        <div class="lg:col-span-5 xl:col-span-4 flex justify-center items-center">
           <div class="w-full max-w-sm sm:max-w-md feature-device-mockup relative rounded-[32px] p-3.5 sm:p-5 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 border border-slate-700/80 shadow-2xl">
             <!-- Top Status Bar & Island -->
             <div class="flex items-center justify-between px-3 py-1 mb-2.5 border-b border-slate-800/80 text-[10px] text-slate-400 font-mono">
@@ -3242,18 +3242,18 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- Application Scripts (Modular Architecture with Cache Buster) -->
-  <script src="js/whitelist-data.js?v=52"></script>
-  <script src="js/mock-data.js?v=52"></script>
-  <script src="js/editor.js?v=52"></script>
-  <script src="js/core/state.js?v=52"></script>
-  <script src="js/core/supabase.js?v=52"></script>
-  <script src="js/core/router.js?v=52"></script>
-  <script src="js/core/particles.js?v=52"></script>
-  <script src="js/controllers/auth.js?v=52"></script>
-  <script src="js/controllers/landing.js?v=52"></script>
-  <script src="js/controllers/classroom.js?v=52"></script>
-  <script src="js/controllers/resources.js?v=52"></script>
-  <script src="js/controllers/admin.js?v=52"></script>
-  <script src="js/app.js?v=52"></script>
+  <script src="js/whitelist-data.js?v=53"></script>
+  <script src="js/mock-data.js?v=53"></script>
+  <script src="js/editor.js?v=53"></script>
+  <script src="js/core/state.js?v=53"></script>
+  <script src="js/core/supabase.js?v=53"></script>
+  <script src="js/core/router.js?v=53"></script>
+  <script src="js/core/particles.js?v=53"></script>
+  <script src="js/controllers/auth.js?v=53"></script>
+  <script src="js/controllers/landing.js?v=53"></script>
+  <script src="js/controllers/classroom.js?v=53"></script>
+  <script src="js/controllers/resources.js?v=53"></script>
+  <script src="js/controllers/admin.js?v=53"></script>
+  <script src="js/app.js?v=53"></script>
 </body>
 </html>

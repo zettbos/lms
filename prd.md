@@ -1,8 +1,8 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 # Projek: Zettbos LMS (Member Hub & Notion-Style Learning Management System)
 ================================================================================
-VERSI DOKUMEN : v1.2.3
-STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 52 SELESAI)
+VERSI DOKUMEN : v1.2.4
+STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 53 SELESAI)
 ARSITEK SISTEM: ZettBOT by Zettbos
 ENGINE STACK  : Next.js 14+ (App Router) + Supabase (Postgres & Auth OTP) + Vercel
 ================================================================================
@@ -541,4 +541,21 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
      4. Sinkronisasi Cloud Supabase (`js/core/supabase.js`):
         - Memperbarui `pushAllLocalDataToSupabase()` dan `pullAllRemoteDataFromSupabase()` agar menyelaraskan `facilities` berdampingan dengan `use_cases`.
      5. Cache Buster: Menaikkan seluruh query string script dan stylesheet di `index.html` ke versi `?v=52`.
+  - [2026-10-14] Implementasi Revisi 53: Tata Letak 2 Kolom (Grid 2-Column Side-by-Side) Fasilitas Kelas ala Screenshot Lynk.id, Dynamic Phone Mockup Image Swapping per Kartu via CMS Admin, dan Kartu Aksi Sinergi 3x2 Grid.
+     1. Transformasi Tata Letak Menjadi Grid 2 Kolom Kompak (`index.html`, `js/controllers/landing.js`, `css/style.css`):
+        - Mengubah kontainer `#landing-facilities-container` dari susunan 1 kolom vertikal menjadi grid 2 kolom berdampingan (`grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-3.5`).
+        - Merancang kartu fasilitas horizontal kompak: ikon monoline SVG di kotak kiri bergradasi halus, judul fasilitas tebal dan deskripsi 2 baris proporsional di kanan.
+        - Status aktif dilengkapi border hijau emerald (`border-emerald-500`), subtle glow emerald, serta status badge interaktif.
+     2. Dynamic Smartphone Mockup Screen Swapping Terkoneksi 100% per Kartu (`js/controllers/landing.js`, `index.html`):
+        - Fungsi `selectLandingFacilityPreview(facilityId)` kini secara dinamis memeriksa gambar yang dikonfigurasi pada masing-masing kartu (`fac.imageUrl`).
+        - Jika gambar diisi via CMS, layar smartphone langsung menampilkan gambar tersebut dengan animasi transisi halus (`.feature-preview-fade`).
+        - Otomatis mengonversi tautan Google Drive (`drive.google.com/file/d/...`) menjadi tautan CDN langsung Google (`https://lh3.googleusercontent.com/d/{id}`).
+        - Jika gambar belum diisi, otomatis memunculkan visual mockup vector UI futuristik resolusi tinggi bawaan sebagai fallback yang aman dan estetik.
+     3. Kartu Aksi Penutup Simetris 3x2 Grid ala Lynk.id (`js/controllers/landing.js`, `css/style.css`):
+        - Menambahkan slot kartu ke-6 sebagai call-to-action resmi berdesain outline emerald modern ("Daftar & Join Kelas Sekarang" mengarah ke Lynk.id Zettbos: `https://lynk.id/zettbos/50nxdkpjmowm`).
+        - Menghadirkan keseimbangan grid 3 baris × 2 kolom (total 6 kartu: 5 fasilitas resmi + 1 aksi kelas) tanpa menyisakan ruang kosong ganjil.
+     4. Peningkatan Visual & Live Thumbnail di CMS Admin (`js/controllers/admin.js`):
+        - Kartu fasilitas pada panel CMS `#admin-facilities-grid` kini menampilkan thumbnail gambar langsung saat URL gambar aktif.
+        - Modal edit fasilitas `#modal-edit-facility` dilengkapi pratinjau real-time saat link Google Drive atau direct web URL dimasukkan.
+     5. Cache Buster: Menaikkan seluruh query string script dan stylesheet di `index.html` ke versi `?v=53`.
 

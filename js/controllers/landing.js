@@ -426,15 +426,11 @@ function selectLandingFacilityPreview(facilityId) {
       if (isCardActive) {
         card.classList.add('feature-card-active');
         const iconBox = card.querySelector('.feature-icon-box');
-        if (iconBox) iconBox.className = 'feature-icon-box w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-emerald-500/20 border border-emerald-500/50 text-emerald-400';
-        const indicator = card.querySelector('.feature-active-indicator');
-        if (indicator) indicator.innerHTML = '<div class="w-6 h-6 rounded-full bg-emerald-500/20 border border-emerald-400 flex items-center justify-center text-emerald-400"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg></div>';
+        if (iconBox) iconBox.className = 'feature-icon-box w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center flex-shrink-0 bg-emerald-500/20 border border-emerald-500/50 text-emerald-400';
       } else {
         card.classList.remove('feature-card-active');
         const iconBox = card.querySelector('.feature-icon-box');
-        if (iconBox) iconBox.className = 'feature-icon-box w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-slate-900 border border-slate-800 text-slate-400';
-        const indicator = card.querySelector('.feature-active-indicator');
-        if (indicator) indicator.innerHTML = '<div class="w-6 h-6 rounded-full border border-slate-700/80 flex items-center justify-center text-slate-500 group-hover:border-emerald-500/50 group-hover:text-emerald-400 transition-colors"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></div>';
+        if (iconBox) iconBox.className = 'feature-icon-box w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center flex-shrink-0 bg-slate-900 border border-slate-800 text-slate-400 group-hover:text-emerald-300';
       }
     });
   }
@@ -481,51 +477,60 @@ function renderLandingFacilitiesShowcase(cms) {
     landingActiveFacilityId = facilities[0].id;
   }
 
-  container.innerHTML = facilities.map(uc => {
+  const facilityCardsHtml = facilities.map(uc => {
     const isActive = uc.id === landingActiveFacilityId;
     const activeClass = isActive ? 'feature-card-active' : 'border-[var(--border)] hover:border-emerald-500/40 hover:bg-[var(--surface-hover)]';
-    const tags = Array.isArray(uc.tags) ? uc.tags : [];
 
     return `
       <div 
         data-facility-id="${uc.id}" 
         onclick="selectLandingFacilityPreview('${uc.id}')"
-        class="feature-interactive-card glass-card rounded-2xl p-4 sm:p-5 border transition-all duration-300 group cursor-pointer ${activeClass}"
+        class="feature-interactive-card glass-card rounded-2xl p-3.5 sm:p-4 border transition-all duration-300 group cursor-pointer flex flex-col justify-between ${activeClass}"
       >
-        <div class="flex items-start justify-between gap-3 mb-2">
-          <div class="flex items-center gap-3 min-w-0">
-            <div class="feature-icon-box w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-all ${isActive ? 'bg-emerald-500/20 border border-emerald-500/50 text-emerald-400' : 'bg-slate-900 border border-slate-800 text-slate-400'}">
-              ${getMonolineSvgIcon(uc.icon || 'bot', 'w-5 h-5')}
-            </div>
-            <div class="min-w-0">
-              <div class="flex items-center gap-2">
-                <h3 class="text-sm sm:text-base font-bold text-white group-hover:text-emerald-300 transition-colors truncate">
-                  ${escapeHtml(uc.title)}
-                </h3>
-                <span class="micro-tag-pill hidden sm:inline-flex text-[10px]">
-                  ${escapeHtml(uc.badge || 'Fasilitas')}
-                </span>
-              </div>
-            </div>
+        <div class="flex items-start gap-3">
+          <div class="feature-icon-box w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center flex-shrink-0 transition-all ${isActive ? 'bg-emerald-500/20 border border-emerald-500/50 text-emerald-400' : 'bg-slate-900 border border-slate-800 text-slate-400 group-hover:text-emerald-300'}">
+            ${getMonolineSvgIcon(uc.icon || 'bot', 'w-5 h-5')}
           </div>
-          <div class="feature-active-indicator flex-shrink-0 pt-0.5">
-            ${isActive 
-              ? '<div class="w-6 h-6 rounded-full bg-emerald-500/20 border border-emerald-400 flex items-center justify-center text-emerald-400"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg></div>'
-              : '<div class="w-6 h-6 rounded-full border border-slate-700/80 flex items-center justify-center text-slate-500 group-hover:border-emerald-500/50 group-hover:text-emerald-400 transition-colors"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></div>'
-            }
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center justify-between gap-1 mb-1">
+              <h3 class="text-xs sm:text-sm font-bold text-white group-hover:text-emerald-300 transition-colors leading-snug truncate">
+                ${escapeHtml(uc.title)}
+              </h3>
+              ${isActive ? '<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>' : ''}
+            </div>
+            <p class="text-[11px] sm:text-xs text-slate-400 leading-relaxed line-clamp-3">
+              ${escapeHtml(uc.description || uc.desc || '')}
+            </p>
           </div>
-        </div>
-
-        <p class="text-xs sm:text-[13px] text-slate-300/90 leading-relaxed pl-13 sm:pl-[52px]">
-          ${escapeHtml(uc.description || uc.desc || '')}
-        </p>
-
-        <div class="flex flex-wrap gap-1.5 mt-3 pt-2.5 border-t border-slate-800/60 pl-13 sm:pl-[52px]">
-          ${tags.map(t => `<span class="micro-tag-pill text-[10px]">${escapeHtml(t)}</span>`).join('')}
         </div>
       </div>
     `;
   }).join('');
+
+  const actionCardHtml = `
+    <a 
+      href="https://lynk.id/zettbos/50nxdkpjmowm" 
+      target="_blank" 
+      rel="noopener noreferrer" 
+      class="feature-action-card rounded-2xl p-3.5 sm:p-4 border-2 border-dashed border-emerald-500/40 hover:border-emerald-400 bg-emerald-950/20 hover:bg-emerald-950/40 transition-all flex flex-col justify-between group cursor-pointer shadow-sm"
+    >
+      <div class="flex items-start gap-3">
+        <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center shrink-0 text-emerald-400 group-hover:scale-105 transition-transform">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </div>
+        <div class="min-w-0 flex-1">
+          <h3 class="text-xs sm:text-sm font-bold text-emerald-300 group-hover:text-emerald-200 transition-colors leading-snug">
+            Daftar &amp; Join Kelas Sekarang
+          </h3>
+          <p class="text-[11px] sm:text-xs text-emerald-400/80 mt-1 leading-relaxed">
+            Amankan slot mentoring 1-on-1 &amp; akses ZettBOT via Lynk.id &rarr;
+          </p>
+        </div>
+      </div>
+    </a>
+  `;
+
+  container.innerHTML = facilityCardsHtml + actionCardHtml;
 
   // Update right preview screen for active feature
   selectLandingFacilityPreview(landingActiveFacilityId);
