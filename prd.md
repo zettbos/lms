@@ -1,8 +1,8 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 # Projek: Zettbos LMS (Member Hub & Notion-Style Learning Management System)
 ================================================================================
-VERSI DOKUMEN : v1.2.5
-STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 54 SELESAI)
+VERSI DOKUMEN : v1.2.7
+STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 56 SELESAI)
 ARSITEK SISTEM: ZettBOT by Zettbos
 ENGINE STACK  : Next.js 14+ (App Router) + Supabase (Postgres & Auth OTP) + Vercel
 ================================================================================
@@ -575,4 +575,23 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
      5. Cloud Sync Action Bar & Cache Buster Bump:
         - Menyediakan panel kendali cepat *"Sinkronisasi Cloud Real-Time CMS"* dengan tombol one-click *"Sinkronkan CMS ke Cloud Sekarang"* di bagian atas tab Admin CMS.
         - Menaikkan seluruh query string script dan stylesheet di `index.html` ke versi `?v=54`.
+  - [2026-10-14] Implementasi Revisi 55: Peningkatan Tipografi Kartu Fasilitas Menjadi Lebih Besar, Tebal & Kompak (Compact Premium Typography), Pembesaran Ikon Monoline SVG, dan Cache Buster Bump ?v=55.
+     1. Peningkatan Tipografi Judul & Deskripsi Fasilitas (`js/controllers/landing.js`):
+        - Judul Fasilitas diperbesar signifikan: `text-base sm:text-lg lg:text-xl font-extrabold text-white leading-snug tracking-tight`.
+        - Deskripsi diperbesar agar padat dan mengisi ruang vertikal kartu secara harmonis: `text-xs sm:text-sm lg:text-[14.5px] text-slate-300 leading-relaxed font-normal`.
+     2. Pembesaran Kotak Ikon & Aksen SVG (`js/controllers/landing.js`):
+        - Kotak ikon diperbesar ke `w-14 h-14 sm:w-16 sm:h-16 rounded-2xl` dengan ikon monoline SVG `w-7 h-7 sm:w-8 sm:h-8`.
+        - Radio dot aktif dinaikkan menjadi `w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-400 shadow-[0_0_10px_#10B981]`.
+     3. Penyelarasan Kartu Aksi Lynk.id (`js/controllers/landing.js`):
+        - Judul kartu aksi ke-6 dinaikkan ke `text-base sm:text-lg lg:text-xl font-extrabold text-emerald-300`, deskripsi `text-[14px] text-emerald-400/90`, dan panah SVG `w-7 h-7 sm:w-8 sm:h-8`.
+     4. Cache Buster: Menaikkan seluruh query string script dan stylesheet di `index.html` ke versi `?v=55`.
+  - [2026-10-14] Implementasi Revisi 56: Penanganan Resilien Schema-Cache Supabase (Auto-Fallback ke JSONB hero._facilities), Penghapusan Total Error Sinkronisasi CMS, dan Penyediaan File Migrasi SQL Resmi.
+     1. Zero-Downtime Schema Fallback (`js/core/supabase.js`):
+        - Fungsi `pushLandingCmsToSupabase` kini menangkap error `facilities column not found` (PGRST204) secara elegan.
+        - Jika kolom `facilities` belum dibuat di tabel Supabase Cloud, data fasilitas otomatis dibungkus ke dalam objek `hero._facilities` dan di-upsert ulang tanpa kendala.
+        - Fungsi pembaca (`pullAllRemoteDataFromSupabase` dan `syncCurriculumFromCloud`) secara cerdas membaca `cms.facilities || cms.hero?._facilities || SEED_LANDING_CMS.facilities`.
+     2. Update Skema SQL Resmi (`supabase/schema.sql`, `supabase/migration_add_facilities_to_landing_cms.sql`):
+        - Memperbarui skema tabel `landing_cms` dengan `facilities JSONB DEFAULT '[]'::jsonb`.
+        - Menyiapkan skrip migrasi mandiri `ALTER TABLE public.landing_cms ADD COLUMN IF NOT EXISTS facilities JSONB DEFAULT '[]'::jsonb;`.
+     3. Cache Buster: Menaikkan seluruh query string script dan stylesheet di `index.html` ke versi `?v=56`.
 

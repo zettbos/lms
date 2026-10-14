@@ -166,10 +166,15 @@ const ZettSupabase = {
       // 5. Pull Landing CMS
       const { data: cms, error: cmsErr } = await this.client.from('landing_cms').select('*').eq('id', 'active_cms').single();
       if (!cmsErr && cms && cms.hero) {
+        const zData = window.ZettData || {};
         AppState.landingCms = {
           hero: cms.hero,
-          facilities: cms.facilities || (window.ZettData?.SEED_LANDING_CMS?.facilities) || [],
-          useCases: cms.use_cases || (window.ZettData?.SEED_LANDING_CMS?.useCases) || [],
+          facilities: (Array.isArray(cms.facilities) && cms.facilities.length > 0)
+            ? cms.facilities
+            : ((cms.hero && Array.isArray(cms.hero._facilities) && cms.hero._facilities.length > 0)
+                ? cms.hero._facilities
+                : (zData.SEED_LANDING_CMS?.facilities || [])),
+          useCases: cms.use_cases || (zData.SEED_LANDING_CMS?.useCases) || [],
           testimonials: cms.testimonials || []
         };
       }
@@ -255,16 +260,9 @@ const ZettSupabase = {
         await this.client.from('shared_resources').upsert(payloadRes, { onConflict: 'id' });
       }
 
-      // 5. Push Landing CMS
+      // 5. Push Landing CMS (With Resilient Fallback)
       if (AppState.landingCms && AppState.landingCms.hero) {
-        await this.client.from('landing_cms').upsert({
-          id: 'active_cms',
-          hero: AppState.landingCms.hero,
-          facilities: AppState.landingCms.facilities || [],
-          use_cases: AppState.landingCms.useCases || [],
-          testimonials: AppState.landingCms.testimonials || [],
-          updated_at: new Date().toISOString()
-        }, { onConflict: 'id' });
+        await this.pushLandingCmsToSupabase(true);
       }
 
       // 6. Push Quick Actions Hub
@@ -303,7 +301,30 @@ const ZettSupabase = {
         updated_at: new Date().toISOString()
       };
       const { error } = await this.client.from('landing_cms').upsert(payload, { onConflict: 'id' });
-      if (error) throw error;
+      
+      if (error) {
+        // Fallback cerdas: Jika kolom 'facilities' belum ditambahkan di tabel Supabase Cloud
+        const errMsg = (error.message || '').toLowerCase();
+        if (errMsg.includes('facilities') || error.code === 'PGRST204') {
+          console.warn('[ZettSupabase] Kolom facilities belum ada di schema Supabase. Menggunakan payload fallback JSONB hero._facilities...');
+          const fallbackHero = {
+            ...(AppState.landingCms.hero || {}),
+            _facilities: AppState.landingCms.facilities || []
+          };
+          const fallbackPayload = {
+            id: 'active_cms',
+            hero: fallbackHero,
+            use_cases: AppState.landingCms.useCases || [],
+            testimonials: AppState.landingCms.testimonials || [],
+            updated_at: new Date().toISOString()
+          };
+          const { error: fallbackErr } = await this.client.from('landing_cms').upsert(fallbackPayload, { onConflict: 'id' });
+          if (fallbackErr) throw fallbackErr;
+        } else {
+          throw error;
+        }
+      }
+
       if (!silent && typeof showToast === 'function') {
         showToast('CMS Landing Page berhasil disinkronkan ke Cloud Supabase!', 'success');
       }
@@ -448,7 +469,11 @@ const ZettSupabase = {
           const zData = window.ZettData || {};
           AppState.landingCms = {
             hero: cms.hero,
-            facilities: (Array.isArray(cms.facilities) && cms.facilities.length > 0) ? cms.facilities : (zData.SEED_LANDING_CMS?.facilities || []),
+            facilities: (Array.isArray(cms.facilities) && cms.facilities.length > 0)
+              ? cms.facilities
+              : ((cms.hero && Array.isArray(cms.hero._facilities) && cms.hero._facilities.length > 0)
+                  ? cms.hero._facilities
+                  : (zData.SEED_LANDING_CMS?.facilities || [])),
             useCases: (Array.isArray(cms.use_cases) && cms.use_cases.length > 0) ? cms.use_cases : (zData.SEED_LANDING_CMS?.useCases || []),
             testimonials: (Array.isArray(cms.testimonials) && cms.testimonials.length > 0) ? cms.testimonials : (zData.SEED_LANDING_CMS?.testimonials || [])
           };

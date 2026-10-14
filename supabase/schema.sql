@@ -102,14 +102,18 @@ CREATE TABLE IF NOT EXISTS public.shared_resources (
     created_at TIMESTAMPTZ DEFAULT now()
 );
 
--- 9. TABEL CMS DOKUMEN LANDING PAGE (Hero, UseCases, Testimoni)
+-- 9. TABEL CMS DOKUMEN LANDING PAGE (Hero, Facilities, UseCases, Testimoni)
 CREATE TABLE IF NOT EXISTS public.landing_cms (
     id TEXT PRIMARY KEY DEFAULT 'active_cms',
     hero JSONB NOT NULL,
+    facilities JSONB DEFAULT '[]'::jsonb,
     use_cases JSONB NOT NULL,
     testimonials JSONB NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT now()
 );
+
+-- Migration jika tabel sudah ada sebelumnya tanpa kolom facilities
+ALTER TABLE public.landing_cms ADD COLUMN IF NOT EXISTS facilities JSONB DEFAULT '[]'::jsonb;
 
 -- 10. TABEL QUICK ACTIONS HUB (Kartu Pintas Beranda)
 CREATE TABLE IF NOT EXISTS public.quick_actions (
