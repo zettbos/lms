@@ -40,7 +40,7 @@
   </script>
 
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="css/style.css?v=50" />
+  <link rel="stylesheet" href="css/style.css?v=51" />
 </head>
 <body class="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--fg)] selection:bg-emerald-500/30 selection:text-emerald-300 transition-colors duration-150">
 
@@ -231,7 +231,7 @@
         <nav class="hidden md:flex items-center gap-7 text-xs font-semibold text-slate-300">
           <a href="#landing-hero" class="hover:text-emerald-400 transition-colors">Beranda</a>
           <a href="#landing-curriculum" class="hover:text-emerald-400 transition-colors">Kurikulum Modul</a>
-          <a href="#landing-usecases" class="hover:text-emerald-400 transition-colors">Target Siswa</a>
+          <a href="#landing-usecases" class="hover:text-emerald-400 transition-colors">Fasilitas Kelas</a>
           <a href="#landing-testimonials" class="hover:text-emerald-400 transition-colors">Testimoni</a>
         </nav>
 
@@ -376,9 +376,9 @@
             <p id="landing-banner-desc" class="strip-desc text-xs text-slate-400 mt-0.5 line-clamp-1 sm:line-clamp-none">Semua modul dibuat step-by-step. Begitu selesai kelas, aplikasi Anda sudah jadi, berfungsi normal, dan siap dipakai untuk operasional bisnis atau dijual ke klien.</p>
           </div>
         </div>
-        <!-- Right CTA Button -->
+        <!-- Right CTA Button (Dynamic Module Count) -->
         <a href="#landing-curriculum" class="strip-cta-btn px-4 sm:px-5 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 whitespace-nowrap transition-all shadow-sm shrink-0">
-          <span>Lihat 5 Modul Kurikulum</span>
+          <span id="landing-banner-curriculum-count">Lihat Modul Kurikulum</span>
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
         </a>
       </div>
@@ -407,17 +407,57 @@
       </div>
     </section>
 
-    <!-- 5. Audience Use-Case Cards (CMS-Driven) -->
-    <section id="landing-usecases" class="py-10 sm:py-16 px-4 sm:px-8 lg:px-12 max-w-[1440px] 2xl:max-w-[1600px] mx-auto w-full">
-      <div class="text-center mb-8 sm:mb-10">
-        <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">Siapa Saja yang Butuh Bikin Web App Pakai AI?</h2>
-        <p class="text-xs sm:text-sm text-slate-400 mt-2 max-w-lg mx-auto">
-          Bukan cuma untuk orang IT. Siapapun Anda yang butuh sistem bisnis sendiri, ingin kerjaan kantor lebih cepat beres, atau mau cari penghasilan tambahan—sekarang semuanya bisa bikin sendiri full pakai AI.
+    <!-- 5. Fasilitas & Ekosistem Belajar (Lynk.id Style Interactive Feature Showcase) -->
+    <section id="landing-usecases" class="py-12 sm:py-20 px-4 sm:px-8 lg:px-12 max-w-[1440px] 2xl:max-w-[1600px] mx-auto w-full">
+      <div class="text-center mb-10 sm:mb-14">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 mb-3">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+          <span>Fasilitas &amp; Ekosistem Belajar</span>
+        </div>
+        <h2 class="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
+          Lebih Dari Sekadar Kelas Video Biasa
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-400 mt-2.5 max-w-xl mx-auto leading-relaxed">
+          Semua fasilitas penunjang kami siapkan dari prompt AI khusus, template siap pakai, bimbingan langsung, hingga komunitas eksklusif agar Anda benar-benar bisa membuat dan meluncurkan sistem sendiri.
         </p>
       </div>
 
-      <div id="landing-usecases-container" class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
-        <!-- Rendered dynamically by js/app.js from AppState.landingCms.useCases -->
+      <!-- Interactive Split Showcase: Left 5 Cards + Right Dynamic Preview Mockup -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-center">
+        <!-- Left Column: 5 Interactive Feature Cards -->
+        <div class="lg:col-span-7 flex flex-col gap-3" id="landing-usecases-container">
+          <!-- Rendered dynamically by js/controllers/landing.js from AppState.landingCms.useCases -->
+        </div>
+
+        <!-- Right Column: Lynk-Style Phone Frame Device Mockup with Dynamic Image Screen -->
+        <div class="lg:col-span-5 flex justify-center items-center">
+          <div class="w-full max-w-sm sm:max-w-md feature-device-mockup relative rounded-[32px] p-3.5 sm:p-5 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 border border-slate-700/80 shadow-2xl">
+            <!-- Top Status Bar & Island -->
+            <div class="flex items-center justify-between px-3 py-1 mb-2.5 border-b border-slate-800/80 text-[10px] text-slate-400 font-mono">
+              <span id="feature-preview-tag" class="text-emerald-400 font-bold uppercase tracking-wider">ZETTBOS ECOSYSTEM</span>
+              <span class="flex items-center gap-1.5 text-slate-300">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Live Preview</span>
+              </span>
+            </div>
+
+            <!-- Dynamic Preview Screen Container -->
+            <div id="landing-feature-preview-screen" class="relative w-full aspect-[4/5] sm:aspect-[3/4] rounded-2xl overflow-hidden bg-slate-950 border border-slate-800/90 flex items-center justify-center shadow-inner">
+              <!-- Rendered by landing.js selectLandingFeaturePreview(id) -->
+            </div>
+
+            <!-- Screen Caption Footer -->
+            <div class="mt-3 px-1 flex items-center justify-between text-xs">
+              <div class="min-w-0 pr-2">
+                <h4 id="feature-preview-title" class="font-bold text-white tracking-tight truncate">Akses ZettBOT</h4>
+                <p id="feature-preview-desc" class="text-[11px] text-slate-400 truncate">AI Custom khusus untuk membantu membuat prompt dan koding.</p>
+              </div>
+              <span class="px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-400 text-[10px] font-bold border border-emerald-500/30 whitespace-nowrap flex-shrink-0">
+                Fasilitas Resmi
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -1697,15 +1737,15 @@
         </form>
       </div>
 
-      <!-- Section B: Use-Cases (Target Audiens 4 Cards) -->
+      <!-- Section B: Fasilitas & Fitur Kelas (Interactive Showcase CMS) -->
       <div class="glass-card-static rounded-xl p-6">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 mb-4 border-b border-slate-800">
           <div>
             <h2 class="text-lg font-bold text-white flex items-center gap-2">
               <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-              Pengelola Target Audiens (4 Kartu Use-Cases)
+              Pengelola Fasilitas &amp; Fitur Kelas (5 Kartu Interaktif ala Lynk.id)
             </h2>
-            <p class="text-xs text-slate-400 mt-0.5">Kelola 4 kartu segmen pengguna di landing page: judul target, deskripsi manfaat, pilihan ikon, dan tag keahlian.</p>
+            <p class="text-xs text-slate-400 mt-0.5">Kelola 5 kartu fasilitas di landing page: judul, deskripsi, link gambar/mockup (mendukung Google Drive), pilihan ikon monoline SVG, dan tag.</p>
           </div>
           <button onclick="resetLandingUseCasesToDefault()" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 transition-colors">
             Reset Kartu ke Default
@@ -2696,14 +2736,14 @@
   </div>
 
   <!-- ==========================================
-       MODAL 3E: EDIT USE-CASE AUDIENCE CARD CMS
+       MODAL 3E: EDIT FASILITAS & FITUR KELAS CMS (LYNK-STYLE)
        ========================================== -->
   <div id="modal-edit-usecase" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md hidden">
     <div class="glass-card rounded-2xl p-6 sm:p-7 max-w-lg w-full relative shadow-2xl">
       <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
         <h3 class="text-base font-bold text-white flex items-center gap-2">
           <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-          Edit Kartu Target Audiens
+          Edit Fasilitas &amp; Fitur Kelas
         </h3>
         <button onclick="closeEditUseCaseModal()" class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -2714,18 +2754,22 @@
         <input type="hidden" id="edit-usecase-id" />
 
         <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Judul Target Audiens</label>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Judul Fasilitas / Fitur</label>
           <input id="edit-usecase-title" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Pilihan Ikon Monoline</label>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Pilihan Ikon Monoline SVG</label>
             <select id="edit-usecase-icon" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
-              <option value="briefcase">Briefcase (Bisnis &amp; UMKM)</option>
+              <option value="bot">Robot AI Assistant (ZettBOT)</option>
+              <option value="library">Library / Starter Template</option>
+              <option value="video">Video Player Screen (Modul Video)</option>
+              <option value="users">Community / Users (Grup Diskusi)</option>
+              <option value="target">Target / Bullseye (Private Mentoring)</option>
               <option value="code">Code (Non-Programmer)</option>
-              <option value="sparkles">Sparkles (Solopreneur)</option>
-              <option value="chart">Chart (Tim Operasional)</option>
+              <option value="sparkles">Sparkles (Prompt &amp; AI)</option>
+              <option value="briefcase">Briefcase (Bisnis &amp; UMKM)</option>
               <option value="folder">Folder (Project &amp; SOP)</option>
             </select>
           </div>
@@ -2736,17 +2780,37 @@
               <option value="cyan">Cyan Electric</option>
               <option value="purple">Purple Modern</option>
               <option value="amber">Amber Gold</option>
+              <option value="blue">Blue Corporate</option>
             </select>
           </div>
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Tag Chips Keahlian (Pisahkan dengan koma)</label>
-          <input id="edit-usecase-tags" required placeholder="Zero-Code, Sheets, Automasi Bisnis" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono">
+          <label class="block text-xs font-semibold text-slate-300 mb-1">
+            Link Gambar Mockup / Screenshot (Google Drive / Direct URL)
+          </label>
+          <input 
+            id="edit-usecase-imageurl" 
+            type="text" 
+            oninput="handleUseCaseImagePreview(this.value)"
+            placeholder="https://drive.google.com/file/d/... atau https://example.com/mockup.png" 
+            class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono"
+          >
+          <p class="text-[10px] text-slate-400 mt-1">
+            💡 Mendukung link Google Drive ("Anyone with link can view"). Jika kosong, sistem otomatis menampilkan visual mockup UI interaktif.
+          </p>
+          <div id="edit-usecase-img-preview" class="mt-2 w-full h-24 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-center overflow-hidden">
+            <span class="text-[11px] text-slate-500 font-mono">Pratinjau Gambar</span>
+          </div>
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Deskripsi Manfaat &amp; Solusi</label>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Tag Chips (Pisahkan dengan koma)</label>
+          <input id="edit-usecase-tags" required placeholder="Prompt Engineering, Bantuan Koding, Beresin Error" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Kalimat Deskripsi Fasilitas</label>
           <textarea id="edit-usecase-desc" rows="3" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-white focus:outline-none focus:border-emerald-500"></textarea>
         </div>
 
@@ -2755,7 +2819,7 @@
             Batal
           </button>
           <button type="submit" class="btn-primary-action px-4 py-2 rounded-lg text-xs font-semibold">
-            Simpan Kartu Audiens
+            Simpan Perubahan Fasilitas
           </button>
         </div>
       </form>
@@ -3066,18 +3130,18 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- Application Scripts (Modular Architecture with Cache Buster) -->
-  <script src="js/whitelist-data.js?v=50"></script>
-  <script src="js/mock-data.js?v=50"></script>
-  <script src="js/editor.js?v=50"></script>
-  <script src="js/core/state.js?v=50"></script>
-  <script src="js/core/supabase.js?v=50"></script>
-  <script src="js/core/router.js?v=50"></script>
-  <script src="js/core/particles.js?v=50"></script>
-  <script src="js/controllers/auth.js?v=50"></script>
-  <script src="js/controllers/landing.js?v=50"></script>
-  <script src="js/controllers/classroom.js?v=50"></script>
-  <script src="js/controllers/resources.js?v=50"></script>
-  <script src="js/controllers/admin.js?v=50"></script>
-  <script src="js/app.js?v=50"></script>
+  <script src="js/whitelist-data.js?v=51"></script>
+  <script src="js/mock-data.js?v=51"></script>
+  <script src="js/editor.js?v=51"></script>
+  <script src="js/core/state.js?v=51"></script>
+  <script src="js/core/supabase.js?v=51"></script>
+  <script src="js/core/router.js?v=51"></script>
+  <script src="js/core/particles.js?v=51"></script>
+  <script src="js/controllers/auth.js?v=51"></script>
+  <script src="js/controllers/landing.js?v=51"></script>
+  <script src="js/controllers/classroom.js?v=51"></script>
+  <script src="js/controllers/resources.js?v=51"></script>
+  <script src="js/controllers/admin.js?v=51"></script>
+  <script src="js/app.js?v=51"></script>
 </body>
 </html>

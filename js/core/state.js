@@ -139,7 +139,7 @@ function initStorage() {
   AppState.favorites = (storedFavorites && typeof storedFavorites === 'object') ? storedFavorites : { ...seedFavorites };
   AppState.resources = Array.isArray(storedResources) ? storedResources : [...seedResources];
 
-  const CMS_COPY_VERSION = 'v27_clean_zero_start';
+  const CMS_COPY_VERSION = 'v51_interactive_features';
   const storedCmsVer = localStorage.getItem('zett_landing_cms_ver');
   if (storedCmsVer !== CMS_COPY_VERSION) {
     AppState.landingCms = JSON.parse(JSON.stringify(seedLandingCms));
@@ -536,6 +536,21 @@ function escapeHtml(str) {
     .replace(/'/g, '&#039;');
 }
 
+function convertGoogleDriveUrl(url) {
+  if (!url || typeof url !== 'string') return '';
+  const trimmed = url.trim();
+  const fileIdMatch = trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (fileIdMatch && fileIdMatch[1]) {
+    return `https://lh3.googleusercontent.com/d/${fileIdMatch[1]}`;
+  }
+  const idParamMatch = trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (idParamMatch && idParamMatch[1]) {
+    return `https://lh3.googleusercontent.com/d/${idParamMatch[1]}`;
+  }
+  return trimmed;
+}
+window.convertGoogleDriveUrl = convertGoogleDriveUrl;
+
 function getMonolineSvgIcon(iconName, customClass = 'w-4 h-4 text-emerald-400') {
   switch (iconName) {
     case 'folder':
@@ -558,6 +573,14 @@ function getMonolineSvgIcon(iconName, customClass = 'w-4 h-4 text-emerald-400') 
       return `<svg class="${customClass}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>`;
     case 'users':
       return `<svg class="${customClass}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>`;
+    case 'bot':
+      return `<svg class="${customClass}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2" stroke-width="1.8"/><circle cx="12" cy="5" r="2" stroke-width="1.8"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 7v4M8 16h.01M16 16h.01"/></svg>`;
+    case 'library':
+      return `<svg class="${customClass}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 19.5A2.5 2.5 0 016.5 17H20M4 19.5A2.5 2.5 0 006.5 22H20V2H6.5A2.5 2.5 0 004 4.5v15z"/></svg>`;
+    case 'video':
+      return `<svg class="${customClass}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2" stroke-width="1.8"/></svg>`;
+    case 'target':
+      return `<svg class="${customClass}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="1.8"/><circle cx="12" cy="12" r="6" stroke-width="1.8"/><circle cx="12" cy="12" r="2" stroke-width="1.8"/></svg>`;
     default:
       return `<svg class="${customClass}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>`;
   }

@@ -1,8 +1,8 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 # Projek: Zettbos LMS (Member Hub & Notion-Style Learning Management System)
 ================================================================================
-VERSI DOKUMEN : v1.2.1
-STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 50 SELESAI)
+VERSI DOKUMEN : v1.2.2
+STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 51 SELESAI)
 ARSITEK SISTEM: ZettBOT by Zettbos
 ENGINE STACK  : Next.js 14+ (App Router) + Supabase (Postgres & Auth OTP) + Vercel
 ================================================================================
@@ -507,4 +507,23 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
           2. **Admin Asep**: `082195277812` (*Pendaftaran & Konsultasi Member*)
         - Menghubungkan seluruh tombol WhatsApp (Quick Action "WhatsApp Admin" di Beranda, tombol kontak di footer landing, dan tombol konfirmasi di modal non-whitelist) untuk membuka modal kontak ini.
      6. Cache Buster: Menaikkan seluruh query string script dan stylesheet di `index.html` ke versi `?v=50`.
+  - [2026-10-14] Implementasi Revisi 51: Dinamisasi Tombol CTA Banner Landing, Interactive Feature Showcase ala Lynk.id dengan Dynamic Preview di Kanan & Full CMS Control, serta Standarisasi Ikon Monoline SVG (Tanpa Emoji).
+     1. Dinamisasi Tombol CTA Banner Landing Sesuai Jumlah Modul Nyata (`index.html`, `js/controllers/landing.js`):
+        - Mengganti teks statis `Lihat 5 Modul Kurikulum` menjadi counter dinamis `#landing-banner-curriculum-count` yang menghitung modul terpublikasi (`AppState.modules.filter(m => m.isPublished !== false).length`).
+        - Angka tombol banner selalu 100% akurat mengikuti data nyata kurikulum tanpa perlu revisi manual saat modul ditambah atau dikurangi.
+     2. Interactive Feature Showcase ala Lynk.id dengan Dynamic Preview di Kanan (`index.html`, `js/controllers/landing.js`, `css/style.css`):
+        - Mengubah Section 5 landing page menjadi Split Layout interaktif:
+          - Sisi Kiri: 5 Kartu Fasilitas Interaktif (`.feature-interactive-card`) dengan efek aktif emerald glow (`.feature-card-active`), ikon monoline SVG yang menyala, radio check indicator, dan responsivitas mobile.
+          - Sisi Kanan: Layar Smartphone Frame Mockup (`.feature-device-mockup`) yang menampilkan preview dinamis dari fasilitas yang sedang diklik dengan animasi halus (`.feature-preview-fade`).
+        - Menghadirkan mockup UI vector cadangan high-tech (ZettBOT terminal engine, Starter library vault, Video lesson player, VIP Discord/Telegram lounge, dan VIP 1-on-1 Mentorship commitment) jika gambar custom belum diisi, sehingga tampilan selalu memukau tanpa visual kosong.
+     3. Standarisasi 5 Fasilitas Resmi Zettbos (Tanpa Emoji, Menggunakan Ikon Monoline SVG):
+        - 1. **Akses ZettBOT**: "AI Custom khusus untuk membantu membuat prompt dan koding." (Ikon Monoline SVG: `bot`).
+        - 2. **Zettbos Library**: "Template siap pakai, tinggal modif." (Ikon Monoline SVG: `library`).
+        - 3. **Modul Video Pembelajaran**: "Materi step-by-step dari nol sampai deploy, bisa dipelajari kapan saja." (Ikon Monoline SVG: `video`).
+        - 4. **Grup Komunitas Premium**: "Bisa tanya dan diskusi langsung dengan mentor dan member lain." (Ikon Monoline SVG: `users`).
+        - 5. **Private Mentoring 1 Bulan**: "Dibimbing sampai bisa bikin sistem sendiri (minimal 1 bulan bimbingan intensif, didampingi penuh hingga aplikasi Anda selesai & live)." (Ikon Monoline SVG: `target`).
+     4. Kontrol Penuh di CMS Admin & Support Link Google Drive (`index.html`, `js/controllers/admin.js`, `js/core/state.js`):
+        - Modal Edit Fasilitas (`modal-edit-usecase`) dilengkapi input URL gambar mockup (`#edit-usecase-imageurl`) dengan auto-converter Google Drive (`convertGoogleDriveUrl`) dan kotak live preview (`#edit-usecase-img-preview`).
+        - Kartu fasilitas di panel CMS admin menampilkan status badge aktif (`GAMBAR AKTIF` vs `UI VECTOR`).
+     5. Cache Buster: Menaikkan seluruh query string script dan stylesheet di `index.html` ke versi `?v=51`.
 

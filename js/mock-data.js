@@ -108,40 +108,59 @@ const SEED_LANDING_CMS = {
   },
   useCases: [
     {
-      id: 'uc-1',
-      title: 'Owner Bisnis & UMKM',
-      description: 'Punya web app kasir, manajemen stok, dan database pelanggan sendiri tanpa biaya bulanan selamanya. Bebas ketergantungan vendor IT puluhan juta.',
-      desc: 'Punya web app kasir, manajemen stok, dan database pelanggan sendiri tanpa biaya bulanan selamanya. Bebas ketergantungan vendor IT puluhan juta.',
-      icon: 'briefcase',
-      tint: 'amber',
-      tags: ['Bebas Biaya Bulanan', 'Sistem Stok Sendiri', 'Hemat Puluhan Juta']
-    },
-    {
-      id: 'uc-2',
-      title: 'Karyawan & Tim Kantor',
-      description: 'Ubah Google Sheets & Excel kantor jadi web app otomatis. Input data anti-salah, rekap laporan instan, dan kerjaan beres lebih cepat tanpa sering lembur.',
-      desc: 'Ubah Google Sheets & Excel kantor jadi web app otomatis. Input data anti-salah, rekap laporan instan, dan kerjaan beres lebih cepat tanpa sering lembur.',
-      icon: 'file',
-      tint: 'cyan',
-      tags: ['Bebas Lembur', 'Otomasi Excel & Sheets', 'Nilai Tambah Karir']
-    },
-    {
-      id: 'uc-3',
-      title: 'Freelancer & Pencari Cuan Tambahan',
-      description: 'Buka jasa pembuatan web app & sistem digital untuk klien UMKM dengan bayaran jutaan per proyek. Full modal AI dari prompt sampai serah terima hosting & domain.',
-      desc: 'Buka jasa pembuatan web app & sistem digital untuk klien UMKM dengan bayaran jutaan per proyek. Full modal AI dari prompt sampai serah terima hosting & domain.',
-      icon: 'code',
-      tint: 'purple',
-      tags: ['Buka Jasa Web App', 'Penghasilan Tambahan', 'Full Modal AI']
-    },
-    {
-      id: 'uc-4',
-      title: 'Pemula (Nol Pengalaman Koding)',
-      description: 'Buktikan sendiri bahwa dengan arahan prompt AI yang benar, Anda bisa mendeploy web app fungsional pertama Anda ke internet tanpa harus kuliah IT.',
-      desc: 'Buktikan sendiri bahwa dengan arahan prompt AI yang benar, Anda bisa mendeploy web app fungsional pertama Anda ke internet tanpa harus kuliah IT.',
-      icon: 'book',
+      id: 'feat-1',
+      title: 'Akses ZettBOT',
+      description: 'AI Custom khusus untuk membantu membuat prompt dan koding.',
+      desc: 'AI Custom khusus untuk membantu membuat prompt dan koding.',
+      icon: 'bot',
       tint: 'emerald',
-      tags: ['Nol Background IT', 'AI Jadi Programmer Pribadi', '100% Praktek Nyata']
+      badge: 'AI Coding Assistant',
+      imageUrl: '',
+      tags: ['Prompt Engineering', 'Bantuan Koding', 'Beresin Error']
+    },
+    {
+      id: 'feat-2',
+      title: 'Zettbos Library',
+      description: 'Template siap pakai, tinggal modif.',
+      desc: 'Template siap pakai, tinggal modif.',
+      icon: 'library',
+      tint: 'cyan',
+      badge: 'Starter Templates',
+      imageUrl: '',
+      tags: ['Template Siap Pakai', 'Tinggal Modif', 'Full Source Code']
+    },
+    {
+      id: 'feat-3',
+      title: 'Modul Video Pembelajaran',
+      description: 'Materi step-by-step dari nol sampai deploy, bisa dipelajari kapan saja.',
+      desc: 'Materi step-by-step dari nol sampai deploy, bisa dipelajari kapan saja.',
+      icon: 'video',
+      tint: 'purple',
+      badge: 'Kurikulum Lengkap',
+      imageUrl: '',
+      tags: ['Dari Nol Sampai Live', 'Akses Kapan Saja', 'Step-by-Step']
+    },
+    {
+      id: 'feat-4',
+      title: 'Grup Komunitas Premium',
+      description: 'Bisa tanya dan diskusi langsung dengan mentor dan member lain.',
+      desc: 'Bisa tanya dan diskusi langsung dengan mentor dan member lain.',
+      icon: 'users',
+      tint: 'blue',
+      badge: 'Komunitas VIP',
+      imageUrl: '',
+      tags: ['Diskusi Member', 'Tanya Mentor', 'Networking']
+    },
+    {
+      id: 'feat-5',
+      title: 'Private Mentoring 1 Bulan',
+      description: 'Dibimbing sampai bisa bikin sistem sendiri (minimal 1 bulan bimbingan intensif, didampingi penuh hingga aplikasi Anda selesai & live).',
+      desc: 'Dibimbing sampai bisa bikin sistem sendiri (minimal 1 bulan bimbingan intensif, didampingi penuh hingga aplikasi Anda selesai & live).',
+      icon: 'target',
+      tint: 'amber',
+      badge: '1-on-1 Mentoring',
+      imageUrl: '',
+      tags: ['Minimal 1 Bulan', 'Dibimbing Sampai Bisa', 'Private Coaching']
     }
   ],
   testimonials: [] // Testimoni dummy dibersihkan, siap diisi testimoni asli lewat Admin CMS

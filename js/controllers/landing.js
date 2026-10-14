@@ -4,6 +4,7 @@
  */
 
 let landingActiveModuleId = 'mod-1';
+let landingActiveFeatureId = 'feat-1';
 
 function getModuleMicroTags(mod) {
   // Purged for clean visual hierarchy (Revisi 47)
@@ -197,6 +198,337 @@ function handleLandingEmailSubmit(event) {
   }
 }
 
+// ==========================================
+// LYNK.ID STYLE INTERACTIVE FEATURE SHOWCASE (REVISI 51)
+// ==========================================
+
+function getFeatureFallbackMockupHtml(featureId) {
+  const target = (AppState.landingCms?.useCases || []).find(u => u.id === featureId);
+  const icon = target?.icon || '';
+  const title = (target?.title || '').toLowerCase();
+
+  if (featureId === 'feat-1' || icon === 'bot' || title.includes('zettbot') || title.includes('ai')) {
+    return `
+      <div class="w-full h-full p-4 sm:p-5 flex flex-col justify-between bg-slate-950 font-mono text-xs">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-800 text-[11px] text-slate-400">
+          <div class="flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-rose-500/80"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-500/80"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></span>
+            <span class="ml-2 font-bold text-slate-300">zettbot-engine ~ v2.0</span>
+          </div>
+          <span class="text-emerald-400 font-bold">ONLINE</span>
+        </div>
+        <div class="space-y-3 py-3 flex-1 overflow-y-auto">
+          <div class="text-slate-400 text-[11px] leading-relaxed">
+            <span class="text-emerald-400 font-bold">$ zettbot</span> --generate-prompt --stack "Full AI Web App"
+          </div>
+          <div class="p-3 rounded-xl bg-slate-900/90 border border-emerald-500/30 text-emerald-300 text-[11px] leading-relaxed shadow-sm">
+            <div class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider mb-1 flex items-center gap-1">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              <span>AI Prompt &amp; Code Assistant</span>
+            </div>
+            "Buat antarmuka responsif modern, sambungkan Google Sheets via GAS endpoint, dan otomatis selesaikan error bug..."
+          </div>
+          <div class="text-slate-400 text-[10px] leading-relaxed space-y-1">
+            <div class="text-slate-300 flex items-center gap-1.5"><span class="text-emerald-400">✔</span> Prompt prompt-ready dioptimasi</div>
+            <div class="text-slate-300 flex items-center gap-1.5"><span class="text-emerald-400">✔</span> Skrip backend Google Apps Script siap pakai</div>
+            <div class="text-emerald-400 font-bold flex items-center gap-1.5"><span>✔</span> Siap copy-paste ke workspace</div>
+          </div>
+        </div>
+        <div class="pt-2.5 border-t border-slate-800 flex items-center justify-between text-[10px] text-slate-400">
+          <span class="text-emerald-400 font-semibold">Tanya AI Error Kapan Saja</span>
+          <span>Latensi: 12ms</span>
+        </div>
+      </div>
+    `;
+  }
+
+  if (featureId === 'feat-2' || icon === 'library' || title.includes('library') || title.includes('template')) {
+    return `
+      <div class="w-full h-full p-4 sm:p-5 flex flex-col justify-between bg-slate-950 text-xs">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-lg bg-cyan-950 text-cyan-400 border border-cyan-500/40 flex items-center justify-center">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/></svg>
+            </div>
+            <span class="text-xs font-bold text-white">Starter Library Vault</span>
+          </div>
+          <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-cyan-950 text-cyan-300 border border-cyan-800">50+ Templates</span>
+        </div>
+        <div class="space-y-2.5 py-3 flex-1 overflow-y-auto">
+          <div class="p-3 rounded-xl bg-slate-900 border border-cyan-500/30 flex items-center justify-between gap-2 shadow-sm">
+            <div class="min-w-0">
+              <div class="text-xs font-bold text-white truncate">Full POS Kasir &amp; Invoice Otomatis</div>
+              <div class="text-[10px] text-slate-400 font-mono mt-0.5">Google Sheets + Tailwind + PDF Export</div>
+            </div>
+            <span class="px-2 py-1 rounded bg-cyan-500/15 text-cyan-400 font-bold text-[10px] whitespace-nowrap">Siap Pakai</span>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between gap-2">
+            <div class="min-w-0">
+              <div class="text-xs font-bold text-white truncate">CRM &amp; Sales Pipeline Tracker</div>
+              <div class="text-[10px] text-slate-400 font-mono mt-0.5">Automated WA Reminder + Dashboard</div>
+            </div>
+            <span class="px-2 py-1 rounded bg-slate-800 text-slate-300 font-bold text-[10px] whitespace-nowrap">Tinggal Modif</span>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between gap-2">
+            <div class="min-w-0">
+              <div class="text-xs font-bold text-white truncate">Booking &amp; Reservasi Online</div>
+              <div class="text-[10px] text-slate-400 font-mono mt-0.5">Kalender Real-time + Notifikasi Email</div>
+            </div>
+            <span class="px-2 py-1 rounded bg-slate-800 text-slate-300 font-bold text-[10px] whitespace-nowrap">Tinggal Modif</span>
+          </div>
+        </div>
+        <div class="pt-2.5 border-t border-slate-800 flex items-center justify-between text-[10px] text-slate-400">
+          <span class="text-cyan-400 font-mono">100% Full Source Code</span>
+          <span class="text-slate-400">Lisensi Bebas Modifikasi</span>
+        </div>
+      </div>
+    `;
+  }
+
+  if (featureId === 'feat-3' || icon === 'video' || title.includes('video') || title.includes('modul')) {
+    return `
+      <div class="w-full h-full p-4 sm:p-5 flex flex-col justify-between bg-slate-950 text-xs">
+        <div class="relative w-full aspect-video rounded-xl bg-slate-900 border border-purple-500/30 overflow-hidden flex items-center justify-center group shadow-md">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+          <div class="w-12 h-12 rounded-full bg-purple-600/90 text-white flex items-center justify-center shadow-lg transform group-hover:scale-105 transition-transform">
+            <svg class="w-5 h-5 translate-x-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+          <div class="absolute bottom-2 left-2.5 right-2.5 flex items-center justify-between text-[10px] text-slate-300 font-mono">
+            <span>Modul 01: Setup AI &amp; Architecture</span>
+            <span class="text-purple-300 font-bold">1080p HD</span>
+          </div>
+        </div>
+        <div class="space-y-2 py-3 flex-1 overflow-y-auto">
+          <div class="text-[11px] font-bold text-white">Alur Pembelajaran Step-by-Step:</div>
+          <div class="p-2 rounded-lg bg-slate-900 border border-purple-500/20 flex items-center justify-between text-[11px]">
+            <span class="text-slate-300">01. Setup Workspace &amp; Engine AI</span>
+            <span class="text-purple-400 font-mono font-bold">✔ Selesai</span>
+          </div>
+          <div class="p-2 rounded-lg bg-purple-950/40 border border-purple-500/40 flex items-center justify-between text-[11px]">
+            <span class="text-white font-semibold">02. Bikin Frontend &amp; Integrasi Sheet</span>
+            <span class="text-purple-300 font-mono">Sedang Diputar</span>
+          </div>
+          <div class="p-2 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-between text-[11px]">
+            <span class="text-slate-400">03. Deployment &amp; Pasang Domain</span>
+            <span class="text-slate-500 font-mono">Tersedia</span>
+          </div>
+        </div>
+        <div class="pt-2 border-t border-slate-800 flex items-center justify-between text-[10px] text-slate-400 font-mono">
+          <span class="text-purple-400 font-semibold">Akses Kapan Saja</span>
+          <span>Update Materi Berkala</span>
+        </div>
+      </div>
+    `;
+  }
+
+  if (featureId === 'feat-4' || icon === 'users' || title.includes('komunitas') || title.includes('grup')) {
+    return `
+      <div class="w-full h-full p-4 sm:p-5 flex flex-col justify-between bg-slate-950 text-xs">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></div>
+            <span class="text-xs font-bold text-white">VIP Community Lounge</span>
+          </div>
+          <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-blue-950 text-blue-300 border border-blue-800">2.300+ Members</span>
+        </div>
+        <div class="space-y-3 py-3 flex-1 overflow-y-auto">
+          <div class="flex items-start gap-2.5">
+            <div class="w-7 h-7 rounded-full bg-emerald-950 border border-emerald-500/50 flex items-center justify-center font-bold text-[10px] text-emerald-400 flex-shrink-0">
+              AR
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-[11px] leading-relaxed">
+              <div class="font-bold text-white text-[10px] mb-0.5">Arya (Member Batch 4)</div>
+              <div class="text-slate-300">"Alhamdulillah sore ini sistem kasir web app pesanan klien pertama saya berhasil live dan dibayar lunas!"</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-2.5">
+            <div class="w-7 h-7 rounded-full bg-blue-950 border border-blue-500/50 flex items-center justify-center font-bold text-[10px] text-blue-400 flex-shrink-0">
+              ZB
+            </div>
+            <div class="p-2.5 rounded-xl bg-blue-950/40 border border-blue-500/30 text-[11px] leading-relaxed">
+              <div class="font-bold text-blue-300 text-[10px] mb-0.5 flex items-center gap-1">
+                <span>Mentor Farhan</span>
+                <span class="px-1 py-0.2 rounded bg-emerald-950 text-emerald-400 text-[9px] border border-emerald-800">MENTOR</span>
+              </div>
+              <div class="text-slate-200">"Keren mas Arya! Nanti malam kita review di grup ya biar yang lain bisa liat arsitekturnya."</div>
+            </div>
+          </div>
+        </div>
+        <div class="pt-2.5 border-t border-slate-800 flex items-center justify-between text-[10px] text-slate-400">
+          <span class="text-blue-400 font-semibold">Tanya Jawab Bebas Kapan Saja</span>
+          <span>Diskusi Langsung</span>
+        </div>
+      </div>
+    `;
+  }
+
+  // Default / feat-5: Private Mentoring 1 Bulan
+  return `
+    <div class="w-full h-full p-4 sm:p-5 flex flex-col justify-between bg-slate-950 text-xs">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div class="flex items-center gap-2">
+          <div class="w-6 h-6 rounded-lg bg-amber-950 text-amber-400 border border-amber-500/40 flex items-center justify-center">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><circle cx="12" cy="12" r="6" stroke-width="2"/><circle cx="12" cy="12" r="2" stroke-width="2"/></svg>
+          </div>
+          <span class="text-xs font-bold text-white">VIP 1-on-1 Mentoring</span>
+        </div>
+        <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-950 text-amber-300 border border-amber-800">VIP Mentorship</span>
+      </div>
+      <div class="space-y-3 py-3 flex-1 overflow-y-auto">
+        <div class="p-3 rounded-xl bg-gradient-to-r from-amber-950/40 via-slate-900 to-slate-900 border border-amber-500/40 shadow-sm">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-[10px] font-mono font-bold text-amber-400 uppercase tracking-caps">KOMITMEN MENTOR</span>
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          </div>
+          <h4 class="text-xs font-bold text-white">Dibimbing Sampai Bisa Bikin Sistem Sendiri</h4>
+          <p class="text-[11px] text-slate-300 leading-relaxed mt-1">
+            Minimal 1 bulan bimbingan intensif, didampingi penuh hingga aplikasi Anda selesai &amp; online normal.
+          </p>
+        </div>
+        <div class="space-y-1.5 text-[11px]">
+          <div class="p-2 rounded-lg bg-slate-900 border border-slate-800 flex items-center gap-2 text-slate-300">
+            <span class="text-emerald-400">✔</span> Sesi Konsultasi Privat Langsung ke Mentor
+          </div>
+          <div class="p-2 rounded-lg bg-slate-900 border border-slate-800 flex items-center gap-2 text-slate-300">
+            <span class="text-emerald-400">✔</span> Code Review &amp; Debugging Bersama
+          </div>
+          <div class="p-2 rounded-lg bg-slate-900 border border-slate-800 flex items-center gap-2 text-slate-300">
+            <span class="text-emerald-400">✔</span> Garansi Didampingi Sampai Aplikasi Live
+          </div>
+        </div>
+      </div>
+      <div class="pt-2.5 border-t border-slate-800 flex items-center justify-between text-[10px] text-slate-400 font-mono">
+        <span class="text-amber-400 font-semibold">Minimal 1 Bulan • Max Sampai Bisa</span>
+        <span class="text-emerald-400 font-bold">100% Didampingi</span>
+      </div>
+    </div>
+  `;
+}
+
+function selectLandingFeaturePreview(featureId) {
+  if (!AppState.landingCms || !Array.isArray(AppState.landingCms.useCases)) return;
+  const list = AppState.landingCms.useCases;
+  const target = list.find(u => u.id === featureId);
+  if (!target) return;
+
+  landingActiveFeatureId = featureId;
+
+  // 1. Update active styling on cards
+  const container = document.getElementById('landing-usecases-container');
+  if (container) {
+    const cards = container.querySelectorAll('.feature-interactive-card');
+    cards.forEach(card => {
+      const cardId = card.getAttribute('data-feature-id');
+      const isCardActive = cardId === featureId;
+      if (isCardActive) {
+        card.classList.add('feature-card-active');
+        const iconBox = card.querySelector('.feature-icon-box');
+        if (iconBox) iconBox.className = 'feature-icon-box w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-emerald-500/20 border border-emerald-500/50 text-emerald-400';
+        const indicator = card.querySelector('.feature-active-indicator');
+        if (indicator) indicator.innerHTML = '<div class="w-6 h-6 rounded-full bg-emerald-500/20 border border-emerald-400 flex items-center justify-center text-emerald-400"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg></div>';
+      } else {
+        card.classList.remove('feature-card-active');
+        const iconBox = card.querySelector('.feature-icon-box');
+        if (iconBox) iconBox.className = 'feature-icon-box w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-slate-900 border border-slate-800 text-slate-400';
+        const indicator = card.querySelector('.feature-active-indicator');
+        if (indicator) indicator.innerHTML = '<div class="w-6 h-6 rounded-full border border-slate-700/80 flex items-center justify-center text-slate-500 group-hover:border-emerald-500/50 group-hover:text-emerald-400 transition-colors"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></div>';
+      }
+    });
+  }
+
+  // 2. Update right device screen
+  const tagEl = document.getElementById('feature-preview-tag');
+  const titleEl = document.getElementById('feature-preview-title');
+  const descEl = document.getElementById('feature-preview-desc');
+  const screenEl = document.getElementById('landing-feature-preview-screen');
+
+  if (tagEl) tagEl.textContent = target.badge || 'ZETTBOS ECOSYSTEM';
+  if (titleEl) titleEl.textContent = target.title;
+  if (descEl) descEl.textContent = target.description || target.desc || '';
+
+  if (screenEl) {
+    screenEl.classList.remove('feature-preview-fade');
+    void screenEl.offsetWidth; // Trigger reflow for CSS animation
+    screenEl.classList.add('feature-preview-fade');
+
+    const rawImg = (target.imageUrl || '').trim();
+    if (rawImg) {
+      const convertedUrl = typeof convertGoogleDriveUrl === 'function' ? convertGoogleDriveUrl(rawImg) : rawImg;
+      screenEl.innerHTML = `
+        <img 
+          src="${escapeHtml(convertedUrl)}" 
+          alt="${escapeHtml(target.title)}" 
+          class="w-full h-full object-cover object-center" 
+          onerror="this.onerror=null; this.parentElement.innerHTML = getFeatureFallbackMockupHtml('${target.id}');"
+        />
+      `;
+    } else {
+      screenEl.innerHTML = getFeatureFallbackMockupHtml(target.id);
+    }
+  }
+}
+
+function renderLandingFeaturesShowcase(cms) {
+  const container = document.getElementById('landing-usecases-container');
+  if (!container || !Array.isArray(cms.useCases) || cms.useCases.length === 0) return;
+
+  const validActive = cms.useCases.some(u => u.id === landingActiveFeatureId);
+  if (!validActive) {
+    landingActiveFeatureId = cms.useCases[0].id;
+  }
+
+  container.innerHTML = cms.useCases.map(uc => {
+    const isActive = uc.id === landingActiveFeatureId;
+    const activeClass = isActive ? 'feature-card-active' : 'border-[var(--border)] hover:border-emerald-500/40 hover:bg-[var(--surface-hover)]';
+    const tags = Array.isArray(uc.tags) ? uc.tags : [];
+
+    return `
+      <div 
+        data-feature-id="${uc.id}" 
+        onclick="selectLandingFeaturePreview('${uc.id}')"
+        class="feature-interactive-card glass-card rounded-2xl p-4 sm:p-5 border transition-all duration-300 group cursor-pointer ${activeClass}"
+      >
+        <div class="flex items-start justify-between gap-3 mb-2">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="feature-icon-box w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-all ${isActive ? 'bg-emerald-500/20 border border-emerald-500/50 text-emerald-400' : 'bg-slate-900 border border-slate-800 text-slate-400'}">
+              ${getMonolineSvgIcon(uc.icon || 'bot', 'w-5 h-5')}
+            </div>
+            <div class="min-w-0">
+              <div class="flex items-center gap-2">
+                <h3 class="text-sm sm:text-base font-bold text-white group-hover:text-emerald-300 transition-colors truncate">
+                  ${escapeHtml(uc.title)}
+                </h3>
+                <span class="micro-tag-pill hidden sm:inline-flex text-[10px]">
+                  ${escapeHtml(uc.badge || 'Fasilitas')}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="feature-active-indicator flex-shrink-0 pt-0.5">
+            ${isActive 
+              ? '<div class="w-6 h-6 rounded-full bg-emerald-500/20 border border-emerald-400 flex items-center justify-center text-emerald-400"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg></div>'
+              : '<div class="w-6 h-6 rounded-full border border-slate-700/80 flex items-center justify-center text-slate-500 group-hover:border-emerald-500/50 group-hover:text-emerald-400 transition-colors"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></div>'
+            }
+          </div>
+        </div>
+
+        <p class="text-xs sm:text-[13px] text-slate-300/90 leading-relaxed pl-13 sm:pl-[52px]">
+          ${escapeHtml(uc.description || uc.desc || '')}
+        </p>
+
+        <div class="flex flex-wrap gap-1.5 mt-3 pt-2.5 border-t border-slate-800/60 pl-13 sm:pl-[52px]">
+          ${tags.map(t => `<span class="micro-tag-pill text-[10px]">${escapeHtml(t)}</span>`).join('')}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Update right preview screen for active feature
+  selectLandingFeaturePreview(landingActiveFeatureId);
+}
+
 function renderLandingFromCms() {
   if (!AppState.landingCms) return;
   const cms = AppState.landingCms;
@@ -219,53 +551,15 @@ function renderLandingFromCms() {
   if (bannerTitleEl && hero.bannerTitle) bannerTitleEl.textContent = hero.bannerTitle;
   if (bannerDescEl && hero.bannerDesc) bannerDescEl.textContent = hero.bannerDesc;
 
-  // 2. Render Use-Cases (4 Cards)
-  const usecasesContainer = document.getElementById('landing-usecases-container');
-  if (usecasesContainer && Array.isArray(cms.useCases)) {
-    const tintBorderMap = {
-      emerald: 'border-emerald-500/30 hover:border-emerald-500/60',
-      cyan: 'border-cyan-500/30 hover:border-cyan-500/60',
-      purple: 'border-purple-500/30 hover:border-purple-500/60',
-      amber: 'border-amber-500/30 hover:border-amber-500/60',
-      blue: 'border-blue-500/30 hover:border-blue-500/60',
-      rose: 'border-rose-500/30 hover:border-rose-500/60'
-    };
-    const tintIconBgMap = {
-      emerald: 'bg-emerald-950/80 text-emerald-400 border-emerald-500/30',
-      cyan: 'bg-cyan-950/80 text-cyan-400 border-cyan-500/30',
-      purple: 'bg-purple-950/80 text-purple-400 border-purple-500/30',
-      amber: 'bg-amber-950/80 text-amber-400 border-amber-500/30',
-      blue: 'bg-blue-950/80 text-blue-400 border-blue-500/30',
-      rose: 'bg-rose-950/80 text-rose-400 border-rose-500/30'
-    };
-
-    usecasesContainer.innerHTML = cms.useCases.map(uc => {
-      const borderClass = tintBorderMap[uc.tint] || tintBorderMap.emerald;
-      const iconBgClass = tintIconBgMap[uc.tint] || tintIconBgMap.emerald;
-      const tags = Array.isArray(uc.tags) ? uc.tags : [];
-      return `
-        <div class="glass-card rounded-2xl p-4 sm:p-5 flex flex-col justify-between border ${borderClass} transition-all duration-300 group hover:-translate-y-1 shadow-md">
-          <div>
-            <div class="flex items-center justify-between mb-3">
-              <div class="w-9 h-9 rounded-xl ${iconBgClass} border flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                ${getMonolineSvgIcon(uc.icon || 'briefcase', 'w-4 h-4')}
-              </div>
-              <span class="text-[10px] font-mono text-slate-500 tracking-caps uppercase">TARGET AUDIENS</span>
-            </div>
-            <h3 class="text-xs sm:text-sm font-bold text-white mb-1.5 leading-snug group-hover:text-emerald-300 transition-colors">
-              ${escapeHtml(uc.title)}
-            </h3>
-            <p class="text-[11px] sm:text-xs text-slate-400 leading-relaxed mb-3">
-              ${escapeHtml(uc.description || uc.desc || '')}
-            </p>
-          </div>
-          <div class="flex flex-wrap gap-1.5 pt-2 border-t border-slate-800/60">
-            ${tags.map(t => `<span class="micro-tag-pill text-[10px]">${escapeHtml(t)}</span>`).join('')}
-          </div>
-        </div>
-      `;
-    }).join('');
+  // Dynamic Module Count on Overlap Banner CTA button (Gambar 1 Revisi 51)
+  const bannerCountEl = document.getElementById('landing-banner-curriculum-count');
+  if (bannerCountEl) {
+    const activeModCount = (AppState.modules || []).filter(m => m.isPublished !== false).length;
+    bannerCountEl.textContent = `Lihat ${activeModCount} Modul Kurikulum`;
   }
+
+  // 2. Render Lynk.id Interactive Feature Showcase (Gambar 2 Revisi 51)
+  renderLandingFeaturesShowcase(cms);
 
   // 3. Render Testimonial Marquee Slider
   const testiTrack = document.getElementById('landing-testimonials-track');
@@ -601,6 +895,9 @@ window.renderLandingCurriculumBento = renderLandingCurriculumBento;
 window.selectLandingModule = selectLandingModule;
 window.handleLandingEmailSubmit = handleLandingEmailSubmit;
 window.renderLandingFromCms = renderLandingFromCms;
+window.renderLandingFeaturesShowcase = renderLandingFeaturesShowcase;
+window.selectLandingFeaturePreview = selectLandingFeaturePreview;
+window.getFeatureFallbackMockupHtml = getFeatureFallbackMockupHtml;
 window.HeroTypewriterController = HeroTypewriterController;
 window.initHeroBannerOverlapCentering = initHeroBannerOverlapCentering;
 window.initLandingScrollSpy = initLandingScrollSpy;
