@@ -40,29 +40,49 @@
   </script>
 
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="css/style.css?v=60" />
+  <link rel="stylesheet" href="css/style.css?v=61" />
 </head>
 <body class="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--fg)] selection:bg-emerald-500/30 selection:text-emerald-300 transition-colors duration-150">
 
   <!-- Micro Global Scroll Progress Bar (Revisi 60) -->
   <div id="app-scroll-progress"></div>
 
-  <!-- Sleek Initial Boot Loader / Splash Screen (Revisi 60) -->
+  <!-- Sleek Initial Boot Loader / Splash Screen (Revisi 60 & 61) -->
   <div id="app-boot-loader">
     <div class="relative flex flex-col items-center">
-      <!-- Ambient pulsing logo container -->
-      <div class="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-emerald-950/80 border border-emerald-500/40 flex items-center justify-center shadow-2xl shadow-emerald-500/20 mb-5">
+      <!-- Ambient pulsing logo container (Revisi 61: Added ID & Auto-Hydration) -->
+      <div id="brand-logo-boot-loader" class="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-emerald-950/80 border border-emerald-500/40 flex items-center justify-center shadow-2xl shadow-emerald-500/20 mb-5">
         <div class="boot-loader-pulse-ring"></div>
         <span class="font-mono font-black text-xl sm:text-2xl text-emerald-400 tracking-tighter">ZB</span>
       </div>
       <h2 class="text-sm sm:text-base font-extrabold text-white tracking-wider mb-2">ZETTBOS ACADEMY</h2>
-      <p id="boot-loader-status-text" class="text-xs text-slate-400 font-mono mb-4">Memuat Ekosistem Zettbos...</p>
+      <p id="boot-loader-status-text" class="text-xs text-slate-300 font-mono mb-4">Memuat Ekosistem Zettbos...</p>
       <!-- Micro Progress Track -->
       <div class="boot-loader-bar">
         <div class="boot-loader-bar-fill"></div>
       </div>
     </div>
   </div>
+
+  <!-- Zero-Flash Instant Brand Logo Hydration (Revisi 61) -->
+  <script>
+    (function() {
+      try {
+        var rawLogo = localStorage.getItem('zettbos_brand_logo_url');
+        if (rawLogo && rawLogo.trim()) {
+          var trimmed = rawLogo.trim();
+          var driveRegex = /(?:drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=)|lh3\.googleusercontent\.com\/d\/)([a-zA-Z0-9_-]{20,})/i;
+          var match = trimmed.match(driveRegex);
+          var finalUrl = match ? 'https://lh3.googleusercontent.com/d/' + match[1] : trimmed;
+          var bootContainer = document.getElementById('brand-logo-boot-loader');
+          if (bootContainer) {
+            bootContainer.className = 'relative flex items-center justify-center mb-5 bg-transparent border-0 shadow-none overflow-visible';
+            bootContainer.innerHTML = '<div class="boot-loader-pulse-ring"></div><img src="' + finalUrl + '" alt="Logo ZETTBOS" class="h-14 sm:h-16 w-auto max-w-[140px] object-contain relative z-10" onerror="this.onerror=null; this.parentElement.className=\'relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-emerald-950/80 border border-emerald-500/40 flex items-center justify-center shadow-2xl shadow-emerald-500/20 mb-5\'; this.parentElement.innerHTML=\'<div class=\\\'boot-loader-pulse-ring\\\'></div><span class=\\\'font-mono font-black text-xl sm:text-2xl text-emerald-400 tracking-tighter\\\'>ZB</span>\';">';
+          }
+        }
+      } catch (e) {}
+    })();
+  </script>
 
   <!-- Fixed Cyber Particle Network Canvas (Inspirasi referensi2.html) -->
   <canvas id="particles-canvas"></canvas>
@@ -410,7 +430,7 @@
       <div class="max-w-[1440px] 2xl:max-w-[1600px] mx-auto w-full">
         <div class="text-center mb-10">
           <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">Tahapan Praktek: Dari Nol Sampai Aplikasi Jadi &amp; Online</h2>
-          <p class="text-xs sm:text-sm text-slate-400 mt-2 max-w-lg mx-auto">
+          <p class="text-xs sm:text-sm lg:text-base text-slate-200 mt-2.5 max-w-xl mx-auto leading-relaxed">
             Bukan tutorial potongan. Anda dipandu alur lengkapnya: dari menyusun prompt awal, menghubungkan database Google Sheets, mendesain tampilan, menuntaskan error bareng AI, hingga aplikasi live dengan nama domain Anda sendiri.
           </p>
         </div>
@@ -441,7 +461,7 @@
           <h2 class="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
             Lebih Dari Sekadar Kelas Video Biasa
           </h2>
-          <p class="text-xs sm:text-sm text-slate-400 mt-2.5 max-w-xl mx-auto leading-relaxed">
+          <p class="text-xs sm:text-sm lg:text-base text-slate-200 mt-2.5 max-w-xl mx-auto leading-relaxed">
             Semua fasilitas penunjang kami siapkan dari prompt AI khusus, template siap pakai, bimbingan langsung, hingga komunitas eksklusif agar Anda benar-benar bisa membuat dan meluncurkan sistem sendiri.
           </p>
         </div>
@@ -497,7 +517,7 @@
           <h2 class="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
             Siapa Saja yang Butuh Bikin Web App Pakai AI?
           </h2>
-          <p class="text-xs sm:text-sm text-slate-400 mt-2.5 max-w-xl mx-auto leading-relaxed">
+          <p class="text-xs sm:text-sm lg:text-base text-slate-200 mt-2.5 max-w-xl mx-auto leading-relaxed">
             Bukan cuma untuk orang IT. Siapapun Anda yang butuh sistem bisnis sendiri, ingin kerjaan kantor lebih cepat beres, atau mau cari penghasilan tambahan—sekarang semuanya bisa bikin sendiri full pakai AI.
           </p>
         </div>
@@ -513,7 +533,7 @@
     <section id="landing-testimonials" class="section-golden-amber min-h-[60vh] flex flex-col justify-center py-16 sm:py-20 overflow-hidden w-full relative z-10 scroll-reveal">
       <div class="text-center mb-8 sm:mb-10 px-4 max-w-[1440px] mx-auto">
         <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">Cerita Member Zettbos</h2>
-        <p class="text-xs sm:text-sm text-slate-400 mt-2 max-w-lg mx-auto">
+        <p class="text-xs sm:text-sm lg:text-base text-slate-200 mt-2 max-w-lg mx-auto leading-relaxed">
           Bagaimana alumni member mendeploy aplikasi nyata mereka dari nol hingga siap pakai.
         </p>
       </div>
@@ -3382,18 +3402,18 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- Application Scripts (Modular Architecture with Cache Buster) -->
-  <script src="js/whitelist-data.js?v=60"></script>
-  <script src="js/mock-data.js?v=60"></script>
-  <script src="js/editor.js?v=60"></script>
-  <script src="js/core/state.js?v=60"></script>
-  <script src="js/core/supabase.js?v=60"></script>
-  <script src="js/core/router.js?v=60"></script>
-  <script src="js/core/particles.js?v=60"></script>
-  <script src="js/controllers/auth.js?v=60"></script>
-  <script src="js/controllers/landing.js?v=60"></script>
-  <script src="js/controllers/classroom.js?v=60"></script>
-  <script src="js/controllers/resources.js?v=60"></script>
-  <script src="js/controllers/admin.js?v=60"></script>
-  <script src="js/app.js?v=60"></script>
+  <script src="js/whitelist-data.js?v=61"></script>
+  <script src="js/mock-data.js?v=61"></script>
+  <script src="js/editor.js?v=61"></script>
+  <script src="js/core/state.js?v=61"></script>
+  <script src="js/core/supabase.js?v=61"></script>
+  <script src="js/core/router.js?v=61"></script>
+  <script src="js/core/particles.js?v=61"></script>
+  <script src="js/controllers/auth.js?v=61"></script>
+  <script src="js/controllers/landing.js?v=61"></script>
+  <script src="js/controllers/classroom.js?v=61"></script>
+  <script src="js/controllers/resources.js?v=61"></script>
+  <script src="js/controllers/admin.js?v=61"></script>
+  <script src="js/app.js?v=61"></script>
 </body>
 </html>

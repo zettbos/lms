@@ -78,19 +78,33 @@ function renderAppBrandLogo() {
     { id: 'brand-logo-nav', size: 'sm' },
     { id: 'brand-logo-drawer', size: 'sm' },
     { id: 'brand-logo-landing', size: 'sm' },
-    { id: 'brand-logo-footer', size: 'xs' }
+    { id: 'brand-logo-footer', size: 'xs' },
+    { id: 'brand-logo-boot-loader', size: 'lg' }
   ];
 
   targets.forEach(t => {
     const el = document.getElementById(t.id);
     if (!el) return;
     if (convertedUrl) {
-      // Hapus kotak hijau, border & shadow saat logo gambar kustom aktif
-      el.className = `flex items-center justify-center flex-shrink-0 bg-transparent border-0 shadow-none p-0 overflow-visible`;
-      el.innerHTML = `<img src="${escapeHtml(convertedUrl)}" alt="Logo ZETTBOS" class="${t.size === 'xs' ? 'h-6' : 'h-7 sm:h-8'} w-auto max-w-[140px] object-contain" onerror="this.onerror=null; this.parentElement.className='w-8 h-8 rounded-lg bg-emerald-950/80 border border-emerald-500/40 flex items-center justify-center shadow-sm flex-shrink-0 overflow-hidden'; this.parentElement.innerHTML='<span class=\\'font-mono font-bold text-xs text-emerald-400\\'>ZB</span>';">`;
+      if (t.size === 'lg') {
+        el.className = 'relative flex items-center justify-center mb-5 bg-transparent border-0 shadow-none overflow-visible';
+        el.innerHTML = `
+          <div class="boot-loader-pulse-ring"></div>
+          <img src="${escapeHtml(convertedUrl)}" alt="Logo ZETTBOS" class="h-16 sm:h-20 w-auto max-w-[150px] object-contain relative z-10" onerror="this.onerror=null; this.parentElement.className='relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-emerald-950/80 border border-emerald-500/40 flex items-center justify-center shadow-2xl shadow-emerald-500/20 mb-5'; this.parentElement.innerHTML='<div class=\\'boot-loader-pulse-ring\\'></div><span class=\\'font-mono font-black text-xl sm:text-2xl text-emerald-400 tracking-tighter\\'>ZB</span>';">
+        `;
+      } else {
+        // Hapus kotak hijau, border & shadow saat logo gambar kustom aktif
+        el.className = `flex items-center justify-center flex-shrink-0 bg-transparent border-0 shadow-none p-0 overflow-visible`;
+        el.innerHTML = `<img src="${escapeHtml(convertedUrl)}" alt="Logo ZETTBOS" class="${t.size === 'xs' ? 'h-6' : 'h-7 sm:h-8'} w-auto max-w-[140px] object-contain" onerror="this.onerror=null; this.parentElement.className='w-8 h-8 rounded-lg bg-emerald-950/80 border border-emerald-500/40 flex items-center justify-center shadow-sm flex-shrink-0 overflow-hidden'; this.parentElement.innerHTML='<span class=\\'font-mono font-bold text-xs text-emerald-400\\'>ZB</span>';">`;
+      }
     } else {
-      el.className = `w-8 h-8 rounded-lg bg-emerald-950/80 border border-emerald-500/40 flex items-center justify-center shadow-sm flex-shrink-0 overflow-hidden`;
-      el.innerHTML = `<span class="font-mono font-black ${t.size === 'xs' ? 'text-[11px]' : 'text-xs'} text-emerald-400">ZB</span>`;
+      if (t.size === 'lg') {
+        el.className = 'relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-emerald-950/80 border border-emerald-500/40 flex items-center justify-center shadow-2xl shadow-emerald-500/20 mb-5';
+        el.innerHTML = `<div class="boot-loader-pulse-ring"></div><span class="font-mono font-black text-xl sm:text-2xl text-emerald-400 tracking-tighter">ZB</span>`;
+      } else {
+        el.className = `w-8 h-8 rounded-lg bg-emerald-950/80 border border-emerald-500/40 flex items-center justify-center shadow-sm flex-shrink-0 overflow-hidden`;
+        el.innerHTML = `<span class="font-mono font-black ${t.size === 'xs' ? 'text-[11px]' : 'text-xs'} text-emerald-400">ZB</span>`;
+      }
     }
   });
 }

@@ -179,12 +179,19 @@ const ZettSupabase = {
         };
 
         // Extract Brand Logo from Cloud (hero.brandLogoUrl or top-level)
-        const cloudLogo = cms.brand_logo_url || cms.hero?.brandLogoUrl || '';
-        AppState.brandLogoUrl = cloudLogo;
+        const cloudLogo = (cms.brand_logo_url || cms.hero?.brandLogoUrl || '').trim();
         if (cloudLogo) {
+          AppState.brandLogoUrl = cloudLogo;
           localStorage.setItem('zettbos_brand_logo_url', cloudLogo);
         } else {
-          localStorage.removeItem('zettbos_brand_logo_url');
+          // Proteksi: jangan hapus jika di browser ini sudah tersimpan logo lokal!
+          const localLogo = localStorage.getItem('zettbos_brand_logo_url');
+          if (localLogo) {
+            AppState.brandLogoUrl = localLogo;
+            if (AppState.landingCms && AppState.landingCms.hero) {
+              AppState.landingCms.hero.brandLogoUrl = localLogo;
+            }
+          }
         }
         if (typeof renderAppBrandLogo === 'function') {
           renderAppBrandLogo();
@@ -496,13 +503,17 @@ const ZettSupabase = {
           };
 
           // Auto-Sync Brand Logo from Cloud to all client devices
-          const cloudLogo = cms.brand_logo_url || cms.hero?.brandLogoUrl || '';
-          if (cloudLogo !== undefined) {
+          const cloudLogo = (cms.brand_logo_url || cms.hero?.brandLogoUrl || '').trim();
+          if (cloudLogo) {
             AppState.brandLogoUrl = cloudLogo;
-            if (cloudLogo) {
-              localStorage.setItem('zettbos_brand_logo_url', cloudLogo);
-            } else {
-              localStorage.removeItem('zettbos_brand_logo_url');
+            localStorage.setItem('zettbos_brand_logo_url', cloudLogo);
+          } else {
+            const localLogo = localStorage.getItem('zettbos_brand_logo_url');
+            if (localLogo) {
+              AppState.brandLogoUrl = localLogo;
+              if (AppState.landingCms && AppState.landingCms.hero) {
+                AppState.landingCms.hero.brandLogoUrl = localLogo;
+              }
             }
           }
 

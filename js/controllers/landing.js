@@ -60,8 +60,8 @@ function renderLandingCurriculumBento(activeModuleId) {
   tabsContainer.innerHTML = modules.map((mod, idx) => {
     const isActive = mod.id === landingActiveModuleId;
     const activeClass = isActive 
-      ? 'bento-tab-active' 
-      : 'hover:bg-[var(--surface-hover)] border-[var(--border)]';
+      ? 'bento-tab-active shadow-[0_0_20px_rgba(16,185,129,0.2)]' 
+      : 'bg-[#0D121F]/80 hover:bg-[#131B2E] border-slate-800 hover:border-slate-700';
     const modLessons = AppState.lessons.filter(l => l.moduleId === mod.id && !l.isDraft);
     const totalMinutes = modLessons.reduce((acc, l) => acc + (l.durationMinutes || 15), 0);
 
@@ -72,14 +72,14 @@ function renderLandingCurriculumBento(activeModuleId) {
         class="w-full text-left p-3.5 sm:p-4 rounded-xl border transition-all flex items-center justify-between gap-3 group ${activeClass}"
       >
         <div class="flex items-center gap-3 min-w-0">
-          <div class="w-8 h-8 rounded-lg flex items-center justify-center font-mono font-bold text-xs flex-shrink-0 ${isActive ? 'bg-emerald-950 text-emerald-400 border border-emerald-500/50' : 'bg-slate-900 text-slate-400 border border-slate-800'}">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center font-mono font-bold text-xs flex-shrink-0 ${isActive ? 'bg-emerald-950 text-emerald-400 border border-emerald-500/50 shadow-sm' : 'bg-slate-900 text-slate-300 border border-slate-700/80'}">
             0${idx + 1}
           </div>
           <div class="min-w-0">
-            <h4 class="text-xs sm:text-sm font-bold text-white truncate ${isActive ? 'text-emerald-400' : 'group-hover:text-emerald-300'}">
+            <h4 class="text-xs sm:text-sm font-bold truncate ${isActive ? 'text-emerald-400' : 'text-slate-100 group-hover:text-emerald-300'}">
               ${escapeHtml(mod.title)}
             </h4>
-            <p class="text-[11px] text-slate-400 truncate mt-0.5">
+            <p class="text-[11px] truncate mt-0.5 ${isActive ? 'text-emerald-300/90 font-medium' : 'text-slate-300 group-hover:text-slate-200'}">
               ${modLessons.length} Materi • ${totalMinutes} Menit
             </p>
           </div>
@@ -104,10 +104,10 @@ function renderLandingCurriculumBento(activeModuleId) {
       <div>
         <div class="flex items-center justify-between gap-3 mb-3">
           <div class="flex items-center gap-2 flex-wrap">
-            <span class="px-2.5 py-0.5 rounded text-[10px] font-bold tracking-caps uppercase bg-emerald-950 text-emerald-300 border border-emerald-500/50">
+            <span class="px-2.5 py-0.5 rounded text-[10px] font-bold tracking-caps uppercase bg-emerald-950/90 text-emerald-300 border border-emerald-500/50 shadow-sm">
               ${escapeHtml(activeMod.badge || 'MODUL UTAMA')}
             </span>
-            <span class="text-[11px] font-mono text-slate-400">
+            <span class="text-[11px] font-mono text-emerald-300/80 font-medium">
               ${activeLessons.length} Video Pelajaran • ${totalMin} Menit
             </span>
           </div>
@@ -118,7 +118,7 @@ function renderLandingCurriculumBento(activeModuleId) {
           ${escapeHtml(activeMod.title)}
         </h3>
 
-        <p class="text-xs sm:text-sm text-slate-400 leading-relaxed mb-4">
+        <p class="text-xs sm:text-sm text-slate-200 leading-relaxed mb-4 font-normal">
           ${escapeHtml(activeMod.description || 'Pelajari materi terstruktur ini dengan studi kasus langsung.')}
         </p>
 
@@ -135,24 +135,24 @@ function renderLandingCurriculumBento(activeModuleId) {
         ` : ''}
 
         <!-- Lessons Syllabus List -->
-        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-caps mb-2 flex items-center justify-between">
+        <div class="text-[11px] font-bold text-slate-300 uppercase tracking-caps mb-2.5 flex items-center justify-between">
           <span>Silabus Materi:</span>
-          <span class="font-mono text-slate-500">Preview 4 Topik Utama</span>
+          <span class="font-mono text-emerald-400/80 font-medium">Preview 4 Topik Utama</span>
         </div>
         <div class="space-y-1.5 mb-6">
           ${activeLessons.slice(0, 4).map((les, i) => `
-            <div class="flex items-center justify-between gap-2 p-2 rounded-lg bg-[var(--surface)] border border-[var(--border)] text-xs">
-              <div class="flex items-center gap-2 min-w-0">
-                <span class="w-5 h-5 rounded-md bg-emerald-950/80 text-emerald-400 flex items-center justify-center font-mono text-[10px] flex-shrink-0">
+            <div class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-[#0F1626] border border-slate-800/90 hover:border-emerald-500/40 hover:bg-[#141D33] text-xs transition-colors shadow-sm">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <span class="w-5 h-5 rounded-md bg-emerald-950 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-mono text-[10px] font-bold flex-shrink-0">
                   ${i + 1}
                 </span>
-                <span class="truncate text-slate-200 font-medium">${escapeHtml(les.title)}</span>
+                <span class="truncate text-slate-100 font-semibold">${escapeHtml(les.title)}</span>
               </div>
-              <span class="text-[10px] text-slate-400 font-mono flex-shrink-0">${les.durationMinutes || 15} Menit</span>
+              <span class="text-[11px] text-emerald-400/90 font-mono flex-shrink-0 font-medium">${les.durationMinutes || 15} Menit</span>
             </div>
           `).join('')}
           ${activeLessons.length > 4 ? `
-            <div class="text-[11px] text-center text-slate-400 italic pt-1">
+            <div class="text-[11px] text-center text-slate-300 font-medium italic pt-1">
               + ${activeLessons.length - 4} materi lainnya dalam modul ini
             </div>
           ` : ''}
@@ -160,15 +160,15 @@ function renderLandingCurriculumBento(activeModuleId) {
       </div>
 
       <!-- Action Button -->
-      <div class="pt-4 border-t border-[var(--border)] flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div class="flex items-center gap-2 text-xs text-slate-400">
+      <div class="pt-4 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div class="flex items-center gap-2 text-xs text-slate-200 font-medium">
           <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
           <span>Termasuk Template Kode &amp; Prompt SOP</span>
         </div>
         <button 
           type="button" 
           onclick="navigate('login')" 
-          class="btn-primary-action w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 shadow-md whitespace-nowrap"
+          class="btn-primary-action w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/40 whitespace-nowrap"
         >
           <span>Masuk &amp; Pelajari Modul Ini</span>
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
@@ -558,7 +558,9 @@ function renderLandingFacilitiesShowcase(cms) {
 
   const facilityCardsHtml = facilities.map(uc => {
     const isActive = uc.id === landingActiveFacilityId;
-    const activeClass = isActive ? 'feature-card-active' : 'border-[var(--border)] hover:border-emerald-500/40 hover:bg-[var(--surface-hover)]';
+    const activeClass = isActive 
+      ? 'feature-card-active shadow-[0_0_25px_rgba(16,185,129,0.22)]' 
+      : 'bg-[#0D1322]/90 border-slate-700/60 hover:border-emerald-500/60 hover:bg-[#121A2D]';
 
     return `
       <div 
@@ -567,7 +569,7 @@ function renderLandingFacilitiesShowcase(cms) {
         class="feature-interactive-card glass-card card-elevated-highlight rounded-2xl p-5 sm:p-6 lg:p-7 border transition-all duration-300 group cursor-pointer flex flex-col justify-center min-h-[140px] sm:min-h-[155px] lg:min-h-[170px] ${activeClass}"
       >
         <div class="flex items-start gap-4 sm:gap-5">
-          <div class="feature-icon-box w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all ${isActive ? 'bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.25)]' : 'bg-slate-900 border border-slate-800 text-slate-400 group-hover:text-emerald-300'}">
+          <div class="feature-icon-box w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all ${isActive ? 'bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.25)]' : 'bg-slate-800/80 border border-slate-700/60 text-emerald-400/90 group-hover:text-emerald-300 group-hover:border-slate-600'}">
             ${getMonolineSvgIcon(uc.icon || 'bot', 'w-7 h-7 sm:w-8 sm:h-8')}
           </div>
           <div class="min-w-0 flex-1">
@@ -577,7 +579,7 @@ function renderLandingFacilitiesShowcase(cms) {
               </h3>
               ${isActive ? '<span class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-400 shadow-[0_0_10px_#10B981] animate-pulse shrink-0"></span>' : ''}
             </div>
-            <p class="text-xs sm:text-sm lg:text-[14.5px] text-slate-300 leading-relaxed font-normal">
+            <p class="text-xs sm:text-sm lg:text-[14.5px] text-slate-200 leading-relaxed font-normal">
               ${escapeHtml(uc.description || uc.desc || '')}
             </p>
           </div>
@@ -591,7 +593,7 @@ function renderLandingFacilitiesShowcase(cms) {
       href="https://lynk.id/zettbos/50nxdkpjmowm" 
       target="_blank" 
       rel="noopener noreferrer" 
-      class="feature-action-card card-elevated-highlight rounded-2xl p-5 sm:p-6 lg:p-7 border-2 border-dashed border-emerald-500/40 hover:border-emerald-400 bg-emerald-950/20 hover:bg-emerald-950/35 transition-all flex flex-col justify-center min-h-[140px] sm:min-h-[155px] lg:min-h-[170px] group cursor-pointer shadow-sm"
+      class="feature-action-card card-elevated-highlight rounded-2xl p-5 sm:p-6 lg:p-7 border-2 border-dashed border-emerald-500/60 hover:border-emerald-400 bg-gradient-to-r from-emerald-950/40 via-slate-900/70 to-emerald-950/30 hover:bg-emerald-950/45 transition-all flex flex-col justify-center min-h-[140px] sm:min-h-[155px] lg:min-h-[170px] group cursor-pointer shadow-md"
     >
       <div class="flex items-start gap-4 sm:gap-5">
         <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center shrink-0 text-emerald-400 group-hover:scale-105 group-hover:bg-emerald-500/25 transition-all">
@@ -601,7 +603,7 @@ function renderLandingFacilitiesShowcase(cms) {
           <h3 class="text-base sm:text-lg lg:text-xl font-extrabold text-emerald-300 group-hover:text-emerald-200 transition-colors leading-snug tracking-tight">
             Daftar &amp; Join Kelas Sekarang
           </h3>
-          <p class="text-xs sm:text-sm lg:text-[14px] text-emerald-400/90 mt-1.5 leading-relaxed font-medium">
+          <p class="text-xs sm:text-sm lg:text-[14px] text-emerald-400/95 mt-1.5 leading-relaxed font-medium">
             Amankan slot mentoring 1-on-1 &amp; akses ZettBOT via Lynk.id &rarr;
           </p>
         </div>
@@ -623,45 +625,72 @@ function renderLandingUseCases(cms) {
   const container = document.getElementById('landing-usecases-container');
   if (!container || !Array.isArray(cms.useCases)) return;
 
-  const tintBorderMap = {
-    emerald: 'border-emerald-500/30 hover:border-emerald-500/60',
-    cyan: 'border-cyan-500/30 hover:border-cyan-500/60',
-    purple: 'border-purple-500/30 hover:border-purple-500/60',
-    amber: 'border-amber-500/30 hover:border-amber-500/60',
-    blue: 'border-blue-500/30 hover:border-blue-500/60',
-    rose: 'border-rose-500/30 hover:border-rose-500/60'
-  };
-  const tintIconBgMap = {
-    emerald: 'bg-emerald-950/80 text-emerald-400 border-emerald-500/30',
-    cyan: 'bg-cyan-950/80 text-cyan-400 border-cyan-500/30',
-    purple: 'bg-purple-950/80 text-purple-400 border-purple-500/30',
-    amber: 'bg-amber-950/80 text-amber-400 border-amber-500/30',
-    blue: 'bg-blue-950/80 text-blue-400 border-blue-500/30',
-    rose: 'bg-rose-950/80 text-rose-400 border-rose-500/30'
+  const tintStylesMap = {
+    amber: {
+      border: 'border-amber-500/50 hover:border-amber-400 border-t-2 border-t-amber-400',
+      iconBox: 'bg-amber-500/20 text-amber-300 border-amber-500/40',
+      badge: 'text-amber-400 font-bold',
+      pill: 'bg-amber-950/60 text-amber-300 border-amber-500/40',
+      hoverGlow: 'hover:shadow-[0_0_24px_rgba(245,158,11,0.22)]'
+    },
+    cyan: {
+      border: 'border-cyan-500/50 hover:border-cyan-400 border-t-2 border-t-cyan-400',
+      iconBox: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40',
+      badge: 'text-cyan-400 font-bold',
+      pill: 'bg-cyan-950/60 text-cyan-300 border-cyan-500/40',
+      hoverGlow: 'hover:shadow-[0_0_24px_rgba(6,182,212,0.22)]'
+    },
+    purple: {
+      border: 'border-purple-500/50 hover:border-purple-400 border-t-2 border-t-purple-400',
+      iconBox: 'bg-purple-500/20 text-purple-300 border-purple-500/40',
+      badge: 'text-purple-400 font-bold',
+      pill: 'bg-purple-950/60 text-purple-300 border-purple-500/40',
+      hoverGlow: 'hover:shadow-[0_0_24px_rgba(168,85,247,0.22)]'
+    },
+    emerald: {
+      border: 'border-emerald-500/50 hover:border-emerald-400 border-t-2 border-t-emerald-400',
+      iconBox: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+      badge: 'text-emerald-400 font-bold',
+      pill: 'bg-emerald-950/60 text-emerald-300 border-emerald-500/40',
+      hoverGlow: 'hover:shadow-[0_0_24px_rgba(16,185,129,0.22)]'
+    },
+    blue: {
+      border: 'border-blue-500/50 hover:border-blue-400 border-t-2 border-t-blue-400',
+      iconBox: 'bg-blue-500/20 text-blue-300 border-blue-500/40',
+      badge: 'text-blue-400 font-bold',
+      pill: 'bg-blue-950/60 text-blue-300 border-blue-500/40',
+      hoverGlow: 'hover:shadow-[0_0_24px_rgba(59,130,246,0.22)]'
+    },
+    rose: {
+      border: 'border-rose-500/50 hover:border-rose-400 border-t-2 border-t-rose-400',
+      iconBox: 'bg-rose-500/20 text-rose-300 border-rose-500/40',
+      badge: 'text-rose-400 font-bold',
+      pill: 'bg-rose-950/60 text-rose-300 border-rose-500/40',
+      hoverGlow: 'hover:shadow-[0_0_24px_rgba(244,63,94,0.22)]'
+    }
   };
 
   container.innerHTML = cms.useCases.map(uc => {
-    const borderClass = tintBorderMap[uc.tint] || tintBorderMap.emerald;
-    const iconBgClass = tintIconBgMap[uc.tint] || tintIconBgMap.emerald;
+    const style = tintStylesMap[uc.tint] || tintStylesMap.emerald;
     const tags = Array.isArray(uc.tags) ? uc.tags : [];
     return `
-      <div class="glass-card card-usecase-item card-elevated-highlight rounded-2xl p-4 sm:p-5 flex flex-col justify-between border ${borderClass} transition-all duration-300 group hover:-translate-y-1 shadow-md">
+      <div class="bg-[#0C111D]/95 card-usecase-item card-elevated-highlight rounded-2xl p-5 sm:p-6 flex flex-col justify-between border ${style.border} ${style.hoverGlow} transition-all duration-300 group hover:-translate-y-1.5 shadow-lg">
         <div>
-          <div class="flex items-center justify-between mb-3">
-            <div class="w-9 h-9 rounded-xl ${iconBgClass} border flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-              ${getMonolineSvgIcon(uc.icon || 'briefcase', 'w-4 h-4')}
+          <div class="flex items-center justify-between mb-3.5">
+            <div class="w-10 h-10 rounded-xl ${style.iconBox} border flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform shadow-sm">
+              ${getMonolineSvgIcon(uc.icon || 'briefcase', 'w-5 h-5')}
             </div>
-            <span class="text-[10px] font-mono text-slate-500 tracking-caps uppercase">TARGET AUDIENS</span>
+            <span class="text-[10px] font-mono tracking-caps uppercase px-2 py-0.5 rounded bg-slate-900/90 border border-slate-800 ${style.badge}">TARGET AUDIENS</span>
           </div>
-          <h3 class="text-xs sm:text-sm font-bold text-white mb-1.5 leading-snug group-hover:text-emerald-300 transition-colors">
+          <h3 class="text-sm sm:text-base font-extrabold text-white mb-2 leading-snug group-hover:text-emerald-300 transition-colors">
             ${escapeHtml(uc.title)}
           </h3>
-          <p class="text-[11px] sm:text-xs text-slate-400 leading-relaxed mb-3">
+          <p class="text-xs sm:text-[13px] text-slate-200 leading-relaxed mb-4 font-normal">
             ${escapeHtml(uc.description || uc.desc || '')}
           </p>
         </div>
-        <div class="flex flex-wrap gap-1.5 pt-2 border-t border-slate-800/60">
-          ${tags.map(t => `<span class="micro-tag-pill text-[10px]">${escapeHtml(t)}</span>`).join('')}
+        <div class="flex flex-wrap gap-1.5 pt-3 border-t border-slate-800/80">
+          ${tags.map(t => `<span class="px-2 py-0.5 rounded-md text-[10.5px] font-semibold border ${style.pill}">${escapeHtml(t)}</span>`).join('')}
         </div>
       </div>
     `;

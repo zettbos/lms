@@ -1,8 +1,8 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 # Projek: Zettbos LMS (Member Hub & Notion-Style Learning Management System)
 ================================================================================
-VERSI DOKUMEN : v1.3.1
-STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 60 SELESAI)
+VERSI DOKUMEN : v1.3.2
+STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 61 SELESAI)
 ARSITEK SISTEM: ZettBOT by Zettbos
 ENGINE STACK  : Next.js 14+ (App Router) + Supabase (Postgres & Auth OTP) + Vercel
 ================================================================================
@@ -594,6 +594,17 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
         - Memperbarui skema tabel `landing_cms` dengan `facilities JSONB DEFAULT '[]'::jsonb`.
         - Menyiapkan skrip migrasi mandiri `ALTER TABLE public.landing_cms ADD COLUMN IF NOT EXISTS facilities JSONB DEFAULT '[]'::jsonb;`.
      3. Cache Buster: Menaikkan seluruh query string script dan stylesheet di `index.html` ke versi `?v=56`.
+  - [2026-10-14] Implementasi Revisi 61: Boot Loader Custom Brand Logo Hydration, Anti-Wipe Local Storage Protection, High-Contrast Cyber-Obsidian System (Bento Kurikulum, Luminescence Fasilitas, Dual-Tone Target Siswa), dan Cache Buster ?v=61.
+     1. Perbaikan Tuntas Rendering Logo Brand (`index.html`, `js/controllers/classroom.js`, `js/core/supabase.js`):
+        - Menambahkan `id="brand-logo-boot-loader"` pada elemen logo splash loader dan mengaitkannya ke `renderAppBrandLogo()` (ukuran `lg`) sehingga saat logo kustom aktif, kotak hijau `ZB` digantikan logo gambar transparan berdenyut ring cahaya.
+        - Memasang skrip in-line zero-flash hydration di `<head>`/`<body>` agar logo langsung di-render seketika saat HTML diparsing tanpa jeda.
+        - Mencegah penghapusan logo lokal (`localStorage.removeItem`) oleh sinkronisasi Supabase startup saat cloud logo belum terisi.
+     2. High-Contrast Cyber-Obsidian System (`index.html`, `js/controllers/landing.js`):
+        - Menaikkan seluruh subtitle section ke `text-slate-200 lg:text-base leading-relaxed` (rasio kontras 8.5:1 memenuhi WCAG AAA).
+        - Bento Kurikulum (Gambar 2): Tab inaktif berlatar `bg-[#0D121F]/80` berborder `border-slate-800` dengan judul `text-slate-100`, preview silabus berbaris `bg-[#0F1626]` dengan badge nomor episode emerald tajam.
+        - Fasilitas & Ekosistem (Gambar 3): Kartu inaktif berlatar `bg-[#0D1322]/90` berborder `border-slate-700/60` dengan ikon berbingkai menyala lembut, deskripsi `text-slate-200`, dan kartu ke-6 "Daftar & Join Kelas Sekarang" bergradien neon emerald pulse.
+        - Target Siswa Audiens (Gambar 4): Color-Coded Dual-Tone System (Amber Gold untuk UMKM, Electric Cyan untuk Karyawan, Neon Violet untuk Freelancer, Vibrant Emerald untuk Pemula) dengan top accent border 2px, surface `bg-[#0C111D]/95`, dan tag pills tematik berdaya baca tinggi.
+     3. Cache Buster: Menaikkan seluruh query string script dan stylesheet di `index.html` ke versi ?v=61.
   - [2026-10-14] Implementasi Revisi 60: Section Atmospheric Backgrounds, Full-Viewport Framing (1 Layar Laptop), Micro Scroll Progress Bar, IntersectionObserver Scroll Reveal, Initial Boot Loader Splash Screen, Elevated Card Outlines, dan Cache Buster ?v=60.
      1. Section Atmospheric Backgrounds & Full-Viewport Framing (`css/style.css`, `index.html`):
         - Setiap section Landing Page kini memiliki tema atmosfer background yang khas dan bergantian: Hero (Cyber Particle Canvas), Kurikulum (`.section-architectural-grid` Blueprint Engineering), Fasilitas (`.section-radial-emerald` Glow Aura), Target Audiens (`.section-deep-navy` Tech Cyan Gradient), Testimoni (`.section-golden-amber` Radiant Ambient), dan Footer (Obsidian Carbon Matte).
