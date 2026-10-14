@@ -139,13 +139,13 @@ function initStorage() {
   AppState.favorites = (storedFavorites && typeof storedFavorites === 'object') ? storedFavorites : { ...seedFavorites };
   AppState.resources = Array.isArray(storedResources) ? storedResources : [...seedResources];
 
-  const CMS_COPY_VERSION = 'v51_interactive_features';
+  const CMS_COPY_VERSION = 'v52_separate_facilities_and_usecases';
   const storedCmsVer = localStorage.getItem('zett_landing_cms_ver');
   if (storedCmsVer !== CMS_COPY_VERSION) {
     AppState.landingCms = JSON.parse(JSON.stringify(seedLandingCms));
     localStorage.setItem('zett_landing_cms_ver', CMS_COPY_VERSION);
   } else {
-    AppState.landingCms = (storedLandingCms && typeof storedLandingCms === 'object' && storedLandingCms.hero && Array.isArray(storedLandingCms.useCases)) 
+    AppState.landingCms = (storedLandingCms && typeof storedLandingCms === 'object' && storedLandingCms.hero && Array.isArray(storedLandingCms.facilities) && Array.isArray(storedLandingCms.useCases)) 
       ? storedLandingCms 
       : JSON.parse(JSON.stringify(seedLandingCms));
   }

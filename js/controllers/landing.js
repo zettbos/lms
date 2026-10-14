@@ -4,6 +4,7 @@
  */
 
 let landingActiveModuleId = 'mod-1';
+let landingActiveFacilityId = 'feat-1';
 let landingActiveFeatureId = 'feat-1';
 
 function getModuleMicroTags(mod) {
@@ -199,15 +200,15 @@ function handleLandingEmailSubmit(event) {
 }
 
 // ==========================================
-// LYNK.ID STYLE INTERACTIVE FEATURE SHOWCASE (REVISI 51)
+// 1. LYNK.ID STYLE INTERACTIVE FACILITY SHOWCASE (5 FASILITAS KELAS)
 // ==========================================
 
-function getFeatureFallbackMockupHtml(featureId) {
-  const target = (AppState.landingCms?.useCases || []).find(u => u.id === featureId);
+function getFacilityFallbackMockupHtml(facilityId) {
+  const target = (AppState.landingCms?.facilities || []).find(u => u.id === facilityId);
   const icon = target?.icon || '';
   const title = (target?.title || '').toLowerCase();
 
-  if (featureId === 'feat-1' || icon === 'bot' || title.includes('zettbot') || title.includes('ai')) {
+  if (facilityId === 'feat-1' || icon === 'bot' || title.includes('zettbot') || title.includes('ai')) {
     return `
       <div class="w-full h-full p-4 sm:p-5 flex flex-col justify-between bg-slate-950 font-mono text-xs">
         <div class="flex items-center justify-between pb-3 border-b border-slate-800 text-[11px] text-slate-400">
@@ -244,7 +245,7 @@ function getFeatureFallbackMockupHtml(featureId) {
     `;
   }
 
-  if (featureId === 'feat-2' || icon === 'library' || title.includes('library') || title.includes('template')) {
+  if (facilityId === 'feat-2' || icon === 'library' || title.includes('library') || title.includes('template')) {
     return `
       <div class="w-full h-full p-4 sm:p-5 flex flex-col justify-between bg-slate-950 text-xs">
         <div class="flex items-center justify-between pb-3 border-b border-slate-800">
@@ -287,7 +288,7 @@ function getFeatureFallbackMockupHtml(featureId) {
     `;
   }
 
-  if (featureId === 'feat-3' || icon === 'video' || title.includes('video') || title.includes('modul')) {
+  if (facilityId === 'feat-3' || icon === 'video' || title.includes('video') || title.includes('modul')) {
     return `
       <div class="w-full h-full p-4 sm:p-5 flex flex-col justify-between bg-slate-950 text-xs">
         <div class="relative w-full aspect-video rounded-xl bg-slate-900 border border-purple-500/30 overflow-hidden flex items-center justify-center group shadow-md">
@@ -323,7 +324,7 @@ function getFeatureFallbackMockupHtml(featureId) {
     `;
   }
 
-  if (featureId === 'feat-4' || icon === 'users' || title.includes('komunitas') || title.includes('grup')) {
+  if (facilityId === 'feat-4' || icon === 'users' || title.includes('komunitas') || title.includes('grup')) {
     return `
       <div class="w-full h-full p-4 sm:p-5 flex flex-col justify-between bg-slate-950 text-xs">
         <div class="flex items-center justify-between pb-3 border-b border-slate-800">
@@ -407,21 +408,21 @@ function getFeatureFallbackMockupHtml(featureId) {
   `;
 }
 
-function selectLandingFeaturePreview(featureId) {
-  if (!AppState.landingCms || !Array.isArray(AppState.landingCms.useCases)) return;
-  const list = AppState.landingCms.useCases;
-  const target = list.find(u => u.id === featureId);
+function selectLandingFacilityPreview(facilityId) {
+  if (!AppState.landingCms || !Array.isArray(AppState.landingCms.facilities)) return;
+  const list = AppState.landingCms.facilities;
+  const target = list.find(u => u.id === facilityId);
   if (!target) return;
 
-  landingActiveFeatureId = featureId;
+  landingActiveFacilityId = facilityId;
 
   // 1. Update active styling on cards
-  const container = document.getElementById('landing-usecases-container');
+  const container = document.getElementById('landing-facilities-container');
   if (container) {
     const cards = container.querySelectorAll('.feature-interactive-card');
     cards.forEach(card => {
-      const cardId = card.getAttribute('data-feature-id');
-      const isCardActive = cardId === featureId;
+      const cardId = card.getAttribute('data-facility-id');
+      const isCardActive = cardId === facilityId;
       if (isCardActive) {
         card.classList.add('feature-card-active');
         const iconBox = card.querySelector('.feature-icon-box');
@@ -439,10 +440,10 @@ function selectLandingFeaturePreview(featureId) {
   }
 
   // 2. Update right device screen
-  const tagEl = document.getElementById('feature-preview-tag');
-  const titleEl = document.getElementById('feature-preview-title');
-  const descEl = document.getElementById('feature-preview-desc');
-  const screenEl = document.getElementById('landing-feature-preview-screen');
+  const tagEl = document.getElementById('facility-preview-tag');
+  const titleEl = document.getElementById('facility-preview-title');
+  const descEl = document.getElementById('facility-preview-desc');
+  const screenEl = document.getElementById('landing-facility-preview-screen');
 
   if (tagEl) tagEl.textContent = target.badge || 'ZETTBOS ECOSYSTEM';
   if (titleEl) titleEl.textContent = target.title;
@@ -461,33 +462,34 @@ function selectLandingFeaturePreview(featureId) {
           src="${escapeHtml(convertedUrl)}" 
           alt="${escapeHtml(target.title)}" 
           class="w-full h-full object-cover object-center" 
-          onerror="this.onerror=null; this.parentElement.innerHTML = getFeatureFallbackMockupHtml('${target.id}');"
+          onerror="this.onerror=null; this.parentElement.innerHTML = getFacilityFallbackMockupHtml('${target.id}');"
         />
       `;
     } else {
-      screenEl.innerHTML = getFeatureFallbackMockupHtml(target.id);
+      screenEl.innerHTML = getFacilityFallbackMockupHtml(target.id);
     }
   }
 }
 
-function renderLandingFeaturesShowcase(cms) {
-  const container = document.getElementById('landing-usecases-container');
-  if (!container || !Array.isArray(cms.useCases) || cms.useCases.length === 0) return;
+function renderLandingFacilitiesShowcase(cms) {
+  const container = document.getElementById('landing-facilities-container');
+  const facilities = cms.facilities || [];
+  if (!container || !Array.isArray(facilities) || facilities.length === 0) return;
 
-  const validActive = cms.useCases.some(u => u.id === landingActiveFeatureId);
+  const validActive = facilities.some(u => u.id === landingActiveFacilityId);
   if (!validActive) {
-    landingActiveFeatureId = cms.useCases[0].id;
+    landingActiveFacilityId = facilities[0].id;
   }
 
-  container.innerHTML = cms.useCases.map(uc => {
-    const isActive = uc.id === landingActiveFeatureId;
+  container.innerHTML = facilities.map(uc => {
+    const isActive = uc.id === landingActiveFacilityId;
     const activeClass = isActive ? 'feature-card-active' : 'border-[var(--border)] hover:border-emerald-500/40 hover:bg-[var(--surface-hover)]';
     const tags = Array.isArray(uc.tags) ? uc.tags : [];
 
     return `
       <div 
-        data-feature-id="${uc.id}" 
-        onclick="selectLandingFeaturePreview('${uc.id}')"
+        data-facility-id="${uc.id}" 
+        onclick="selectLandingFacilityPreview('${uc.id}')"
         class="feature-interactive-card glass-card rounded-2xl p-4 sm:p-5 border transition-all duration-300 group cursor-pointer ${activeClass}"
       >
         <div class="flex items-start justify-between gap-3 mb-2">
@@ -526,7 +528,60 @@ function renderLandingFeaturesShowcase(cms) {
   }).join('');
 
   // Update right preview screen for active feature
-  selectLandingFeaturePreview(landingActiveFeatureId);
+  selectLandingFacilityPreview(landingActiveFacilityId);
+}
+
+// ==========================================
+// 2. TARGET AUDIENS SECTION (4 KARTU GRID ASLI)
+// ==========================================
+
+function renderLandingUseCases(cms) {
+  const container = document.getElementById('landing-usecases-container');
+  if (!container || !Array.isArray(cms.useCases)) return;
+
+  const tintBorderMap = {
+    emerald: 'border-emerald-500/30 hover:border-emerald-500/60',
+    cyan: 'border-cyan-500/30 hover:border-cyan-500/60',
+    purple: 'border-purple-500/30 hover:border-purple-500/60',
+    amber: 'border-amber-500/30 hover:border-amber-500/60',
+    blue: 'border-blue-500/30 hover:border-blue-500/60',
+    rose: 'border-rose-500/30 hover:border-rose-500/60'
+  };
+  const tintIconBgMap = {
+    emerald: 'bg-emerald-950/80 text-emerald-400 border-emerald-500/30',
+    cyan: 'bg-cyan-950/80 text-cyan-400 border-cyan-500/30',
+    purple: 'bg-purple-950/80 text-purple-400 border-purple-500/30',
+    amber: 'bg-amber-950/80 text-amber-400 border-amber-500/30',
+    blue: 'bg-blue-950/80 text-blue-400 border-blue-500/30',
+    rose: 'bg-rose-950/80 text-rose-400 border-rose-500/30'
+  };
+
+  container.innerHTML = cms.useCases.map(uc => {
+    const borderClass = tintBorderMap[uc.tint] || tintBorderMap.emerald;
+    const iconBgClass = tintIconBgMap[uc.tint] || tintIconBgMap.emerald;
+    const tags = Array.isArray(uc.tags) ? uc.tags : [];
+    return `
+      <div class="glass-card rounded-2xl p-4 sm:p-5 flex flex-col justify-between border ${borderClass} transition-all duration-300 group hover:-translate-y-1 shadow-md">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <div class="w-9 h-9 rounded-xl ${iconBgClass} border flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+              ${getMonolineSvgIcon(uc.icon || 'briefcase', 'w-4 h-4')}
+            </div>
+            <span class="text-[10px] font-mono text-slate-500 tracking-caps uppercase">TARGET AUDIENS</span>
+          </div>
+          <h3 class="text-xs sm:text-sm font-bold text-white mb-1.5 leading-snug group-hover:text-emerald-300 transition-colors">
+            ${escapeHtml(uc.title)}
+          </h3>
+          <p class="text-[11px] sm:text-xs text-slate-400 leading-relaxed mb-3">
+            ${escapeHtml(uc.description || uc.desc || '')}
+          </p>
+        </div>
+        <div class="flex flex-wrap gap-1.5 pt-2 border-t border-slate-800/60">
+          ${tags.map(t => `<span class="micro-tag-pill text-[10px]">${escapeHtml(t)}</span>`).join('')}
+        </div>
+      </div>
+    `;
+  }).join('');
 }
 
 function renderLandingFromCms() {
@@ -558,8 +613,12 @@ function renderLandingFromCms() {
     bannerCountEl.textContent = `Lihat ${activeModCount} Modul Kurikulum`;
   }
 
-  // 2. Render Lynk.id Interactive Feature Showcase (Gambar 2 Revisi 51)
-  renderLandingFeaturesShowcase(cms);
+  // 2. Render 5 Fasilitas Kelas (Lynk.id Style Interactive Showcase)
+  renderLandingFacilitiesShowcase(cms);
+
+  // 3. Render 4 Target Audiens Siswa (Original 4-Card Grid)
+  renderLandingUseCases(cms);
+
 
   // 3. Render Testimonial Marquee Slider
   const testiTrack = document.getElementById('landing-testimonials-track');
@@ -895,9 +954,14 @@ window.renderLandingCurriculumBento = renderLandingCurriculumBento;
 window.selectLandingModule = selectLandingModule;
 window.handleLandingEmailSubmit = handleLandingEmailSubmit;
 window.renderLandingFromCms = renderLandingFromCms;
-window.renderLandingFeaturesShowcase = renderLandingFeaturesShowcase;
-window.selectLandingFeaturePreview = selectLandingFeaturePreview;
-window.getFeatureFallbackMockupHtml = getFeatureFallbackMockupHtml;
+window.renderLandingFacilitiesShowcase = renderLandingFacilitiesShowcase;
+window.selectLandingFacilityPreview = selectLandingFacilityPreview;
+window.getFacilityFallbackMockupHtml = getFacilityFallbackMockupHtml;
+window.renderLandingUseCases = renderLandingUseCases;
+// Backwards compatibility aliases
+window.renderLandingFeaturesShowcase = renderLandingFacilitiesShowcase;
+window.selectLandingFeaturePreview = selectLandingFacilityPreview;
+window.getFeatureFallbackMockupHtml = getFacilityFallbackMockupHtml;
 window.HeroTypewriterController = HeroTypewriterController;
 window.initHeroBannerOverlapCentering = initHeroBannerOverlapCentering;
 window.initLandingScrollSpy = initLandingScrollSpy;

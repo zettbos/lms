@@ -91,27 +91,61 @@ function renderAdminLandingCms() {
     handleBrandLogoInputPreview(logoInp.value);
   }
 
-  // Use-Cases Grid
+  // Facilities Grid (5 Fasilitas Kelas Lynk.id Showcase)
+  const facGrid = document.getElementById('admin-facilities-grid');
+  if (facGrid && Array.isArray(cms.facilities)) {
+    facGrid.innerHTML = '';
+    cms.facilities.forEach(fac => {
+      const card = document.createElement('div');
+      card.className = 'glass-card rounded-xl p-4 border border-slate-800 flex flex-col justify-between';
+      const hasCustomImg = fac.imageUrl && fac.imageUrl.trim().length > 0;
+      card.innerHTML = `
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-lg bg-slate-900 border border-slate-700 flex items-center justify-center text-emerald-400">
+                ${getMonolineSvgIcon(fac.icon || 'bot', 'w-3.5 h-3.5')}
+              </div>
+              <span class="text-xs font-bold text-white">${escapeHtml(fac.title)}</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              ${hasCustomImg ? '<span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 font-semibold">GAMBAR AKTIF</span>' : '<span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-900 text-slate-500 border border-slate-800">UI VECTOR</span>'}
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-300 capitalize">${escapeHtml(fac.tint || 'emerald')}</span>
+            </div>
+          </div>
+          <p class="text-xs text-slate-400 mb-3">${escapeHtml(fac.description || fac.desc || '')}</p>
+          <div class="flex flex-wrap gap-1 mb-3">
+            ${(fac.tags || []).map(t => `<span class="micro-tag-pill text-[10px]">${escapeHtml(t)}</span>`).join('')}
+          </div>
+        </div>
+        <div class="pt-2.5 border-t border-slate-800 flex justify-end">
+          <button onclick="openEditFacilityModal('${fac.id}')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 flex items-center gap-1.5 transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+            <span>Edit Fasilitas</span>
+          </button>
+        </div>
+      `;
+      facGrid.appendChild(card);
+    });
+  }
+
+  // Target Siswa / Use-Cases Grid (4 Kartu Grid)
   const ucGrid = document.getElementById('admin-usecases-grid');
   if (ucGrid && Array.isArray(cms.useCases)) {
     ucGrid.innerHTML = '';
     cms.useCases.forEach(uc => {
       const card = document.createElement('div');
       card.className = 'glass-card rounded-xl p-4 border border-slate-800 flex flex-col justify-between';
-      const hasCustomImg = uc.imageUrl && uc.imageUrl.trim().length > 0;
       card.innerHTML = `
         <div>
           <div class="flex items-center justify-between mb-2">
             <div class="flex items-center gap-2">
-              <div class="w-7 h-7 rounded-lg bg-slate-900 border border-slate-700 flex items-center justify-center text-emerald-400">
-                ${getMonolineSvgIcon(uc.icon || 'bot', 'w-3.5 h-3.5')}
+              <div class="w-7 h-7 rounded-lg bg-slate-900 border border-slate-700 flex items-center justify-center text-cyan-400">
+                ${getMonolineSvgIcon(uc.icon || 'briefcase', 'w-3.5 h-3.5')}
               </div>
               <span class="text-xs font-bold text-white">${escapeHtml(uc.title)}</span>
             </div>
-            <div class="flex items-center gap-1.5">
-              ${hasCustomImg ? '<span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 font-semibold">GAMBAR AKTIF</span>' : '<span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-900 text-slate-500 border border-slate-800">UI VECTOR</span>'}
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-300 capitalize">${escapeHtml(uc.tint || 'emerald')}</span>
-            </div>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-300 capitalize">${escapeHtml(uc.tint || 'amber')}</span>
           </div>
           <p class="text-xs text-slate-400 mb-3">${escapeHtml(uc.description || uc.desc || '')}</p>
           <div class="flex flex-wrap gap-1 mb-3">
@@ -121,7 +155,7 @@ function renderAdminLandingCms() {
         <div class="pt-2.5 border-t border-slate-800 flex justify-end">
           <button onclick="openEditUseCaseModal('${uc.id}')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 flex items-center gap-1.5 transition-colors">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-            <span>Edit Fasilitas</span>
+            <span>Edit Target Siswa</span>
           </button>
         </div>
       `;
@@ -217,8 +251,12 @@ function resetLandingHeroToDefault() {
   });
 }
 
-function handleUseCaseImagePreview(val) {
-  const previewBox = document.getElementById('edit-usecase-img-preview');
+// ==========================================
+// PENGATELORAN FASILITAS KELAS (LYNK.ID SHOWCASE)
+// ==========================================
+
+function handleFacilityImagePreview(val) {
+  const previewBox = document.getElementById('edit-facility-img-preview');
   if (!previewBox) return;
   const converted = typeof convertGoogleDriveUrl === 'function' ? convertGoogleDriveUrl(val) : val;
   if (converted && converted.trim()) {
@@ -229,7 +267,79 @@ function handleUseCaseImagePreview(val) {
     previewBox.innerHTML = `<span class="text-[11px] text-slate-500 font-mono">Pratinjau Gambar (Mockup Bawaan Aktif)</span>`;
   }
 }
-window.handleUseCaseImagePreview = handleUseCaseImagePreview;
+window.handleFacilityImagePreview = handleFacilityImagePreview;
+
+function openEditFacilityModal(id) {
+  const fac = (AppState.landingCms?.facilities || []).find(u => u.id === id);
+  if (!fac) return;
+
+  document.getElementById('edit-facility-id').value = fac.id;
+  document.getElementById('edit-facility-title').value = fac.title;
+  document.getElementById('edit-facility-icon').value = fac.icon || 'bot';
+  document.getElementById('edit-facility-tint').value = fac.tint || 'emerald';
+  document.getElementById('edit-facility-tags').value = (fac.tags || []).join(', ');
+  document.getElementById('edit-facility-desc').value = fac.description || fac.desc || '';
+  
+  const imgInp = document.getElementById('edit-facility-imageurl');
+  if (imgInp) {
+    imgInp.value = fac.imageUrl || '';
+    handleFacilityImagePreview(fac.imageUrl || '');
+  }
+
+  document.getElementById('modal-edit-facility').classList.remove('hidden');
+}
+
+function closeEditFacilityModal() {
+  document.getElementById('modal-edit-facility').classList.add('hidden');
+}
+
+function handleSaveFacilitySubmit(e) {
+  if (e) e.preventDefault();
+  const id = document.getElementById('edit-facility-id').value;
+  const fac = (AppState.landingCms?.facilities || []).find(u => u.id === id);
+  if (!fac) return;
+
+  fac.title = document.getElementById('edit-facility-title').value.trim();
+  fac.icon = document.getElementById('edit-facility-icon').value;
+  fac.tint = document.getElementById('edit-facility-tint').value;
+  fac.tags = document.getElementById('edit-facility-tags').value.split(',').map(t => t.trim()).filter(t => t.length > 0);
+  const descVal = document.getElementById('edit-facility-desc').value.trim();
+  fac.description = descVal;
+  fac.desc = descVal;
+
+  const imgInp = document.getElementById('edit-facility-imageurl');
+  fac.imageUrl = imgInp ? imgInp.value.trim() : '';
+
+  saveState();
+  closeEditFacilityModal();
+  renderAdminLandingCms();
+  if (typeof renderLandingFromCms === 'function') renderLandingFromCms();
+  showToast('Fasilitas Kelas berhasil diperbarui!', 'success');
+}
+
+function resetLandingFacilitiesToDefault() {
+  showCustomConfirm({
+    title: 'Reset Kartu Fasilitas Kelas?',
+    message: 'Kembalikan 5 kartu fasilitas resmi di landing page ke pengaturan bawaan awal default?',
+    confirmText: 'Ya, Reset ke Default',
+    cancelText: 'Batal',
+    isDanger: true,
+    onConfirm: () => {
+      const zData = window.ZettData || {};
+      if (zData.SEED_LANDING_CMS?.facilities) {
+        AppState.landingCms.facilities = JSON.parse(JSON.stringify(zData.SEED_LANDING_CMS.facilities));
+        saveState();
+        renderAdminLandingCms();
+        if (typeof renderLandingFromCms === 'function') renderLandingFromCms();
+        showToast('Kartu fasilitas berhasil di-reset!', 'info');
+      }
+    }
+  });
+}
+
+// ==========================================
+// PENGELOLA TARGET SISWA / AUDIENS (4 KARTU GRID)
+// ==========================================
 
 function openEditUseCaseModal(id) {
   const uc = (AppState.landingCms?.useCases || []).find(u => u.id === id);
@@ -237,16 +347,10 @@ function openEditUseCaseModal(id) {
 
   document.getElementById('edit-usecase-id').value = uc.id;
   document.getElementById('edit-usecase-title').value = uc.title;
-  document.getElementById('edit-usecase-icon').value = uc.icon || 'bot';
-  document.getElementById('edit-usecase-tint').value = uc.tint || 'emerald';
+  document.getElementById('edit-usecase-icon').value = uc.icon || 'briefcase';
+  document.getElementById('edit-usecase-tint').value = uc.tint || 'amber';
   document.getElementById('edit-usecase-tags').value = (uc.tags || []).join(', ');
   document.getElementById('edit-usecase-desc').value = uc.description || uc.desc || '';
-  
-  const imgInp = document.getElementById('edit-usecase-imageurl');
-  if (imgInp) {
-    imgInp.value = uc.imageUrl || '';
-    handleUseCaseImagePreview(uc.imageUrl || '');
-  }
 
   document.getElementById('modal-edit-usecase').classList.remove('hidden');
 }
@@ -269,20 +373,17 @@ function handleSaveUseCaseSubmit(e) {
   uc.description = descVal;
   uc.desc = descVal;
 
-  const imgInp = document.getElementById('edit-usecase-imageurl');
-  uc.imageUrl = imgInp ? imgInp.value.trim() : '';
-
   saveState();
   closeEditUseCaseModal();
   renderAdminLandingCms();
   if (typeof renderLandingFromCms === 'function') renderLandingFromCms();
-  showToast('Fasilitas & Fitur Kelas berhasil diperbarui!', 'success');
+  showToast('Target Siswa berhasil diperbarui!', 'success');
 }
 
 function resetLandingUseCasesToDefault() {
   showCustomConfirm({
-    title: 'Reset Kartu Target Audiens?',
-    message: 'Kembalikan 4 kartu target audiens di landing page ke pengaturan bawaan awal default?',
+    title: 'Reset Kartu Target Siswa?',
+    message: 'Kembalikan 4 kartu target siswa di landing page ke pengaturan bawaan awal default?',
     confirmText: 'Ya, Reset ke Default',
     cancelText: 'Batal',
     isDanger: true,
@@ -293,7 +394,7 @@ function resetLandingUseCasesToDefault() {
         saveState();
         renderAdminLandingCms();
         if (typeof renderLandingFromCms === 'function') renderLandingFromCms();
-        showToast('Kartu target audiens berhasil di-reset!', 'info');
+        showToast('Kartu target siswa berhasil di-reset!', 'info');
       }
     }
   });
@@ -2294,6 +2395,11 @@ window.renderAdminAnalytics = renderAdminAnalytics;
 window.renderAdminLandingCms = renderAdminLandingCms;
 window.handleSaveLandingHeroCms = handleSaveLandingHeroCms;
 window.resetLandingHeroToDefault = resetLandingHeroToDefault;
+window.openEditFacilityModal = openEditFacilityModal;
+window.closeEditFacilityModal = closeEditFacilityModal;
+window.handleSaveFacilitySubmit = handleSaveFacilitySubmit;
+window.resetLandingFacilitiesToDefault = resetLandingFacilitiesToDefault;
+window.handleFacilityImagePreview = handleFacilityImagePreview;
 window.openEditUseCaseModal = openEditUseCaseModal;
 window.closeEditUseCaseModal = closeEditUseCaseModal;
 window.handleSaveUseCaseSubmit = handleSaveUseCaseSubmit;

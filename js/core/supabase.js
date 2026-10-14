@@ -168,7 +168,8 @@ const ZettSupabase = {
       if (!cmsErr && cms && cms.hero) {
         AppState.landingCms = {
           hero: cms.hero,
-          useCases: cms.use_cases || [],
+          facilities: cms.facilities || (window.ZettData?.SEED_LANDING_CMS?.facilities) || [],
+          useCases: cms.use_cases || (window.ZettData?.SEED_LANDING_CMS?.useCases) || [],
           testimonials: cms.testimonials || []
         };
       }
@@ -259,6 +260,7 @@ const ZettSupabase = {
         await this.client.from('landing_cms').upsert({
           id: 'active_cms',
           hero: AppState.landingCms.hero,
+          facilities: AppState.landingCms.facilities || [],
           use_cases: AppState.landingCms.useCases || [],
           testimonials: AppState.landingCms.testimonials || [],
           updated_at: new Date().toISOString()

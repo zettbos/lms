@@ -1,8 +1,8 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 # Projek: Zettbos LMS (Member Hub & Notion-Style Learning Management System)
 ================================================================================
-VERSI DOKUMEN : v1.2.2
-STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 51 SELESAI)
+VERSI DOKUMEN : v1.2.3
+STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 52 SELESAI)
 ARSITEK SISTEM: ZettBOT by Zettbos
 ENGINE STACK  : Next.js 14+ (App Router) + Supabase (Postgres & Auth OTP) + Vercel
 ================================================================================
@@ -526,4 +526,19 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
         - Modal Edit Fasilitas (`modal-edit-usecase`) dilengkapi input URL gambar mockup (`#edit-usecase-imageurl`) dengan auto-converter Google Drive (`convertGoogleDriveUrl`) dan kotak live preview (`#edit-usecase-img-preview`).
         - Kartu fasilitas di panel CMS admin menampilkan status badge aktif (`GAMBAR AKTIF` vs `UI VECTOR`).
      5. Cache Buster: Menaikkan seluruh query string script dan stylesheet di `index.html` ke versi `?v=51`.
+  - [2026-10-14] Implementasi Revisi 52: Pemisahan Paten Section 5 (Fasilitas Kelas Lynk.id Showcase) & Section 6 (Target Siswa 4-Card Grid), Pemisahan Panel Admin CMS, dan Sinkronisasi Cloud Dua Arah.
+     1. Pemisahan Paten Struktur Data (`js/mock-data.js`, `js/core/state.js`):
+        - Memisahkan secara tegas `AppState.landingCms.facilities` (5 fasilitas resmi) dan `AppState.landingCms.useCases` (4 segmen target siswa).
+        - Mengangkat versi migrasi ke `'v52_separate_facilities_and_usecases'` sehingga seluruh browser otomatis menyegarkan data lokal tanpa resiko tertukar atau tertimpa.
+     2. Dua Section Berdampingan di Landing Page (`index.html`, `js/controllers/landing.js`):
+        - Section 5 (`#landing-facilities`): Fasilitas & Ekosistem Belajar (Split layout ala Lynk.id: 5 kartu interaktif di kiri + Phone Frame device mockup dengan live image preview di kanan).
+        - Section 6 (`#landing-usecases`): Target Siswa: Siapa Saja yang Butuh Bikin Web App Pakai AI? (4 kartu grid: Owner Bisnis, Karyawan Kantor, Freelancer Cuan, Pemula Nol Koding).
+        - Desktop navbar menyematkan anchor link ke kedua section (`Fasilitas Kelas` dan `Target Siswa`).
+     3. Pemisahan Panel Admin CMS & Modal Edit Mandiri (`index.html`, `js/controllers/admin.js`):
+        - Menghadirkan 2 grid terpisah di Admin CMS: `#admin-facilities-grid` (Section B) dan `#admin-usecases-grid` (Section C).
+        - Menyediakan 2 modal edit khusus: `#modal-edit-facility` (mendukung input gambar mockup Google Drive & live preview) dan `#modal-edit-usecase` (khusus target audiens).
+        - Tombol reset terpisah: `resetLandingFacilitiesToDefault()` dan `resetLandingUseCasesToDefault()`.
+     4. Sinkronisasi Cloud Supabase (`js/core/supabase.js`):
+        - Memperbarui `pushAllLocalDataToSupabase()` dan `pullAllRemoteDataFromSupabase()` agar menyelaraskan `facilities` berdampingan dengan `use_cases`.
+     5. Cache Buster: Menaikkan seluruh query string script dan stylesheet di `index.html` ke versi `?v=52`.
 

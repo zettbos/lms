@@ -106,7 +106,7 @@ const SEED_LANDING_CMS = {
     bannerTitle: 'Bikin Aplikasinya Sendiri, Stop Ketergantungan ke Orang Lain',
     bannerDesc: 'Semua modul dibuat step-by-step. Begitu selesai kelas, aplikasi Anda sudah jadi, berfungsi normal, dan siap dipakai untuk operasional bisnis atau dijual ke klien.'
   },
-  useCases: [
+  facilities: [
     {
       id: 'feat-1',
       title: 'Akses ZettBOT',
@@ -161,6 +161,48 @@ const SEED_LANDING_CMS = {
       badge: '1-on-1 Mentoring',
       imageUrl: '',
       tags: ['Minimal 1 Bulan', 'Dibimbing Sampai Bisa', 'Private Coaching']
+    }
+  ],
+  useCases: [
+    {
+      id: 'uc-1',
+      title: 'Owner Bisnis & UMKM',
+      description: 'Punya web app kasir, manajemen stok, dan database pelanggan sendiri tanpa biaya bulanan selamanya. Bebas ketergantungan vendor IT puluhan juta.',
+      desc: 'Punya web app kasir, manajemen stok, dan database pelanggan sendiri tanpa biaya bulanan selamanya. Bebas ketergantungan vendor IT puluhan juta.',
+      icon: 'briefcase',
+      tint: 'amber',
+      badge: 'Target Audiens',
+      tags: ['Bebas Biaya Bulanan', 'Sistem Stok Sendiri', 'Hemat Puluhan Juta']
+    },
+    {
+      id: 'uc-2',
+      title: 'Karyawan & Tim Kantor',
+      description: 'Ubah Google Sheets & Excel kantor jadi web app otomatis. Input data anti-salah, rekap laporan instan, dan kerjaan beres lebih cepat tanpa sering lembur.',
+      desc: 'Ubah Google Sheets & Excel kantor jadi web app otomatis. Input data anti-salah, rekap laporan instan, dan kerjaan beres lebih cepat tanpa sering lembur.',
+      icon: 'code',
+      tint: 'cyan',
+      badge: 'Target Audiens',
+      tags: ['Bebas Lembur', 'Otomasi Excel & Sheets', 'Nilai Tambah Karir']
+    },
+    {
+      id: 'uc-3',
+      title: 'Freelancer & Pencari Cuan Tambahan',
+      description: 'Buka jasa pembuatan web app & sistem digital untuk klien UMKM dengan bayaran jutaan per proyek. Full modal AI dari prompt sampai serah terima hosting & domain.',
+      desc: 'Buka jasa pembuatan web app & sistem digital untuk klien UMKM dengan bayaran jutaan per proyek. Full modal AI dari prompt sampai serah terima hosting & domain.',
+      icon: 'sparkles',
+      tint: 'purple',
+      badge: 'Target Audiens',
+      tags: ['Buka Jasa Web App', 'Penghasilan Tambahan', 'Full Modal AI']
+    },
+    {
+      id: 'uc-4',
+      title: 'Pemula (Nol Pengalaman Koding)',
+      description: 'Buktikan sendiri bahwa dengan arahan prompt AI yang benar, Anda bisa mendeploy web app fungsional pertama Anda ke internet tanpa harus kuliah IT.',
+      desc: 'Buktikan sendiri bahwa dengan arahan prompt AI yang benar, Anda bisa mendeploy web app fungsional pertama Anda ke internet tanpa harus kuliah IT.',
+      icon: 'users',
+      tint: 'emerald',
+      badge: 'Target Audiens',
+      tags: ['Nol Background IT', 'AI Jadi Programmer Pribadi', '100% Praktek Nyata']
     }
   ],
   testimonials: [] // Testimoni dummy dibersihkan, siap diisi testimoni asli lewat Admin CMS
