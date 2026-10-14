@@ -454,15 +454,94 @@ function selectLandingFacilityPreview(facilityId) {
     if (rawImg) {
       const convertedUrl = typeof convertGoogleDriveUrl === 'function' ? convertGoogleDriveUrl(rawImg) : rawImg;
       screenEl.innerHTML = `
-        <img 
-          src="${escapeHtml(convertedUrl)}" 
-          alt="${escapeHtml(target.title)}" 
-          class="w-full h-full object-cover object-center" 
-          onerror="this.onerror=null; this.parentElement.innerHTML = getFacilityFallbackMockupHtml('${target.id}');"
-        />
+        <div 
+          onclick="openFacilityImageLightbox('${target.id}')"
+          class="relative w-full h-full cursor-zoom-in group/zoom overflow-hidden flex items-center justify-center select-none"
+          title="Klik untuk memperbesar foto ${escapeHtml(target.title)}"
+        >
+          <img 
+            src="${escapeHtml(convertedUrl)}" 
+            alt="${escapeHtml(target.title)}" 
+            class="w-full h-full object-cover object-center group-hover/zoom:scale-105 transition-transform duration-500" 
+            onerror="this.onerror=null; this.parentElement.parentElement.innerHTML = getFacilityFallbackMockupHtml('${target.id}');"
+          />
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent opacity-60 group-hover/zoom:opacity-30 transition-opacity pointer-events-none"></div>
+          
+          <!-- Floating Zoom Affordance Badge -->
+          <div class="absolute bottom-3 right-3 px-2.5 py-1.5 rounded-xl bg-slate-950/85 backdrop-blur-md border border-emerald-500/40 text-emerald-300 text-[11px] font-semibold flex items-center gap-1.5 shadow-xl group-hover/zoom:scale-105 group-hover/zoom:border-emerald-400 group-hover/zoom:bg-emerald-950/90 transition-all pointer-events-none">
+            <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"/></svg>
+            <span>Klik untuk Perbesar</span>
+          </div>
+        </div>
       `;
     } else {
-      screenEl.innerHTML = getFacilityFallbackMockupHtml(target.id);
+      screenEl.innerHTML = `
+        <div onclick="openFacilityImageLightbox('${target.id}')" class="w-full h-full cursor-pointer" title="Pratinjau Fasilitas ${escapeHtml(target.title)}">
+          ${getFacilityFallbackMockupHtml(target.id)}
+        </div>
+      `;
+    }
+  }
+}
+
+// ==========================================
+// 1.3. UNIVERSAL IMAGE LIGHTBOX CONTROLLER
+// ==========================================
+
+function openImageLightbox(imageUrl, title = 'Foto Pratinjau', badge = 'FASILITAS') {
+  const modal = document.getElementById('modal-image-lightbox');
+  const imgEl = document.getElementById('lightbox-image-target');
+  const titleEl = document.getElementById('lightbox-image-title');
+  const badgeEl = document.getElementById('lightbox-image-badge');
+  const extBtn = document.getElementById('lightbox-image-external-btn');
+
+  if (!modal || !imgEl) return;
+
+  imgEl.src = imageUrl || '';
+  imgEl.alt = title || 'Pratinjau Foto';
+  if (titleEl) titleEl.textContent = title || 'Pratinjau Foto';
+  if (badgeEl) badgeEl.textContent = badge || 'FASILITAS';
+  if (extBtn) {
+    extBtn.href = imageUrl || '#';
+  }
+
+  modal.classList.remove('hidden');
+  document.body.classList.add('overflow-hidden');
+
+  // Register ESC key handler
+  if (window._lightboxEscHandler) {
+    window.removeEventListener('keydown', window._lightboxEscHandler);
+  }
+  window._lightboxEscHandler = function(e) {
+    if (e.key === 'Escape') closeImageLightbox();
+  };
+  window.addEventListener('keydown', window._lightboxEscHandler);
+}
+
+function closeImageLightbox() {
+  const modal = document.getElementById('modal-image-lightbox');
+  if (modal) modal.classList.add('hidden');
+  document.body.classList.remove('overflow-hidden');
+
+  if (window._lightboxEscHandler) {
+    window.removeEventListener('keydown', window._lightboxEscHandler);
+    window._lightboxEscHandler = null;
+  }
+}
+
+function openFacilityImageLightbox(facilityId) {
+  const fid = facilityId || landingActiveFacilityId;
+  const list = (AppState.landingCms && Array.isArray(AppState.landingCms.facilities)) ? AppState.landingCms.facilities : [];
+  const target = list.find(u => u.id === fid) || list[0];
+  if (!target) return;
+
+  const rawImg = (target.imageUrl || '').trim();
+  if (rawImg) {
+    const convertedUrl = typeof convertGoogleDriveUrl === 'function' ? convertGoogleDriveUrl(rawImg) : rawImg;
+    openImageLightbox(convertedUrl, target.title || 'Fasilitas Ekosistem Zettbos', target.badge || 'FASILITAS RESMI');
+  } else {
+    if (typeof showToast === 'function') {
+      showToast('Fasilitas ini sedang menggunakan live interactive preview. Belum ada foto khusus.', 'info');
     }
   }
 }
@@ -970,4 +1049,7 @@ window.getFeatureFallbackMockupHtml = getFacilityFallbackMockupHtml;
 window.HeroTypewriterController = HeroTypewriterController;
 window.initHeroBannerOverlapCentering = initHeroBannerOverlapCentering;
 window.initLandingScrollSpy = initLandingScrollSpy;
+window.openImageLightbox = openImageLightbox;
+window.closeImageLightbox = closeImageLightbox;
+window.openFacilityImageLightbox = openFacilityImageLightbox;
 

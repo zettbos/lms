@@ -40,7 +40,7 @@
   </script>
 
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="css/style.css?v=58" />
+  <link rel="stylesheet" href="css/style.css?v=59" />
 </head>
 <body class="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--fg)] selection:bg-emerald-500/30 selection:text-emerald-300 transition-colors duration-150">
 
@@ -3219,6 +3219,53 @@
   </div>
 
   <!-- ==========================================
+       MODAL 6: UNIVERSAL IMAGE LIGHTBOX (VIEW FULLSCREEN PHOTO)
+       ========================================== -->
+  <div id="modal-image-lightbox" onclick="if(event.target === this) closeImageLightbox()" class="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-slate-950/90 backdrop-blur-md hidden transition-all duration-200">
+    <div class="relative max-w-5xl w-full max-h-[92vh] flex flex-col items-center justify-center animate-scale-up">
+      
+      <!-- Top Floating Navigation Bar -->
+      <div class="w-full flex items-center justify-between gap-3 mb-3 px-2 text-white">
+        <div class="flex items-center gap-2 truncate min-w-0">
+          <span id="lightbox-image-badge" class="px-2.5 py-0.5 rounded text-[10px] font-bold tracking-caps uppercase bg-emerald-950 text-emerald-300 border border-emerald-500/50 shrink-0">
+            FASILITAS
+          </span>
+          <h3 id="lightbox-image-title" class="text-xs sm:text-sm font-extrabold text-white truncate">
+            Pratinjau Foto
+          </h3>
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0">
+          <a id="lightbox-image-external-btn" href="#" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-slate-300 hover:text-emerald-400 border border-slate-700/80 text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-sm">
+            <span>Buka Gambar Asli</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+          </a>
+          <button onclick="closeImageLightbox()" title="Tutup (ESC)" class="p-1.5 sm:p-2 rounded-xl bg-slate-900/90 hover:bg-rose-950 hover:text-rose-400 text-slate-300 border border-slate-700/80 transition-colors shadow-sm flex items-center justify-center">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Image Container -->
+      <div class="relative w-full max-h-[82vh] rounded-2xl overflow-hidden border border-slate-700/80 bg-slate-950 flex items-center justify-center shadow-2xl p-1 sm:p-2">
+        <img 
+          id="lightbox-image-target" 
+          src="" 
+          alt="Pratinjau Foto" 
+          class="max-h-[78vh] w-auto max-w-full object-contain rounded-xl select-none"
+        />
+      </div>
+
+      <!-- Bottom Hint Bar -->
+      <div class="mt-2.5 text-[11px] font-mono text-slate-400 flex items-center justify-between w-full px-2">
+        <span>Tekan <kbd class="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700 text-slate-300 text-[10px]">ESC</kbd> atau klik di luar untuk menutup</span>
+        <span class="text-emerald-400 font-bold hidden sm:inline">Zettbos High-Resolution Preview</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==========================================
        MOBILE BOTTOM NAVIGATION BAR & ELEVATED POPOVER MENU (Gambar 4 Referensi)
        ========================================== -->
   <!-- Backdrop for popover click-outside -->
@@ -3309,18 +3356,18 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- Application Scripts (Modular Architecture with Cache Buster) -->
-  <script src="js/whitelist-data.js?v=58"></script>
-  <script src="js/mock-data.js?v=58"></script>
-  <script src="js/editor.js?v=58"></script>
-  <script src="js/core/state.js?v=58"></script>
-  <script src="js/core/supabase.js?v=58"></script>
-  <script src="js/core/router.js?v=58"></script>
-  <script src="js/core/particles.js?v=58"></script>
-  <script src="js/controllers/auth.js?v=58"></script>
-  <script src="js/controllers/landing.js?v=58"></script>
-  <script src="js/controllers/classroom.js?v=58"></script>
-  <script src="js/controllers/resources.js?v=58"></script>
-  <script src="js/controllers/admin.js?v=58"></script>
-  <script src="js/app.js?v=58"></script>
+  <script src="js/whitelist-data.js?v=59"></script>
+  <script src="js/mock-data.js?v=59"></script>
+  <script src="js/editor.js?v=59"></script>
+  <script src="js/core/state.js?v=59"></script>
+  <script src="js/core/supabase.js?v=59"></script>
+  <script src="js/core/router.js?v=59"></script>
+  <script src="js/core/particles.js?v=59"></script>
+  <script src="js/controllers/auth.js?v=59"></script>
+  <script src="js/controllers/landing.js?v=59"></script>
+  <script src="js/controllers/classroom.js?v=59"></script>
+  <script src="js/controllers/resources.js?v=59"></script>
+  <script src="js/controllers/admin.js?v=59"></script>
+  <script src="js/app.js?v=59"></script>
 </body>
 </html>

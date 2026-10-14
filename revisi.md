@@ -1,82 +1,87 @@
-# ZETTBOS MEMBER HUB - DOKUMEN LAPORAN REVISI (REVISI 58)
+# ZETTBOS MEMBER HUB - DOKUMEN LAPORAN REVISI (REVISI 59)
 ================================================================================
-STATUS: SUKSES DITERAPKAN (REVISI 58 SELESAI & TERVERIFIKASI)
+STATUS: SUKSES DITERAPKAN (REVISI 59 SELESAI & TERVERIFIKASI)
 ARSITEK SISTEM: ZettBOT by Zettbos (Universal Product Architect & Lead Engineering Mentor)
-FOKUS TUGAS: TRANSPARENT LOGO, RUANG BELAJAR DIRECTORY, FLUID NAVBAR ON ZOOM OUT, BESARKAN FONT JUDUL MODUL
+FOKUS TUGAS: INTERACTIVE IMAGE LIGHTBOX MODAL PADA PREVIEW FASILITAS & FOTO LANDING
 ================================================================================
 
 ## RINGKASAN HASIL EKSEKUSI
-1. **Kotak di Belakang Logo Dihapus**: `renderAppBrandLogo` di `js/controllers/classroom.js` mengatur container logo menjadi 100% transparan (`bg-transparent border-0 shadow-none p-0 overflow-visible`) saat logo kustom aktif, menampilkan gambar logo murni tanpa latar belakang hijau atau garis bingkai.
-2. **Ruang Belajar Membuka Katalog Modul**: Diterapkan arsitektur 2-state di `#view-learn` (`index.html`, `js/controllers/classroom.js`, `js/core/router.js`). Klik menu "Ruang Belajar & Video" kini membuka katalog seluruh modul yang telah dibuat admin lengkap dengan filter kategori & pencarian. Tombol "Masuk Modul" / klik materi beralih ke reader player, dan tombol `← Daftar Modul` kembali ke katalog modul seketika.
-3. **Top Navbar Menyesuaikan Posisi Saat Zoom Out**: Dihapus batasan `max-w-[1440px] 2xl:max-w-[1600px] mx-auto` dari container navbar utama dan digantikan `w-full px-4 sm:px-6 lg:px-8` sehingga membentang penuh edge-to-edge di berbagai skala zoom (90%, 80%, dll.) dan monitor ultrawide.
-4. **Font Judul Modul Diperbesar**: Judul modul di grid kurikulum kini menggunakan tipografi yang jauh lebih tebal dan dominan (`font-extrabold text-base sm:text-lg lg:text-xl`).
-5. **Cache Buster**: Diperbarui ke `?v=58` di seluruh berkas.
+1. **Universal Image Lightbox Modal (`#modal-image-lightbox`) Berhasil Dibuat**:
+   - Ditempatkan di [index.html](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/index.html) dengan backdrop gelap blur (`backdrop-blur-md bg-slate-950/90 z-[100]`), animasi transisi halus (`animate-scale-up`), badge fasilitas, judul foto, tombol `↗ Buka Gambar Asli` di tab baru, dan tombol tutup silang `✕`.
+   - Mendukung penutupan instan via tombol keyboard `Escape` maupun klik di luar area foto (backdrop click).
+2. **Foto Preview Device Interaktif & Click-to-Zoom**:
+   - Di [landing.js](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/js/controllers/landing.js), foto fasilitas pada frame device preview kini memiliki class `cursor-zoom-in group/zoom` dengan hover scale yang halus.
+   - Dilengkapi floating chip badge melayang di pojok kanan bawah: **`🔍 Klik untuk Perbesar`** yang memberi visual cue jelas kepada pengunjung.
+   - Mengklik foto seketika memanggil `openFacilityImageLightbox(target.id)` yang menampilkan gambar dalam resolusi penuh tajam.
+3. **Fungsi Global Terbuka & Modular**:
+   - `openImageLightbox(imageUrl, title, badge)` dan `closeImageLightbox()` diekspos ke `window` sehingga dapat digunakan kembali di bagian lain LMS kapan saja.
+4. **Cache Buster**:
+   - Diperbarui ke `?v=59` di `index.html` pada stylesheet dan seluruh 13 modul skrip JS.
 
 
-## 1. DETAIL AKAR MASALAH & SOLUSI TEKNIS (REVISI 58)
+## 1. DETAIL KEBUTUHAN & AKAR MASALAH (REVISI 59)
 
-### POIN 1: HILANGKAN KOTAK HIJAU DI BELAKANG LOGO (GAMBAR LOGO SAJA)
-- **Akar Masalah**:
-  Container logo (`#brand-logo-nav`, `#brand-logo-drawer`, `#brand-logo-landing`, `#brand-logo-footer`) memiliki class bawaan `rounded-lg bg-emerald-950/80 border border-emerald-500/40 shadow-sm`. Saat gambar logo kustom dirender di dalamnya, kotak hijau gelap dan border tetap terlihat mengelilingi gambar.
-- **Solusi Arsitektur ZettBOT**:
-  Di `js/controllers/classroom.js` pada fungsi `renderAppBrandLogo()`:
-  - Saat ada logo kustom (`convertedUrl` valid): otomatis ubah container menjadi transparan penuh (`bg-transparent border-0 shadow-none p-0 overflow-visible`) dan render gambar logo dengan `h-7 sm:h-8 w-auto max-w-[140px] object-contain`. Logo akan melayang bersih tanpa kotak latar belakang apapun.
-  - Jika tidak ada logo kustom (fallback `[ZB]`): pertahankan badge kotak default.
+### PERMINTAAN PENGGUNA
+Pengguna melampirkan tangkapan layar bagian *"Fasilitas & Ekosistem Belajar"* (bagian *"Lebih Dari Sekadar Kelas Video Biasa"*) pada Landing Page. Pada sisi kanan, terdapat mockup bingkai device (*Live Preview*) yang menampilkan gambar/foto preview dari fasilitas terpilih (contohnya: screenshot instalasi terminal ZettBOT). 
+Pengguna meminta:
+> *"gw pengen foto disini bisa dipencet untuk membuka fotonya"*
 
----
-
-### POIN 2: RUANG BELAJAR MENAMPILKAN DAFTAR MODUL (BUKAN LANGSUNG 1 MATERI AKTIF)
-- **Akar Masalah**:
-  Saat pengguna mengklik menu sidebar *"Ruang Belajar & Video"*, router di `js/core/router.js` langsung memanggil `renderLearningRoom(lessonId)` dengan memaksakan ID materi yang terakhir dibuka (`AppState.currentLessonId || lessons[0]`). Akibatnya, pengguna langsung terjebak di dalam halaman baca materi/video satu pelajaran tertentu, tanpa bisa memilih atau melihat daftar modul yang sudah dibuat.
-- **Solusi Arsitektur ZettBOT**:
-  Terapkan arsitektur 2-State di halaman Ruang Belajar (`#view-learn`):
-  1. **State 1 (Daftar Modul Kurikulum / Catalog Mode)**:
-     - Ditampilkan saat membuka menu *"Ruang Belajar & Video"* dari sidebar.
-     - Menampilkan header *"Ruang Belajar Kurikulum"*, filter kategori, pencarian, dan seluruh kartu modul yang telah dibuat (`AppState.modules`).
-     - Pengguna bebas melihat modul mana yang ingin dipelajari.
-     - Di setiap kartu modul, tersedia tombol *"Masuk Modul"* dan daftar topik materi.
-  2. **State 2 (Player & Reader Mode / Lesson Active)**:
-     - Terbuka saat pengguna mengklik tombol *"Masuk Modul"* atau memilih salah satu materi dari daftar modul.
-     - Menampilkan video player dan konten Notion-style.
-     - Di sub-bar atas, sediakan tombol jelas: `← Kembali ke Daftar Modul` yang seketika mengembalikan layar ke State 1 (Daftar Modul).
-     - Jika pengguna mengklik menu *"Ruang Belajar & Video"* di sidebar saat sedang membaca materi, layar otomatis kembali ke State 1 (Daftar Modul).
+### AKAR MASALAH TEKNIS
+1. Di `index.html` dan `js/controllers/landing.js`, elemen kontainer `#landing-facility-preview-screen` merender gambar fasilitas dengan elemen `<img>` standar tanpa event handler `onclick`, tanpa kursor interaktif (`cursor-zoom-in`), dan tanpa modal pratinjau resolusi tinggi (Lightbox Modal).
+2. Ketika pengunjung mengklik foto pada mockup device tersebut, tidak ada aksi apapun yang terjadi sehingga detail teks atau tangkapan layar yang padat (seperti kode terminal atau UI) sulit dibaca pada ukuran device mockup yang ringkas.
 
 ---
 
-### POIN 3: TOP NAVBAR BELUM MENYESUAIKAN POSISI SAAT ZOOM OUT (90% / WIDE)
-- **Akar Masalah**:
-  Di `index.html`, container dalam navbar memiliki pembatas lebar statis:
-  `max-w-[1440px] 2xl:max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8`.
-  Saat browser di-zoom out ke 90% (atau di layar lebar > 1600px), container navbar terpusat di tengah layar (*centered*) sehingga menyisakan ruang kosong hitam besar di kiri dan kanan. Akibatnya, logo di kiri dan tombol profil/logout di kanan tertarik ke dalam dan posisinya tidak sejajar dengan sidebar maupun konten di bawahnya.
-- **Solusi Arsitektur ZettBOT**:
-  - Ubah container dalam `#main-navbar` menjadi fluid edge-to-edge:
-    `w-full px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between`.
-  - Hapus batasan `max-w-[1440px] 2xl:max-w-[1600px] mx-auto` dari navbar agar pada tingkat zoom berapapun (90%, 80%, 75%) atau monitor ultrawide, navbar selalu membentang 100% penuh dari tepi kiri ke tepi kanan layar secara proporsional.
+## 2. RANCANGAN SOLUSI ARSITEKTUR ZETTBOT
+
+### A. Komponen Modal Lightbox Gambar Global (`#modal-image-lightbox`) di `index.html`
+Tambahkan modal gambar universal berstandar Zettbos dengan spesifikasi:
+- **Backdrop Blur & Dimming**: Latar belakang gelap transparan dengan efek blur halus (`fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-slate-950/90 backdrop-blur-md`).
+- **Animasi Pop-Up Halus**: Transisi zoom dan fade-in (`animate-scale-up`).
+- **Header Info & Navigasi**:
+  - Badge kategori / nama fasilitas terpilih.
+  - Judul gambar (`#lightbox-image-title`).
+  - Tombol aksi `↗ Buka Ukuran Penuh` (membuka file asli di tab browser baru).
+  - Tombol `✕ Tutup` yang jelas dan mudah dijangkau.
+- **Tampilan Foto Maksimal & Responsif**:
+  - Kontainer gambar dibatasi `max-h-[82vh] max-w-5xl` dengan `object-contain`, mempertahankan rasio aspek gambar aslinya tanpa distorsi atau cropping.
+- **Interaksi Ramah Pengguna**:
+  - Klik di luar area gambar (pada backdrop) otomatis menutup modal.
+  - Tekan tombol keyboard `Escape` otomatis menutup modal.
+
+### B. Interaktivitas pada Mockup Preview Fasilitas (`js/controllers/landing.js`)
+1. **Visual Affordance (Petunjuk Visual Bisa Diklik)**:
+   - Tambahkan class `cursor-zoom-in group/zoom relative` pada kontainer gambar di `#landing-facility-preview-screen`.
+   - Pasang floating chip di pojok kanan bawah gambar:
+     ```html
+     <div class="absolute bottom-3 right-3 px-2.5 py-1.5 rounded-xl bg-slate-950/85 backdrop-blur-md border border-emerald-500/40 text-emerald-300 text-[11px] font-semibold flex items-center gap-1.5 shadow-xl group-hover/zoom:scale-105 group-hover/zoom:border-emerald-400 transition-all pointer-events-none">
+       <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"/></svg>
+       <span>Klik untuk Perbesar</span>
+     </div>
+     ```
+2. **Event Trigger `openFacilityImageLightbox()`**:
+   - Jika fasilitas memiliki `imageUrl`, klik pada layar mockup device seketika memanggil `openImageLightbox(convertedUrl, target.title, target.badge)`.
+   - Jika fasilitas sedang menggunakan live mockup HTML (belum upload gambar kustom), klik layar menampilkan petunjuk toast ramah: *"Fasilitas ini sedang menggunakan live interactive preview."*
+
+### C. Fungsi Controller Universal (`openImageLightbox` & `closeImageLightbox`)
+- Dibuat modular dan diekspos ke `window` agar dapat dipakai tidak hanya di fasilitas landing page, tetapi juga di modul kurikulum, Notion image blocks, atau dokumen materi lainnya di masa depan.
+- Otomatis mendaftarkan event listener `keydown` (tombol `Escape`) saat modal dibuka dan melepaskannya saat ditutup untuk menjaga performa memori.
 
 ---
 
-### POIN 4: PERBESAR FONT JUDUL MODUL
-- **Akar Masalah**:
-  Di `js/controllers/classroom.js` fungsi `renderModuleCatalogGrid`, judul modul di kartu saat ini menggunakan ukuran kecil:
-  `font-bold text-sm sm:text-base`.
-  Pada kartu modul yang lebar, teks judul terlihat terlalu kecil dan kurang dominan.
-- **Solusi Arsitektur ZettBOT**:
-  Tingkatkan tipografi judul modul menjadi lebih besar, tebal, dan tegas:
-  `font-extrabold text-base sm:text-lg lg:text-xl text-white group-hover:text-emerald-400 transition-colors leading-snug tracking-tight mb-2`.
-  Terapkan ukuran font besar ini pada kartu modul di Home dan kartu modul di Ruang Belajar.
+## 3. BERKAS YANG AKAN DIUBAH
+1. **`index.html`**:
+   - Tambahkan markup `#modal-image-lightbox` di area modal global.
+   - Bump versi cache buster ke `?v=59`.
+2. **`js/controllers/landing.js`**:
+   - Update `selectLandingFacilityPreview` untuk menambahkan interaksi klik dan floating badge *"Klik untuk Perbesar"* pada gambar.
+   - Tambahkan implementasi `openImageLightbox(imageUrl, title, badge)` dan `closeImageLightbox()`.
+3. **`prd.md`**:
+   - Bump versi Master Context ke `v1.3.0` dan siapkan catatan arsitektur Revisi 59.
 
 ---
 
-## 2. BERKAS YANG AKAN DIUBAH
-1. `js/controllers/classroom.js`:
-   - Di `renderAppBrandLogo`: Tambahkan class transparan penuh (`bg-transparent border-0 shadow-none p-0`) saat logo gambar aktif agar kotak hijau di belakang logo hilang.
-   - Di `renderModuleCatalogGrid`: Besarkan font judul modul ke `text-base sm:text-lg lg:text-xl font-extrabold`.
-   - Implementasikan fungsi `renderLearnModulesCatalog()` dan `showLearnModulesCatalog()` untuk menampilkan daftar modul di Ruang Belajar.
-2. `js/core/router.js`:
-   - Sesuaikan rute `learn`: Jika dipanggil tanpa `params.lessonId`, tampilkan State 1 (Daftar Modul) di Ruang Belajar. Jika dengan `params.lessonId`, buka materi terkait.
-3. `index.html`:
-   - Ubah container `#main-navbar > div` menjadi `w-full px-4 sm:px-6 lg:px-8` (fluid edge-to-edge).
-   - Di `#view-learn`, tambahkan kontainer `#learn-modules-catalog-view` untuk menampilkan daftar modul lengkap sebelum masuk ke player.
-   - Bump cache buster ke `?v=58`.
-4. `prd.md`:
-   - Update dokumentasi Master Context ke `v1.2.9` (Catatan Revisi 58).
+## 4. JAMINAN KEAMANAN SISTEM
+- **Zero-Breaking Change**: Tidak merusak CMS sinkronisasi Supabase yang baru saja dituntaskan di Revisi 57-58.
+- **Responsif Mobile & Desktop**: Modal otomatis menyesuaikan layar HP maupun PC ultrawide.
+- **Fallback Aman**: Jika koneksi lambat atau gambar gagal memuat, modal menyediakan tombol buka link eksternal dan tetap bisa ditutup dengan lancar.

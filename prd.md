@@ -1,8 +1,8 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 # Projek: Zettbos LMS (Member Hub & Notion-Style Learning Management System)
 ================================================================================
-VERSI DOKUMEN : v1.2.9
-STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 58 SELESAI)
+VERSI DOKUMEN : v1.3.0
+STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 59 SELESAI)
 ARSITEK SISTEM: ZettBOT by Zettbos
 ENGINE STACK  : Next.js 14+ (App Router) + Supabase (Postgres & Auth OTP) + Vercel
 ================================================================================
@@ -594,6 +594,17 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
         - Memperbarui skema tabel `landing_cms` dengan `facilities JSONB DEFAULT '[]'::jsonb`.
         - Menyiapkan skrip migrasi mandiri `ALTER TABLE public.landing_cms ADD COLUMN IF NOT EXISTS facilities JSONB DEFAULT '[]'::jsonb;`.
      3. Cache Buster: Menaikkan seluruh query string script dan stylesheet di `index.html` ke versi `?v=56`.
+  - [2026-10-14] Implementasi Revisi 59: Universal Image Lightbox Modal, Interactive Facility Preview Photo (Click-to-Zoom), dan Cache Buster ?v=59.
+     1. Komponen Universal Image Lightbox (`index.html`, `js/controllers/landing.js`):
+        - Menghadirkan modal pop-up layar penuh `#modal-image-lightbox` dengan efek backdrop blur (`backdrop-blur-md bg-slate-950/90 z-[100]`), animasi pop-up halus (`animate-scale-up`), badge fasilitas, judul foto, tombol `↗ Buka Gambar Asli` di tab baru, serta tombol tutup `✕`.
+        - Menutup otomatis ketika pengguna mengklik di luar gambar (pada backdrop) atau menekan tombol `Escape` di keyboard.
+     2. Interaktivitas Mockup Frame Device Landing (`js/controllers/landing.js`):
+        - Foto fasilitas pada preview device kini memiliki class `cursor-zoom-in group/zoom` dan efek hover scale halus.
+        - Dilengkapi badge melayang di pojok kanan bawah: `🔍 Klik untuk Perbesar` sebagai visual affordance.
+        - Mengklik foto seketika membuka gambar dalam modal Lightbox dengan resolusi penuh tajam.
+     3. Fungsi Controller Universal:
+        - `openImageLightbox(imageUrl, title, badge)` dan `closeImageLightbox()` diekspos ke objek `window`.
+     4. Cache Buster: Menaikkan seluruh query string script dan stylesheet di `index.html` ke versi ?v=59.
   - [2026-10-14] Implementasi Revisi 58: Transparent Brand Logo, 2-State Ruang Belajar (Katalog Modul & Player), Fluid Top Navbar on Zoom Out, Pembesaran Font Judul Modul Kurikulum, dan Cache Buster ?v=58.
      1. Penghapusan Kotak Latar Belakang Logo (`js/controllers/classroom.js`):
         - `renderAppBrandLogo()` kini mengatur container logo menjadi 100% transparan (`bg-transparent border-0 shadow-none p-0 overflow-visible`) saat gambar logo kustom aktif.
