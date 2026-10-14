@@ -1,8 +1,8 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 # Projek: Zettbos LMS (Member Hub & Notion-Style Learning Management System)
 ================================================================================
-VERSI DOKUMEN : v1.3.2
-STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 61 SELESAI)
+VERSI DOKUMEN : v1.3.3
+STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 62 SELESAI)
 ARSITEK SISTEM: ZettBOT by Zettbos
 ENGINE STACK  : Next.js 14+ (App Router) + Supabase (Postgres & Auth OTP) + Vercel
 ================================================================================
@@ -594,6 +594,21 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
         - Memperbarui skema tabel `landing_cms` dengan `facilities JSONB DEFAULT '[]'::jsonb`.
         - Menyiapkan skrip migrasi mandiri `ALTER TABLE public.landing_cms ADD COLUMN IF NOT EXISTS facilities JSONB DEFAULT '[]'::jsonb;`.
      3. Cache Buster: Menaikkan seluruh query string script dan stylesheet di `index.html` ke versi `?v=56`.
+  - [2026-10-14] Implementasi Revisi 62: Harmonisasi Warna Fasilitas (#0D1322 Base), Color-Coded SVG Icons, Solid Glowing Emerald CTA Card, Eliminasi Teks Lynk.id, Hero AI Prompt to Live Web App Simulator (Opsi 1), dan Cache Buster ?v=62.
+     1. Harmonisasi Warna Kartu Fasilitas (`js/controllers/landing.js`, `css/style.css`):
+        - Mengatasi ketidakseragaman warna dasar kartu "Akses ZettBOT" dengan menetapkan seluruh 5 kartu fasilitas ke surface obsidian gelap `#0D1322` (`bg-[#0D1322]/90 border-slate-700/60`).
+        - Kelas `.feature-card-active` mempertahankan latar `#0D1322` dengan active border emerald glow `#10B981` dan pulse indicator sehingga kartu tidak lagi tampak belang atau berbeda tone warna dasar.
+     2. Color-Coded Monoline SVG Icons (`js/controllers/landing.js`):
+        - Menerapkan `FACILITY_ICON_THEMES` dengan pewarnaan tematik hidup per fasilitas: Emerald (Akses ZettBOT), Cyan (Library), Purple (Video Modul), Blue (Komunitas), dan Amber (Private Mentoring).
+     3. Solid Glowing Emerald CTA Card (`js/controllers/landing.js`, `css/style.css`):
+        - Mengubah kartu ke-6 menjadi Call-to-Action solid berwarna hijau penuh (`bg-gradient-to-br from-emerald-600 via-emerald-700 to-emerald-900 border-2 border-emerald-400 shadow-[0_10px_30px_rgba(16,185,129,0.35)]`) dengan badge `SLOT TERBATAS`.
+     4. Eliminasi Total Teks "lynk.id" di UI (`index.html`, `js/controllers/landing.js`):
+        - Tombol CTA hero diubah menjadi "Daftar & Gabung Member Sekarang →".
+        - Deskripsi kartu ke-6 diubah menjadi "Amankan slot bimbingan intensif 1-on-1 & akses ZettBOT sekarang →".
+        - Tautan checkout payment tetap utuh mengarah ke payment gateway resmi.
+     5. Hero Visual Mockup: AI Prompt to Live Web App Simulator (Opsi 1) (`index.html`, `js/controllers/landing.js`):
+        - Mengganti terminal kode GAS dengan simulator futuristik: prompt input realistis Gemini 1.5 Pro ("Buatkan web app kasir UMKM lengkap dengan pencatatan transaksi otomatis ke Google Sheets & fitur cetak struk"), miniatur live web app "Kasir Kopi Zettbos" dengan status Google Sheets Terhubung, 3 metrik realtime, transaksi feed dengan status sync, dan 2 floating glass badges ("100% Modal Prompt AI" dan "Database Google Sheets Gratis Nol Server").
+     6. Cache Buster: Menaikkan seluruh query string script dan stylesheet di `index.html` ke versi `?v=62`.
   - [2026-10-14] Implementasi Revisi 61: Boot Loader Custom Brand Logo Hydration, Anti-Wipe Local Storage Protection, High-Contrast Cyber-Obsidian System (Bento Kurikulum, Luminescence Fasilitas, Dual-Tone Target Siswa), dan Cache Buster ?v=61.
      1. Perbaikan Tuntas Rendering Logo Brand (`index.html`, `js/controllers/classroom.js`, `js/core/supabase.js`):
         - Menambahkan `id="brand-logo-boot-loader"` pada elemen logo splash loader dan mengaitkannya ke `renderAppBrandLogo()` (ukuran `lg`) sehingga saat logo kustom aktif, kotak hijau `ZB` digantikan logo gambar transparan berdenyut ring cahaya.

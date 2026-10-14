@@ -200,8 +200,50 @@ function handleLandingEmailSubmit(event) {
 }
 
 // ==========================================
-// 1. LYNK.ID STYLE INTERACTIVE FACILITY SHOWCASE (5 FASILITAS KELAS)
+// 1. FASILITAS & EKOSISTEM BELAJAR (5 FASILITAS KELAS)
 // ==========================================
+
+const FACILITY_ICON_THEMES = {
+  emerald: {
+    name: 'emerald',
+    box: 'bg-emerald-500/15 border-emerald-500/40 text-emerald-400',
+    boxActive: 'bg-emerald-500/25 border-emerald-400 text-emerald-300 shadow-[0_0_18px_rgba(16,185,129,0.35)]'
+  },
+  cyan: {
+    name: 'cyan',
+    box: 'bg-cyan-500/15 border-cyan-500/40 text-cyan-400',
+    boxActive: 'bg-cyan-500/25 border-cyan-400 text-cyan-300 shadow-[0_0_18px_rgba(6,182,212,0.35)]'
+  },
+  purple: {
+    name: 'purple',
+    box: 'bg-purple-500/15 border-purple-500/40 text-purple-400',
+    boxActive: 'bg-purple-500/25 border-purple-400 text-purple-300 shadow-[0_0_18px_rgba(168,85,247,0.35)]'
+  },
+  blue: {
+    name: 'blue',
+    box: 'bg-blue-500/15 border-blue-500/40 text-blue-400',
+    boxActive: 'bg-blue-500/25 border-blue-400 text-blue-300 shadow-[0_0_18px_rgba(59,130,246,0.35)]'
+  },
+  amber: {
+    name: 'amber',
+    box: 'bg-amber-500/15 border-amber-500/40 text-amber-400',
+    boxActive: 'bg-amber-500/25 border-amber-400 text-amber-300 shadow-[0_0_18px_rgba(245,158,11,0.35)]'
+  }
+};
+
+function getFacilityTheme(facilityId, rawTint) {
+  if (rawTint && FACILITY_ICON_THEMES[rawTint]) return FACILITY_ICON_THEMES[rawTint];
+  const map = {
+    'feat-1': 'emerald',
+    'feat-2': 'cyan',
+    'feat-3': 'purple',
+    'feat-4': 'blue',
+    'feat-5': 'amber'
+  };
+  const tintKey = map[facilityId] || 'emerald';
+  return FACILITY_ICON_THEMES[tintKey];
+}
+
 
 function getFacilityFallbackMockupHtml(facilityId) {
   const target = (AppState.landingCms?.facilities || []).find(u => u.id === facilityId);
@@ -423,14 +465,29 @@ function selectLandingFacilityPreview(facilityId) {
     cards.forEach(card => {
       const cardId = card.getAttribute('data-facility-id');
       const isCardActive = cardId === facilityId;
+      const cardItem = list.find(u => u.id === cardId);
+      const theme = getFacilityTheme(cardId, cardItem?.tint);
+      const iconBox = card.querySelector('.feature-icon-box');
+      const dotIndicator = card.querySelector('.facility-active-dot');
+
       if (isCardActive) {
         card.classList.add('feature-card-active');
-        const iconBox = card.querySelector('.feature-icon-box');
-        if (iconBox) iconBox.className = 'feature-icon-box w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center flex-shrink-0 bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.25)]';
+        card.classList.remove('border-slate-700/60');
+        if (iconBox) {
+          iconBox.className = `feature-icon-box w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all border ${theme.boxActive}`;
+        }
+        if (dotIndicator) {
+          dotIndicator.classList.remove('hidden');
+        }
       } else {
         card.classList.remove('feature-card-active');
-        const iconBox = card.querySelector('.feature-icon-box');
-        if (iconBox) iconBox.className = 'feature-icon-box w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center flex-shrink-0 bg-slate-900 border border-slate-800 text-slate-400 group-hover:text-emerald-300';
+        card.classList.add('border-slate-700/60');
+        if (iconBox) {
+          iconBox.className = `feature-icon-box w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all border ${theme.box}`;
+        }
+        if (dotIndicator) {
+          dotIndicator.classList.add('hidden');
+        }
       }
     });
   }
@@ -558,18 +615,19 @@ function renderLandingFacilitiesShowcase(cms) {
 
   const facilityCardsHtml = facilities.map(uc => {
     const isActive = uc.id === landingActiveFacilityId;
+    const theme = getFacilityTheme(uc.id, uc.tint);
     const activeClass = isActive 
       ? 'feature-card-active shadow-[0_0_25px_rgba(16,185,129,0.22)]' 
-      : 'bg-[#0D1322]/90 border-slate-700/60 hover:border-emerald-500/60 hover:bg-[#121A2D]';
+      : 'border-slate-700/60 hover:border-slate-500 hover:bg-[#121A2D]';
 
     return `
       <div 
         data-facility-id="${uc.id}" 
         onclick="selectLandingFacilityPreview('${uc.id}')"
-        class="feature-interactive-card glass-card card-elevated-highlight rounded-2xl p-5 sm:p-6 lg:p-7 border transition-all duration-300 group cursor-pointer flex flex-col justify-center min-h-[140px] sm:min-h-[155px] lg:min-h-[170px] ${activeClass}"
+        class="feature-interactive-card card-elevated-highlight rounded-2xl p-5 sm:p-6 lg:p-7 border bg-[#0D1322]/90 transition-all duration-300 group cursor-pointer flex flex-col justify-center min-h-[140px] sm:min-h-[155px] lg:min-h-[170px] ${activeClass}"
       >
         <div class="flex items-start gap-4 sm:gap-5">
-          <div class="feature-icon-box w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all ${isActive ? 'bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.25)]' : 'bg-slate-800/80 border border-slate-700/60 text-emerald-400/90 group-hover:text-emerald-300 group-hover:border-slate-600'}">
+          <div class="feature-icon-box w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all border ${isActive ? theme.boxActive : theme.box}">
             ${getMonolineSvgIcon(uc.icon || 'bot', 'w-7 h-7 sm:w-8 sm:h-8')}
           </div>
           <div class="min-w-0 flex-1">
@@ -577,7 +635,7 @@ function renderLandingFacilitiesShowcase(cms) {
               <h3 class="text-base sm:text-lg lg:text-xl font-extrabold text-white group-hover:text-emerald-300 transition-colors leading-snug tracking-tight">
                 ${escapeHtml(uc.title)}
               </h3>
-              ${isActive ? '<span class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-400 shadow-[0_0_10px_#10B981] animate-pulse shrink-0"></span>' : ''}
+              <span class="facility-active-dot w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-400 shadow-[0_0_10px_#10B981] animate-pulse shrink-0 ${isActive ? '' : 'hidden'}"></span>
             </div>
             <p class="text-xs sm:text-sm lg:text-[14.5px] text-slate-200 leading-relaxed font-normal">
               ${escapeHtml(uc.description || uc.desc || '')}
@@ -593,18 +651,22 @@ function renderLandingFacilitiesShowcase(cms) {
       href="https://lynk.id/zettbos/50nxdkpjmowm" 
       target="_blank" 
       rel="noopener noreferrer" 
-      class="feature-action-card card-elevated-highlight rounded-2xl p-5 sm:p-6 lg:p-7 border-2 border-dashed border-emerald-500/60 hover:border-emerald-400 bg-gradient-to-r from-emerald-950/40 via-slate-900/70 to-emerald-950/30 hover:bg-emerald-950/45 transition-all flex flex-col justify-center min-h-[140px] sm:min-h-[155px] lg:min-h-[170px] group cursor-pointer shadow-md"
+      class="feature-action-card rounded-2xl p-5 sm:p-6 lg:p-7 border-2 border-emerald-400 bg-gradient-to-br from-emerald-600 via-emerald-700 to-emerald-900 hover:from-emerald-500 hover:via-emerald-600 hover:to-emerald-800 transition-all duration-300 flex flex-col justify-center min-h-[140px] sm:min-h-[155px] lg:min-h-[170px] group cursor-pointer shadow-[0_10px_30px_rgba(16,185,129,0.35)] hover:shadow-[0_15px_40px_rgba(16,185,129,0.5)] transform hover:-translate-y-1"
     >
       <div class="flex items-start gap-4 sm:gap-5">
-        <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center shrink-0 text-emerald-400 group-hover:scale-105 group-hover:bg-emerald-500/25 transition-all">
-          <svg class="w-7 h-7 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/20 border border-white/40 flex items-center justify-center shrink-0 text-white shadow-inner group-hover:scale-105 group-hover:bg-white/30 transition-all">
+          <svg class="w-7 h-7 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
         </div>
         <div class="min-w-0 flex-1">
-          <h3 class="text-base sm:text-lg lg:text-xl font-extrabold text-emerald-300 group-hover:text-emerald-200 transition-colors leading-snug tracking-tight">
+          <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-950/60 text-emerald-200 border border-emerald-300/40 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider mb-1.5 shadow-sm">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-ping"></span>
+            SLOT TERBATAS
+          </div>
+          <h3 class="text-base sm:text-lg lg:text-xl font-extrabold text-white transition-colors leading-snug tracking-tight drop-shadow-sm">
             Daftar &amp; Join Kelas Sekarang
           </h3>
-          <p class="text-xs sm:text-sm lg:text-[14px] text-emerald-400/95 mt-1.5 leading-relaxed font-medium">
-            Amankan slot mentoring 1-on-1 &amp; akses ZettBOT via Lynk.id &rarr;
+          <p class="text-xs sm:text-sm lg:text-[14px] text-emerald-100 mt-1 leading-relaxed font-medium">
+            Amankan slot bimbingan intensif 1-on-1 &amp; akses ZettBOT sekarang &rarr;
           </p>
         </div>
       </div>
@@ -835,10 +897,10 @@ const HeroTypewriterController = {
   ],
   terminalStatuses: [
     'siap mengeksekusi',
-    'generating layout UI...',
-    'GAS endpoint terhubung',
-    'webhook trigger aktif',
-    '100% cloud deployed'
+    'sinkronisasi Google Sheets...',
+    'transaksi kasir tersimpan',
+    'cetak struk otomatis siap',
+    '100% cloud realtime aktif'
   ],
   emailPlaceholders: [
     'Ketik email Anda...',

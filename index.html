@@ -40,7 +40,7 @@
   </script>
 
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="css/style.css?v=61" />
+  <link rel="stylesheet" href="css/style.css?v=62" />
 </head>
 <body class="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--fg)] selection:bg-emerald-500/30 selection:text-emerald-300 transition-colors duration-150">
 
@@ -332,67 +332,180 @@
             </button>
           </form>
 
-          <!-- Direct Join Kelas Button (Lynk.id) -->
+          <!-- Direct Join Kelas Button -->
           <div class="flex flex-wrap items-center gap-2 mb-3.5">
             <a href="https://lynk.id/zettbos/50nxdkpjmowm" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold transition-all shadow-sm group">
               <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span>Daftar &amp; Join Kelas (Lynk.id) &rarr;</span>
+              <span>Daftar &amp; Gabung Member Sekarang &rarr;</span>
             </a>
           </div>
         </div>
 
-        <!-- Right: Studio Visual Mockup (Mobile-Harmonized & Desktop-Floating) -->
+        <!-- Right: Studio Visual Mockup (AI Prompt to Live Web App Simulator) -->
         <div class="lg:col-span-5 relative mt-3 sm:mt-0 flex flex-col items-center justify-center">
-          <!-- Card 3: Completion Badge (Mobile-integrated / Desktop-floating) -->
-          <div class="hero-float-badge hero-float-progress w-full sm:w-auto sm:absolute sm:-top-3 sm:-right-4 mb-2.5 sm:mb-0 rounded-xl p-2.5 sm:p-3 shadow-xl flex items-center justify-between sm:justify-start gap-2.5 animate-float-card-3 z-20">
+          
+          <!-- Floating Badge 1: 100% Cuma Modal Prompt AI (Top-Right) -->
+          <div class="hero-float-badge hero-float-progress w-full sm:w-auto sm:absolute sm:-top-3 sm:-right-4 mb-2.5 sm:mb-0 rounded-xl p-2.5 sm:p-3 shadow-xl flex items-center justify-between sm:justify-start gap-2.5 animate-float-card-3 z-20 bg-slate-900/90 border border-cyan-500/50 backdrop-blur-md">
             <div class="flex items-center gap-2.5">
-              <div class="hero-float-icon-box w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-cyan-950 flex items-center justify-center text-cyan-400 border border-cyan-500/40 shrink-0">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+              <div class="hero-float-icon-box w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-cyan-950 flex items-center justify-center text-cyan-400 border border-cyan-500/40 shrink-0 shadow-[0_0_12px_rgba(6,182,212,0.3)]">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
               </div>
-              <div class="hero-float-title text-[11px] sm:text-xs font-bold">100% Progres Belajar Real-Time</div>
+              <div>
+                <div class="hero-float-title text-[11px] sm:text-xs font-bold text-white flex items-center gap-1.5">
+                  <span>100% Modal Prompt AI</span>
+                  <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
+                </div>
+                <div class="text-[10px] text-cyan-300 font-mono">Tanpa Hafal Rumus Koding</div>
+              </div>
             </div>
-            <span class="text-[9px] font-mono text-cyan-400 px-1.5 py-0.5 rounded bg-cyan-950/80 border border-cyan-800 sm:hidden">LIVE</span>
+            <span class="text-[9px] font-mono font-bold text-cyan-300 px-2 py-0.5 rounded-full bg-cyan-900/60 border border-cyan-700/60 sm:hidden">AI PROMPT</span>
           </div>
 
-          <!-- Card 1: Schematic IDE Window -->
-          <div class="w-full max-w-md sm:max-w-lg lg:max-w-md xl:max-w-lg glass-card rounded-2xl p-4 sm:p-5 border border-[var(--border)] shadow-2xl animate-float-card-1 relative z-10">
-            <div class="flex items-center justify-between pb-3 mb-3 border-b border-[var(--border)] text-[11px] font-mono text-slate-400">
-              <div class="flex items-center gap-1.5">
-                <span class="w-2.5 h-2.5 rounded-full bg-rose-500/80"></span>
-                <span class="w-2.5 h-2.5 rounded-full bg-amber-500/80"></span>
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></span>
-                <span class="ml-2 text-slate-300 font-semibold">ZettbosEngine.js</span>
+          <!-- Main Interactive Simulator Window -->
+          <div class="w-full max-w-md sm:max-w-lg lg:max-w-md xl:max-w-lg rounded-2xl border border-slate-700/80 bg-[#0B0F19]/95 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.8),0_0_40px_rgba(16,185,129,0.15)] animate-float-card-1 relative z-10 backdrop-blur-xl overflow-hidden">
+            
+            <!-- Window Topbar -->
+            <div class="flex items-center justify-between px-3.5 py-2.5 bg-slate-900/80 border-b border-slate-800 text-[11px] font-mono text-slate-300 select-none">
+              <div class="flex items-center gap-2">
+                <div class="flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-rose-500/90 shadow-[0_0_6px_rgba(244,63,94,0.6)]"></span>
+                  <span class="w-2.5 h-2.5 rounded-full bg-amber-500/90 shadow-[0_0_6px_rgba(245,158,11,0.6)]"></span>
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500/90 shadow-[0_0_6px_rgba(16,185,129,0.6)]"></span>
+                </div>
+                <span class="ml-1 text-slate-200 font-bold flex items-center gap-1">
+                  <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                  Gemini &bull; ZettBOT Studio
+                </span>
               </div>
-              <span class="text-emerald-400 font-bold">GAS v2.4</span>
+              <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 text-[10px] font-semibold">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Live Simulator</span>
+              </div>
             </div>
-            <div class="space-y-1.5 font-mono text-xs text-slate-300">
-              <p class="text-slate-500">// 1. Script Engine Web App AI</p>
-              <p><span class="text-cyan-400">function</span> <span class="text-emerald-400">doGet</span>(e) {</p>
-              <p class="pl-4 text-slate-400">const template = HtmlService.createTemplateFromFile('app');</p>
-              <p class="pl-4 text-emerald-300">return template.evaluate().setTitle('Zettbos LMS');</p>
-              <p>}</p>
+
+            <!-- Block 1: AI Prompt Input Section -->
+            <div class="p-3 sm:p-3.5 border-b border-slate-800/80 bg-slate-950/60">
+              <div class="flex items-center justify-between text-[10px] font-mono text-slate-400 mb-1.5">
+                <div class="flex items-center gap-1.5 text-cyan-400 font-semibold">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+                  <span>PROMPT PENGGUNA</span>
+                </div>
+                <span class="text-slate-400 font-mono text-[9px] bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800">Gemini 1.5 Pro</span>
+              </div>
+              
+              <div class="rounded-xl p-2.5 bg-gradient-to-r from-slate-900/90 via-[#0D1527] to-slate-900/90 border border-cyan-500/30 text-xs text-slate-200 font-medium leading-relaxed shadow-inner">
+                <span class="text-cyan-400 font-bold">&ldquo;</span>Buatkan web app kasir UMKM lengkap dengan pencatatan transaksi otomatis ke Google Sheets &amp; fitur cetak struk<span class="text-cyan-400 font-bold">&rdquo;</span>
+              </div>
+
+              <div class="mt-2 flex items-center justify-between text-[10px] font-mono text-slate-400">
+                <span class="text-emerald-400 flex items-center gap-1">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                  Generated in 3.4s • Siap Pakai
+                </span>
+                <span class="text-slate-400">Biaya: Rp 0,-</span>
+              </div>
             </div>
-            <div class="mt-4 pt-3 border-t border-[var(--border)] flex items-center justify-between">
-              <span class="micro-tag-pill">
-                <svg class="w-3 h-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                Deploy Cloud Aktif
+
+            <!-- Block 2: Live Generated Web App Preview (Mini POS Kasir) -->
+            <div class="p-3 sm:p-4 bg-gradient-to-b from-[#0F172A] to-[#0A0E17]">
+              <!-- Mini App Header -->
+              <div class="flex items-center justify-between pb-2.5 mb-2.5 border-b border-slate-800">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 text-xs font-bold shadow-sm">
+                    ☕
+                  </div>
+                  <div>
+                    <h4 class="text-xs sm:text-[13px] font-bold text-white leading-tight">Kasir Kopi Zettbos</h4>
+                    <p class="text-[9px] font-mono text-slate-400">Cloud Web App &bull; POS UMKM</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-600/50 text-[10px] font-semibold text-emerald-300">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span>Sheets: Terhubung</span>
+                </div>
+              </div>
+
+              <!-- Mini Stats Grid -->
+              <div class="grid grid-cols-3 gap-2 mb-3">
+                <div class="p-2 rounded-xl bg-slate-900/90 border border-slate-800/90">
+                  <div class="text-[9px] text-slate-400 font-medium">Omzet Hari Ini</div>
+                  <div class="text-xs font-bold text-emerald-400 mt-0.5">Rp 1.450k</div>
+                  <div class="text-[8px] text-emerald-300/80 mt-0.5">&uarr; +18% live</div>
+                </div>
+                <div class="p-2 rounded-xl bg-slate-900/90 border border-slate-800/90">
+                  <div class="text-[9px] text-slate-400 font-medium">Transaksi</div>
+                  <div class="text-xs font-bold text-white mt-0.5">28 Struk</div>
+                  <div class="text-[8px] text-cyan-300/80 mt-0.5">Tersimpan</div>
+                </div>
+                <div class="p-2 rounded-xl bg-slate-900/90 border border-slate-800/90">
+                  <div class="text-[9px] text-slate-400 font-medium">Cloud Sync</div>
+                  <div class="text-xs font-bold text-cyan-400 mt-0.5">Otomatis</div>
+                  <div class="text-[8px] text-slate-400 mt-0.5">0.2s latency</div>
+                </div>
+              </div>
+
+              <!-- Mini Order Feed -->
+              <div class="space-y-1.5 mb-3 text-[11px]">
+                <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/70 border border-slate-800 hover:border-slate-700 transition-colors">
+                  <div class="flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                    <span class="text-slate-200 font-medium">Kopi Susu Aren (2x)</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-slate-300 font-mono text-[10px]">Rp 36.000</span>
+                    <span class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-emerald-950 text-emerald-400 border border-emerald-800/80">Sync &check;</span>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/70 border border-slate-800 hover:border-slate-700 transition-colors">
+                  <div class="flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                    <span class="text-slate-200 font-medium">Butter Croissant (1x)</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-slate-300 font-mono text-[10px]">Rp 22.000</span>
+                    <span class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-emerald-950 text-emerald-400 border border-emerald-800/80">Sync &check;</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Quick Mini Action Buttons -->
+              <div class="grid grid-cols-2 gap-2 pt-1 border-t border-slate-800/70">
+                <button type="button" class="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-[11px] flex items-center justify-center gap-1.5 shadow-md shadow-emerald-500/20 transition-all cursor-default">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                  <span>+ Transaksi Baru</span>
+                </button>
+                <button type="button" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium text-[11px] flex items-center justify-center gap-1.5 border border-slate-700 transition-all cursor-default">
+                  <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                  <span>Cetak Struk POS</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Window Bottom Status Bar -->
+            <div class="px-3.5 py-2.5 bg-slate-950 border-t border-slate-800 flex items-center justify-between text-[11px] font-mono text-slate-400">
+              <span class="micro-tag-pill flex items-center gap-1.5 text-emerald-400 font-semibold">
+                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h10v2H7zm0-3h10v2H7zm0 6h7v2H7z"/></svg>
+                Google Sheets Auto-Sync
               </span>
-              <div class="flex items-center gap-1.5 font-mono text-[11px] text-slate-400">
-                <span class="text-emerald-400">&gt;</span>
+              <div class="flex items-center gap-1 font-mono text-[11px] text-slate-300">
+                <span class="text-emerald-400 font-bold">&gt;</span>
                 <span id="hero-terminal-status">siap mengeksekusi</span>
                 <span class="w-1.5 h-3 bg-emerald-400 inline-block animate-pulse"></span>
               </div>
             </div>
           </div>
 
-          <!-- Card 2: Floating Video Preview Badge (Mobile-integrated / Desktop-floating) -->
-          <div class="hero-float-badge hero-float-video w-full sm:w-auto sm:absolute sm:-bottom-4 sm:-left-6 mt-2.5 sm:mt-0 rounded-xl p-2.5 sm:p-3 shadow-xl flex items-center gap-3 animate-float-card-2 z-20">
-            <div class="hero-float-icon-box w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-emerald-950 flex items-center justify-center text-emerald-400 border border-emerald-500/40 shrink-0">
-              <svg class="w-4 h-4 sm:w-5 sm:h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          <!-- Floating Badge 2: Database Google Sheets Gratis (Bottom-Left) -->
+          <div class="hero-float-badge hero-float-video w-full sm:w-auto sm:absolute sm:-bottom-4 sm:-left-6 mt-2.5 sm:mt-0 rounded-xl p-2.5 sm:p-3 shadow-xl flex items-center gap-3 animate-float-card-2 z-20 bg-slate-900/90 border border-emerald-500/50 backdrop-blur-md">
+            <div class="hero-float-icon-box w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-emerald-950 flex items-center justify-center text-emerald-400 border border-emerald-500/40 shrink-0 shadow-[0_0_12px_rgba(16,185,129,0.3)]">
+              <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
             </div>
             <div>
-              <div class="hero-float-title text-[11px] sm:text-xs font-bold">Full HD Video Course</div>
-              <div class="hero-float-subtitle text-[10px] font-mono">12 Episode • Terstruktur</div>
+              <div class="hero-float-title text-[11px] sm:text-xs font-bold text-white flex items-center gap-1.5">
+                <span>Database Google Sheets Gratis</span>
+                <span class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold">NOL SERVER</span>
+              </div>
+              <div class="hero-float-subtitle text-[10px] font-mono text-emerald-300/90">0 Biaya Bulanan &bull; Realtime Sync</div>
             </div>
           </div>
         </div>
@@ -3402,18 +3515,18 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- Application Scripts (Modular Architecture with Cache Buster) -->
-  <script src="js/whitelist-data.js?v=61"></script>
-  <script src="js/mock-data.js?v=61"></script>
-  <script src="js/editor.js?v=61"></script>
-  <script src="js/core/state.js?v=61"></script>
-  <script src="js/core/supabase.js?v=61"></script>
-  <script src="js/core/router.js?v=61"></script>
-  <script src="js/core/particles.js?v=61"></script>
-  <script src="js/controllers/auth.js?v=61"></script>
-  <script src="js/controllers/landing.js?v=61"></script>
-  <script src="js/controllers/classroom.js?v=61"></script>
-  <script src="js/controllers/resources.js?v=61"></script>
-  <script src="js/controllers/admin.js?v=61"></script>
-  <script src="js/app.js?v=61"></script>
+  <script src="js/whitelist-data.js?v=62"></script>
+  <script src="js/mock-data.js?v=62"></script>
+  <script src="js/editor.js?v=62"></script>
+  <script src="js/core/state.js?v=62"></script>
+  <script src="js/core/supabase.js?v=62"></script>
+  <script src="js/core/router.js?v=62"></script>
+  <script src="js/core/particles.js?v=62"></script>
+  <script src="js/controllers/auth.js?v=62"></script>
+  <script src="js/controllers/landing.js?v=62"></script>
+  <script src="js/controllers/classroom.js?v=62"></script>
+  <script src="js/controllers/resources.js?v=62"></script>
+  <script src="js/controllers/admin.js?v=62"></script>
+  <script src="js/app.js?v=62"></script>
 </body>
 </html>
