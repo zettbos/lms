@@ -222,12 +222,12 @@ function updateNavbarState(currentView) {
   // Update center active page breadcrumb
   if (centerLabel) {
     const labels = {
-      'home': 'Home Kurikulum',
-      'user-dashboard': 'Data Belajar & Kalender',
+      'home': 'Kurikulum',
+      'user-dashboard': 'Data Belajar',
       'learn': 'Ruang Belajar',
       'resources': 'Dokumen & Resource',
       'favorites': 'Koleksi Favorit',
-      'admin': 'Admin Panel Kurikulum'
+      'admin': 'Admin Panel'
     };
     centerLabel.textContent = labels[currentView] || 'Member Hub';
   }

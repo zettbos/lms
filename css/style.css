@@ -2418,3 +2418,77 @@ html.light #mobile-bottom-nav button:hover {
   color: #0F172A;
 }
 
+/* 8. Marquee Horizontal Scroll on Hover (Gambar 1 - No Truncation '...') */
+.marquee-hover-wrapper {
+  overflow: hidden;
+  white-space: nowrap;
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.marquee-hover-track {
+  display: inline-block;
+  white-space: nowrap;
+  will-change: transform;
+  transition: transform 0.3s ease-out;
+}
+
+.marquee-hover-wrapper:hover .marquee-hover-track.is-overflowing,
+button:hover .marquee-hover-track.is-overflowing,
+.active-sidebar-lesson .marquee-hover-track.is-overflowing {
+  animation: marquee-horizontal-scroll 5.5s linear infinite alternate;
+}
+
+@keyframes marquee-horizontal-scroll {
+  0%, 20% {
+    transform: translateX(0);
+  }
+  80%, 100% {
+    transform: translateX(var(--marquee-distance, -35%));
+  }
+}
+
+/* 9. Open Editorial Header & Action Chips Styling (Gambar 4) */
+.action-chip-btn {
+  background-color: var(--surface-subtle);
+  border: 1px solid var(--border);
+  color: var(--fg);
+  transition: all 180ms ease;
+}
+.action-chip-btn:hover {
+  background-color: var(--surface-hover);
+  border-color: rgba(16, 185, 129, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+html.light .action-chip-btn {
+  background-color: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+  color: #1E293B !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}
+html.light .action-chip-btn:hover {
+  background-color: #F8FAFC !important;
+  border-color: rgba(5, 150, 105, 0.5) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Interactive Module Breakdown Card (Gambar 5) */
+.module-progress-interactive-card {
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+.module-progress-interactive-card:hover {
+  border-color: rgba(16, 185, 129, 0.45) !important;
+  background-color: var(--surface-hover) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.3);
+}
+html.light .module-progress-interactive-card:hover {
+  border-color: rgba(5, 150, 105, 0.5) !important;
+  background-color: #F8FAFC !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+}
+

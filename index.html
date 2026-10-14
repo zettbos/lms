@@ -40,7 +40,7 @@
   </script>
 
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="css/style.css?v=48" />
+  <link rel="stylesheet" href="css/style.css?v=49" />
 </head>
 <body class="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--fg)] selection:bg-emerald-500/30 selection:text-emerald-300 transition-colors duration-150">
 
@@ -76,10 +76,9 @@
         </div>
       </div>
 
-      <!-- Center: Active Page Breadcrumb Indicator (Desktop only) -->
-      <div id="nav-center-indicator" class="hidden md:flex items-center gap-2 text-xs font-semibold px-3.5 py-1.5 rounded-full bg-[#16181D] border border-[#262933] text-slate-300 shadow-inner">
-        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span id="nav-current-page-label">Home Kurikulum</span>
+      <!-- Center: Active Page Title (Clean Minimalist Text - No AI Capsule or Pulsing Dot) -->
+      <div id="nav-center-indicator" class="hidden md:flex items-center text-sm font-bold text-slate-200 tracking-tight select-none">
+        <span id="nav-current-page-label">Kurikulum</span>
       </div>
 
       <!-- Right User Controls -->
@@ -573,59 +572,44 @@
        ========================================== -->
   <main id="view-home" class="flex-1 max-w-[1440px] 2xl:max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 hidden">
     
-    <!-- Top Greeting Sub-Bar (Sleek Compact Bar - Hemat 70% Ruang Vertikal) -->
-    <div class="glass-card-static rounded-2xl p-3.5 sm:p-4 mb-5 relative overflow-hidden">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 relative z-10">
-        <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold text-sm flex-shrink-0">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-          </div>
-          <div>
-            <div class="flex items-center gap-2">
-              <h1 class="text-base sm:text-lg font-extrabold text-white tracking-tight flex items-center gap-1.5">
-                <span>Selamat Datang,</span>
-                <span id="dash-user-greeting" class="text-emerald-400">Farhan</span>
-              </h1>
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 uppercase">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                Member Aktif
-              </span>
-            </div>
-            <p class="text-xs text-slate-400 line-clamp-1 mt-0.5">
-              Akses seluruh kurikulum modul video &amp; resource AI Anda di bawah ini.
-            </p>
-          </div>
-        </div>
+    <!-- Top Greeting Header (Open Editorial Layout - Anti-Boxed Design) -->
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 pt-1 border-b border-slate-800/60 pb-5">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight flex items-center gap-2">
+          <span>Selamat Datang,</span>
+          <span id="dash-user-greeting" class="text-white">Farhan</span>
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-400 mt-1">
+          Akses seluruh kurikulum modul video &amp; resource pembelajaran Anda di bawah ini.
+        </p>
+      </div>
 
-        <!-- Global Progress Metric Mini Widget -->
-        <div class="dash-progress-mini-card flex items-center gap-3 bg-slate-950/70 border border-slate-800/80 px-3.5 py-2 rounded-xl flex-shrink-0 self-start sm:self-auto">
-          <div class="text-right">
-            <div class="text-[10px] text-slate-400 font-medium">Progres Belajar:</div>
-            <div class="flex items-center gap-1.5">
-              <span id="dash-progress-percent" class="font-extrabold text-emerald-400 text-xs font-mono">0%</span>
-              <span class="text-[10px] text-slate-500 font-mono" id="dash-completed-count">(0/0 Selesai)</span>
-            </div>
+      <!-- Minimal Unboxed Progress Metric -->
+      <div class="flex items-center gap-3.5 self-start sm:self-auto py-1">
+        <div class="text-right">
+          <div class="text-[11px] text-slate-400 font-medium">Progres Belajar</div>
+          <div class="text-xs font-bold text-emerald-400 font-mono">
+            <span id="dash-progress-percent">0%</span>
+            <span class="text-slate-500 font-normal ml-1" id="dash-completed-count">(0/0 Selesai)</span>
           </div>
-          <div class="w-16 h-1.5 rounded-full bg-slate-900 border border-slate-800 overflow-hidden">
-            <div id="dash-progress-bar" class="h-full bg-emerald-500 rounded-full transition-all duration-300" style="width: 0%"></div>
-          </div>
-          <button onclick="navigate('user-dashboard')" class="text-xs text-cyan-400 hover:text-cyan-300 font-semibold px-2 py-1 rounded hover:bg-cyan-950/40 transition-colors">
-            Detail &rarr;
-          </button>
         </div>
+        <div class="w-24 h-1.5 rounded-full bg-slate-800 overflow-hidden">
+          <div id="dash-progress-bar" class="h-full bg-emerald-500 rounded-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+        <button onclick="navigate('user-dashboard')" class="text-xs text-cyan-400 hover:text-cyan-300 font-semibold px-2 py-1 rounded hover:bg-cyan-950/40 transition-colors">
+          Detail &rarr;
+        </button>
       </div>
     </div>
 
-    <!-- Quick Action Hub (4 Cards - Berada di Atas Rekomendasi Lanjutkan Belajar) -->
-    <div id="dash-quick-actions-hub" class="mb-6">
-      <div class="flex items-center justify-between mb-2.5">
-        <div class="text-xs font-bold uppercase tracking-caps text-slate-400 flex items-center gap-1.5">
-          <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-          <span>Akses Cepat &amp; Resource Hub</span>
-        </div>
+    <!-- Quick Action Hub (Horizontal Inline Action Strip - Anti-Boxed) -->
+    <div id="dash-quick-actions-hub" class="mb-8">
+      <div class="flex items-center gap-2 mb-2.5 text-xs font-bold uppercase tracking-caps text-slate-400">
+        <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        <span>Akses Cepat &amp; Resource Hub</span>
       </div>
-      <div id="dash-quick-actions-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
-        <!-- Rendered dynamically by js/app.js from AppState.quickActions -->
+      <div id="dash-quick-actions-grid" class="flex flex-wrap items-center gap-2 sm:gap-2.5">
+        <!-- Rendered dynamically as sleek interactive pill buttons by js/controllers/classroom.js -->
       </div>
     </div>
 
@@ -895,11 +879,11 @@
       </div>
     </div>
 
-    <!-- Main Learning Layout: Symmetrical Centered Layout -->
-    <div class="flex-1 max-w-5xl xl:max-w-6xl w-full mx-auto px-4 sm:px-6 py-4 sm:py-6 flex flex-col lg:flex-row gap-6 items-start justify-center pb-24 lg:pb-8">
+    <!-- Main Learning Layout: Wide Viewport with Spacious Reading Area & Right-Aligned Curriculum -->
+    <div class="flex-1 max-w-[1440px] 2xl:max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex flex-col lg:flex-row gap-8 items-start pb-24 lg:pb-8">
       
-      <!-- Left Column: Lesson Header & Notion Content Area (Natural Block Order) -->
-      <div class="w-full flex-1 min-w-0">
+      <!-- Left Column: Lesson Header & Notion Content Area (Expanded Reading Space) -->
+      <div class="w-full flex-1 min-w-0 max-w-4xl xl:max-w-5xl">
 
         <!-- Lesson Header & Actions (No forced video on top - videos appear as blocks!) -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-800/80 mb-6">
@@ -949,8 +933,8 @@
 
       </div>
 
-      <!-- Right Column: Curriculum Navigation Sidebar (Desktop Only: Hidden on Mobile for clean reading) -->
-      <aside class="hidden lg:block lg:w-80 flex-shrink-0">
+      <!-- Right Column: Curriculum Navigation Sidebar (Pushed to Far Right with Wider Width) -->
+      <aside class="hidden lg:block w-80 xl:w-96 flex-shrink-0 ml-auto">
         <div class="sticky top-24 glass-card rounded-xl p-4 sm:p-5">
           <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800 text-xs font-bold text-white">
             <span class="flex items-center gap-2">
@@ -2946,18 +2930,18 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- Application Scripts (Modular Architecture with Cache Buster) -->
-  <script src="js/whitelist-data.js?v=48"></script>
-  <script src="js/mock-data.js?v=48"></script>
-  <script src="js/editor.js?v=48"></script>
-  <script src="js/core/state.js?v=48"></script>
-  <script src="js/core/supabase.js?v=48"></script>
-  <script src="js/core/router.js?v=48"></script>
-  <script src="js/core/particles.js?v=48"></script>
-  <script src="js/controllers/auth.js?v=48"></script>
-  <script src="js/controllers/landing.js?v=48"></script>
-  <script src="js/controllers/classroom.js?v=48"></script>
-  <script src="js/controllers/resources.js?v=48"></script>
-  <script src="js/controllers/admin.js?v=48"></script>
-  <script src="js/app.js?v=48"></script>
+  <script src="js/whitelist-data.js?v=49"></script>
+  <script src="js/mock-data.js?v=49"></script>
+  <script src="js/editor.js?v=49"></script>
+  <script src="js/core/state.js?v=49"></script>
+  <script src="js/core/supabase.js?v=49"></script>
+  <script src="js/core/router.js?v=49"></script>
+  <script src="js/core/particles.js?v=49"></script>
+  <script src="js/controllers/auth.js?v=49"></script>
+  <script src="js/controllers/landing.js?v=49"></script>
+  <script src="js/controllers/classroom.js?v=49"></script>
+  <script src="js/controllers/resources.js?v=49"></script>
+  <script src="js/controllers/admin.js?v=49"></script>
+  <script src="js/app.js?v=49"></script>
 </body>
 </html>

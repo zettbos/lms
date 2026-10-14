@@ -471,4 +471,19 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
         - Mengubah `#main-navbar` menjadi `fixed top-0 inset-x-0 z-50 glass-nav` sehingga 100% terkunci kokoh di puncak viewport saat scroll ke bawah tanpa pernah hilang.
         - Menambahkan padding-top kompensasi pada seluruh view (`pt-20 sm:pt-24` / `padding-top: 5.25rem !important`) untuk mencegah konten tertutup navbar.
      6. Cache Buster: Menaikkan seluruh query string script dan stylesheet di `index.html` ke versi `?v=48`.
+  - [2026-10-14] Implementasi Revisi 49: Ruang Baca Luas & Marquee Horizontal Text on Hover, Simplifikasi Badge Modul Pilihan, Plain Text Navbar Header, Dekonstruksi Desain Anti-Kotak / Anti-AI, dan Interaktif Modul Breakdown Dashboard.
+     1. Expand Ruang Baca & Kinetic Marquee Scroll on Hover (`index.html`, `js/controllers/classroom.js`, `css/style.css`):
+        - Mengubah kontainer layout `view-learn` menjadi `max-w-[1440px] 2xl:max-w-[1600px]`, memperluas kolom baca materi/Notion hingga `max-w-4xl xl:max-w-5xl`, dan mendorong sidebar Kurikulum Kelas ke sisi kanan layar (`ml-auto w-80 xl:w-96`).
+        - Menghapus pemotongan elipsis `...` kaku pada daftar materi dan modul di sidebar kurikulum. Menggantinya dengan sistem **Kinetic Horizontal Marquee on Hover** (`.marquee-hover-wrapper` + `.marquee-hover-track`): teks materi yang panjang otomatis meluncur mulus ke samping saat di-hover/aktif sehingga seluruh kata terbaca tuntas.
+     2. Ganti Teks Badge Menjadi "Modul Pilihan" (`js/controllers/classroom.js`):
+        - Mengubah teks badge sematan dari `MODUL UNGGULAN PILIHAN MENTOR` menjadi `Modul Pilihan` dan menghapus animasi `animate-pulse` agar estetika lebih tenang (*calm mature software*).
+     3. Simplifikasi Judul Navbar Atas (`index.html`, `js/core/router.js`):
+        - Menghapus bungkus kapsul hitam tebal dan pulsing green dot pada `#nav-center-indicator`. Menggantinya dengan judul teks minimalis bersih: `Kurikulum` (`text-sm font-bold text-slate-200 select-none`).
+     4. Dekonstruksi Desain Anti-Kotak / Anti-AI Slop di Beranda (`index.html`, `js/controllers/classroom.js`, `css/style.css`):
+        - Membongkar kartu pembungkus besar pada sambutan `Selamat Datang...` menjadi **Open Editorial Page Header** alami tanpa bingkai kotak.
+        - Mengubah Akses Cepat yang sebelumnya 4 kartu kotak besar menjadi **Horizontal Action Chip Strip** (`.action-chip-btn` setinggi 34px dengan ikon mikro dan panah `↗`), menghemat ruang vertikal 70% dan membuat halaman bernafas lega.
+     5. Kartu Kemajuan Modul Interaktif di Dashboard (`js/controllers/classroom.js`, `css/style.css`):
+        - Seluruh kartu modul pada section *Kemajuan Detail per Modul* di Dashboard kini interaktif (`.module-progress-interactive-card` + `cursor-pointer`). Mengklik kartu modul akan langsung membuka Ruang Belajar pada materi modul tersebut.
+        - Setiap chip materi (`EP0`, `EP1`, dst.) dapat diklik secara mandiri untuk melompat langsung ke video materi terkait.
+     6. Cache Buster: Menaikkan seluruh query string script dan stylesheet di `index.html` ke versi `?v=49`.
 

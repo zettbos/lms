@@ -16,33 +16,20 @@ function renderQuickActionHub() {
   const actions = (AppState.quickActions || []).sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0));
 
   actions.forEach(qa => {
-    const card = document.createElement('div');
-    card.className = 'glass-card glass-card-translucent rounded-xl px-3 py-2.5 sm:px-3.5 sm:py-2.5 hover:border-emerald-500/40 cursor-pointer transition-all duration-200 group flex items-center justify-between gap-2.5';
-    card.onclick = () => executeQuickAction(qa.id);
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'action-chip-btn px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2.5 group cursor-pointer';
+    btn.onclick = () => executeQuickAction(qa.id);
 
-    card.innerHTML = `
-      <div class="flex items-center gap-2.5 min-w-0">
-        <div class="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:border-emerald-500/50 group-hover:scale-105 transition-all flex-shrink-0">
-          ${getMonolineSvgIcon(qa.icon, 'w-3.5 h-3.5 text-emerald-400')}
-        </div>
-        <div class="min-w-0">
-          <h4 class="text-xs font-bold text-white group-hover:text-emerald-400 transition-colors truncate">
-            ${escapeHtml(qa.title)}
-          </h4>
-          <p class="text-[10px] text-slate-400 truncate mt-0.5">
-            ${escapeHtml(qa.subtitle)}
-          </p>
-        </div>
-      </div>
-      <div class="flex items-center gap-1.5 flex-shrink-0">
-        <span class="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-slate-900/80 text-slate-400 border border-slate-800 font-mono hidden sm:inline">
-          ${escapeHtml(qa.badge || 'Akses')}
-        </span>
-        <svg class="w-3.5 h-3.5 text-slate-500 group-hover:text-emerald-400 group-hover:translate-x-0.5 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-      </div>
+    btn.innerHTML = `
+      <span class="w-5 h-5 rounded-lg bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform flex-shrink-0">
+        ${getMonolineSvgIcon(qa.icon, 'w-3 h-3 text-emerald-400')}
+      </span>
+      <span class="font-bold tracking-tight text-white group-hover:text-emerald-400 transition-colors">${escapeHtml(qa.title)}</span>
+      <span class="text-[10px] text-slate-500 group-hover:text-emerald-400 font-mono transition-colors">↗</span>
     `;
 
-    container.appendChild(card);
+    container.appendChild(btn);
   });
 }
 
@@ -111,9 +98,9 @@ function renderPinnedModuleHero() {
             <!-- Top Header Badge -->
             <div class="flex flex-wrap items-center justify-between gap-3 mb-5 relative z-10 border-b border-slate-800/80 pb-3.5">
               <div class="flex items-center gap-2">
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase bg-amber-500/15 text-amber-300 border border-amber-500/40 shadow-sm animate-pulse">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/40 shadow-sm">
                   <svg class="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
-                  <span>MODUL UNGGULAN PILIHAN MENTOR</span>
+                  <span>Modul Pilihan</span>
                 </span>
                 <span class="badge-module-pill text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-900/90 text-cyan-400 border border-cyan-500/30">
                   ${escapeHtml(pinnedMod.badge || 'MODUL UTAMA')}
@@ -632,14 +619,23 @@ function renderUserDashboard() {
       const modLessons = AppState.lessons.filter(l => l.moduleId === mod.id);
       const modDoneCount = modLessons.filter(l => userCompleted.includes(l.id)).length;
       const modPercent = modLessons.length > 0 ? Math.round((modDoneCount / modLessons.length) * 100) : 0;
+      
+      const targetLessonId = (modLessons.find(l => !userCompleted.includes(l.id)) || modLessons[0])?.id;
 
       const item = document.createElement('div');
-      item.className = 'p-3.5 sm:p-4 rounded-xl glass-card glass-card-translucent border border-[var(--border)]';
+      item.className = 'p-3.5 sm:p-4 rounded-xl glass-card border border-[var(--border)] module-progress-interactive-card group';
+      if (targetLessonId) {
+        item.onclick = () => navigate('learn', { lessonId: targetLessonId });
+        item.title = `Buka ${escapeHtml(mod.title)} di Ruang Belajar`;
+      }
 
       item.innerHTML = `
         <div class="flex items-center justify-between text-xs mb-1.5">
-          <span class="font-bold text-[var(--fg)] truncate pr-2">${mod.title}</span>
-          <span class="font-mono ${modPercent === 100 ? 'text-emerald-400 font-bold' : 'text-[var(--fg-muted)]'}">${modPercent}% (${modDoneCount}/${modLessons.length})</span>
+          <span class="font-bold text-[var(--fg)] group-hover:text-emerald-400 transition-colors flex items-center gap-1.5 truncate pr-2">
+            <span>${escapeHtml(mod.title)}</span>
+            <svg class="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 text-emerald-400 transition-all flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </span>
+          <span class="font-mono flex-shrink-0 ${modPercent === 100 ? 'text-emerald-400 font-bold' : 'text-[var(--fg-muted)]'}">${modPercent}% (${modDoneCount}/${modLessons.length})</span>
         </div>
         <div class="w-full h-2 rounded-full bg-[var(--surface-well)] overflow-hidden mb-2">
           <div class="h-full bg-emerald-500 rounded-full" style="width: ${modPercent}%"></div>
@@ -648,14 +644,19 @@ function renderUserDashboard() {
           ${modLessons.map(l => {
             const isDone = userCompleted.includes(l.id);
             return `
-              <span class="text-[10px] px-2 py-0.5 rounded-md flex items-center gap-1.5 ${isDone ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' : 'bg-[var(--surface-subtle)] text-[var(--fg-muted)] border border-[var(--border)]'}">
+              <button 
+                type="button" 
+                onclick="event.stopPropagation(); navigate('learn', { lessonId: '${l.id}' })" 
+                class="text-[10px] px-2.5 py-1 rounded-lg flex items-center gap-1.5 cursor-pointer hover:border-emerald-500/70 hover:text-white transition-all ${isDone ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' : 'bg-[var(--surface-subtle)] text-[var(--fg-muted)] border border-[var(--border)]'}" 
+                title="Langsung buka: ${escapeHtml(l.title)}"
+              >
                 ${isDone ? `
                   <svg class="w-3 h-3 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 13l4 4L19 7"/></svg>
                 ` : `
                   <svg class="w-3 h-3 text-slate-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6" stroke-width="1.8"/></svg>
                 `}
-                <span class="truncate">${escapeHtml(l.title.slice(0, 24))}...</span>
-              </span>
+                <span class="truncate max-w-[150px] font-medium">${escapeHtml(l.title)}</span>
+              </button>
             `;
           }).join('')}
         </div>
@@ -912,11 +913,27 @@ function renderCurriculumSidebar(activeLessonId) {
       modWrapper.className = 'mb-4';
 
       const modHeader = document.createElement('div');
-      modHeader.className = 'px-3 py-2 text-xs font-bold text-slate-400 tracking-wider uppercase flex items-center justify-between';
+      modHeader.className = 'px-3 py-2 text-xs font-bold text-slate-400 tracking-wider uppercase flex items-center justify-between group overflow-hidden';
+      modHeader.title = mod.title;
       modHeader.innerHTML = `
-        <span class="truncate">${mod.title}</span>
-        <span class="text-[10px] text-slate-500 font-normal">${modCompletedCount}/${modLessons.length}</span>
+        <div class="marquee-hover-wrapper mr-2">
+          <span class="marquee-hover-track">${escapeHtml(mod.title)}</span>
+        </div>
+        <span class="text-[10px] text-slate-500 font-normal flex-shrink-0 font-mono">${modCompletedCount}/${modLessons.length}</span>
       `;
+      modHeader.addEventListener('mouseenter', () => {
+        const track = modHeader.querySelector('.marquee-hover-track');
+        const wrapper = modHeader.querySelector('.marquee-hover-wrapper');
+        if (track && wrapper && track.scrollWidth > wrapper.clientWidth) {
+          const overflowPx = track.scrollWidth - wrapper.clientWidth + 16;
+          track.style.setProperty('--marquee-distance', `-${overflowPx}px`);
+          track.classList.add('is-overflowing');
+        }
+      });
+      modHeader.addEventListener('mouseleave', () => {
+        const track = modHeader.querySelector('.marquee-hover-track');
+        if (track) track.classList.remove('is-overflowing');
+      });
       modWrapper.appendChild(modHeader);
 
       const lessonList = document.createElement('div');
@@ -928,15 +945,16 @@ function renderCurriculumSidebar(activeLessonId) {
 
         const item = document.createElement('button');
         item.type = 'button';
-        item.className = `w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between gap-2.5 transition-all ${
+        item.className = `w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between gap-2.5 transition-all group overflow-hidden ${
           isActive 
             ? 'active-sidebar-lesson bg-slate-800/90 text-white font-semibold border-l-4 border-emerald-500 shadow-sm' 
             : 'text-slate-300 hover:bg-slate-850 hover:text-white'
         }`;
         item.onclick = () => renderLearningRoom(l.id);
+        item.title = l.title;
 
         item.innerHTML = `
-          <div class="flex items-center gap-2.5 truncate">
+          <div class="flex items-center gap-2.5 flex-1 min-w-0 overflow-hidden">
             <div class="flex-shrink-0 ${isDone ? 'text-emerald-400' : 'text-slate-600'}">
               ${isDone ? `
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
@@ -944,10 +962,27 @@ function renderCurriculumSidebar(activeLessonId) {
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke-width="2"/></svg>
               `}
             </div>
-            <span class="truncate">${l.title}</span>
+            <div class="marquee-hover-wrapper">
+              <span class="marquee-hover-track font-medium">${escapeHtml(l.title)}</span>
+            </div>
           </div>
-          <span class="text-[10px] text-slate-500 flex-shrink-0">${l.durationMinutes || 10}m</span>
+          <span class="text-[10px] text-slate-500 flex-shrink-0 ml-1.5 font-mono">${l.durationMinutes || 10}m</span>
         `;
+
+        item.addEventListener('mouseenter', () => {
+          const track = item.querySelector('.marquee-hover-track');
+          const wrapper = item.querySelector('.marquee-hover-wrapper');
+          if (track && wrapper && track.scrollWidth > wrapper.clientWidth) {
+            const overflowPx = track.scrollWidth - wrapper.clientWidth + 16;
+            track.style.setProperty('--marquee-distance', `-${overflowPx}px`);
+            track.classList.add('is-overflowing');
+          }
+        });
+        item.addEventListener('mouseleave', () => {
+          const track = item.querySelector('.marquee-hover-track');
+          if (track) track.classList.remove('is-overflowing');
+        });
+
         lessonList.appendChild(item);
       });
 
@@ -960,10 +995,13 @@ function renderCurriculumSidebar(activeLessonId) {
       mWrapper.className = 'p-3 rounded-xl bg-slate-900/60 border border-slate-800';
 
       const mHeader = document.createElement('div');
-      mHeader.className = 'text-xs font-bold text-slate-300 pb-2 mb-2 border-b border-slate-800/80 flex items-center justify-between';
+      mHeader.className = 'text-xs font-bold text-slate-300 pb-2 mb-2 border-b border-slate-800/80 flex items-center justify-between group overflow-hidden';
+      mHeader.title = mod.title;
       mHeader.innerHTML = `
-        <span class="truncate">${mod.title}</span>
-        <span class="text-[10px] text-emerald-400 font-mono">${modCompletedCount}/${modLessons.length}</span>
+        <div class="marquee-hover-wrapper mr-2">
+          <span class="marquee-hover-track">${escapeHtml(mod.title)}</span>
+        </div>
+        <span class="text-[10px] text-emerald-400 font-mono flex-shrink-0">${modCompletedCount}/${modLessons.length}</span>
       `;
       mWrapper.appendChild(mHeader);
 
@@ -976,7 +1014,7 @@ function renderCurriculumSidebar(activeLessonId) {
 
         const mItem = document.createElement('button');
         mItem.type = 'button';
-        mItem.className = `w-full text-left p-2.5 rounded-lg text-xs flex items-center justify-between gap-2.5 transition-all ${
+        mItem.className = `w-full text-left p-2.5 rounded-lg text-xs flex items-center justify-between gap-2.5 transition-all group overflow-hidden ${
           isActive 
             ? 'active-sidebar-lesson bg-slate-800 text-white font-bold border-l-4 border-emerald-500' 
             : 'text-slate-300 hover:bg-slate-850 hover:text-white'
@@ -985,9 +1023,10 @@ function renderCurriculumSidebar(activeLessonId) {
           renderLearningRoom(l.id);
           closeMobileCurriculumDrawer();
         };
+        mItem.title = l.title;
 
         mItem.innerHTML = `
-          <div class="flex items-center gap-2 truncate">
+          <div class="flex items-center gap-2 flex-1 min-w-0 overflow-hidden">
             <span class="${isDone ? 'text-emerald-400' : 'text-slate-600'} flex-shrink-0">
               ${isDone ? `
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
@@ -995,10 +1034,27 @@ function renderCurriculumSidebar(activeLessonId) {
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke-width="2"/></svg>
               `}
             </span>
-            <span class="truncate">${l.title}</span>
+            <div class="marquee-hover-wrapper">
+              <span class="marquee-hover-track font-medium">${escapeHtml(l.title)}</span>
+            </div>
           </div>
-          <span class="text-[10px] text-slate-500 font-mono flex-shrink-0">${l.durationMinutes || 10}m</span>
+          <span class="text-[10px] text-slate-500 font-mono flex-shrink-0 ml-1.5">${l.durationMinutes || 10}m</span>
         `;
+
+        mItem.addEventListener('mouseenter', () => {
+          const track = mItem.querySelector('.marquee-hover-track');
+          const wrapper = mItem.querySelector('.marquee-hover-wrapper');
+          if (track && wrapper && track.scrollWidth > wrapper.clientWidth) {
+            const overflowPx = track.scrollWidth - wrapper.clientWidth + 16;
+            track.style.setProperty('--marquee-distance', `-${overflowPx}px`);
+            track.classList.add('is-overflowing');
+          }
+        });
+        mItem.addEventListener('mouseleave', () => {
+          const track = mItem.querySelector('.marquee-hover-track');
+          if (track) track.classList.remove('is-overflowing');
+        });
+
         mLessonList.appendChild(mItem);
       });
 
