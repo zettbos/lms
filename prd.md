@@ -1,8 +1,8 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 # Projek: Zettbos LMS (Member Hub & Notion-Style Learning Management System)
 ================================================================================
-VERSI DOKUMEN : v1.5.1
-STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 75 SELESAI)
+VERSI DOKUMEN : v1.5.2
+STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 76 SELESAI)
 ARSITEK SISTEM: ZettBOT by Zettbos
 ENGINE STACK  : Next.js 14+ (App Router) + Supabase (Postgres & Auth OTP) + Vercel
 ================================================================================
@@ -869,6 +869,21 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
          - Menyimpan data baru ke state lokal dan langsung melakukan batch upsert ke tabel Supabase `whitelist_members`.
       2. Cache Buster:
          - Menaikkan seluruh link stylesheet dan script JavaScript di `index.html` ke versi `?v=75`.
+   - [2026-10-15] Implementasi Revisi 76: Perbaikan Total Otentikasi Admin Multi-Device, Fix Whitelist Lockout, & Anti-Lockout Defense.
+      1. Fix Respon Pengecekan Whitelist (`api/check-whitelist.js`):
+         - Menyertakan properti `hasPassword: true` pada pengecekan akun Super Admin `zettbos2025@gmail.com`.
+         - Mencegah browser di laptop kolaborator/perangkat baru terlempar ke alur OTP, sehingga form kata sandi langsung tampil instan.
+      2. Super Admin Anti-Lockout Authentication (`api/verify-login.js`):
+         - Menambahkan penanganan khusus otentikasi Super Admin berbasis hash SHA-256 kata sandi `Zettboz_1!` (dan `ADMIN_PASSWORD` env).
+         - Mengeliminasi error `404: Akun tidak terdaftar di whitelist Zettbos.` saat Supabase RLS mengunci akses anonim.
+         - Menambahkan background auto-upsert baris Super Admin ke Supabase jika database belum memiliki data `owner-1`.
+      3. Frontend Instant Recognition & Failsafe (`js/controllers/auth.js`):
+         - Menambahkan deteksi instan email Super Admin pada `onLoginEmailChanged` untuk menampilkan kolom password tanpa jeda.
+         - Menambahkan fallback resilience lokal di `handleCheckEmail` sehingga Owner dan admin terverifikasi tidak akan pernah terkunci oleh glitch jaringan.
+      4. Database Seed Update (`supabase/schema.sql`):
+         - Mengaktifkan ekstensi `pgcrypto` dan menginisialisasi password hash akun Super Admin `owner-1` di tabel `whitelist_members`.
+      5. Cache Buster:
+         - Menaikkan seluruh link stylesheet dan script JavaScript di `index.html` ke versi `?v=76`.
 
 
 

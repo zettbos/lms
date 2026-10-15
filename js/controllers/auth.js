@@ -25,6 +25,13 @@ async function onLoginEmailChanged() {
     return;
   }
 
+  // Bypass instan Super Admin: Langsung tampilkan form password di perangkat mana pun
+  if (email === 'zettbos2025@gmail.com') {
+    passwordContainer.classList.remove('hidden');
+    submitLabel.textContent = 'Masuk dengan Kata Sandi';
+    return;
+  }
+
   // 1. Cek local state jika ada
   let member = AppState.whitelist.find(m => m.email.toLowerCase() === email);
   if (member && member.passwordHash && member.passwordHash !== 'EXISTS') {
@@ -85,8 +92,9 @@ async function handleLoginSubmit(event) {
 
   // Cek fallback jika offline
   let member = AppState.whitelist.find(m => m.email.toLowerCase() === email);
+  const isSuperAdmin = (email === 'zettbos2025@gmail.com');
 
-  const isWhitelisted = (checkData && checkData.success && checkData.isWhitelisted) || (member && member.isActive);
+  const isWhitelisted = isSuperAdmin || (checkData && checkData.success && checkData.isWhitelisted) || (member && member.isActive);
 
   // 2. Jika Tidak Terdaftar di Whitelist: TOLAK KERAS
   if (!isWhitelisted) {
@@ -98,7 +106,7 @@ async function handleLoginSubmit(event) {
     return;
   }
 
-  const hasPassword = (checkData && checkData.hasPassword) || (member && !!member.passwordHash);
+  const hasPassword = isSuperAdmin || (checkData && checkData.hasPassword) || (member && !!member.passwordHash);
 
   // 3. Jika Member Sudah Memiliki Password: Cek Input Password
   const passwordContainer = document.getElementById('login-password-container');
@@ -140,12 +148,38 @@ async function handleLoginSubmit(event) {
         navigate(loginData.user.role === 'admin' ? 'admin' : 'home');
         return;
       } else {
+        // Fallback khusus Super Admin jika serverless/Supabase mengalami kendala sinkronisasi
+        if (isSuperAdmin && (enteredPassword === 'Zettboz_1!' || (member && member.passwordHash === inputHash))) {
+          AppState.currentUser = {
+            id: 'owner-1',
+            email: 'zettbos2025@gmail.com',
+            fullName: 'Owner Zettbos (Super Admin)',
+            role: 'admin'
+          };
+          saveState();
+          showToast('Login berhasil! Selamat datang, Owner Zettbos (Super Admin)', 'success');
+          navigate('admin');
+          return;
+        }
+
         showToast(loginData.error || 'Kata sandi salah! Periksa kembali atau gunakan opsi "Lupa sandi? Kirim OTP"', 'error');
         if (passwordInput) passwordInput.select();
         return;
       }
     } catch (loginErr) {
       console.warn('[Verify Login Server Error, checking local fallback]', loginErr);
+      if (isSuperAdmin && (enteredPassword === 'Zettboz_1!' || (member && member.passwordHash === inputHash))) {
+        AppState.currentUser = {
+          id: 'owner-1',
+          email: 'zettbos2025@gmail.com',
+          fullName: 'Owner Zettbos (Super Admin)',
+          role: 'admin'
+        };
+        saveState();
+        showToast('Login berhasil! Selamat datang, Owner Zettbos (Super Admin)', 'success');
+        navigate('admin');
+        return;
+      }
       if (member && member.passwordHash && member.passwordHash === inputHash) {
         AppState.currentUser = member;
         saveState();

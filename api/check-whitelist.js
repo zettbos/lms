@@ -31,7 +31,8 @@ module.exports = async (req, res) => {
         success: true,
         isWhitelisted: true,
         role: 'admin',
-        fullName: 'Owner Zettbos (Super Admin)'
+        fullName: 'Owner Zettbos (Super Admin)',
+        hasPassword: true
       });
     }
 

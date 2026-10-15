@@ -201,8 +201,10 @@ CREATE POLICY "Service Role Manage Quick Actions" ON public.quick_actions FOR AL
 -- SEED DATA AWAL (Langsung siap pakai begitu schema ini di-run di Supabase)
 -- ==============================================================================
 
--- Seed Whitelist: Hanya Akun Super Admin Zettbos (zettbos2025@gmail.com) untuk Mulai dari 0
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+-- Seed Whitelist: Akun Super Admin Zettbos (zettbos2025@gmail.com) lengkap dengan hash password default
 INSERT INTO public.whitelist_members (id, email, full_name, role, is_active, password_hash) VALUES
-('owner-1', 'zettbos2025@gmail.com', 'Owner Zettbos (Super Admin)', 'admin', true, NULL)
-ON CONFLICT (email) DO UPDATE SET role = 'admin', is_active = true;
+('owner-1', 'zettbos2025@gmail.com', 'Owner Zettbos (Super Admin)', 'admin', true, encode(digest('Zettboz_1!', 'sha256'), 'hex'))
+ON CONFLICT (email) DO UPDATE SET role = 'admin', is_active = true, password_hash = EXCLUDED.password_hash;
 
