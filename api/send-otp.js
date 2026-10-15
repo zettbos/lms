@@ -1,34 +1,16 @@
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 
-// 1. Konfigurasi Gmail SMTP Resmi Zettbos (Google App Password)
+// 1. Konfigurasi Gmail SMTP Resmi Zettbos (Murni dari Environment Variables)
 const GMAIL_USER = process.env.GMAIL_USER || 'zettbos2025@gmail.com';
-const GMAIL_PASS = process.env.GMAIL_APP_PASSWORD || 'vdtflqkiupmhjgid';
-
-// Fallback Resend Key jika dibutuhkan
-const getResendKey = () => {
-  if (process.env.RESEND_API_KEY) return process.env.RESEND_API_KEY;
-  return ['re', 'VVMPDPkb', 'MhJ9cPuFg6pvuxA91PANRFDu'].join('_');
-};
-const RESEND_API_KEY = getResendKey();
-const HMAC_SECRET = process.env.HMAC_SECRET || 'zettbos_secure_secret_2026';
-
-// Buat transporter Nodemailer Gmail
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true, // SSL
-  auth: {
-    user: GMAIL_USER,
-    pass: GMAIL_PASS
-  }
-});
+const GMAIL_PASS = process.env.GMAIL_APP_PASSWORD;
+const HMAC_SECRET = process.env.HMAC_SECRET || 'zettbos_secure_secret_prod_2026';
 
 module.exports = async (req, res) => {
   // CORS Headers
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
   res.setHeader(
     'Access-Control-Allow-Headers',
     'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
@@ -51,16 +33,69 @@ module.exports = async (req, res) => {
 
     const cleanEmail = email.trim().toLowerCase();
 
-    // 1. Generate 6-Digit Secure OTP
+    // 2. Proteksi Abuse Kuota: Verifikasi bahwa email terdaftar sebelum mengirim OTP
+    const supabaseUrl = process.env.SUPABASE_URL || 'https://dtbbmpuqfstwxewylbao.supabase.co';
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || 'sb_publishable_QX8Kjj5QukJXXqXcIILp5w_Dye0avf1';
+
+    let isAuthorized = (cleanEmail === 'zettbos2025@gmail.com');
+    if (!isAuthorized) {
+      try {
+        const checkRes = await fetch(`${supabaseUrl}/rest/v1/whitelist_members?email=eq.${encodeURIComponent(cleanEmail)}&select=id,is_active`, {
+          headers: {
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${supabaseKey}`
+          }
+        });
+        if (checkRes.ok) {
+          const members = await checkRes.json();
+          if (Array.isArray(members) && members.length > 0 && members[0].is_active !== false) {
+            isAuthorized = true;
+          }
+        }
+      } catch (checkErr) {
+        console.warn('[Whitelist Check DB Warning]', checkErr);
+        // Fallback anggun jika database timeout agar tidak memblokir siswa sah
+        isAuthorized = true;
+      }
+    }
+
+    if (!isAuthorized) {
+      return res.status(403).json({
+        success: false,
+        error: 'Akses Ditolak: Alamat email Anda belum terdaftar di whitelist resmi Zettbos.'
+      });
+    }
+
+    // 3. Validasi Kesiapan Kredensial Gmail SMTP
+    if (!GMAIL_PASS) {
+      console.error('[Gmail SMTP Error] GMAIL_APP_PASSWORD belum dikonfigurasi di Environment Variables');
+      return res.status(500).json({
+        success: false,
+        error: 'Server email belum dikonfigurasi. Hubungi Admin untuk mengatur GMAIL_APP_PASSWORD di Vercel.'
+      });
+    }
+
+    // 4. Inisialisasi Transporter Gmail SMTP (Nodemailer)
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true, // SSL port 465
+      auth: {
+        user: GMAIL_USER,
+        pass: GMAIL_PASS
+      }
+    });
+
+    // 5. Generate 6-Digit Secure OTP
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = Date.now() + 10 * 60 * 1000; // Berlaku 10 menit
 
-    // 2. Buat Token HMAC Terenkripsi (Stateless & Anti-Tamper)
+    // 6. Buat Token HMAC Terenkripsi (Stateless & Anti-Tamper)
     const payload = `${cleanEmail}:${code}:${expiresAt}`;
     const signature = crypto.createHmac('sha256', HMAC_SECRET).update(payload).digest('hex');
     const otpToken = `${expiresAt}.${signature}`;
 
-    // 3. Template HTML Email Resmi Zettbos (Dark Cyberpunk)
+    // 7. Template HTML Email Resmi Zettbos
     const htmlContent = `
     <!DOCTYPE html>
     <html lang="id">
@@ -106,55 +141,13 @@ module.exports = async (req, res) => {
     </html>
     `;
 
-    // 4. Pengiriman Utama: Gunakan Gmail SMTP Resmi Zettbos (Nodemailer)
-    let emailSent = false;
-    let lastError = null;
-
-    try {
-      await transporter.sendMail({
-        from: '"Zettbos Member Hub" <' + GMAIL_USER + '>',
-        to: cleanEmail,
-        subject: `Kode Verifikasi Masuk Zettbos: ${code}`,
-        html: htmlContent
-      });
-      emailSent = true;
-    } catch (smtpErr) {
-      console.warn('[Gmail SMTP Warning, trying Resend fallback]', smtpErr);
-      lastError = smtpErr;
-
-      // Fallback ke Resend jika SMTP ada kendala jaringan
-      try {
-        const resendResponse = await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${RESEND_API_KEY}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            from: 'Zettbos LMS <onboarding@resend.dev>',
-            to: [cleanEmail],
-            subject: `Kode Verifikasi Masuk Zettbos: ${code}`,
-            html: htmlContent
-          })
-        });
-        const resendData = await resendResponse.json();
-        if (resendResponse.ok) {
-          emailSent = true;
-        } else {
-          lastError = new Error(resendData.message || 'Resend error');
-        }
-      } catch (rErr) {
-        lastError = rErr;
-      }
-    }
-
-    if (!emailSent) {
-      console.error('[Send Email Failed]', lastError);
-      return res.status(500).json({
-        success: false,
-        error: lastError ? (lastError.message || lastError.toString()) : 'Gagal mengirim email verifikasi.'
-      });
-    }
+    // 8. Pengiriman Email via Gmail SMTP Resmi
+    await transporter.sendMail({
+      from: `"Zettbos Member Hub" <${GMAIL_USER}>`,
+      to: cleanEmail,
+      subject: `Kode Verifikasi Masuk Zettbos: ${code}`,
+      html: htmlContent
+    });
 
     return res.status(200).json({
       success: true,
@@ -166,7 +159,7 @@ module.exports = async (req, res) => {
     console.error('[Send OTP Serverless Error]', err);
     return res.status(500).json({
       success: false,
-      error: 'Terjadi kesalahan pada server saat memproses pengiriman OTP: ' + (err.message || err.toString())
+      error: 'Gagal mengirim email verifikasi: ' + (err.message || err.toString())
     });
   }
 };

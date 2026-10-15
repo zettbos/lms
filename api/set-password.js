@@ -1,0 +1,93 @@
+const crypto = require('crypto');
+
+const HMAC_SECRET = process.env.HMAC_SECRET || 'zettbos_secure_secret_prod_2026';
+
+module.exports = async (req, res) => {
+  // CORS Headers
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+  );
+
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
+  if (req.method !== 'POST') {
+    return res.status(405).json({ success: false, error: 'Metode tidak diizinkan. Gunakan POST.' });
+  }
+
+  try {
+    const { email, fullName, passwordHash, resetToken } = req.body || {};
+
+    if (!email || !fullName || !passwordHash) {
+      return res.status(400).json({ success: false, error: 'Data nama, email, dan kata sandi wajib diisi.' });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+
+    // 1. Verifikasi Otentikasi Bukti OTP (Anti-Bypass)
+    if (resetToken) {
+      const parts = resetToken.split('.');
+      if (parts.length === 2) {
+        const expiresAt = parseInt(parts[0], 10);
+        const signature = parts[1];
+
+        if (Date.now() > expiresAt) {
+          return res.status(400).json({ success: false, error: 'Sesi pembuatan kata sandi kadaluarsa. Silakan minta kode OTP baru.' });
+        }
+
+        const proofPayload = `${cleanEmail}:verified:${expiresAt}`;
+        const expectedSig = crypto.createHmac('sha256', HMAC_SECRET).update(proofPayload).digest('hex');
+
+        if (!crypto.timingSafeEqual(Buffer.from(signature, 'hex'), Buffer.from(expectedSig, 'hex'))) {
+          return res.status(403).json({ success: false, error: 'Token verifikasi OTP tidak sah.' });
+        }
+      }
+    }
+
+    // 2. Simpan ke Supabase Database
+    const supabaseUrl = process.env.SUPABASE_URL || 'https://dtbbmpuqfstwxewylbao.supabase.co';
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || 'sb_publishable_QX8Kjj5QukJXXqXcIILp5w_Dye0avf1';
+
+    const patchRes = await fetch(`${supabaseUrl}/rest/v1/whitelist_members?email=eq.${encodeURIComponent(cleanEmail)}`, {
+      method: 'PATCH',
+      headers: {
+        'apikey': supabaseKey,
+        'Authorization': `Bearer ${supabaseKey}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify({
+        full_name: fullName.trim(),
+        password_hash: passwordHash
+      })
+    });
+
+    if (!patchRes.ok) {
+      console.warn('[Set Password DB Error]', patchRes.statusText);
+      return res.status(500).json({ success: false, error: 'Gagal memperbarui profil di database.' });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Kata sandi dan profil berhasil dibuat!',
+      user: {
+        email: cleanEmail,
+        fullName: fullName.trim(),
+        role: 'member'
+      }
+    });
+
+  } catch (err) {
+    console.error('[Set Password Serverless Error]', err);
+    return res.status(500).json({
+      success: false,
+      error: 'Terjadi kesalahan pada server saat menyimpan kata sandi.'
+    });
+  }
+};

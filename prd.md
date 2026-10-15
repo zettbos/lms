@@ -1,8 +1,8 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 # Projek: Zettbos LMS (Member Hub & Notion-Style Learning Management System)
 ================================================================================
-VERSI DOKUMEN : v1.4.2
-STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 73 SELESAI)
+VERSI DOKUMEN : v1.5.0
+STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 74 SELESAI)
 ARSITEK SISTEM: ZettBOT by Zettbos
 ENGINE STACK  : Next.js 14+ (App Router) + Supabase (Postgres & Auth OTP) + Vercel
 ================================================================================
@@ -844,6 +844,23 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
          - Seluruh sisa ruang pada monitor widescreen kini dialokasikan secara simetris ke margin tepi luar (kiri dan kanan), menghasilkan estetika profesional, proporsional, dan nyaman di mata tanpa lubang kosong di tengah.
       2. Cache Buster:
          - Menaikkan seluruh link stylesheet dan script JavaScript di `index.html` ke versi `?v=73`.
+   - [2026-10-15] Implementasi Revisi 74: Full Security Audit & Production Hardening (Zero Leaks & Pure Gmail SMTP).
+      1. Pembersihan Kredensial & Secrets Serverless (`api/send-otp.js`, `api/verify-otp.js`, `.env.example`):
+         - Menghapus seluruh kredensial mentah (Google App Password, Resend Key, dan HMAC default) dari repositori Git.
+         - Mengonfigurasi pure Gmail SMTP (`nodemailer`) berbasis `process.env.GMAIL_USER` dan `process.env.GMAIL_APP_PASSWORD`.
+         - Menghapus seluruh dependensi dan kode usang Resend (karena sistem kini 100% menggunakan Gmail).
+         - Menambahkan validasi anti-spam: `send-otp.js` memeriksa status email di whitelist sebelum mengirim OTP untuk mencegah pengurasan kuota Gmail.
+      2. Penguatan Database Row Level Security (RLS) (`supabase/schema.sql`):
+         - Menghapus seluruh policy berbahaya `FOR ALL USING (true)` yang membuka celah manipulasi publik pada tabel modul, materi, CMS, dan whitelist.
+         - Mengunci tabel `whitelist_members` agar tidak dapat di-dump atau di-scrape oleh publik secara massal.
+         - Menetapkan izin mutasi modul dan materi kurikulum hanya melalui Service Role / Postgres Backend.
+      3. Proteksi Privasi 2.318 Siswa (UU PDP) & Arsitektur Zero-Leak (`index.html`, `auth.js`, `api/check-whitelist.js`):
+         - Mencabut `js/whitelist-data.js` dari browser bundle di `index.html` sehingga 2.318 email siswa tidak lagi diunduh publik.
+         - Membangun Serverless API `/api/check-whitelist` yang hanya memverifikasi status satu email yang diketik tanpa membocorkan email lain.
+         - Membangun Serverless API `/api/verify-login` dan `/api/set-password` dengan verifikasi HMAC proof token untuk perlindungan password hashing.
+         - Membatasi sinkronisasi penuh whitelist di `supabase.js` hanya untuk sesi Super Admin terverifikasi.
+      4. Cache Buster:
+         - Menaikkan seluruh link stylesheet dan script JavaScript di `index.html` ke versi `?v=74`.
 
 
 

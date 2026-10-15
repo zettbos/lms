@@ -74,7 +74,7 @@ function applySquareContainFavicon(imgUrl) {
   if (!imgUrl) return;
   const faviconEl = document.getElementById('app-favicon') || document.querySelector("link[rel*='icon']");
   if (!faviconEl) return;
-  
+
   // Set fallback instan
   faviconEl.href = imgUrl;
 
@@ -85,7 +85,7 @@ function applySquareContainFavicon(imgUrl) {
     const ctx = canvas.getContext('2d');
     const img = new Image();
     img.crossOrigin = 'anonymous';
-    img.onload = function() {
+    img.onload = function () {
       ctx.clearRect(0, 0, 64, 64);
       const aspect = img.width / img.height;
       let drawW = 64;
@@ -108,7 +108,7 @@ function applySquareContainFavicon(imgUrl) {
         faviconEl.href = imgUrl;
       }
     };
-    img.onerror = function() {
+    img.onerror = function () {
       faviconEl.href = imgUrl;
     };
     img.src = imgUrl;
@@ -168,7 +168,7 @@ function renderAppBrandLogo() {
     if (document.title !== 'Zettbos') {
       document.title = 'Zettbos';
     }
-  } catch (e) {}
+  } catch (e) { }
 }
 
 function renderWhatsAppContactCards() {
@@ -177,9 +177,9 @@ function renderWhatsAppContactCards() {
   const contacts = (window.AppState?.landingCms?.adminContacts && window.AppState.landingCms.adminContacts.length > 0)
     ? window.AppState.landingCms.adminContacts
     : [
-        { id: 'admin1', name: 'Admin Farhan', phone: '0851-1122-6452', role: 'Support & Operasional LMS', status: 'Online' },
-        { id: 'admin2', name: 'Admin Asep', phone: '0821-9527-7812', role: 'Pendaftaran & Konsultasi Member', status: 'Online' }
-      ];
+      { id: 'admin1', name: 'Admin Farhan', phone: '0851-1122-6452', role: 'Support & Operasional LMS', status: 'Online' },
+      { id: 'admin2', name: 'Admin Asep', phone: '0821-9527-7812', role: 'Pendaftaran & Konsultasi Member', status: 'Online' }
+    ];
 
   listEl.innerHTML = contacts.map((admin, idx) => {
     const cleanPhone = (admin.phone || '').replace(/\D/g, '').replace(/^0/, '62');
@@ -267,21 +267,21 @@ function renderPinnedModuleHero() {
   container.innerHTML = `
     <div class="space-y-6">
       ${pinnedMods.map(pinnedMod => {
-        const moduleLessons = AppState.lessons
-          .filter(l => l.moduleId === pinnedMod.id && (isSuperAdmin || !l.isDraft))
-          .sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0));
+    const moduleLessons = AppState.lessons
+      .filter(l => l.moduleId === pinnedMod.id && (isSuperAdmin || !l.isDraft))
+      .sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0));
 
-        const completedCount = moduleLessons.filter(l => userCompletedLessonIds.includes(l.id)).length;
-        const totalMinutes = moduleLessons.reduce((acc, l) => acc + (l.durationMinutes || 15), 0);
-        const percent = moduleLessons.length > 0 ? Math.round((completedCount / moduleLessons.length) * 100) : 0;
-        
-        const targetLessonId = (completedCount > 0 
-          ? (moduleLessons.find(l => !userCompletedLessonIds.includes(l.id)) || moduleLessons[0])?.id 
-          : moduleLessons[0]?.id);
+    const completedCount = moduleLessons.filter(l => userCompletedLessonIds.includes(l.id)).length;
+    const totalMinutes = moduleLessons.reduce((acc, l) => acc + (l.durationMinutes || 15), 0);
+    const percent = moduleLessons.length > 0 ? Math.round((completedCount / moduleLessons.length) * 100) : 0;
 
-        const coverImg = pinnedMod.coverImage || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80';
+    const targetLessonId = (completedCount > 0
+      ? (moduleLessons.find(l => !userCompletedLessonIds.includes(l.id)) || moduleLessons[0])?.id
+      : moduleLessons[0]?.id);
 
-        return `
+    const coverImg = pinnedMod.coverImage || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80';
+
+    return `
           <div 
             onclick="${targetLessonId ? `navigate('learn', { lessonId: '${targetLessonId}' })` : `showToast('Modul ini belum memiliki materi', 'info')`}"
             class="pinned-hero-card relative overflow-hidden rounded-3xl p-5 sm:p-7 bg-gradient-to-br from-slate-900/95 via-slate-950/90 to-slate-900/95 border border-emerald-500/40 shadow-2xl shadow-emerald-950/30 group cursor-pointer hover:border-emerald-500/70 hover:shadow-emerald-500/10 transition-all duration-300"
@@ -383,7 +383,7 @@ function renderPinnedModuleHero() {
             </div>
           </div>
         `;
-      }).join('')}
+  }).join('')}
     </div>
   `;
 }
@@ -424,8 +424,8 @@ function renderModuleCategoryPills() {
 
   container.innerHTML = categories.map(cat => {
     const isActive = AppState.activeModuleCategory === cat.key;
-    const activeClass = isActive 
-      ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/50 font-bold shadow-sm' 
+    const activeClass = isActive
+      ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/50 font-bold shadow-sm'
       : 'bg-[var(--surface-subtle)] text-[var(--fg-muted)] hover:text-[var(--fg)] hover:bg-[var(--surface-hover)] border-[var(--border)] font-medium';
 
     const safeKey = cat.key.replace(/'/g, "\\'");
@@ -554,8 +554,8 @@ function renderModuleCatalogGrid() {
     const totalMinutes = moduleLessons.reduce((acc, l) => acc + (l.durationMinutes || 15), 0);
     const completionPercent = moduleLessons.length > 0 ? Math.round((modCompleted / moduleLessons.length) * 100) : 0;
 
-    const targetLessonId = (modCompleted > 0 
-      ? (moduleLessons.find(l => !userCompletedLessonIds.includes(l.id)) || moduleLessons[0])?.id 
+    const targetLessonId = (modCompleted > 0
+      ? (moduleLessons.find(l => !userCompletedLessonIds.includes(l.id)) || moduleLessons[0])?.id
       : moduleLessons[0]?.id);
 
     const card = document.createElement('div');
@@ -617,23 +617,23 @@ function renderModuleCatalogGrid() {
           
           <div class="max-h-36 overflow-y-auto custom-scrollbar surface-well p-1 space-y-1 mb-2">
             ${moduleLessons.map((les, idx) => {
-              const isDone = userCompletedLessonIds.includes(les.id);
-              let iconSvg = '';
-              let textClass = 'text-slate-300';
-              let rowBg = 'hover:bg-[var(--surface-hover)] hover:border-[var(--border)]';
+      const isDone = userCompletedLessonIds.includes(les.id);
+      let iconSvg = '';
+      let textClass = 'text-slate-300';
+      let rowBg = 'hover:bg-[var(--surface-hover)] hover:border-[var(--border)]';
 
-              if (mod.isLocked) {
-                iconSvg = `<svg class="w-3.5 h-3.5 text-amber-500/80 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>`;
-                textClass = 'text-slate-500';
-              } else if (isDone) {
-                iconSvg = `<svg class="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 13l4 4L19 7"/></svg>`;
-                textClass = 'text-emerald-300';
-              } else {
-                iconSvg = `<svg class="w-3.5 h-3.5 text-slate-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6" stroke-width="1.8"/></svg>`;
-                textClass = 'text-slate-400';
-              }
+      if (mod.isLocked) {
+        iconSvg = `<svg class="w-3.5 h-3.5 text-amber-500/80 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>`;
+        textClass = 'text-slate-500';
+      } else if (isDone) {
+        iconSvg = `<svg class="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 13l4 4L19 7"/></svg>`;
+        textClass = 'text-emerald-300';
+      } else {
+        iconSvg = `<svg class="w-3.5 h-3.5 text-slate-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6" stroke-width="1.8"/></svg>`;
+        textClass = 'text-slate-400';
+      }
 
-              return `
+      return `
                 <div 
                   onclick="event.stopPropagation(); ${mod.isLocked ? `showToast('${escapeHtml(mod.lockReason || 'Modul terkunci')}', 'info')` : `navigate('learn', { lessonId: '${les.id}' })`}"
                   class="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg text-xs ${rowBg} transition-colors cursor-pointer border border-transparent"
@@ -645,7 +645,7 @@ function renderModuleCatalogGrid() {
                   <span class="text-[10px] text-slate-500 font-mono flex-shrink-0">${les.durationMinutes || 15} min</span>
                 </div>
               `;
-            }).join('')}
+    }).join('')}
           </div>
         </div>
       </div>
@@ -721,7 +721,7 @@ function renderHome() {
     if (featTitle) featTitle.textContent = nextLesson.title;
     if (featModuleTag) featModuleTag.textContent = parentModule ? parentModule.title : 'Modul Kurikulum';
     if (featDuration) featDuration.textContent = `${nextLesson.durationMinutes || 18} Menit`;
-    
+
     const isNextDone = userCompletedLessonIds.includes(nextLesson.id);
     if (featProgressBar) featProgressBar.style.width = isNextDone ? '100%' : '48%';
     if (featProgressPercent) featProgressPercent.textContent = isNextDone ? '100% Selesai' : '48% Selesai (Sisa 9 Menit)';
@@ -815,7 +815,7 @@ function renderUserDashboard() {
       const modLessons = AppState.lessons.filter(l => l.moduleId === mod.id);
       const modDoneCount = modLessons.filter(l => userCompleted.includes(l.id)).length;
       const modPercent = modLessons.length > 0 ? Math.round((modDoneCount / modLessons.length) * 100) : 0;
-      
+
       const targetLessonId = (modLessons.find(l => !userCompleted.includes(l.id)) || modLessons[0])?.id;
 
       const item = document.createElement('div');
@@ -838,8 +838,8 @@ function renderUserDashboard() {
         </div>
         <div class="flex flex-wrap gap-1.5 pt-1">
           ${modLessons.map(l => {
-            const isDone = userCompleted.includes(l.id);
-            return `
+        const isDone = userCompleted.includes(l.id);
+        return `
               <button 
                 type="button" 
                 onclick="event.stopPropagation(); navigate('learn', { lessonId: '${l.id}' })" 
@@ -854,7 +854,7 @@ function renderUserDashboard() {
                 <span class="truncate max-w-[150px] font-medium">${escapeHtml(l.title)}</span>
               </button>
             `;
-          }).join('')}
+      }).join('')}
         </div>
       `;
 
@@ -901,10 +901,10 @@ function renderMonthlyLearningCalendar() {
 
     const cell = document.createElement('div');
     cell.className = `calendar-day-cell cursor-pointer ${isStudied ? 'calendar-day-active' : ''} ${isToday ? 'calendar-day-today' : ''}`;
-    cell.title = isStudied 
-      ? `Tanggal ${day} Okt 2026: Aktif Belajar (Materi tuntas)` 
-      : isToday 
-        ? `Tanggal ${day} Okt 2026 (Hari Ini)` 
+    cell.title = isStudied
+      ? `Tanggal ${day} Okt 2026: Aktif Belajar (Materi tuntas)`
+      : isToday
+        ? `Tanggal ${day} Okt 2026 (Hari Ini)`
         : `Tanggal ${day} Okt 2026: Istirahat`;
 
     cell.onclick = () => {
@@ -997,8 +997,8 @@ function renderLearnModuleCategoryPills() {
 
   container.innerHTML = categories.map(cat => {
     const isActive = activeLearnModuleCategory === cat.id;
-    const activeClass = isActive 
-      ? 'is-active bg-emerald-950 text-emerald-300 border-emerald-500/60 shadow-sm' 
+    const activeClass = isActive
+      ? 'is-active bg-emerald-950 text-emerald-300 border-emerald-500/60 shadow-sm'
       : 'bg-slate-900/80 text-slate-400 hover:text-white hover:bg-slate-800 border-slate-800';
 
     const safeId = cat.id.replace(/'/g, "\\'");
@@ -1106,8 +1106,8 @@ function renderLearnModulesCatalog() {
           
           <div class="max-h-36 overflow-y-auto custom-scrollbar surface-well p-1 space-y-1 mb-2">
             ${moduleLessons.map((les, idx) => {
-              const isDone = userCompletedLessonIds.includes(les.id);
-              return `
+      const isDone = userCompletedLessonIds.includes(les.id);
+      return `
                 <div 
                   onclick="event.stopPropagation(); navigate('learn', { lessonId: '${les.id}' })"
                   class="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg text-xs hover:bg-slate-800/70 transition-colors cursor-pointer border border-transparent"
@@ -1119,7 +1119,7 @@ function renderLearnModulesCatalog() {
                   <span class="text-[10px] font-mono text-slate-500 flex-shrink-0">${les.durationMinutes || 15}m</span>
                 </div>
               `;
-            }).join('')}
+    }).join('')}
           </div>
         </div>
       </div>
@@ -1164,7 +1164,7 @@ function showLearnModulesCatalog() {
 function getCurriculumOrderedLessons() {
   const user = AppState.currentUser;
   const isSuperAdmin = user && user.role === 'admin' && user.email?.toLowerCase() === 'zettbos2025@gmail.com';
-  
+
   const sortedModules = (AppState.modules || [])
     .filter(m => isSuperAdmin || !m.isDraft)
     .sort((a, b) => (Number(a.orderIndex) || 0) - (Number(b.orderIndex) || 0));
@@ -1176,7 +1176,7 @@ function getCurriculumOrderedLessons() {
     const modLessons = (AppState.lessons || [])
       .filter(l => l.moduleId === mod.id && (isSuperAdmin || !l.isDraft))
       .sort((a, b) => (Number(a.orderIndex) || 0) - (Number(b.orderIndex) || 0));
-      
+
     modLessons.forEach(l => {
       orderedLessons.push(l);
       handledIds.add(l.id);
@@ -1359,7 +1359,7 @@ function updateStreamNavigationButtons(activeLessonId) {
   }
 
   if (btnFooterComplete) {
-    btnFooterComplete.innerHTML = isLessonCompleted 
+    btnFooterComplete.innerHTML = isLessonCompleted
       ? '<svg class="w-4 h-4 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg><span>Materi Selesai</span>'
       : '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg><span>Selesai & Lanjut</span>';
     btnFooterComplete.onclick = () => advanceToNextLesson(true);
@@ -1404,7 +1404,7 @@ function advanceToNextLesson(isMarkComplete = false) {
     }
     if (!AppState.progress[user.email].includes(currentLesson.id)) {
       AppState.progress[user.email].push(currentLesson.id);
-      
+
       const now = new Date();
       const yyyy = now.getFullYear();
       const mm = String(now.getMonth() + 1).padStart(2, '0');
@@ -1552,11 +1552,10 @@ function renderCurriculumSidebar(activeLessonId) {
 
         const item = document.createElement('button');
         item.type = 'button';
-        item.className = `w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between gap-2.5 transition-all group overflow-hidden ${
-          isActive 
-            ? 'active-sidebar-lesson bg-slate-800/90 text-white font-semibold border-l-4 border-emerald-500 shadow-sm' 
+        item.className = `w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between gap-2.5 transition-all group overflow-hidden ${isActive
+            ? 'active-sidebar-lesson bg-slate-800/90 text-white font-semibold border-l-4 border-emerald-500 shadow-sm'
             : 'text-slate-300 hover:bg-slate-850 hover:text-white'
-        }`;
+          }`;
         item.onclick = () => renderLearningRoom(l.id);
         item.title = l.title;
 
@@ -1621,11 +1620,10 @@ function renderCurriculumSidebar(activeLessonId) {
 
         const mItem = document.createElement('button');
         mItem.type = 'button';
-        mItem.className = `w-full text-left p-2.5 rounded-lg text-xs flex items-center justify-between gap-2.5 transition-all group overflow-hidden ${
-          isActive 
-            ? 'active-sidebar-lesson bg-slate-800 text-white font-bold border-l-4 border-emerald-500' 
+        mItem.className = `w-full text-left p-2.5 rounded-lg text-xs flex items-center justify-between gap-2.5 transition-all group overflow-hidden ${isActive
+            ? 'active-sidebar-lesson bg-slate-800 text-white font-bold border-l-4 border-emerald-500'
             : 'text-slate-300 hover:bg-slate-850 hover:text-white'
-        }`;
+          }`;
         mItem.onclick = () => {
           renderLearningRoom(l.id);
           closeMobileCurriculumDrawer();
@@ -1953,8 +1951,8 @@ function renderFavorites() {
     const q = AppState.favoritesSearchQuery;
     filtered = filtered.filter(f => {
       return (f.title && f.title.toLowerCase().includes(q)) ||
-             (f.subtitle && f.subtitle.toLowerCase().includes(q)) ||
-             (f.content && f.content.toLowerCase().includes(q));
+        (f.subtitle && f.subtitle.toLowerCase().includes(q)) ||
+        (f.content && f.content.toLowerCase().includes(q));
     });
   }
 
@@ -2063,7 +2061,7 @@ function renderFavorites() {
 }
 
 // Global window bindings
-window.copyFavoriteSnippet = function(favId) {
+window.copyFavoriteSnippet = function (favId) {
   const user = AppState.currentUser;
   const userFavs = (user && AppState.favorites && AppState.favorites[user.email]) ? AppState.favorites[user.email] : [];
   const fav = userFavs.find(f => f.id === favId);
@@ -2275,12 +2273,12 @@ function renderGlobalSearchMenuList(filterText) {
   const q = (filterText || '').trim().toLowerCase();
 
   const filtered = q
-    ? allItems.filter(item => 
-        item.title.toLowerCase().includes(q) || 
-        (item.subtitle && item.subtitle.toLowerCase().includes(q)) ||
-        (item.category && item.category.toLowerCase().includes(q)) ||
-        (item.badge && item.badge.toLowerCase().includes(q))
-      )
+    ? allItems.filter(item =>
+      item.title.toLowerCase().includes(q) ||
+      (item.subtitle && item.subtitle.toLowerCase().includes(q)) ||
+      (item.category && item.category.toLowerCase().includes(q)) ||
+      (item.badge && item.badge.toLowerCase().includes(q))
+    )
     : allItems;
 
   if (counterEl) {

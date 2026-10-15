@@ -135,18 +135,22 @@ const ZettSupabase = {
         }));
       }
 
-      // 3. Pull Whitelist
-      const { data: wl, error: wlErr } = await this.client.from('whitelist_members').select('*');
-      if (!wlErr && Array.isArray(wl) && wl.length > 0) {
-        AppState.whitelist = wl.map(w => ({
-          id: w.id,
-          email: w.email,
-          fullName: w.full_name,
-          role: w.role,
-          isActive: w.is_active,
-          passwordHash: w.password_hash || null,
-          registeredAt: w.registered_at
-        }));
+      // 3. Pull Whitelist (HANYA diunduh jika pengguna aktif adalah Super Admin)
+      const user = AppState.currentUser;
+      const isSuperAdmin = user && user.role === 'admin' && user.email?.toLowerCase() === 'zettbos2025@gmail.com';
+      if (isSuperAdmin) {
+        const { data: wl, error: wlErr } = await this.client.from('whitelist_members').select('*');
+        if (!wlErr && Array.isArray(wl) && wl.length > 0) {
+          AppState.whitelist = wl.map(w => ({
+            id: w.id,
+            email: w.email,
+            fullName: w.full_name,
+            role: w.role,
+            isActive: w.is_active,
+            passwordHash: w.password_hash || null,
+            registeredAt: w.registered_at
+          }));
+        }
       }
 
       // 4. Pull Resources

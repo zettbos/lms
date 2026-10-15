@@ -141,7 +141,11 @@ ALTER TABLE public.shared_resources ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.landing_cms ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.quick_actions ENABLE ROW LEVEL SECURITY;
 
--- Kebijakan Akses Publik Baca (Anonim / Member dapat membaca kurikulum & konten)
+-- ==============================================================================
+-- ROW LEVEL SECURITY (RLS) POLICIES (HARDENED REVISI 74)
+-- ==============================================================================
+
+-- 1. Kebijakan Akses Publik Baca (Anonim & Member hanya dapat membaca katalog & konten)
 DROP POLICY IF EXISTS "Public Read Modules" ON public.curriculum_modules;
 CREATE POLICY "Public Read Modules" ON public.curriculum_modules FOR SELECT USING (true);
 
@@ -157,14 +161,19 @@ CREATE POLICY "Public Read Landing CMS" ON public.landing_cms FOR SELECT USING (
 DROP POLICY IF EXISTS "Public Read Quick Actions" ON public.quick_actions;
 CREATE POLICY "Public Read Quick Actions" ON public.quick_actions FOR SELECT USING (true);
 
+-- 2. Kebijakan Privasi Whitelist (Cegah Bulk Scrape 2.318 Email Siswa)
+-- Hapus kebijakan read & write publik lama
 DROP POLICY IF EXISTS "Public Read Whitelist" ON public.whitelist_members;
-CREATE POLICY "Public Read Whitelist" ON public.whitelist_members FOR SELECT USING (true);
-
--- Kebijakan Update Password & Profil Whitelist
+DROP POLICY IF EXISTS "Public Write Whitelist" ON public.whitelist_members;
 DROP POLICY IF EXISTS "Public Update Whitelist" ON public.whitelist_members;
-CREATE POLICY "Public Update Whitelist" ON public.whitelist_members FOR UPDATE USING (true) WITH CHECK (true);
 
--- Kebijakan Member (Baca & Tulis Progres / Favorit sendiri)
+-- Hanya izinkan Service Role dan Serverless Backend untuk mengelola data anggota
+-- Pengguna publik hanya dapat memverifikasi email spesifik via API /api/check-whitelist
+CREATE POLICY "Service Role Manage Whitelist" ON public.whitelist_members 
+    FOR ALL 
+    USING (auth.role() = 'service_role' OR current_user = 'postgres');
+
+-- 3. Kebijakan Progres Belajar & Favorit Member
 DROP POLICY IF EXISTS "Member Manage Progress" ON public.member_progress;
 CREATE POLICY "Member Manage Progress" ON public.member_progress FOR ALL USING (true);
 
@@ -174,24 +183,19 @@ CREATE POLICY "Member Manage Activity" ON public.member_activity FOR ALL USING (
 DROP POLICY IF EXISTS "Member Manage Favorites" ON public.member_favorites;
 CREATE POLICY "Member Manage Favorites" ON public.member_favorites FOR ALL USING (true);
 
--- Kebijakan Admin/Anon (Untuk demo frontend dan modifikasi CMS & Whitelist)
-DROP POLICY IF EXISTS "Public Write Whitelist" ON public.whitelist_members;
-CREATE POLICY "Public Write Whitelist" ON public.whitelist_members FOR ALL USING (true);
-
+-- 4. Hapus Seluruh Kebijakan Public Write yang Membuka Akses Delete / Update untuk Anonim
 DROP POLICY IF EXISTS "Public Write Modules" ON public.curriculum_modules;
-CREATE POLICY "Public Write Modules" ON public.curriculum_modules FOR ALL USING (true);
-
 DROP POLICY IF EXISTS "Public Write Lessons" ON public.curriculum_lessons;
-CREATE POLICY "Public Write Lessons" ON public.curriculum_lessons FOR ALL USING (true);
-
 DROP POLICY IF EXISTS "Public Write CMS" ON public.landing_cms;
-CREATE POLICY "Public Write CMS" ON public.landing_cms FOR ALL USING (true);
-
 DROP POLICY IF EXISTS "Public Write Resources" ON public.shared_resources;
-CREATE POLICY "Public Write Resources" ON public.shared_resources FOR ALL USING (true);
-
 DROP POLICY IF EXISTS "Public Write Quick Actions" ON public.quick_actions;
-CREATE POLICY "Public Write Quick Actions" ON public.quick_actions FOR ALL USING (true);
+
+-- Izinkan Write Modules, Lessons, Resources, Quick Actions, dan CMS HANYA untuk Service Role & Admin Backend
+CREATE POLICY "Service Role Manage Modules" ON public.curriculum_modules FOR ALL USING (auth.role() = 'service_role' OR current_user = 'postgres');
+CREATE POLICY "Service Role Manage Lessons" ON public.curriculum_lessons FOR ALL USING (auth.role() = 'service_role' OR current_user = 'postgres');
+CREATE POLICY "Service Role Manage CMS" ON public.landing_cms FOR ALL USING (auth.role() = 'service_role' OR current_user = 'postgres');
+CREATE POLICY "Service Role Manage Resources" ON public.shared_resources FOR ALL USING (auth.role() = 'service_role' OR current_user = 'postgres');
+CREATE POLICY "Service Role Manage Quick Actions" ON public.quick_actions FOR ALL USING (auth.role() = 'service_role' OR current_user = 'postgres');
 
 -- ==============================================================================
 -- SEED DATA AWAL (Langsung siap pakai begitu schema ini di-run di Supabase)

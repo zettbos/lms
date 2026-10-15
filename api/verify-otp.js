@@ -1,12 +1,12 @@
 const crypto = require('crypto');
 
-const HMAC_SECRET = process.env.HMAC_SECRET || 'zettbos_secure_secret_2026';
+const HMAC_SECRET = process.env.HMAC_SECRET || 'zettbos_secure_secret_prod_2026';
 
 module.exports = async (req, res) => {
   // CORS Headers
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
   res.setHeader(
     'Access-Control-Allow-Headers',
     'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
@@ -50,10 +50,17 @@ module.exports = async (req, res) => {
     const expectedSignature = crypto.createHmac('sha256', HMAC_SECRET).update(payload).digest('hex');
 
     if (crypto.timingSafeEqual(Buffer.from(signature, 'hex'), Buffer.from(expectedSignature, 'hex'))) {
+      // 4. Generate Auth Proof Token untuk pembuatan password (berlaku 15 menit)
+      const proofExpiresAt = Date.now() + 15 * 60 * 1000;
+      const proofPayload = `${cleanEmail}:verified:${proofExpiresAt}`;
+      const proofSig = crypto.createHmac('sha256', HMAC_SECRET).update(proofPayload).digest('hex');
+      const resetToken = `${proofExpiresAt}.${proofSig}`;
+
       return res.status(200).json({
         success: true,
         verified: true,
         email: cleanEmail,
+        resetToken,
         message: 'Kode OTP berhasil diverifikasi.'
       });
     } else {

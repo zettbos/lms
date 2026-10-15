@@ -10,6 +10,8 @@
 // 1. LOGIN FORM CONTROLLER & DYNAMIC PASSWORD TOGGLE
 // ==========================================
 
+let loginCheckDebounceTimer = null;
+
 async function onLoginEmailChanged() {
   const emailInput = document.getElementById('login-email-input');
   const passwordContainer = document.getElementById('login-password-container');
@@ -23,46 +25,37 @@ async function onLoginEmailChanged() {
     return;
   }
 
-  // 1. Cek local state
+  // 1. Cek local state jika ada
   let member = AppState.whitelist.find(m => m.email.toLowerCase() === email);
-
-  // 2. Jika di lokal belum ada password_hash tapi Supabase aktif, sinkronkan dari Supabase Cloud
-  if ((!member || !member.passwordHash) && typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
-    try {
-      const { data } = await ZettSupabase.client
-        .from('whitelist_members')
-        .select('id, email, full_name, role, is_active, password_hash, registered_at')
-        .eq('email', email)
-        .single();
-
-      if (data && data.password_hash) {
-        if (member) {
-          member.passwordHash = data.password_hash;
-          if (data.full_name) member.fullName = data.full_name;
-        } else {
-          member = {
-            id: data.id || generateFormattedId('WL', AppState.whitelist, 4),
-            email: data.email,
-            fullName: data.full_name || email.split('@')[0],
-            role: data.role || 'member',
-            isActive: data.is_active !== false,
-            passwordHash: data.password_hash,
-            registeredAt: data.registered_at || new Date().toISOString()
-          };
-          AppState.whitelist.push(member);
-        }
-        saveState();
-      }
-    } catch (e) {}
-  }
-
-  if (member && member.passwordHash) {
+  if (member && member.passwordHash && member.passwordHash !== 'EXISTS') {
     passwordContainer.classList.remove('hidden');
     submitLabel.textContent = 'Masuk dengan Kata Sandi';
-  } else {
-    passwordContainer.classList.add('hidden');
-    submitLabel.textContent = 'Kirim Kode OTP Masuk';
+    return;
   }
+
+  // 2. Debounce call ke serverless /api/check-whitelist untuk verifikasi status password tanpa bocor email lain
+  clearTimeout(loginCheckDebounceTimer);
+  loginCheckDebounceTimer = setTimeout(async () => {
+    try {
+      const res = await fetch(getApiEndpoint('/api/check-whitelist'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+      if (data && data.success && data.isWhitelisted) {
+        if (data.hasPassword) {
+          passwordContainer.classList.remove('hidden');
+          submitLabel.textContent = 'Masuk dengan Kata Sandi';
+        } else {
+          passwordContainer.classList.add('hidden');
+          submitLabel.textContent = 'Kirim Kode OTP Masuk';
+        }
+      }
+    } catch (e) {
+      console.warn('[Check Whitelist Input Error]', e);
+    }
+  }, 350);
 }
 
 async function handleLoginSubmit(event) {
@@ -75,43 +68,28 @@ async function handleLoginSubmit(event) {
     return;
   }
 
-  // 1. Verifikasi Ketat Whitelist (Local State & Supabase Live)
-  let member = AppState.whitelist.find(m => m.email.toLowerCase() === email);
+  showToast('Memverifikasi status akun...', 'info');
 
-  // Cek Supabase jika member belum ada di lokal atau belum punya password_hash
-  if ((!member || !member.passwordHash) && typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
-    try {
-      const { data, error } = await ZettSupabase.client
-        .from('whitelist_members')
-        .select('*')
-        .eq('email', email)
-        .single();
-      
-      if (data && !error) {
-        if (!member) {
-          member = {
-            id: data.id,
-            email: data.email,
-            fullName: data.full_name,
-            role: data.role || 'member',
-            isActive: data.is_active !== false,
-            passwordHash: data.password_hash || null,
-            registeredAt: data.registered_at
-          };
-          AppState.whitelist.push(member);
-        } else {
-          if (data.password_hash) member.passwordHash = data.password_hash;
-          if (data.full_name) member.fullName = data.full_name;
-        }
-        saveState();
-      }
-    } catch (err) {
-      console.warn('[Auth Check Error]', err);
-    }
+  // 1. Verifikasi Ketat Whitelist via Serverless API (Zero Email Leaks)
+  let checkData = null;
+  try {
+    const res = await fetch(getApiEndpoint('/api/check-whitelist'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    checkData = await res.json();
+  } catch (err) {
+    console.warn('[Check Whitelist API Fallback]', err);
   }
 
+  // Cek fallback jika offline
+  let member = AppState.whitelist.find(m => m.email.toLowerCase() === email);
+
+  const isWhitelisted = (checkData && checkData.success && checkData.isWhitelisted) || (member && member.isActive);
+
   // 2. Jika Tidak Terdaftar di Whitelist: TOLAK KERAS
-  if (!member || !member.isActive) {
+  if (!isWhitelisted) {
     const unregEmailEl = document.getElementById('modal-unregistered-email');
     const modalNonWl = document.getElementById('modal-non-whitelist');
     if (unregEmailEl) unregEmailEl.textContent = email;
@@ -120,11 +98,13 @@ async function handleLoginSubmit(event) {
     return;
   }
 
+  const hasPassword = (checkData && checkData.hasPassword) || (member && !!member.passwordHash);
+
   // 3. Jika Member Sudah Memiliki Password: Cek Input Password
   const passwordContainer = document.getElementById('login-password-container');
   const passwordInput = document.getElementById('login-password-input');
 
-  if (member.passwordHash) {
+  if (hasPassword) {
     // Jika container belum terbuka, buka dan minta user isi password
     if (passwordContainer && passwordContainer.classList.contains('hidden')) {
       passwordContainer.classList.remove('hidden');
@@ -142,18 +122,38 @@ async function handleLoginSubmit(event) {
       return;
     }
 
-    // Hash kata sandi yang diinput dan bandingkan
+    // Hash kata sandi yang diinput dan verifikasi ke Serverless API /api/verify-login
     const inputHash = await hashPassword(enteredPassword);
-    if (inputHash === member.passwordHash) {
-      // Login Berhasil!
-      AppState.currentUser = member;
-      saveState();
-      showToast(`Login berhasil! Selamat datang, ${member.fullName || member.email}`, 'success');
-      navigate(member.role === 'admin' ? 'admin' : 'home');
-      return;
-    } else {
-      showToast('Kata sandi salah! Coba periksa kembali atau gunakan opsi "Lupa sandi? Kirim OTP"', 'error');
-      if (passwordInput) passwordInput.select();
+
+    try {
+      const loginRes = await fetch(getApiEndpoint('/api/verify-login'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, passwordHash: inputHash })
+      });
+      const loginData = await loginRes.json();
+
+      if (loginData.success && loginData.user) {
+        AppState.currentUser = loginData.user;
+        saveState();
+        showToast(`Login berhasil! Selamat datang, ${loginData.user.fullName || loginData.user.email}`, 'success');
+        navigate(loginData.user.role === 'admin' ? 'admin' : 'home');
+        return;
+      } else {
+        showToast(loginData.error || 'Kata sandi salah! Periksa kembali atau gunakan opsi "Lupa sandi? Kirim OTP"', 'error');
+        if (passwordInput) passwordInput.select();
+        return;
+      }
+    } catch (loginErr) {
+      console.warn('[Verify Login Server Error, checking local fallback]', loginErr);
+      if (member && member.passwordHash && member.passwordHash === inputHash) {
+        AppState.currentUser = member;
+        saveState();
+        showToast(`Login berhasil! Selamat datang, ${member.fullName || member.email}`, 'success');
+        navigate(member.role === 'admin' ? 'admin' : 'home');
+        return;
+      }
+      showToast('Gagal memverifikasi login ke server. Periksa koneksi internet Anda.', 'error');
       return;
     }
   }
@@ -286,15 +286,26 @@ async function verifyOtpCode() {
 
   if (!isVerified) return;
 
+  if (data && data.resetToken) {
+    AppState.activeResetToken = data.resetToken;
+  }
+
   // Tutup modal OTP
   const modalOtp = document.getElementById('modal-otp');
   if (modalOtp) modalOtp.classList.add('hidden');
 
-  // Temukan akun di whitelist
-  const member = AppState.whitelist.find(m => m.email.toLowerCase() === targetEmail.toLowerCase());
+  // Temukan atau buat profil sementara di local state
+  let member = AppState.whitelist.find(m => m.email.toLowerCase() === targetEmail.toLowerCase());
   if (!member) {
-    showToast('Akun tidak ditemukan di whitelist.', 'error');
-    return;
+    member = {
+      id: 'wl-' + Date.now(),
+      email: targetEmail,
+      fullName: targetEmail.split('@')[0],
+      role: targetEmail.toLowerCase() === 'zettbos2025@gmail.com' ? 'admin' : 'member',
+      isActive: true,
+      passwordHash: null
+    };
+    AppState.whitelist.push(member);
   }
 
   // 2. Jika Belum Pernah Bikin Password: WAJIB BIKIN PASSWORD BARU
@@ -361,10 +372,17 @@ async function handleSetPasswordSubmit(event) {
   }
 
   const targetEmail = AppState.pendingEmailForOtp;
-  const member = AppState.whitelist.find(m => m.email.toLowerCase() === targetEmail.toLowerCase());
+  let member = AppState.whitelist.find(m => m.email.toLowerCase() === targetEmail.toLowerCase());
   if (!member) {
-    showToast('Sesi pembuatan password kadaluarsa.', 'error');
-    return;
+    member = {
+      id: 'wl-' + Date.now(),
+      email: targetEmail,
+      fullName: fullName,
+      role: targetEmail.toLowerCase() === 'zettbos2025@gmail.com' ? 'admin' : 'member',
+      isActive: true,
+      passwordHash: null
+    };
+    AppState.whitelist.push(member);
   }
 
   showToast('Menyimpan profil dan mengenkripsi kata sandi...', 'info');
@@ -374,43 +392,37 @@ async function handleSetPasswordSubmit(event) {
   member.fullName = fullName;
   member.passwordHash = hashedPassword;
 
-  // Simpan ke Supabase Database Cloud
+  // 1. Simpan ke Supabase Database via Serverless API /api/set-password (Aman & Anti-Bypass)
+  try {
+    const setPassRes = await fetch(getApiEndpoint('/api/set-password'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: member.email,
+        fullName: fullName,
+        passwordHash: hashedPassword,
+        resetToken: AppState.activeResetToken || null
+      })
+    });
+    const setPassData = await setPassRes.json();
+    if (!setPassData.success) {
+      console.warn('[Set Password API Warning]', setPassData.error);
+    }
+  } catch (apiErr) {
+    console.warn('[Set Password API Exception]', apiErr);
+  }
+
+  // 2. Fallback sinkronisasi lokal Supabase jika terkoneksi
   if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
     try {
-      const { error: updErr } = await ZettSupabase.client
+      await ZettSupabase.client
         .from('whitelist_members')
         .update({ 
           full_name: fullName,
           password_hash: hashedPassword 
         })
         .eq('email', member.email);
-
-      if (updErr) {
-        console.warn('[Save Hash DB Error]', updErr);
-        // Fallback upsert
-        await ZettSupabase.client
-          .from('whitelist_members')
-          .upsert({
-            email: member.email,
-            full_name: fullName,
-            password_hash: hashedPassword,
-            role: member.role || 'member',
-            is_active: true
-          }, { onConflict: 'email' });
-      }
-
-      // Sinkronkan juga password ke Supabase Auth
-      try {
-        await ZettSupabase.client.auth.updateUser({ 
-          password: newPass,
-          data: { full_name: fullName }
-        });
-      } catch (authErr) {
-        console.warn('[Supabase Auth Password Update]', authErr);
-      }
-    } catch (err) {
-      console.warn('[Save Hash DB Exception]', err);
-    }
+    } catch (err) {}
   }
 
   // Tutup Modal Set Password
