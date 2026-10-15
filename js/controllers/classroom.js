@@ -79,7 +79,8 @@ function renderAppBrandLogo() {
     { id: 'brand-logo-drawer', size: 'sm' },
     { id: 'brand-logo-landing', size: 'sm' },
     { id: 'brand-logo-footer', size: 'xs' },
-    { id: 'brand-logo-boot-loader', size: 'lg' }
+    { id: 'brand-logo-boot-loader', size: 'lg' },
+    { id: 'brand-logo-login', size: 'login' }
   ];
 
   targets.forEach(t => {
@@ -92,6 +93,10 @@ function renderAppBrandLogo() {
           <div class="boot-loader-pulse-ring"></div>
           <img src="${escapeHtml(convertedUrl)}" alt="Logo ZETTBOS" class="h-16 sm:h-20 w-auto max-w-[150px] object-contain relative z-10" onerror="this.onerror=null; this.parentElement.className='relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-emerald-950/80 border border-emerald-500/40 flex items-center justify-center shadow-2xl shadow-emerald-500/20 mb-5'; this.parentElement.innerHTML='<div class=\\'boot-loader-pulse-ring\\'></div><span class=\\'font-mono font-black text-xl sm:text-2xl text-emerald-400 tracking-tighter\\'>ZB</span>';">
         `;
+      } else if (t.size === 'login') {
+        // Logo login tanpa kotak atau border sesuai instruksi pengguna
+        el.className = 'flex items-center justify-center mb-4 bg-transparent border-0 shadow-none p-0 overflow-visible';
+        el.innerHTML = `<img src="${escapeHtml(convertedUrl)}" alt="Logo ZETTBOS" class="h-12 sm:h-14 w-auto max-w-[180px] object-contain" onerror="this.onerror=null; this.parentElement.className='inline-flex items-center justify-center w-14 h-14 rounded-xl bg-surface-1 border border-hairline mb-4 shadow-sm'; this.parentElement.innerHTML='<span class=\\'text-2xl font-black font-mono text-emerald-400 tracking-tighter\\'>ZB</span>';">`;
       } else {
         // Hapus kotak hijau, border & shadow saat logo gambar kustom aktif
         el.className = `flex items-center justify-center flex-shrink-0 bg-transparent border-0 shadow-none p-0 overflow-visible`;
@@ -101,6 +106,9 @@ function renderAppBrandLogo() {
       if (t.size === 'lg') {
         el.className = 'relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-emerald-950/80 border border-emerald-500/40 flex items-center justify-center shadow-2xl shadow-emerald-500/20 mb-5';
         el.innerHTML = `<div class="boot-loader-pulse-ring"></div><span class="font-mono font-black text-xl sm:text-2xl text-emerald-400 tracking-tighter">ZB</span>`;
+      } else if (t.size === 'login') {
+        el.className = 'inline-flex items-center justify-center w-14 h-14 rounded-xl bg-surface-1 border border-hairline mb-4 shadow-sm';
+        el.innerHTML = `<span class="text-2xl font-black font-mono text-emerald-400 tracking-tighter">ZB</span>`;
       } else {
         el.className = `w-8 h-8 rounded-lg bg-emerald-950/80 border border-emerald-500/40 flex items-center justify-center shadow-sm flex-shrink-0 overflow-hidden`;
         el.innerHTML = `<span class="font-mono font-black ${t.size === 'xs' ? 'text-[11px]' : 'text-xs'} text-emerald-400">ZB</span>`;
@@ -117,7 +125,57 @@ function renderAppBrandLogo() {
   } catch (e) {}
 }
 
+function renderWhatsAppContactCards() {
+  const listEl = document.getElementById('whatsapp-admin-cards-list');
+  if (!listEl) return;
+  const contacts = (window.AppState?.landingCms?.adminContacts && window.AppState.landingCms.adminContacts.length > 0)
+    ? window.AppState.landingCms.adminContacts
+    : [
+        { id: 'admin1', name: 'Admin Farhan', phone: '0851-1122-6452', role: 'Support & Operasional LMS', status: 'Online' },
+        { id: 'admin2', name: 'Admin Asep', phone: '0821-9527-7812', role: 'Pendaftaran & Konsultasi Member', status: 'Online' }
+      ];
+
+  listEl.innerHTML = contacts.map((admin, idx) => {
+    const cleanPhone = (admin.phone || '').replace(/\D/g, '').replace(/^0/, '62');
+    const initials = (admin.name || 'Admin').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'AD';
+    const isFirst = idx === 0;
+    const badgeColor = isFirst ? 'text-emerald-400 bg-emerald-950/80 border-emerald-500/40' : 'text-cyan-400 bg-cyan-950/80 border-cyan-500/40';
+    const hoverBorder = isFirst ? 'hover:border-emerald-500/60' : 'hover:border-cyan-500/60';
+    const btnHover = isFirst ? 'bg-emerald-500/15 group-hover:bg-emerald-500 text-emerald-400 group-hover:text-slate-950' : 'bg-cyan-500/15 group-hover:bg-cyan-500 text-cyan-400 group-hover:text-slate-950';
+    const nameHover = isFirst ? 'group-hover:text-emerald-400' : 'group-hover:text-cyan-400';
+    const roleText = admin.role || (isFirst ? 'Support & Operasional LMS' : 'Pendaftaran & Konsultasi Member');
+
+    return `
+      <a href="https://wa.me/${cleanPhone}?text=Halo%20${encodeURIComponent(admin.name || 'Admin')}%20Zettbos,%20saya%20ingin%20bertanya%20seputar%20LMS%20Zettbos" target="_blank" rel="noopener noreferrer" class="group block p-4 rounded-xl bg-slate-900/80 hover:bg-slate-850 border border-slate-800 ${hoverBorder} transition-all shadow-sm">
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="relative">
+              <div class="w-10 h-10 rounded-full ${badgeColor} border flex items-center justify-center font-bold text-xs font-mono">
+                ${escapeHtml(initials)}
+              </div>
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-slate-900 absolute -bottom-0.5 -right-0.5"></span>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-bold text-white ${nameHover} transition-colors">${escapeHtml(admin.name)}</span>
+                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">${escapeHtml(admin.status || 'Online')}</span>
+              </div>
+              <div class="text-xs text-slate-400 mt-0.5 font-mono">${escapeHtml(admin.phone)}</div>
+              <div class="text-[11px] text-slate-500 mt-0.5">${escapeHtml(roleText)}</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg ${btnHover} text-xs font-bold transition-all">
+            <span>Chat WhatsApp</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          </div>
+        </div>
+      </a>
+    `;
+  }).join('');
+}
+
 function openWhatsAppContactModal() {
+  renderWhatsAppContactCards();
   const modal = document.getElementById('modal-whatsapp-contact');
   if (modal) {
     modal.classList.remove('hidden');
@@ -132,6 +190,8 @@ function closeWhatsAppContactModal() {
     document.body.style.overflow = '';
   }
 }
+
+window.renderWhatsAppContactCards = renderWhatsAppContactCards;
 
 // ==========================================
 // 1.5. PINNED MODULE HERO (ADMIN FEATURED)

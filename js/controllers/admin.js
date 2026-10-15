@@ -91,6 +91,9 @@ function renderAdminLandingCms() {
     handleBrandLogoInputPreview(logoInp.value);
   }
 
+  // Pengelola Kontak Admin WhatsApp (Dual-Admin)
+  renderAdminContactsCms();
+
   // Facilities Grid (5 Fasilitas Kelas Lynk.id Showcase)
   const facGrid = document.getElementById('admin-facilities-grid');
   if (facGrid && Array.isArray(cms.facilities)) {
@@ -274,6 +277,101 @@ function resetLandingHeroToDefault() {
         if (window.HeroTypewriterController) window.HeroTypewriterController.init();
         showToast('Hero Banner berhasil di-reset ke default!', 'info');
       }
+    }
+  });
+}
+
+// ==========================================
+// PENGATURAN KONTAK WHATSAPP DUAL-ADMIN (CMS)
+// ==========================================
+
+function renderAdminContactsCms() {
+  const contacts = (AppState.landingCms?.adminContacts && Array.isArray(AppState.landingCms.adminContacts) && AppState.landingCms.adminContacts.length > 0)
+    ? AppState.landingCms.adminContacts
+    : [
+        { id: 'admin1', name: 'Admin Farhan', phone: '0851-1122-6452', role: 'Support & Operasional LMS', status: 'Online' },
+        { id: 'admin2', name: 'Admin Asep', phone: '0821-9527-7812', role: 'Pendaftaran & Konsultasi Member', status: 'Online' }
+      ];
+
+  const admin1 = contacts[0] || { name: 'Admin Farhan', phone: '0851-1122-6452', role: 'Support & Operasional LMS' };
+  const admin2 = contacts[1] || { name: 'Admin Asep', phone: '0821-9527-7812', role: 'Pendaftaran & Konsultasi Member' };
+
+  const n1 = document.getElementById('admin-contact-name-1');
+  const p1 = document.getElementById('admin-contact-phone-1');
+  const r1 = document.getElementById('admin-contact-role-1');
+  const n2 = document.getElementById('admin-contact-name-2');
+  const p2 = document.getElementById('admin-contact-phone-2');
+  const r2 = document.getElementById('admin-contact-role-2');
+
+  if (n1) n1.value = admin1.name || '';
+  if (p1) p1.value = admin1.phone || '';
+  if (r1) r1.value = admin1.role || '';
+
+  if (n2) n2.value = admin2.name || '';
+  if (p2) p2.value = admin2.phone || '';
+  if (r2) r2.value = admin2.role || '';
+}
+
+function handleSaveAdminContactsCms(e) {
+  if (e) e.preventDefault();
+  if (!AppState.landingCms) AppState.landingCms = {};
+
+  const name1 = document.getElementById('admin-contact-name-1')?.value.trim() || 'Admin Farhan';
+  const phone1 = document.getElementById('admin-contact-phone-1')?.value.trim() || '0851-1122-6452';
+  const role1 = document.getElementById('admin-contact-role-1')?.value.trim() || 'Support & Operasional LMS';
+
+  const name2 = document.getElementById('admin-contact-name-2')?.value.trim() || 'Admin Asep';
+  const phone2 = document.getElementById('admin-contact-phone-2')?.value.trim() || '0821-9527-7812';
+  const role2 = document.getElementById('admin-contact-role-2')?.value.trim() || 'Pendaftaran & Konsultasi Member';
+
+  const updatedContacts = [
+    { id: 'admin1', name: name1, phone: phone1, role: role1, status: 'Online' },
+    { id: 'admin2', name: name2, phone: phone2, role: role2, status: 'Online' }
+  ];
+
+  AppState.landingCms.adminContacts = updatedContacts;
+  if (!AppState.landingCms.hero) AppState.landingCms.hero = {};
+  AppState.landingCms.hero.adminContacts = updatedContacts;
+  AppState.landingCms.hero._adminContacts = updatedContacts;
+
+  saveState();
+  autoPushLandingCmsIfConnected();
+
+  if (typeof renderWhatsAppContactCards === 'function') {
+    renderWhatsAppContactCards();
+  }
+
+  showToast('Kontak WhatsApp Admin berhasil disimpan & LIVE di Cloud!', 'success');
+}
+
+function resetAdminContactsToDefault() {
+  showCustomConfirm({
+    title: 'Reset Kontak WhatsApp Admin?',
+    message: 'Kembalikan data kontak WhatsApp Admin Farhan & Admin Asep ke pengaturan bawaan default?',
+    confirmText: 'Ya, Reset ke Default',
+    cancelText: 'Batal',
+    isDanger: true,
+    onConfirm: () => {
+      const defaultContacts = [
+        { id: 'admin1', name: 'Admin Farhan', phone: '0851-1122-6452', role: 'Support & Operasional LMS', status: 'Online' },
+        { id: 'admin2', name: 'Admin Asep', phone: '0821-9527-7812', role: 'Pendaftaran & Konsultasi Member', status: 'Online' }
+      ];
+
+      if (!AppState.landingCms) AppState.landingCms = {};
+      AppState.landingCms.adminContacts = defaultContacts;
+      if (!AppState.landingCms.hero) AppState.landingCms.hero = {};
+      AppState.landingCms.hero.adminContacts = defaultContacts;
+      AppState.landingCms.hero._adminContacts = defaultContacts;
+
+      saveState();
+      autoPushLandingCmsIfConnected();
+      renderAdminContactsCms();
+
+      if (typeof renderWhatsAppContactCards === 'function') {
+        renderWhatsAppContactCards();
+      }
+
+      showToast('Kontak WhatsApp Admin berhasil di-reset ke default!', 'info');
     }
   });
 }
@@ -2475,6 +2573,9 @@ window.closeEditQuickActionModal = closeEditQuickActionModal;
 window.toggleQuickActionTargetType = toggleQuickActionTargetType;
 window.handleSaveQuickActionSubmit = handleSaveQuickActionSubmit;
 window.resetQuickActionsToDefault = resetQuickActionsToDefault;
+window.renderAdminContactsCms = renderAdminContactsCms;
+window.handleSaveAdminContactsCms = handleSaveAdminContactsCms;
+window.resetAdminContactsToDefault = resetAdminContactsToDefault;
 
 // Handler Manual Rapikan & Format Semua ID Database
 async function handleNormalizeAllIdsClick() {

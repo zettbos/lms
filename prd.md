@@ -1,8 +1,8 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 # Projek: Zettbos LMS (Member Hub & Notion-Style Learning Management System)
 ================================================================================
-VERSI DOKUMEN : v1.3.5
-STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 64 SELESAI)
+VERSI DOKUMEN : v1.3.6
+STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 65 SELESAI)
 ARSITEK SISTEM: ZettBOT by Zettbos
 ENGINE STACK  : Next.js 14+ (App Router) + Supabase (Postgres & Auth OTP) + Vercel
 ================================================================================
@@ -709,4 +709,32 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
         - Menyelaraskan dimensi awal logo bootloader (`h-16 sm:h-20 w-auto`) dengan transisi *pure smooth opacity fade-out*.
      7. Cache Buster:
         - Menaikkan seluruh query string stylesheet dan script JavaScript di `index.html` ke versi `?v=64`.
+  - [2026-10-15] Implementasi Revisi 65: Penyelarasan Branding Bootloader ("ZETTBOS"), Desain Kontras POS Modern Simulator Hero (Opsi 1), Tombol Join Kelas di Modal Non-Whitelist, WhatsApp Linking di Footer Login, CMS Pengelola Kontak Dual-Admin, dan Pembersihan Box Logo Login Screen.
+     1. Penyesuaian Teks Bootloader Splash Screen (`index.html`):
+        - Mengganti teks `ZETTBOS ACADEMY` menjadi `ZETTBOS`.
+        - Mengganti teks status `Memuat Ekosistem Zettbos...` menjadi `Memuat Ekosistem...`.
+     2. Peningkatan Kontras Visual & Retail POS Hero Simulator - Opsi 1 (`index.html`):
+        - Mengubah container ikon ☕ menjadi warm amber glow (`bg-amber-500/20 text-amber-300 border-amber-500/40`).
+        - Menambahkan status badge `POS AKTIF • MEJA 04` hijau menyala dengan pulsing light.
+        - Menerapkan layout kartu metrik triple-tone kontras tinggi: Omzet (Emerald Rp 1.450.000), Transaksi (Amber 28 Struk), dan Database (Cyan Tersinkron Sheets Auto-Save).
+        - Menampilkan feed transaksi realistis dengan ikon emoji (☕ Kopi Susu Aren, 🥐 Butter Croissant) dan harga tajam putih font-mono serta badge `LUNAS ✓`.
+        - Mempertegas tombol kasir: `+ Transaksi Baru` emerald solid dan `Cetak Struk POS` slate border amber.
+     3. Tombol "Join Kelas" pada Modal Non-Whitelist (`index.html`):
+        - Menambahkan tombol utama `Daftar & Join Kelas Sekarang →` yang langsung membuka tautan registrasi Lynk.id (`https://lynk.id/zettbos/50nxdkpjmowm`).
+        - Mengubah tombol bantuan menjadi tombol sekunder `Sudah Daftar? Konfirmasi ke Admin` yang memicu pemilih kontak WhatsApp.
+     4. Integrasi WhatsApp di Footer Login (`index.html`):
+        - Mengubah tautan "Hubungi Admin Zettbos" pada form login yang sebelumnya menggunakan `mailto:` menjadi tombol interaktif pemanggil `openWhatsAppContactModal()`.
+     5. CMS Pengelola Kontak WhatsApp Dual-Admin (`index.html`, `js/controllers/admin.js`, `js/controllers/classroom.js`, `js/core/supabase.js`):
+        - Menambahkan Section E pada `tab-pane-landing_cms` di Admin Panel untuk mengelola data Admin 1 dan Admin 2 (Nama, Nomor WhatsApp, dan Posisi/Jabatan).
+        - Menyediakan fungsi `renderAdminContactsCms()`, `handleSaveAdminContactsCms()`, dan `resetAdminContactsToDefault()`.
+        - Data kontak admin otomatis tersimpan di state `AppState.landingCms.adminContacts` dan di-push ke cloud Supabase via container JSONB hero `_adminContacts`.
+        - Modal `#modal-whatsapp-contact` kini merender kartu kontak secara dinamis dengan tautan `https://wa.me/{cleanPhone}` yang otomatis terformat.
+     6. Pembersihan Box Logo pada Halaman Login (`index.html`, `js/controllers/classroom.js`):
+        - Menambahkan `id="brand-logo-login"` pada header view login.
+        - Memasukkan target `brand-logo-login` ke dalam `renderAppBrandLogo()`.
+        - Menjamin jika logo kustom diunggah, logo ditampilkan langsung secara bersih (`bg-transparent border-0 shadow-none p-0`) tanpa kotak/border hijau (`ZB`), sesuai instruksi pengguna ("inget ya jangan pake kotak").
+        - Mengintegrasikan zero-flash hydration untuk `brand-logo-login` di script boot loader.
+     7. Cache Buster:
+        - Menaikkan seluruh versi query string stylesheet dan script JavaScript di `index.html` ke versi `?v=65`.
+
 

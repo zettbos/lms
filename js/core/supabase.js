@@ -175,7 +175,15 @@ const ZettSupabase = {
                 ? cms.hero._facilities
                 : (zData.SEED_LANDING_CMS?.facilities || [])),
           useCases: cms.use_cases || (zData.SEED_LANDING_CMS?.useCases) || [],
-          testimonials: cms.testimonials || []
+          testimonials: cms.testimonials || [],
+          adminContacts: (Array.isArray(cms.admin_contacts) && cms.admin_contacts.length > 0)
+            ? cms.admin_contacts
+            : ((cms.hero && Array.isArray(cms.hero._adminContacts) && cms.hero._adminContacts.length > 0)
+                ? cms.hero._adminContacts
+                : (AppState.landingCms?.adminContacts || [
+                    { id: 'admin1', name: 'Admin Farhan', phone: '0851-1122-6452', role: 'Support & Operasional LMS', status: 'Online' },
+                    { id: 'admin2', name: 'Admin Asep', phone: '0821-9527-7812', role: 'Pendaftaran & Konsultasi Member', status: 'Online' }
+                  ]))
         };
 
         // Extract Brand Logo from Cloud (hero.brandLogoUrl or top-level)
@@ -311,9 +319,14 @@ const ZettSupabase = {
   async pushLandingCmsToSupabase(silent = true) {
     if (!this.isConnected() || !AppState.landingCms) return false;
     try {
+      const contactsToSave = AppState.landingCms.adminContacts || [
+        { id: 'admin1', name: 'Admin Farhan', phone: '0851-1122-6452', role: 'Support & Operasional LMS', status: 'Online' },
+        { id: 'admin2', name: 'Admin Asep', phone: '0821-9527-7812', role: 'Pendaftaran & Konsultasi Member', status: 'Online' }
+      ];
       const heroWithBrand = {
         ...(AppState.landingCms.hero || {}),
-        brandLogoUrl: AppState.brandLogoUrl || ''
+        brandLogoUrl: AppState.brandLogoUrl || '',
+        _adminContacts: contactsToSave
       };
       const payload = {
         id: 'active_cms',
@@ -333,6 +346,7 @@ const ZettSupabase = {
           const fallbackHero = {
             ...(AppState.landingCms.hero || {}),
             _facilities: AppState.landingCms.facilities || [],
+            _adminContacts: contactsToSave,
             brandLogoUrl: AppState.brandLogoUrl || ''
           };
           const fallbackPayload = {
@@ -499,7 +513,15 @@ const ZettSupabase = {
                   ? cms.hero._facilities
                   : (zData.SEED_LANDING_CMS?.facilities || [])),
             useCases: (Array.isArray(cms.use_cases) && cms.use_cases.length > 0) ? cms.use_cases : (zData.SEED_LANDING_CMS?.useCases || []),
-            testimonials: (Array.isArray(cms.testimonials) && cms.testimonials.length > 0) ? cms.testimonials : (zData.SEED_LANDING_CMS?.testimonials || [])
+            testimonials: (Array.isArray(cms.testimonials) && cms.testimonials.length > 0) ? cms.testimonials : (zData.SEED_LANDING_CMS?.testimonials || []),
+            adminContacts: (Array.isArray(cms.admin_contacts) && cms.admin_contacts.length > 0)
+              ? cms.admin_contacts
+              : ((cms.hero && Array.isArray(cms.hero._adminContacts) && cms.hero._adminContacts.length > 0)
+                  ? cms.hero._adminContacts
+                  : (AppState.landingCms?.adminContacts || [
+                      { id: 'admin1', name: 'Admin Farhan', phone: '0851-1122-6452', role: 'Support & Operasional LMS', status: 'Online' },
+                      { id: 'admin2', name: 'Admin Asep', phone: '0821-9527-7812', role: 'Pendaftaran & Konsultasi Member', status: 'Online' }
+                    ]))
           };
 
           // Auto-Sync Brand Logo from Cloud to all client devices
