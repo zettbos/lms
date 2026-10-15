@@ -3254,6 +3254,210 @@ html.light #brand-logo-footer {
   color: #059669 !important;
 }
 
+/* ==========================================================================
+   REVISI 67: HERO SIMULATOR WINDOW LIGHT MODE (MACOS STUDIO THEME)
+   ========================================================================== */
+
+/* 1. Main Window Container */
+html.light .hero-simulator-window {
+  background: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.08), 0 0 30px rgba(16, 185, 129, 0.06) !important;
+}
+
+/* 2. Window Topbar */
+html.light .hero-sim-topbar {
+  background: #F8FAFC !important;
+  border-bottom-color: #E2E8F0 !important;
+  color: #475569 !important;
+}
+
+html.light .hero-sim-topbar span.text-slate-200 {
+  color: #0F172A !important;
+}
+
+html.light .hero-sim-topbar .bg-emerald-500\/15 {
+  background-color: #ECFDF5 !important;
+  border-color: #A7F3D0 !important;
+  color: #059669 !important;
+}
+
+/* 3. Block 1: AI Prompt Input Section */
+html.light .hero-sim-prompt-box {
+  background: #F8FAFC !important;
+  border-bottom-color: #E2E8F0 !important;
+}
+
+html.light .hero-sim-prompt-box .text-slate-400 {
+  color: #64748B !important;
+}
+
+html.light .hero-sim-prompt-box span.bg-slate-900 {
+  background-color: #ECFEFF !important;
+  border-color: #A5F3FC !important;
+  color: #0891B2 !important;
+}
+
+html.light .hero-sim-prompt-bubble {
+  background: #FFFFFF !important;
+  border-color: #67E8F9 !important;
+  color: #0F172A !important;
+  box-shadow: 0 2px 10px -2px rgba(6, 182, 212, 0.12) !important;
+}
+
+html.light .hero-sim-prompt-bubble .text-cyan-400 {
+  color: #0891B2 !important;
+}
+
+/* 4. Block 2: Mini POS App Body */
+html.light .hero-sim-app-body {
+  background: #FFFFFF !important;
+}
+
+html.light .hero-sim-app-header {
+  border-bottom-color: #F1F5F9 !important;
+}
+
+html.light .hero-sim-app-header .bg-amber-500\/20 {
+  background-color: #FEF3C7 !important;
+  border-color: #FCD34D !important;
+  color: #B45309 !important;
+}
+
+html.light .hero-sim-app-header h4 {
+  color: #0F172A !important;
+}
+
+html.light .hero-sim-app-header p {
+  color: #B45309 !important;
+}
+
+html.light .hero-sim-app-header .bg-emerald-950\/90 {
+  background-color: #ECFDF5 !important;
+  border-color: #A7F3D0 !important;
+  color: #047857 !important;
+}
+
+/* 5. 3 Mini Stats Grid (High Contrast Triple Tone) */
+html.light .hero-sim-stat-omzet {
+  background-color: #ECFDF5 !important;
+  border-color: #6EE7B7 !important;
+  box-shadow: 0 2px 6px -1px rgba(16, 185, 129, 0.08) !important;
+}
+
+html.light .hero-sim-stat-omzet .text-emerald-300 {
+  color: #047857 !important;
+}
+
+html.light .hero-sim-stat-omzet .text-emerald-400 {
+  color: #059669 !important;
+}
+
+html.light .hero-sim-stat-omzet .text-emerald-300\/90 {
+  color: #047857 !important;
+}
+
+html.light .hero-sim-stat-transaksi {
+  background-color: #FFFBEB !important;
+  border-color: #FDE68A !important;
+  box-shadow: 0 2px 6px -1px rgba(245, 158, 11, 0.08) !important;
+}
+
+html.light .hero-sim-stat-transaksi .text-amber-300 {
+  color: #D97706 !important;
+}
+
+html.light .hero-sim-stat-transaksi .text-amber-400\/80 {
+  color: #B45309 !important;
+}
+
+html.light .hero-sim-stat-database {
+  background-color: #ECFEFF !important;
+  border-color: #A5F3FC !important;
+  box-shadow: 0 2px 6px -1px rgba(6, 182, 212, 0.08) !important;
+}
+
+html.light .hero-sim-stat-database .text-cyan-300 {
+  color: #0891B2 !important;
+}
+
+html.light .hero-sim-stat-database .text-cyan-400\/80 {
+  color: #0E7490 !important;
+}
+
+/* 6. Mini Order Feed (Names & Prices 100% Crisp Visible) */
+html.light .hero-sim-order-row {
+  background-color: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.04) !important;
+}
+
+html.light .hero-sim-order-row:hover {
+  background-color: #F8FAFC !important;
+  border-color: #CBD5E1 !important;
+}
+
+html.light .hero-sim-order-row .text-slate-100 {
+  color: #0F172A !important;
+}
+
+html.light .hero-sim-order-row .text-white {
+  color: #0F172A !important;
+}
+
+html.light .hero-sim-order-row .bg-emerald-950 {
+  background-color: #ECFDF5 !important;
+  border-color: #A7F3D0 !important;
+  color: #047857 !important;
+}
+
+/* 7. Action Buttons */
+html.light .hero-sim-btn-new {
+  background-color: #10B981 !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 14px -2px rgba(16, 185, 129, 0.35) !important;
+}
+
+html.light .hero-sim-btn-new:hover {
+  background-color: #059669 !important;
+}
+
+html.light .hero-sim-btn-receipt {
+  background-color: #FFFFFF !important;
+  border-color: #FCD34D !important;
+  color: #B45309 !important;
+  box-shadow: 0 2px 8px -1px rgba(245, 158, 11, 0.12) !important;
+}
+
+html.light .hero-sim-btn-receipt:hover {
+  background-color: #FFFBEB !important;
+}
+
+html.light .hero-sim-btn-receipt svg {
+  color: #D97706 !important;
+}
+
+/* 8. Window Bottom Status Bar */
+html.light .hero-sim-bottom-bar {
+  background: #F8FAFC !important;
+  border-top-color: #E2E8F0 !important;
+}
+
+html.light .hero-sim-bottom-bar .micro-tag-pill {
+  background-color: #ECFDF5 !important;
+  border-color: #A7F3D0 !important;
+  color: #047857 !important;
+}
+
+html.light .hero-sim-bottom-bar #hero-terminal-status {
+  color: #0F172A !important;
+}
+
+html.light .hero-sim-bottom-bar .text-slate-300 {
+  color: #475569 !important;
+}
+
+
 
 
 

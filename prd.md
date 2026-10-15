@@ -1,8 +1,8 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 # Projek: Zettbos LMS (Member Hub & Notion-Style Learning Management System)
 ================================================================================
-VERSI DOKUMEN : v1.3.7
-STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 66 SELESAI)
+VERSI DOKUMEN : v1.3.8
+STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 67 SELESAI)
 ARSITEK SISTEM: ZettBOT by Zettbos
 ENGINE STACK  : Next.js 14+ (App Router) + Supabase (Postgres & Auth OTP) + Vercel
 ================================================================================
@@ -752,5 +752,24 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
          - Footer landing page (`footer`) di Light Mode beralih dari blok hitam pekat menjadi abu-abu terang slate (`#F8FAFC`) dengan border `#E2E8F0`, teks branding `#0F172A`, dan link navigasi `#64748B hover:#0F172A`.
       5. Cache Buster:
          - Menaikkan seluruh query string stylesheet dan script JavaScript di `index.html` ke versi `?v=66`.
+   - [2026-10-15] Implementasi Revisi 67: Restorasi Estetika Light Mode Hero Interactive Simulator Window (Gemini Studio & POS Retail Kasir).
+      1. macOS Studio Light Theme Window (`#hero-simulator-window`, `css/style.css`):
+         - Container window berlatar putih bersih (`#FFFFFF`) dengan border halus `#E2E8F0` dan bayangan lembut anti-glare (`0 20px 50px -10px rgba(0,0,0,0.08)`).
+         - Topbar window (`.hero-sim-topbar`) bernuansa abu-abu slate muda `#F8FAFC`, teks `Gemini • ZettBOT Studio` `#0F172A`, dan badge Live Simulator `#ECFDF5 text-[#059669]`.
+      2. AI Prompt Input Section (`.hero-sim-prompt-box`, `.hero-sim-prompt-bubble`):
+         - Bubble prompt berlatar putih `#FFFFFF` dengan border cyan `#67E8F9`, teks prompt tajam pekat `#0F172A`, dan tanda kutip cyan `#0891B2`. Teks status biaya bernuansa slate `#64748B`.
+      3. Retail POS Kasir Header & Live Feed (`.hero-sim-app-body`, `.hero-sim-order-row`):
+         - Judul "Kasir Kopi Zettbos" tampil kembali dengan warna hitam bold `#0F172A`.
+         - Kedua baris feed pesanan berlatar kartu putih bersih (`#FFFFFF`), nama menu "Kopi Susu Aren (2x)" & "Butter Croissant (1x)" serta nominal harga "Rp 36.000" & "Rp 22.000" tampil 100% tajam dan terbaca jelas, menyelesaikan isu black-on-black text.
+         - Status badge `LUNAS ✓` berbalut hijau pastel `#ECFDF5 text-[#047857]`.
+      4. 3 Kartu Metrik Kasir Triple-Tone (`.hero-sim-stat-card`):
+         - Omzet: Emerald pastel `#ECFDF5 border-[#6EE7B7] text-[#059669]`.
+         - Transaksi: Amber pastel `#FFFBEB border-[#FDE68A] text-[#D97706]`.
+         - Database: Cyan pastel `#ECFEFF border-[#A5F3FC] text-[#0891B2]`.
+      5. Tombol Kasir & Bottom Bar:
+         - Tombol `+ Transaksi Baru` tetap emerald solid `#10B981 text-white`, tombol `Cetak Struk POS` berlatar putih border amber `#FCD34D text-[#B45309]`.
+         - Bottom bar berlatar `#F8FAFC` dengan tag Google Sheets `#ECFDF5 text-[#047857]` dan teks terminal `#0F172A`.
+      6. Cache Buster:
+         - Menaikkan seluruh query string stylesheet dan script JavaScript di `index.html` ke versi `?v=67`.
 
 
