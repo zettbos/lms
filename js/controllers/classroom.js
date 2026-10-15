@@ -70,6 +70,53 @@ function convertGoogleDriveUrl(url) {
   return trimmed;
 }
 
+function applySquareContainFavicon(imgUrl) {
+  if (!imgUrl) return;
+  const faviconEl = document.getElementById('app-favicon') || document.querySelector("link[rel*='icon']");
+  if (!faviconEl) return;
+  
+  // Set fallback instan
+  faviconEl.href = imgUrl;
+
+  try {
+    const canvas = document.createElement('canvas');
+    canvas.width = 64;
+    canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = function() {
+      ctx.clearRect(0, 0, 64, 64);
+      const aspect = img.width / img.height;
+      let drawW = 64;
+      let drawH = 64;
+      let offsetX = 0;
+      let offsetY = 0;
+      if (aspect > 1) {
+        drawH = 64 / aspect;
+        offsetY = (64 - drawH) / 2;
+      } else {
+        drawW = 64 * aspect;
+        offsetX = (64 - drawW) / 2;
+      }
+      ctx.drawImage(img, offsetX, offsetY, drawW, drawH);
+      try {
+        const dataUri = canvas.toDataURL('image/png');
+        faviconEl.href = dataUri;
+      } catch (err) {
+        // Fallback jika CORS canvas dibatasi
+        faviconEl.href = imgUrl;
+      }
+    };
+    img.onerror = function() {
+      faviconEl.href = imgUrl;
+    };
+    img.src = imgUrl;
+  } catch (err) {
+    faviconEl.href = imgUrl;
+  }
+}
+
 function renderAppBrandLogo() {
   const customLogo = (window.AppState && window.AppState.brandLogoUrl) || localStorage.getItem('zettbos_brand_logo_url') || '';
   const convertedUrl = convertGoogleDriveUrl(customLogo);
@@ -116,11 +163,13 @@ function renderAppBrandLogo() {
     }
   });
 
-  // Sinkronisasi Favicon Browser Tab
+  // Sinkronisasi Favicon Browser Tab & Judul Zettbos (Revisi 68)
   try {
-    const faviconEl = document.getElementById('app-favicon') || document.querySelector("link[rel*='icon']");
-    if (faviconEl && convertedUrl) {
-      faviconEl.href = convertedUrl;
+    if (convertedUrl) {
+      applySquareContainFavicon(convertedUrl);
+    }
+    if (document.title !== 'Zettbos') {
+      document.title = 'Zettbos';
     }
   } catch (e) {}
 }
@@ -1807,7 +1856,7 @@ function renderFavorites() {
             ${escapeHtml(item.title)}
           </h3>
           <p class="text-[11px] text-slate-400 mb-2 truncate">${escapeHtml(item.subtitle || '')}</p>
-          <pre class="p-2.5 rounded-lg bg-slate-950 border border-slate-800/90 text-[11px] font-mono text-emerald-300 overflow-x-auto max-h-24 leading-relaxed mb-3"><code>${escapeHtml(previewCode)}...</code></pre>
+          <pre class="favorite-snippet-pre p-2.5 rounded-lg bg-slate-950 border border-slate-800/90 text-[11px] font-mono text-emerald-300 overflow-x-auto max-h-24 leading-relaxed mb-3"><code>${escapeHtml(previewCode)}...</code></pre>
         </div>
 
         <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between mt-auto">
@@ -1888,3 +1937,264 @@ window.renderLearnModulesCatalog = renderLearnModulesCatalog;
 window.setLearnModuleCategory = setLearnModuleCategory;
 window.handleLearnModuleSearch = handleLearnModuleSearch;
 window.clearLearnModuleSearch = clearLearnModuleSearch;
+
+/* ==========================================
+   GLOBAL SEARCH & MENU COMMAND PALETTE (Revisi 68 - Poin 5)
+   ========================================== */
+
+function getGlobalSearchMenuItems() {
+  const isAdmin = window.AppState?.currentUser?.role === 'admin';
+  const items = [
+    {
+      id: 'menu-home',
+      category: 'Halaman Utama',
+      title: 'Home Kurikulum (Bento)',
+      subtitle: 'Overview ekosistem silabus dan materi pembelajaran',
+      icon: `<svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>`,
+      badge: 'NAV',
+      action: () => navigate('home')
+    },
+    {
+      id: 'menu-dashboard',
+      category: 'Halaman Utama',
+      title: 'Dashboard Siswa & Statistik',
+      subtitle: 'Pantau streak belajar, progress persentase & kalender aktif',
+      icon: `<svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>`,
+      badge: 'STATS',
+      action: () => navigate('user-dashboard')
+    },
+    {
+      id: 'menu-learn',
+      category: 'Halaman Utama',
+      title: 'Kurikulum & Modul Pembelajaran',
+      subtitle: 'Akses ruang belajar video, catatan notion, dan silabus lengkap',
+      icon: `<svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
+      badge: 'BELAJAR',
+      action: () => navigate('learn')
+    },
+    {
+      id: 'menu-resources',
+      category: 'Halaman Utama',
+      title: 'Resource Hub & Dokumen',
+      subtitle: 'Download template code, cheatsheet AI, dan asset proyek',
+      icon: `<svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>`,
+      badge: 'DOKUMEN',
+      action: () => navigate('resources')
+    },
+    {
+      id: 'menu-favorites',
+      category: 'Halaman Utama',
+      title: 'Item Favorit & Simpanan Kode',
+      subtitle: 'Kumpulan materi dan snippet codeblock yang Anda simpan',
+      icon: `<svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>`,
+      badge: 'FAVORIT',
+      action: () => navigate('favorites')
+    },
+    {
+      id: 'menu-whatsapp-community',
+      category: 'Komunitas & Bantuan',
+      title: 'Komunitas VIP WhatsApp',
+      subtitle: 'Diskusi bersama ratusan builder AI & mentor Zettbos resmi',
+      icon: `<svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"/></svg>`,
+      badge: 'COMMUNITY',
+      action: () => openWhatsAppContactModal()
+    },
+    {
+      id: 'menu-whatsapp-mentor',
+      category: 'Komunitas & Bantuan',
+      title: 'Hubungi Mentor / Support WA',
+      subtitle: 'Bantuan kendala teknis atau tanya jawab seputar kurikulum',
+      icon: `<svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>`,
+      badge: 'SUPPORT',
+      action: () => openWhatsAppContactModal()
+    },
+    {
+      id: 'menu-profile',
+      category: 'Akun & Personalisasi',
+      title: 'Pengaturan Profil Member',
+      subtitle: 'Ubah nama tampilan, avatar, dan data akun pribadi',
+      icon: `<svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>`,
+      badge: 'AKUN',
+      action: () => openProfileSettingsModal()
+    },
+    {
+      id: 'menu-theme',
+      category: 'Akun & Personalisasi',
+      title: 'Ganti Mode Tampilan (Dark / Light)',
+      subtitle: 'Sesuaikan kenyamanan mata dengan mode gelap atau terang',
+      icon: `<svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path stroke-linecap="round" d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41m14.14-14.14l-1.41 1.41"/></svg>`,
+      badge: 'TEMA',
+      action: () => toggleTheme()
+    }
+  ];
+
+  if (isAdmin) {
+    items.push({
+      id: 'menu-admin',
+      category: 'Manajemen Sistem',
+      title: 'Admin Panel Kurikulum & CMS',
+      subtitle: 'Kelola modul, upload materi video Notion, whitelist member, dan settings',
+      icon: `<svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>`,
+      badge: 'ADMIN',
+      action: () => navigate('admin')
+    });
+  }
+
+  // Modul-modul aktif dari AppState.modules untuk pencarian materi instan!
+  const modules = (window.AppState?.modules || []).filter(m => !m.isDraft);
+  modules.forEach(m => {
+    items.push({
+      id: `mod-${m.id}`,
+      category: 'Modul Kurikulum',
+      title: m.title,
+      subtitle: m.description || `Modul pembelajaran ${m.badge || ''}`,
+      icon: `<svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>`,
+      badge: m.badge || 'MODUL',
+      action: () => navigate('learn', { moduleId: m.id })
+    });
+  });
+
+  return items;
+}
+
+let activeSearchFilterQuery = '';
+
+function openGlobalSearchModal() {
+  const modal = document.getElementById('modal-global-search');
+  if (!modal) return;
+  modal.classList.remove('hidden');
+  const input = document.getElementById('global-search-input');
+  if (input) {
+    input.value = '';
+    activeSearchFilterQuery = '';
+    setTimeout(() => input.focus(), 50);
+  }
+  renderGlobalSearchMenuList('');
+}
+
+function closeGlobalSearchModal() {
+  const modal = document.getElementById('modal-global-search');
+  if (!modal) return;
+  modal.classList.add('hidden');
+}
+
+function handleGlobalSearchInput(query) {
+  activeSearchFilterQuery = query || '';
+  renderGlobalSearchMenuList(activeSearchFilterQuery);
+}
+
+function renderGlobalSearchMenuList(filterText) {
+  const container = document.getElementById('global-search-results-list');
+  const counterEl = document.getElementById('global-search-counter');
+  if (!container) return;
+
+  const allItems = getGlobalSearchMenuItems();
+  const q = (filterText || '').trim().toLowerCase();
+
+  const filtered = q
+    ? allItems.filter(item => 
+        item.title.toLowerCase().includes(q) || 
+        (item.subtitle && item.subtitle.toLowerCase().includes(q)) ||
+        (item.category && item.category.toLowerCase().includes(q)) ||
+        (item.badge && item.badge.toLowerCase().includes(q))
+      )
+    : allItems;
+
+  if (counterEl) {
+    counterEl.textContent = `${filtered.length} Pilihan Ditemukan`;
+  }
+
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div class="text-center py-8 text-slate-400">
+        <svg class="w-8 h-8 mx-auto text-slate-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <p class="text-xs font-semibold text-slate-300">Tidak ada menu atau materi yang cocok</p>
+        <p class="text-[11px] text-slate-500 mt-1">Coba kata kunci lain seperti "kurikulum", "video", "profil", atau "modul".</p>
+      </div>
+    `;
+    return;
+  }
+
+  // Group by category
+  const groups = {};
+  filtered.forEach(item => {
+    const cat = item.category || 'Lainnya';
+    if (!groups[cat]) groups[cat] = [];
+    groups[cat].push(item);
+  });
+
+  let html = '';
+  Object.keys(groups).forEach(cat => {
+    html += `
+      <div class="global-search-group-title pt-2.5 pb-1 px-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+        ${escapeHtml(cat)}
+      </div>
+    `;
+    groups[cat].forEach((item) => {
+      html += `
+        <button 
+          type="button"
+          onclick="executeGlobalSearchItem('${item.id}')"
+          class="global-search-item w-full p-2.5 sm:p-3 rounded-xl flex items-center justify-between gap-3 text-left transition-all group bg-[#11141E]/60 hover:bg-[#1A202C] border border-[#202533] hover:border-emerald-500/50"
+        >
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-8 h-8 rounded-lg bg-[#161A26] border border-[#262C3D] flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+              ${item.icon}
+            </div>
+            <div class="min-w-0">
+              <div class="global-search-item-title text-xs sm:text-sm font-semibold text-slate-100 group-hover:text-emerald-300 truncate transition-colors flex items-center gap-2">
+                <span>${escapeHtml(item.title)}</span>
+              </div>
+              <div class="global-search-item-sub text-[11px] text-slate-400 group-hover:text-slate-300 truncate transition-colors">
+                ${escapeHtml(item.subtitle)}
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 flex-shrink-0">
+            <span class="global-search-badge px-2 py-0.5 rounded text-[9.5px] font-mono font-bold uppercase tracking-wider bg-slate-800 text-slate-300 border border-slate-700/80">
+              ${escapeHtml(item.badge || 'GO')}
+            </span>
+            <svg class="w-4 h-4 text-slate-500 group-hover:text-emerald-400 group-hover:translate-x-0.5 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </div>
+        </button>
+      `;
+    });
+  });
+
+  container.innerHTML = html;
+}
+
+function executeGlobalSearchItem(itemId) {
+  closeGlobalSearchModal();
+  const allItems = getGlobalSearchMenuItems();
+  const found = allItems.find(it => it.id === itemId);
+  if (found && typeof found.action === 'function') {
+    found.action();
+  }
+}
+
+// Global Keyboard Shortcut: Ctrl + K / Cmd + K to open search, Escape to close
+window.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
+    e.preventDefault();
+    const modal = document.getElementById('modal-global-search');
+    if (modal && !modal.classList.contains('hidden')) {
+      closeGlobalSearchModal();
+    } else {
+      openGlobalSearchModal();
+    }
+  } else if (e.key === 'Escape') {
+    const modal = document.getElementById('modal-global-search');
+    if (modal && !modal.classList.contains('hidden')) {
+      closeGlobalSearchModal();
+    }
+  }
+});
+
+window.openGlobalSearchModal = openGlobalSearchModal;
+window.closeGlobalSearchModal = closeGlobalSearchModal;
+window.handleGlobalSearchInput = handleGlobalSearchInput;
+window.renderGlobalSearchMenuList = renderGlobalSearchMenuList;
+window.executeGlobalSearchItem = executeGlobalSearchItem;
+window.applySquareContainFavicon = applySquareContainFavicon;
+

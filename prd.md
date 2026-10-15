@@ -1,8 +1,8 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 # Projek: Zettbos LMS (Member Hub & Notion-Style Learning Management System)
 ================================================================================
-VERSI DOKUMEN : v1.3.8
-STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 67 SELESAI)
+VERSI DOKUMEN : v1.3.9
+STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 68 SELESAI)
 ARSITEK SISTEM: ZettBOT by Zettbos
 ENGINE STACK  : Next.js 14+ (App Router) + Supabase (Postgres & Auth OTP) + Vercel
 ================================================================================
@@ -771,5 +771,27 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
          - Bottom bar berlatar `#F8FAFC` dengan tag Google Sheets `#ECFDF5 text-[#047857]` dan teks terminal `#0F172A`.
       6. Cache Buster:
          - Menaikkan seluruh query string stylesheet dan script JavaScript di `index.html` ke versi `?v=67`.
+   - [2026-10-15] Implementasi Revisi 68: Light Mode Polish, Anti-Gendut Favicon, Title "Zettbos", & Top Navigation Global Search Command Palette.
+      1. Gambar 1 - Peningkatan Kontras Header Modul Kurikulum Bento (`landing.js`, `css/style.css`):
+         - Menambahkan class semantik `.bento-preview-badge`, `.bento-preview-meta`, `.bento-preview-verified`, dan `.bento-preview-syllabus-meta`.
+         - Pada Light Mode, badge modul tampil dengan latar hijau pastel `#ECFDF5`, border `#6EE7B7`, dan teks `#047857 font-bold`.
+         - Teks meta video pelajaran & durasi tampil tajam dengan warna emerald gelap pekat `#065F46 font-semibold` di atas latar kartu putih.
+      2. Gambar 2 - Eliminasi Masalah Teks ZETTBOS Hilang pada Bootloader Awal (`index.html`, `css/style.css`):
+         - Menambahkan CSS Light Mode untuk `#app-boot-loader` dengan latar putih bersih `#FFFFFF !important`, teks judul `ZETTBOS` `#0F172A font-black`, teks status `#64748B`, dan progress bar `#E2E8F0` dengan fill emerald bercahaya.
+         - Mengeliminasi total masalah teks hitam di atas hitam dan FOUC transisi tema saat website pertama kali dimuat.
+      3. Gambar 3 - Favicon Tab Browser Proporsional (Anti-Gendut) & Title Tab "Zettbos" (`index.html`, `classroom.js`):
+         - Mengubah `<title>` di `index.html` dan runtime enforcement di `classroom.js` menjadi tepat **`Zettbos`** (menggantikan judul lama yang terlalu panjang).
+         - Mengimplementasikan `applySquareContainFavicon()` dengan offscreen canvas 64x64 berlatar transparan yang otomatis menghitung aspect ratio asli logo (`object-fit: contain`), mencegah distorsi/peregangan paksa 1:1 oleh browser.
+      4. Gambar 4 - Desain Notion Codeblock Bersih & Elegan di Light Mode (`editor.js`, `classroom.js`, `css/style.css`):
+         - Menyematkan class semantik `.notion-code-block`, `.notion-code-header`, `.notion-code-btn`, `.notion-code-pre`, dan `.favorite-snippet-pre`.
+         - Pada Light Mode, container codeblock bergaya Notion Light Theme: latar `#F8FAFC`, border halus `#E2E8F0`, header `#F1F5F9`, tombol `[Simpan]` & `[Salin]` putih bersih `#FFFFFF border-[#CBD5E1] text-[#334155]`, dan teks syntax monospace hitam `#0F172A` yang nyaman dibaca berjam-jam.
+      5. Gambar 5 - Fitur Global Search & Menu Palette di Top Navigation (`index.html`, `classroom.js`, `css/style.css`):
+         - Menambahkan tombol pencarian `#nav-btn-global-search` di top navigation bar dengan ikon search, label `Cari menu...`, dan shortcut badge `Ctrl K`.
+         - Mengimplementasikan modal dialog `#modal-global-search` lengkap dengan keyboard navigation shortcut `Ctrl+K` / `Cmd+K` dan `Escape`.
+         - Modal menyajikan direktori lengkap seluruh menu ekosistem LMS (Dashboard Siswa, Kurikulum & Modul Belajar, Home Bento, Resource Hub, Favorit Saya, Komunitas WhatsApp, Support Mentor WhatsApp, Edit Profil, Toggle Tema, dan Admin Panel kurikulum berbasis hak akses).
+         - Dilengkapi fitur live search instan untuk mencari modul-modul kurikulum langsung dari basis data `AppState.modules`.
+      6. Cache Buster:
+         - Menaikkan seluruh query string stylesheet dan script JavaScript di `index.html` ke versi `?v=68`.
+
 
 

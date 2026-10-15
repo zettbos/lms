@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Zettbos Member Hub - Belajar Bikin Web App Full Pakai AI</title>
+  <title>Zettbos</title>
   <meta name="description" content="Platform edukasi resmi Zettbos untuk belajar membuat web app full pakai AI dari nol sampai online dengan praktek langsung, modul terstruktur, dan bimbingan mentor." />
   <!-- Dynamic Brand Favicon (Gambar 5) -->
   <link id="app-favicon" rel="icon" type="image/png" href="" />
@@ -15,7 +15,7 @@
         var saved = localStorage.getItem('zett_theme') || 'dark';
         document.documentElement.className = saved;
 
-        // Hidrasi Favicon Sejak Milidetik ke-0
+        // Hidrasi Favicon Sejak Milidetik ke-0 (Aspek Rasio Asli / Anti-Gendut Revisi 68)
         var rawLogo = localStorage.getItem('zettbos_brand_logo_url');
         if (rawLogo && rawLogo.trim()) {
           var trimmed = rawLogo.trim();
@@ -23,7 +23,33 @@
           var match = trimmed.match(driveRegex);
           var finalFavicon = match ? 'https://lh3.googleusercontent.com/d/' + match[1] : trimmed;
           var favEl = document.getElementById('app-favicon');
-          if (favEl) favEl.href = finalFavicon;
+          if (favEl) {
+            favEl.href = finalFavicon;
+            var cvs = document.createElement('canvas');
+            cvs.width = 64;
+            cvs.height = 64;
+            var ctx = cvs.getContext('2d');
+            var img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = function() {
+              ctx.clearRect(0, 0, 64, 64);
+              var aspect = img.width / img.height;
+              var dw = 64, dh = 64, ox = 0, oy = 0;
+              if (aspect > 1) {
+                dh = 64 / aspect;
+                oy = (64 - dh) / 2;
+              } else {
+                dw = 64 * aspect;
+                ox = (64 - dw) / 2;
+              }
+              ctx.drawImage(img, ox, oy, dw, dh);
+              try {
+                var uri = cvs.toDataURL('image/png');
+                if (favEl) favEl.href = uri;
+              } catch(e) {}
+            };
+            img.src = finalFavicon;
+          }
         }
       } catch (e) {
         document.documentElement.className = 'dark';
@@ -53,7 +79,7 @@
   </script>
 
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="css/style.css?v=67" />
+  <link rel="stylesheet" href="css/style.css?v=68" />
 </head>
 <body class="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--fg)] selection:bg-emerald-500/30 selection:text-emerald-300 transition-colors duration-150">
 
@@ -139,6 +165,15 @@
 
       <!-- Right User Controls -->
       <div id="nav-user-section" class="flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
+
+        <!-- Global Search Button (Pencarian Menu LMS & Shortcut Ctrl+K - Revisi 68) -->
+        <button id="nav-btn-global-search" onclick="openGlobalSearchModal()" title="Cari Menu & Fitur LMS (Ctrl + K)" class="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-lg text-slate-300 hover:text-white bg-[#13161C]/80 hover:bg-[#1C1F26] border border-[#262933] hover:border-emerald-500/50 transition-all text-xs font-medium group cursor-pointer">
+          <svg class="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <span class="hidden sm:inline text-slate-300 group-hover:text-white transition-colors">Cari menu...</span>
+          <kbd class="hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-mono font-semibold bg-slate-800 text-slate-400 border border-slate-700 rounded shadow-xs">Ctrl K</kbd>
+        </button>
 
         <!-- Theme Toggle Button (Desktop & Tablet) -->
         <button id="nav-btn-theme-toggle" onclick="toggleTheme()" title="Beralih Mode Gelap / Terang" class="hidden md:flex p-1.5 sm:p-2 rounded-lg text-slate-300 hover:text-white hover:bg-[#1C1F26] border border-[#262933] transition-colors items-center justify-center">
@@ -3602,6 +3637,56 @@
     </button>
   </nav>
 
+  <!-- ==========================================
+       GLOBAL SEARCH & MENU PALETTE MODAL (Revisi 68 - Poin 5)
+       ========================================== -->
+  <div id="modal-global-search" onclick="if(event.target === this) closeGlobalSearchModal()" class="fixed inset-0 z-[100] bg-black/75 backdrop-blur-md flex items-start justify-center p-3 sm:p-4 pt-12 sm:pt-20 hidden transition-opacity duration-200">
+    <div class="global-search-dialog w-full max-w-xl rounded-2xl bg-[#0F1219] border border-[#262933] shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-scale-up">
+      
+      <!-- Top Search Input Bar -->
+      <div class="p-3.5 sm:p-4 border-b border-[#262933] flex items-center gap-3 bg-[#13161F]">
+        <svg class="w-5 h-5 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <input 
+          id="global-search-input" 
+          type="text" 
+          placeholder="Ketik menu, modul, atau fitur LMS..." 
+          autocomplete="off"
+          oninput="handleGlobalSearchInput(this.value)"
+          class="w-full bg-transparent text-sm sm:text-base text-white placeholder-slate-400 focus:outline-none"
+        />
+        <div class="flex items-center gap-1.5 flex-shrink-0">
+          <kbd class="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono text-slate-400 bg-slate-800 border border-slate-700 rounded">ESC</kbd>
+          <button onclick="closeGlobalSearchModal()" class="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors" title="Tutup Modal">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Tips Bar -->
+      <div class="px-4 py-2 bg-[#0A0D14] border-b border-[#1E222D] flex items-center justify-between text-[11px] text-slate-400 font-mono">
+        <span>Semua Menu LMS Zettbos</span>
+        <span id="global-search-counter">10 Menu Tersedia</span>
+      </div>
+
+      <!-- Scrollable Menu & Module Results List -->
+      <div id="global-search-results-list" class="flex-1 overflow-y-auto p-2 sm:p-3 space-y-1.5 custom-scrollbar">
+        <!-- Rendered dynamically by renderGlobalSearchMenuList() in classroom.js -->
+      </div>
+
+      <!-- Footer Quick Keys -->
+      <div class="p-3 bg-[#0A0D14] border-t border-[#1E222D] flex items-center justify-between text-[11px] text-slate-400">
+        <div class="flex items-center gap-3">
+          <span class="flex items-center gap-1"><kbd class="px-1 py-0.5 rounded bg-slate-800 text-[10px] font-mono">↵</kbd> Buka Menu</span>
+          <span class="flex items-center gap-1"><kbd class="px-1 py-0.5 rounded bg-slate-800 text-[10px] font-mono">ESC</kbd> Tutup</span>
+        </div>
+        <span class="font-bold text-emerald-400/90 font-mono text-[10px]">ZETTBOS NAV HUB</span>
+      </div>
+
+    </div>
+  </div>
+
   <!-- Toast Notification Container -->
   <div id="toast-container"></div>
 
@@ -3609,18 +3694,18 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- Application Scripts (Modular Architecture with Cache Buster) -->
-  <script src="js/whitelist-data.js?v=67"></script>
-  <script src="js/mock-data.js?v=67"></script>
-  <script src="js/editor.js?v=67"></script>
-  <script src="js/core/state.js?v=67"></script>
-  <script src="js/core/supabase.js?v=67"></script>
-  <script src="js/core/router.js?v=67"></script>
-  <script src="js/core/particles.js?v=67"></script>
-  <script src="js/controllers/auth.js?v=67"></script>
-  <script src="js/controllers/landing.js?v=67"></script>
-  <script src="js/controllers/classroom.js?v=67"></script>
-  <script src="js/controllers/resources.js?v=67"></script>
-  <script src="js/controllers/admin.js?v=67"></script>
-  <script src="js/app.js?v=67"></script>
+  <script src="js/whitelist-data.js?v=68"></script>
+  <script src="js/mock-data.js?v=68"></script>
+  <script src="js/editor.js?v=68"></script>
+  <script src="js/core/state.js?v=68"></script>
+  <script src="js/core/supabase.js?v=68"></script>
+  <script src="js/core/router.js?v=68"></script>
+  <script src="js/core/particles.js?v=68"></script>
+  <script src="js/controllers/auth.js?v=68"></script>
+  <script src="js/controllers/landing.js?v=68"></script>
+  <script src="js/controllers/classroom.js?v=68"></script>
+  <script src="js/controllers/resources.js?v=68"></script>
+  <script src="js/controllers/admin.js?v=68"></script>
+  <script src="js/app.js?v=68"></script>
 </body>
 </html>

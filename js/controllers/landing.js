@@ -104,14 +104,14 @@ function renderLandingCurriculumBento(activeModuleId) {
       <div>
         <div class="flex items-center justify-between gap-3 mb-3">
           <div class="flex items-center gap-2 flex-wrap">
-            <span class="px-2.5 py-0.5 rounded text-[10px] font-bold tracking-caps uppercase bg-emerald-950/90 text-emerald-300 border border-emerald-500/50 shadow-sm">
+            <span class="bento-preview-badge px-2.5 py-0.5 rounded text-[10px] font-bold tracking-caps uppercase bg-emerald-950/90 text-emerald-300 border border-emerald-500/50 shadow-sm">
               ${escapeHtml(activeMod.badge || 'MODUL UTAMA')}
             </span>
-            <span class="text-[11px] font-mono text-emerald-300/80 font-medium">
+            <span class="bento-preview-meta text-[11px] font-mono text-emerald-300/80 font-medium">
               ${activeLessons.length} Video Pelajaran • ${totalMin} Menit
             </span>
           </div>
-          <span class="text-xs font-mono font-bold text-emerald-400 hidden sm:inline">Kurikulum Terverifikasi</span>
+          <span class="bento-preview-verified text-xs font-mono font-bold text-emerald-400 hidden sm:inline">Kurikulum Terverifikasi</span>
         </div>
 
         <h3 class="text-lg sm:text-2xl font-black text-white tracking-tight mb-2">
@@ -137,7 +137,7 @@ function renderLandingCurriculumBento(activeModuleId) {
         <!-- Lessons Syllabus List -->
         <div class="text-[11px] font-bold text-slate-300 uppercase tracking-caps mb-2.5 flex items-center justify-between">
           <span>Silabus Materi:</span>
-          <span class="font-mono text-emerald-400/80 font-medium">Preview 4 Topik Utama</span>
+          <span class="bento-preview-syllabus-meta font-mono text-emerald-400/80 font-medium">Preview 4 Topik Utama</span>
         </div>
         <div class="space-y-1.5 mb-6">
           ${activeLessons.slice(0, 4).map((les, i) => `

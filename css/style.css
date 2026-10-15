@@ -3457,6 +3457,196 @@ html.light .hero-sim-bottom-bar .text-slate-300 {
   color: #475569 !important;
 }
 
+/* ========================================================
+   REVISI 68: LIGHT MODE REFINEMENTS & GLOBAL COMMAND PALETTE
+   ======================================================== */
+
+/* 1. Splash Screen & Boot Loader Light Mode (Gambar 2) */
+html.light #app-boot-loader {
+  background-color: #FFFFFF !important;
+}
+
+html.light #app-boot-loader h2 {
+  color: #0F172A !important;
+}
+
+html.light #app-boot-loader #boot-loader-status-text {
+  color: #64748B !important;
+}
+
+html.light #app-boot-loader .boot-loader-bar {
+  background: #E2E8F0 !important;
+}
+
+html.light #app-boot-loader .boot-loader-pulse-ring {
+  border-color: rgba(16, 185, 129, 0.45) !important;
+}
+
+html.light #brand-logo-boot-loader:not(.overflow-visible) {
+  background-color: #ECFDF5 !important;
+  border-color: #A7F3D0 !important;
+}
+
+html.light #brand-logo-boot-loader:not(.overflow-visible) span {
+  color: #059669 !important;
+}
+
+/* 2. Bento Preview Header Light Mode (Gambar 1) */
+html.light .bento-preview-badge {
+  background-color: #ECFDF5 !important;
+  border-color: #6EE7B7 !important;
+  color: #047857 !important;
+  box-shadow: 0 1px 2px rgba(4, 120, 87, 0.08) !important;
+}
+
+html.light .bento-preview-meta {
+  color: #065F46 !important;
+  font-weight: 600 !important;
+}
+
+html.light .bento-preview-verified {
+  color: #047857 !important;
+  font-weight: 700 !important;
+}
+
+html.light .bento-preview-syllabus-meta {
+  color: #047857 !important;
+  font-weight: 600 !important;
+}
+
+/* 3. Notion Codeblock Clean Light Theme (Gambar 4) */
+html.light .notion-code-block {
+  background-color: #F8FAFC !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+html.light .notion-code-header {
+  background-color: #F1F5F9 !important;
+  border-bottom-color: #E2E8F0 !important;
+  color: #64748B !important;
+}
+
+html.light .notion-code-lang {
+  color: #475569 !important;
+}
+
+html.light .notion-code-btn {
+  background-color: #FFFFFF !important;
+  border-color: #CBD5E1 !important;
+  color: #334155 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+html.light .notion-code-btn:hover {
+  background-color: #F8FAFC !important;
+  color: #0F172A !important;
+  border-color: #94A3B8 !important;
+}
+
+html.light .notion-code-pre {
+  color: #0F172A !important;
+  background-color: transparent !important;
+}
+
+html.light .notion-code-inner {
+  color: #0F172A !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+}
+
+html.light .favorite-snippet-pre {
+  background-color: #F8FAFC !important;
+  border-color: #E2E8F0 !important;
+  color: #0F172A !important;
+}
+
+/* 4. Top Navigation Search Button (Gambar 5) */
+html.light #nav-btn-global-search {
+  background-color: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+  color: #334155 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+}
+
+html.light #nav-btn-global-search:hover {
+  background-color: #F8FAFC !important;
+  border-color: #CBD5E1 !important;
+  color: #0F172A !important;
+}
+
+html.light #nav-btn-global-search kbd {
+  background-color: #F1F5F9 !important;
+  border-color: #CBD5E1 !important;
+  color: #64748B !important;
+}
+
+html.light #nav-btn-global-search span {
+  color: #475569 !important;
+}
+
+html.light #nav-btn-global-search:hover span {
+  color: #0F172A !important;
+}
+
+/* 5. Global Search Modal Palette Light Theme */
+html.light #modal-global-search .global-search-dialog {
+  background-color: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15) !important;
+}
+
+html.light #modal-global-search .global-search-dialog > div:first-child {
+  background-color: #F8FAFC !important;
+  border-bottom-color: #E2E8F0 !important;
+}
+
+html.light #global-search-input {
+  color: #0F172A !important;
+}
+
+html.light #global-search-input::placeholder {
+  color: #94A3B8 !important;
+}
+
+html.light #modal-global-search .global-search-dialog > div:nth-child(2),
+html.light #modal-global-search .global-search-dialog > div:last-child {
+  background-color: #F8FAFC !important;
+  border-color: #E2E8F0 !important;
+  color: #64748B !important;
+}
+
+html.light .global-search-group-title {
+  color: #64748B !important;
+}
+
+html.light .global-search-item {
+  background-color: #F8FAFC !important;
+  border-color: #E2E8F0 !important;
+}
+
+html.light .global-search-item:hover {
+  background-color: #F1F5F9 !important;
+  border-color: #CBD5E1 !important;
+}
+
+html.light .global-search-item-title {
+  color: #0F172A !important;
+}
+
+html.light .global-search-item:hover .global-search-item-title {
+  color: #059669 !important;
+}
+
+html.light .global-search-item-sub {
+  color: #64748B !important;
+}
+
+html.light .global-search-badge {
+  background-color: #EDF2F7 !important;
+  border-color: #CBD5E1 !important;
+  color: #475569 !important;
+}
+
 
 
 

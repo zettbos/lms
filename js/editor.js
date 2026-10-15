@@ -404,25 +404,26 @@ function renderBlocksToHtml(blocks) {
     } else if (block.type === 'code') {
       const codeId = 'code-' + Math.random().toString(36).substring(2, 9);
       html += `
-        <div class="my-4 rounded-xl overflow-hidden border border-slate-800 bg-slate-950/90 shadow-lg">
-          <div class="flex items-center justify-between px-3.5 py-2 bg-slate-900/90 border-b border-slate-800 text-xs text-slate-400">
-            <div class="flex items-center gap-1.5 py-0.5">
+        <div class="notion-code-block my-4 rounded-xl overflow-hidden border border-slate-800 bg-slate-950/90 shadow-lg">
+          <div class="notion-code-header flex items-center justify-between px-3.5 py-2 bg-slate-900/90 border-b border-slate-800 text-xs text-slate-400">
+            <div class="notion-code-dots flex items-center gap-1.5 py-0.5">
               <span class="w-2.5 h-2.5 rounded-full bg-rose-500/70 inline-block"></span>
               <span class="w-2.5 h-2.5 rounded-full bg-amber-500/70 inline-block"></span>
               <span class="w-2.5 h-2.5 rounded-full bg-emerald-500/70 inline-block"></span>
+              <span class="notion-code-lang text-[11px] font-mono text-slate-400 font-semibold uppercase tracking-wider ml-1.5 hidden sm:inline-block">${escapeHtml(block.language || 'code')}</span>
             </div>
-            <div class="flex items-center gap-1.5">
-              <button onclick="saveSnippetToFavorites('${codeId}', '${escapeHtml(block.language || 'javascript')}')" class="flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-800 hover:bg-amber-950/40 text-slate-300 hover:text-amber-300 border border-slate-700/80 hover:border-amber-600/40 transition-colors text-xs" title="Simpan snippet ini ke menu Favorit">
+            <div class="notion-code-actions flex items-center gap-1.5">
+              <button onclick="saveSnippetToFavorites('${codeId}', '${escapeHtml(block.language || 'javascript')}')" class="notion-code-btn flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-800 hover:bg-amber-950/40 text-slate-300 hover:text-amber-300 border border-slate-700/80 hover:border-amber-600/40 transition-colors text-xs" title="Simpan snippet ini ke menu Favorit">
                 <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
                 <span>Simpan</span>
               </button>
-              <button onclick="copyCodeSnippet('${codeId}')" class="flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors text-xs">
+              <button onclick="copyCodeSnippet('${codeId}')" class="notion-code-btn flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors text-xs">
                 <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
                 <span>Salin</span>
               </button>
             </div>
           </div>
-          <pre id="${codeId}" class="p-3.5 sm:p-4 text-xs sm:text-sm font-mono text-emerald-300 overflow-x-auto leading-relaxed"><code>${escapeHtml(block.content)}</code></pre>
+          <pre id="${codeId}" class="notion-code-pre p-3.5 sm:p-4 text-xs sm:text-sm font-mono text-emerald-300 overflow-x-auto leading-relaxed"><code class="notion-code-inner">${escapeHtml(block.content)}</code></pre>
         </div>
       `;
     } else if (block.type === 'image') {
