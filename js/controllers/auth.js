@@ -257,9 +257,10 @@ async function verifyOtpCode() {
     return;
   }
 
-  showToast('Memverifikasi kode OTP via Resend...', 'info');
+  showToast('Memverifikasi kode OTP...', 'info');
 
   let isVerified = false;
+  let verifyData = null;
   try {
     const res = await fetch(getApiEndpoint('/api/verify-otp'), {
       method: 'POST',
@@ -271,12 +272,12 @@ async function verifyOtpCode() {
       })
     });
 
-    const data = await res.json();
+    verifyData = await res.json();
 
-    if (data.success && data.verified) {
+    if (verifyData && verifyData.success && verifyData.verified) {
       isVerified = true;
     } else {
-      showToast(`Kode OTP salah atau telah kadaluarsa: ${data.error || 'Coba periksa kembali'}`, 'error');
+      showToast(`Kode OTP salah atau telah kadaluarsa: ${(verifyData && verifyData.error) || 'Coba periksa kembali'}`, 'error');
       return;
     }
   } catch (err) {
@@ -287,8 +288,8 @@ async function verifyOtpCode() {
 
   if (!isVerified) return;
 
-  if (data && data.resetToken) {
-    AppState.activeResetToken = data.resetToken;
+  if (verifyData && verifyData.resetToken) {
+    AppState.activeResetToken = verifyData.resetToken;
   }
 
   // Tutup modal OTP

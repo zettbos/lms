@@ -1,8 +1,8 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 # Projek: Zettbos LMS (Member Hub & Notion-Style Learning Management System)
 ================================================================================
-VERSI DOKUMEN : v1.5.3
-STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 77 SELESAI)
+VERSI DOKUMEN : v1.5.4
+STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 78 SELESAI)
 ARSITEK SISTEM: ZettBOT by Zettbos
 ENGINE STACK  : Next.js 14+ (App Router) + Supabase (Postgres & Auth OTP) + Vercel
 ================================================================================
@@ -896,6 +896,15 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
          - Mengosongkan file `js/whitelist-data.js` karena seluruh data 2.318 member telah termigrasi ke database Supabase Cloud.
       4. Cache Buster:
          - Menaikkan seluruh link stylesheet dan script JavaScript di `index.html` ke versi `?v=77`.
+   - [2026-10-15] Implementasi Revisi 78: Fix OTP Variable Scoping Bug & Pembersihan Resend Residue.
+      1. Perbaikan Bug JavaScript Variable Scoping (`js/controllers/auth.js`):
+         - Memindahkan deklarasi variabel `verifyData` ke luar blok `try { ... }` pada fungsi `verifyOtpCode()`.
+         - Mengeliminasi error fatal `ReferenceError: data is not defined` yang sebelumnya membekukan modal OTP setelah verifikasi berhasil.
+         - Memastikan modal OTP tertutup secara mulus dan modal pembuatan password akun (`modal-set-password`) langsung terbuka otomatis.
+      2. Pembersihan Sisa Teks String Resend:
+         - Mengganti teks notifikasi toast *"Memverifikasi kode OTP via Resend..."* menjadi *"Memverifikasi kode OTP..."*.
+      3. Cache Buster:
+         - Menaikkan seluruh link stylesheet dan script JavaScript di `index.html` ke versi `?v=78`.
 
 
 
