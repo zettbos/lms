@@ -3005,6 +3005,256 @@ html.light .section-golden-amber {
   box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.6), 0 0 20px rgba(16, 185, 129, 0.12);
 }
 
+/* ==========================================================================
+   REVISI 66: LIGHT MODE DESIGN REFINEMENTS (ANTI-AI HIGH CONTRAST PALETTE)
+   ========================================================================== */
+
+/* 1. Bento Curriculum (Tahapan Praktek) */
+html.light .bento-module-tab.bento-tab-inactive {
+  background-color: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+}
+
+html.light .bento-module-tab.bento-tab-inactive:hover {
+  background-color: #F8FAFC !important;
+  border-color: #CBD5E1 !important;
+}
+
+html.light .bento-module-tab.bento-tab-inactive .bento-tab-number {
+  background-color: #F1F5F9 !important;
+  border-color: #CBD5E1 !important;
+  color: #475569 !important;
+}
+
+html.light .bento-module-tab.bento-tab-inactive .bento-tab-title {
+  color: #0F172A !important;
+}
+
+html.light .bento-module-tab.bento-tab-inactive:hover .bento-tab-title {
+  color: #059669 !important;
+}
+
+html.light .bento-module-tab.bento-tab-inactive .bento-tab-subtitle {
+  color: #64748B !important;
+}
+
+html.light .bento-tab-active .bento-tab-number {
+  background-color: #D1FAE5 !important;
+  border-color: #6EE7B7 !important;
+  color: #047857 !important;
+}
+
+html.light .bento-tab-active .bento-tab-title {
+  color: #047857 !important;
+}
+
+html.light .bento-tab-active .bento-tab-subtitle {
+  color: #059669 !important;
+}
+
+/* Right Syllabus Preview Card in Light Mode */
+html.light #landing-module-preview h3.text-white {
+  color: #0F172A !important;
+}
+
+html.light #landing-module-preview p.text-slate-200 {
+  color: #475569 !important;
+}
+
+html.light #landing-module-preview .text-slate-300 {
+  color: #475569 !important;
+}
+
+html.light #landing-module-preview .border-t {
+  border-color: #E2E8F0 !important;
+}
+
+html.light .bento-syllabus-item {
+  background-color: #F8FAFC !important;
+  border-color: #E2E8F0 !important;
+}
+
+html.light .bento-syllabus-item:hover {
+  background-color: #F1F5F9 !important;
+  border-color: #10B981 !important;
+}
+
+html.light .bento-syllabus-item span.text-slate-100 {
+  color: #0F172A !important;
+}
+
+html.light .bento-syllabus-item .bg-emerald-950 {
+  background-color: #ECFDF5 !important;
+  border-color: #A7F3D0 !important;
+  color: #059669 !important;
+}
+
+html.light .bento-syllabus-item .text-emerald-400\/90 {
+  color: #047857 !important;
+}
+
+/* 2. Fasilitas & Ekosistem Belajar (5 Fasilitas Kelas) */
+html.light .feature-interactive-card {
+  background-color: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+html.light .feature-interactive-card:hover {
+  background-color: #F8FAFC !important;
+  border-color: #CBD5E1 !important;
+  transform: translateY(-2px);
+}
+
+html.light .feature-interactive-card h3 {
+  color: #0F172A !important;
+}
+
+html.light .feature-interactive-card p {
+  color: #475569 !important;
+}
+
+html.light .feature-interactive-card.feature-card-active {
+  background-color: #FFFFFF !important;
+  border-color: #10B981 !important;
+  box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.22), 0 0 0 2px #10B981 !important;
+}
+
+html.light .feature-interactive-card.feature-card-active h3 {
+  color: #0F172A !important;
+}
+
+html.light .feature-interactive-card.feature-card-active p {
+  color: #334155 !important;
+}
+
+/* 3. Target Siswa / Audiens (4 Kartu Grid) */
+html.light .card-usecase-item {
+  background-color: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+html.light .card-usecase-item:hover {
+  background-color: #FFFFFF !important;
+  box-shadow: 0 14px 30px -4px rgba(0, 0, 0, 0.09) !important;
+}
+
+html.light .card-usecase-item h3 {
+  color: #0F172A !important;
+}
+
+html.light .card-usecase-item p {
+  color: #475569 !important;
+}
+
+html.light .card-usecase-item .border-t {
+  border-color: #F1F5F9 !important;
+}
+
+html.light .card-usecase-item span[class*="bg-slate-900"] {
+  background-color: #F1F5F9 !important;
+  border-color: #E2E8F0 !important;
+  color: #475569 !important;
+}
+
+html.light .card-usecase-item span[class*="bg-amber-950"] {
+  background-color: #FEF3C7 !important;
+  border-color: #FCD34D !important;
+  color: #92400E !important;
+}
+
+html.light .card-usecase-item span[class*="bg-cyan-950"] {
+  background-color: #CFFAFE !important;
+  border-color: #67E8F9 !important;
+  color: #0E7490 !important;
+}
+
+html.light .card-usecase-item span[class*="bg-purple-950"] {
+  background-color: #F3E8FF !important;
+  border-color: #D8B4FE !important;
+  color: #7E22CE !important;
+}
+
+html.light .card-usecase-item span[class*="bg-emerald-950"] {
+  background-color: #D1FAE5 !important;
+  border-color: #6EE7B7 !important;
+  color: #047857 !important;
+}
+
+html.light .card-usecase-item span[class*="bg-blue-950"] {
+  background-color: #DBEAFE !important;
+  border-color: #93C5FD !important;
+  color: #1D4ED8 !important;
+}
+
+html.light .card-usecase-item span[class*="bg-rose-950"] {
+  background-color: #FFE4E6 !important;
+  border-color: #FDA4AF !important;
+  color: #BE123C !important;
+}
+
+/* 4. Marquee Testimoni & Landing Footer */
+.testimonial-marquee-track.marquee-empty-static {
+  animation: none !important;
+  width: 100% !important;
+  justify-content: center !important;
+}
+
+html.light #landing-testimonials p.font-mono {
+  color: #64748B !important;
+}
+
+html.light .testimonial-card {
+  background-color: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+html.light .testimonial-card .text-white {
+  color: #0F172A !important;
+}
+
+html.light .testimonial-card p {
+  color: #475569 !important;
+}
+
+html.light .testimonial-card .testi-divider {
+  border-color: #F1F5F9 !important;
+}
+
+/* Footer Light Mode Styling */
+html.light footer {
+  background-color: #F8FAFC !important;
+  border-color: #E2E8F0 !important;
+}
+
+html.light footer span.text-white {
+  color: #0F172A !important;
+}
+
+html.light footer button,
+html.light footer a {
+  color: #64748B !important;
+}
+
+html.light footer button:hover,
+html.light footer a:hover {
+  color: #0F172A !important;
+}
+
+html.light footer .text-slate-500 {
+  color: #94A3B8 !important;
+}
+
+html.light #brand-logo-footer {
+  background-color: #ECFDF5 !important;
+  border-color: #A7F3D0 !important;
+  color: #059669 !important;
+}
+
+
 
 
 

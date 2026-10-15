@@ -1,8 +1,8 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 # Projek: Zettbos LMS (Member Hub & Notion-Style Learning Management System)
 ================================================================================
-VERSI DOKUMEN : v1.3.6
-STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 65 SELESAI)
+VERSI DOKUMEN : v1.3.7
+STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 66 SELESAI)
 ARSITEK SISTEM: ZettBOT by Zettbos
 ENGINE STACK  : Next.js 14+ (App Router) + Supabase (Postgres & Auth OTP) + Vercel
 ================================================================================
@@ -734,7 +734,23 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
         - Memasukkan target `brand-logo-login` ke dalam `renderAppBrandLogo()`.
         - Menjamin jika logo kustom diunggah, logo ditampilkan langsung secara bersih (`bg-transparent border-0 shadow-none p-0`) tanpa kotak/border hijau (`ZB`), sesuai instruksi pengguna ("inget ya jangan pake kotak").
         - Mengintegrasikan zero-flash hydration untuk `brand-logo-login` di script boot loader.
-     7. Cache Buster:
+      7. Cache Buster:
         - Menaikkan seluruh versi query string stylesheet dan script JavaScript di `index.html` ke versi `?v=65`.
+   - [2026-10-15] Implementasi Revisi 66: Perbaikan Menyeluruh Desain Light Mode Landing Page (4 Titik Anomali Elemen Gelap).
+      1. Kurikulum Bento (`#landing-curriculum`, `js/controllers/landing.js`, `css/style.css`):
+         - Tab modul inaktif kini memiliki class semantik `.bento-tab-inactive` dengan latar putih bersih (`#FFFFFF`), border halus (`#E2E8F0`), judul gelap pekat (`#0F172A`), subtitle abu-abu (`#64748B`), dan badge nomor materi (`#F1F5F9 text-[#475569]`).
+         - Baris silabus materi di panel kanan kini memiliki class `.bento-syllabus-item` dengan latar abu-abu lembut (`#F8FAFC`), border halus (`#E2E8F0`), nomor pelajaran berbalut badge hijau pastel (`#ECFDF5 text-[#059669]`), dan teks judul materi tajam (`#0F172A`).
+      2. Fasilitas & Ekosistem Belajar (`#landing-facilities`, `css/style.css`):
+         - Seluruh kartu fasilitas inaktif (`.feature-interactive-card`) di Light Mode otomatis berubah seragam menjadi kartu putih (`#FFFFFF`) dengan border `#E2E8F0`, judul `#0F172A`, dan deskripsi `#475569`.
+         - Kartu fasilitas aktif (`.feature-card-active`) tampil memikat dengan border emerald tegas (`#10B981`) dan glow hijau lembut.
+      3. Target Siswa / Audiens (`#landing-usecases`, `css/style.css`):
+         - Keempat kartu audiens (`.card-usecase-item`) berlatar putih bersih (`#FFFFFF`) dengan border halus `#E2E8F0`, border-top aksen warna dinamis, judul tajam pekat, dan deskripsi `#475569`.
+         - Tag pills bawah diselaraskan dengan warna pastel modern berkontras tinggi (amber: `#FEF3C7 text-[#92400E]`, cyan: `#CFFAFE text-[#0E7490]`, purple: `#F3E8FF text-[#7E22CE]`, emerald: `#D1FAE5 text-[#047857]`, dsb).
+      4. Testimoni & Landing Footer (`#landing-testimonials`, `footer`, `js/controllers/landing.js`, `css/style.css`):
+         - Animasi marquee otomatis dinonaktifkan (`style.animation = 'none'`, `width = '100%'`, `justify-content = 'center'`) ketika ulasan masih kosong (`testimonials.length === 0`), sehingga pesan status tidak bergeser dan tidak terpotong di tepi kiri.
+         - Kartu testimoni (`.testimonial-card`) berlatar putih (`#FFFFFF`) dengan teks judul dan ulasan gelap pekat.
+         - Footer landing page (`footer`) di Light Mode beralih dari blok hitam pekat menjadi abu-abu terang slate (`#F8FAFC`) dengan border `#E2E8F0`, teks branding `#0F172A`, dan link navigasi `#64748B hover:#0F172A`.
+      5. Cache Buster:
+         - Menaikkan seluruh query string stylesheet dan script JavaScript di `index.html` ke versi `?v=66`.
 
 

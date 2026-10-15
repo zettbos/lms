@@ -61,7 +61,7 @@ function renderLandingCurriculumBento(activeModuleId) {
     const isActive = mod.id === landingActiveModuleId;
     const activeClass = isActive 
       ? 'bento-tab-active shadow-[0_0_20px_rgba(16,185,129,0.2)]' 
-      : 'bg-[#0D121F]/80 hover:bg-[#131B2E] border-slate-800 hover:border-slate-700';
+      : 'bento-tab-inactive bg-[#0D121F]/80 hover:bg-[#131B2E] border-slate-800 hover:border-slate-700';
     const modLessons = AppState.lessons.filter(l => l.moduleId === mod.id && !l.isDraft);
     const totalMinutes = modLessons.reduce((acc, l) => acc + (l.durationMinutes || 15), 0);
 
@@ -69,17 +69,17 @@ function renderLandingCurriculumBento(activeModuleId) {
       <button 
         type="button" 
         onclick="selectLandingModule('${mod.id}')"
-        class="w-full text-left p-3.5 sm:p-4 rounded-xl border transition-all flex items-center justify-between gap-3 group ${activeClass}"
+        class="bento-module-tab w-full text-left p-3.5 sm:p-4 rounded-xl border transition-all flex items-center justify-between gap-3 group ${activeClass}"
       >
         <div class="flex items-center gap-3 min-w-0">
-          <div class="w-8 h-8 rounded-lg flex items-center justify-center font-mono font-bold text-xs flex-shrink-0 ${isActive ? 'bg-emerald-950 text-emerald-400 border border-emerald-500/50 shadow-sm' : 'bg-slate-900 text-slate-300 border border-slate-700/80'}">
+          <div class="bento-tab-number w-8 h-8 rounded-lg flex items-center justify-center font-mono font-bold text-xs flex-shrink-0 ${isActive ? 'bg-emerald-950 text-emerald-400 border border-emerald-500/50 shadow-sm' : 'bg-slate-900 text-slate-300 border border-slate-700/80'}">
             0${idx + 1}
           </div>
           <div class="min-w-0">
-            <h4 class="text-xs sm:text-sm font-bold truncate ${isActive ? 'text-emerald-400' : 'text-slate-100 group-hover:text-emerald-300'}">
+            <h4 class="bento-tab-title text-xs sm:text-sm font-bold truncate ${isActive ? 'text-emerald-400' : 'text-slate-100 group-hover:text-emerald-300'}">
               ${escapeHtml(mod.title)}
             </h4>
-            <p class="text-[11px] truncate mt-0.5 ${isActive ? 'text-emerald-300/90 font-medium' : 'text-slate-300 group-hover:text-slate-200'}">
+            <p class="bento-tab-subtitle text-[11px] truncate mt-0.5 ${isActive ? 'text-emerald-300/90 font-medium' : 'text-slate-300 group-hover:text-slate-200'}">
               ${modLessons.length} Materi • ${totalMinutes} Menit
             </p>
           </div>
@@ -141,7 +141,7 @@ function renderLandingCurriculumBento(activeModuleId) {
         </div>
         <div class="space-y-1.5 mb-6">
           ${activeLessons.slice(0, 4).map((les, i) => `
-            <div class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-[#0F1626] border border-slate-800/90 hover:border-emerald-500/40 hover:bg-[#141D33] text-xs transition-colors shadow-sm">
+            <div class="bento-syllabus-item flex items-center justify-between gap-2 p-2.5 rounded-xl bg-[#0F1626] border border-slate-800/90 hover:border-emerald-500/40 hover:bg-[#141D33] text-xs transition-colors shadow-sm">
               <div class="flex items-center gap-2.5 min-w-0">
                 <span class="w-5 h-5 rounded-md bg-emerald-950 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-mono text-[10px] font-bold flex-shrink-0">
                   ${i + 1}
@@ -870,12 +870,20 @@ function renderLandingFromCms() {
     };
 
     if (cms.testimonials.length === 0) {
+      testiTrack.classList.add('marquee-empty-static');
+      testiTrack.style.animation = 'none';
+      testiTrack.style.width = '100%';
+      testiTrack.style.justifyContent = 'center';
       testiTrack.innerHTML = `
-        <div class="w-full text-center py-6 px-4">
-          <p class="text-xs sm:text-sm text-slate-400 font-mono">Belum ada testimoni yang dipublikasikan. Anda dapat menambahkan ulasan member asli melalui Admin Panel (Tab CMS).</p>
+        <div class="w-full max-w-2xl text-center py-6 px-4 mx-auto">
+          <p class="text-xs sm:text-sm text-slate-400 font-mono leading-relaxed">Belum ada testimoni yang dipublikasikan. Anda dapat menambahkan ulasan member asli melalui Admin Panel (Tab CMS).</p>
         </div>
       `;
     } else {
+      testiTrack.classList.remove('marquee-empty-static');
+      testiTrack.style.animation = '';
+      testiTrack.style.width = '';
+      testiTrack.style.justifyContent = '';
       const originalSet = cms.testimonials.map(t => renderTestiCard(t, false)).join('');
       const cloneSet = cms.testimonials.map(t => renderTestiCard(t, true)).join('');
       testiTrack.innerHTML = originalSet + cloneSet;
