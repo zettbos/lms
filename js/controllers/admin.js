@@ -2078,6 +2078,94 @@ async function handleSaveAddMemberSubmit(e) {
 }
 window.handleSaveAddMemberSubmit = handleSaveAddMemberSubmit;
 
+async function handleBatchAddMembers() {
+  const textarea = document.getElementById('batch-emails-textarea');
+  if (!textarea) return;
+
+  const rawText = textarea.value.trim();
+  if (!rawText) {
+    showToast('Silakan tempel daftar email terlebih dahulu', 'error');
+    return;
+  }
+
+  // Pisahkan berdasarkan Enter, koma, titik koma, atau baris baru
+  const rawList = rawText.split(/[\r\n,;]+/).map(e => e.trim().toLowerCase()).filter(Boolean);
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const validEmails = [];
+  const seenInBatch = new Set();
+
+  rawList.forEach(email => {
+    if (emailRegex.test(email) && !seenInBatch.has(email)) {
+      seenInBatch.add(email);
+      validEmails.push(email);
+    }
+  });
+
+  if (validEmails.length === 0) {
+    showToast('Tidak ada alamat email valid yang ditemukan. Periksa format email.', 'error');
+    return;
+  }
+
+  // Filter email yang belum ada di whitelist
+  const existingEmailSet = new Set((AppState.whitelist || []).map(m => (m.email || '').toLowerCase()));
+  const newEmails = validEmails.filter(e => !existingEmailSet.has(e));
+
+  if (newEmails.length === 0) {
+    showToast('Semua email yang Anda masukkan sudah terdaftar di whitelist!', 'info');
+    const modal = document.getElementById('modal-batch-whitelist');
+    if (modal) modal.classList.add('hidden');
+    return;
+  }
+
+  showToast(`Mendaftarkan ${newEmails.length} member baru ke whitelist...`, 'info');
+
+  const nowIso = new Date().toISOString();
+  let currentCounter = (AppState.whitelist || []).length + 1;
+
+  const newMembers = newEmails.map(email => {
+    const id = 'WL-' + String(currentCounter++).padStart(4, '0');
+    return {
+      id: id,
+      email: email,
+      fullName: email.split('@')[0],
+      role: 'member',
+      isActive: true,
+      passwordHash: null,
+      registeredAt: nowIso
+    };
+  });
+
+  // Tambahkan ke AppState.whitelist lokal
+  AppState.whitelist.unshift(...newMembers);
+  saveState();
+
+  // Sinkronkan ke Supabase jika terhubung
+  if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+    try {
+      const payload = newMembers.map(m => ({
+        id: m.id,
+        email: m.email,
+        full_name: m.fullName,
+        role: m.role,
+        is_active: true,
+        password_hash: null
+      }));
+      await ZettSupabase.client.from('whitelist_members').upsert(payload, { onConflict: 'email' });
+    } catch (err) {
+      console.warn('[Supabase Batch Insert Error]', err);
+    }
+  }
+
+  textarea.value = '';
+  const modal = document.getElementById('modal-batch-whitelist');
+  if (modal) modal.classList.add('hidden');
+
+  showToast(`Berhasil mendaftarkan ${newMembers.length} member baru ke whitelist!`, 'success');
+  renderAdminWhitelist();
+}
+window.handleBatchAddMembers = handleBatchAddMembers;
+
 function openEditMemberModal(id) {
   const member = AppState.whitelist.find(m => m.id === id);
   if (!member) return;

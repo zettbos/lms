@@ -1,8 +1,8 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 # Projek: Zettbos LMS (Member Hub & Notion-Style Learning Management System)
 ================================================================================
-VERSI DOKUMEN : v1.5.0
-STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 74 SELESAI)
+VERSI DOKUMEN : v1.5.1
+STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 75 SELESAI)
 ARSITEK SISTEM: ZettBOT by Zettbos
 ENGINE STACK  : Next.js 14+ (App Router) + Supabase (Postgres & Auth OTP) + Vercel
 ================================================================================
@@ -861,6 +861,14 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
          - Membatasi sinkronisasi penuh whitelist di `supabase.js` hanya untuk sesi Super Admin terverifikasi.
       4. Cache Buster:
          - Menaikkan seluruh link stylesheet dan script JavaScript di `index.html` ke versi `?v=74`.
+   - [2026-10-15] Implementasi Revisi 75: Perbaikan Fitur Batch Import Whitelist & Diagnosis Password Sync.
+      1. Implementasi Penuh `handleBatchAddMembers()` (`js/controllers/admin.js`):
+         - Menyediakan fungsi import batch yang sebelumnya belum terdefinisi di JavaScript sehingga tombol modal tidak merespon saat diklik.
+         - Mendukung pemisahan multi-delimiter otomatis (Enter, koma, titik koma).
+         - Melakukan sanitasi format email, pembersihan huruf kecil (lowercase), dan deduplikasi otomatis dari data whitelist yang sudah ada.
+         - Menyimpan data baru ke state lokal dan langsung melakukan batch upsert ke tabel Supabase `whitelist_members`.
+      2. Cache Buster:
+         - Menaikkan seluruh link stylesheet dan script JavaScript di `index.html` ke versi `?v=75`.
 
 
 

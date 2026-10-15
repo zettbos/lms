@@ -229,4 +229,5 @@ Platform Zettbos LMS telah melalui proses audit keamanan kode sumber (*source-co
 - [x] **Pembuatan Password Anti-Bypass**: Endpoint `/api/set-password` mewajibkan validasi `resetToken` hasil verifikasi OTP yang sah.
 - [x] **Pengetatan RLS Supabase**: Seluruh aturan `FOR ALL USING (true)` yang rentan telah dihapus dari `supabase/schema.sql`. Akses mutasi kurikulum dan CMS dikunci hanya untuk Service Role backend.
 - [x] **Restriksi Sync Whitelist**: `fetchAndSyncAll()` di `supabase.js` hanya mengunduh data whitelist jika akun yang login adalah Super Admin (`zettbos2025@gmail.com`).
-- [x] **Cache Buster Updated**: Seluruh stylesheet dan script di `index.html` dinaikkan ke versi `?v=74`.
+- [x] **Cache Buster Updated**: Seluruh stylesheet dan script di `index.html` dinaikkan ke versi `?v=75`.
+- [x] **Fitur Batch Import Whitelist**: Fungsi `handleBatchAddMembers()` di `admin.js` telah diimplementasikan penuh untuk import massal dengan auto-deduplication dan sinkronisasi langsung ke Supabase.
