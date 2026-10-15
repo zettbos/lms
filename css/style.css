@@ -3461,11 +3461,15 @@ html.light .hero-sim-bottom-bar .text-slate-300 {
    REVISI 68: LIGHT MODE REFINEMENTS & GLOBAL COMMAND PALETTE
    ======================================================== */
 
-/* 1. Splash Screen & Boot Loader Light Mode (Gambar 2) */
+#boot-loader-brand-title {
+  color: #FFFFFF !important;
+}
+
 html.light #app-boot-loader {
   background-color: #FFFFFF !important;
 }
 
+html.light #boot-loader-brand-title,
 html.light #app-boot-loader h2 {
   color: #0F172A !important;
 }

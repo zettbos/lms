@@ -1,8 +1,8 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 # Projek: Zettbos LMS (Member Hub & Notion-Style Learning Management System)
 ================================================================================
-VERSI DOKUMEN : v1.4.0
-STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 69 SELESAI)
+VERSI DOKUMEN : v1.4.1
+STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 70 SELESAI)
 ARSITEK SISTEM: ZettBOT by Zettbos
 ENGINE STACK  : Next.js 14+ (App Router) + Supabase (Postgres & Auth OTP) + Vercel
 ================================================================================
@@ -800,6 +800,18 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
          - Di Light Mode: Kotak berbalut hijau pastel `#ECFDF5 border-[#A7F3D0]`, teks `ZB` hijau zamrud `#059669`, pulse ring circular, teks `ZETTBOS` hitam tajam `#0F172A`.
       2. Cache Buster:
          - Menaikkan seluruh query string stylesheet dan script JavaScript di `index.html` ke versi `?v=69`.
+   - [2026-10-15] Implementasi Revisi 70: Pemulihan Logo Brand Kustom pada Bootloader & Penegasan Warna Font ZETTBOS di Light Mode.
+      1. Tampilan Bersih Logo Brand Kustom Asli Pengguna (`index.html`, `classroom.js`):
+         - Memulihkan hidrasi logo kustom pengguna pada `#brand-logo-boot-loader` dengan penskalaan bersih (`max-w-[160px] h-16 sm:h-20 object-contain relative z-10`).
+         - Mengeliminasi efek cincin melilit (`.boot-loader-pulse-ring`) saat logo kustom aktif sehingga logo vertikal pengguna tidak lagi membentuk kapsul lonjong kurus.
+         - Fallback otomatis ke kotak squircle ZB jika logo kustom belum dipasang.
+      2. Penegasan Warna Font Teks `ZETTBOS` (`index.html`, `css/style.css`):
+         - Menyematkan `id="boot-loader-brand-title"` pada teks heading ZETTBOS di `#app-boot-loader`.
+         - Pada Dark Mode: Teks `ZETTBOS` berwarna putih solid `#FFFFFF !important` di atas latar hitam pekat.
+         - Pada Light Mode: Teks `ZETTBOS` berwarna hitam pekat `#0F172A !important` di atas latar putih bersih (terbaca sangat tajam dan jelas, menyelesaikan keluhan pengguna pada Gambar 2 secara tuntas).
+      3. Cache Buster:
+         - Menaikkan seluruh query string stylesheet dan script JavaScript di `index.html` ke versi `?v=70`.
+
 
 
 

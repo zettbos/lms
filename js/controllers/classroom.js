@@ -126,6 +126,7 @@ function renderAppBrandLogo() {
     { id: 'brand-logo-drawer', size: 'sm' },
     { id: 'brand-logo-landing', size: 'sm' },
     { id: 'brand-logo-footer', size: 'xs' },
+    { id: 'brand-logo-boot-loader', size: 'bootloader' },
     { id: 'brand-logo-login', size: 'login' }
   ];
 
@@ -133,7 +134,10 @@ function renderAppBrandLogo() {
     const el = document.getElementById(t.id);
     if (!el) return;
     if (convertedUrl) {
-      if (t.size === 'login') {
+      if (t.size === 'bootloader') {
+        el.className = 'relative flex items-center justify-center mb-4 bg-transparent border-0 shadow-none overflow-visible';
+        el.innerHTML = `<img src="${escapeHtml(convertedUrl)}" alt="Logo ZETTBOS" class="h-16 sm:h-20 w-auto max-w-[160px] object-contain relative z-10" onerror="this.onerror=null; this.parentElement.className='relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-emerald-950/80 border border-emerald-500/40 flex items-center justify-center shadow-2xl shadow-emerald-500/20 mb-5'; this.parentElement.innerHTML='<div class=\\'boot-loader-pulse-ring\\'></div><span class=\\'font-mono font-black text-xl sm:text-2xl text-emerald-400 tracking-tighter\\'>ZB</span>';">`;
+      } else if (t.size === 'login') {
         // Logo login tanpa kotak atau border sesuai instruksi pengguna
         el.className = 'flex items-center justify-center mb-4 bg-transparent border-0 shadow-none p-0 overflow-visible';
         el.innerHTML = `<img src="${escapeHtml(convertedUrl)}" alt="Logo ZETTBOS" class="h-12 sm:h-14 w-auto max-w-[180px] object-contain" onerror="this.onerror=null; this.parentElement.className='inline-flex items-center justify-center w-14 h-14 rounded-xl bg-surface-1 border border-hairline mb-4 shadow-sm'; this.parentElement.innerHTML='<span class=\\'text-2xl font-black font-mono text-emerald-400 tracking-tighter\\'>ZB</span>';">`;
@@ -143,7 +147,10 @@ function renderAppBrandLogo() {
         el.innerHTML = `<img src="${escapeHtml(convertedUrl)}" alt="Logo ZETTBOS" class="${t.size === 'xs' ? 'h-6' : 'h-7 sm:h-8'} w-auto max-w-[140px] object-contain" onerror="this.onerror=null; this.parentElement.className='w-8 h-8 rounded-lg bg-emerald-950/80 border border-emerald-500/40 flex items-center justify-center shadow-sm flex-shrink-0 overflow-hidden'; this.parentElement.innerHTML='<span class=\\'font-mono font-bold text-xs text-emerald-400\\'>ZB</span>';">`;
       }
     } else {
-      if (t.size === 'login') {
+      if (t.size === 'bootloader') {
+        el.className = 'relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-emerald-950/80 border border-emerald-500/40 flex items-center justify-center shadow-2xl shadow-emerald-500/20 mb-5';
+        el.innerHTML = `<div class="boot-loader-pulse-ring"></div><span class="font-mono font-black text-xl sm:text-2xl text-emerald-400 tracking-tighter">ZB</span>`;
+      } else if (t.size === 'login') {
         el.className = 'inline-flex items-center justify-center w-14 h-14 rounded-xl bg-surface-1 border border-hairline mb-4 shadow-sm';
         el.innerHTML = `<span class="text-2xl font-black font-mono text-emerald-400 tracking-tighter">ZB</span>`;
       } else {
