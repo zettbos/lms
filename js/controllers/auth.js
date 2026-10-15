@@ -414,17 +414,22 @@ async function handleSetPasswordSubmit(event) {
     console.warn('[Set Password API Exception]', apiErr);
   }
 
-  // 2. Fallback sinkronisasi lokal Supabase jika terkoneksi
+  // 2. Fallback sinkronisasi lokal Supabase jika terkoneksi (Gunakan Upsert agar pasti tersimpan)
   if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
     try {
       await ZettSupabase.client
         .from('whitelist_members')
-        .update({ 
+        .upsert({ 
+          id: member.id || ('wl-' + Date.now()),
+          email: member.email.toLowerCase().trim(),
           full_name: fullName,
+          role: member.role || 'member',
+          is_active: true,
           password_hash: hashedPassword 
-        })
-        .eq('email', member.email);
-    } catch (err) {}
+        }, { onConflict: 'email' });
+    } catch (err) {
+      console.warn('[Supabase Direct Whitelist Upsert Warning]', err);
+    }
   }
 
   // Tutup Modal Set Password

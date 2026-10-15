@@ -40,7 +40,7 @@ module.exports = async (req, res) => {
     const supabaseUrl = process.env.SUPABASE_URL || 'https://dtbbmpuqfstwxewylbao.supabase.co';
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || 'sb_publishable_QX8Kjj5QukJXXqXcIILp5w_Dye0avf1';
 
-    const response = await fetch(`${supabaseUrl}/rest/v1/whitelist_members?email=eq.${encodeURIComponent(cleanEmail)}&select=id,email,full_name,role,is_active,password_hash`, {
+    const response = await fetch(`${supabaseUrl}/rest/v1/whitelist_members?email=ilike.${encodeURIComponent(cleanEmail)}&select=id,email,full_name,role,is_active,password_hash`, {
       method: 'GET',
       headers: {
         'apikey': supabaseKey,

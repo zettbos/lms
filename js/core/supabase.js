@@ -135,21 +135,45 @@ const ZettSupabase = {
         }));
       }
 
-      // 3. Pull Whitelist (HANYA diunduh jika pengguna aktif adalah Super Admin)
+      // 3. Pull Whitelist (Diunduh jika pengguna aktif adalah Admin / Super Admin)
       const user = AppState.currentUser;
-      const isSuperAdmin = user && user.role === 'admin' && user.email?.toLowerCase() === 'zettbos2025@gmail.com';
-      if (isSuperAdmin) {
-        const { data: wl, error: wlErr } = await this.client.from('whitelist_members').select('*');
+      const isAdmin = user && (user.role === 'admin' || user.email?.toLowerCase() === 'zettbos2025@gmail.com');
+      if (isAdmin) {
+        const { data: wl, error: wlErr } = await this.client
+          .from('whitelist_members')
+          .select('id, email, full_name, role, is_active, password_hash, registered_at')
+          .limit(10000);
         if (!wlErr && Array.isArray(wl) && wl.length > 0) {
-          AppState.whitelist = wl.map(w => ({
-            id: w.id,
-            email: w.email,
-            fullName: w.full_name,
-            role: w.role,
-            isActive: w.is_active,
-            passwordHash: w.password_hash || null,
-            registeredAt: w.registered_at
-          }));
+          const cloudMap = new Map();
+          wl.forEach(w => {
+            if (w.email) cloudMap.set(w.email.toLowerCase().trim(), w);
+          });
+
+          // Update data lokal dengan prioritas data cloud
+          AppState.whitelist.forEach(localM => {
+            const cleanE = (localM.email || '').toLowerCase().trim();
+            if (cloudMap.has(cleanE)) {
+              const c = cloudMap.get(cleanE);
+              if (c.password_hash) localM.passwordHash = c.password_hash;
+              if (c.full_name && c.full_name !== 'Siswa Zettbos') localM.fullName = c.full_name;
+              if (c.role) localM.role = c.role;
+              localM.isActive = c.is_active !== false;
+              cloudMap.delete(cleanE);
+            }
+          });
+
+          // Tambahkan member cloud yang belum ada di lokal
+          cloudMap.forEach((c, cleanE) => {
+            AppState.whitelist.push({
+              id: c.id || ('wl-' + Date.now()),
+              email: cleanE,
+              fullName: c.full_name || cleanE.split('@')[0],
+              role: c.role || 'member',
+              isActive: c.is_active !== false,
+              passwordHash: c.password_hash || null,
+              registeredAt: c.registered_at || new Date().toISOString()
+            });
+          });
         }
       }
 
@@ -265,17 +289,51 @@ const ZettSupabase = {
         await this.client.from('curriculum_lessons').upsert(payloadLess, { onConflict: 'id' });
       }
 
-      // 3. Push Whitelist
+      // 3. Push Whitelist (DENGAN PROTEKSI ANTI-OVERWRITE PASSWORD CLOUD)
       if (Array.isArray(AppState.whitelist) && AppState.whitelist.length > 0) {
-        const payloadWl = AppState.whitelist.map(w => ({
-          id: w.id,
-          email: w.email,
-          full_name: w.fullName,
-          role: w.role,
-          is_active: w.isActive,
-          password_hash: w.passwordHash || null
-        }));
-        await this.client.from('whitelist_members').upsert(payloadWl, { onConflict: 'email' });
+        // Tarik data cloud terlebih dahulu untuk memproteksi password_hash yang sudah dibuat siswa
+        const { data: cloudWl } = await this.client
+          .from('whitelist_members')
+          .select('email, password_hash, full_name')
+          .limit(10000);
+
+        const cloudMap = new Map();
+        if (Array.isArray(cloudWl)) {
+          cloudWl.forEach(c => {
+            if (c.email) cloudMap.set(c.email.toLowerCase().trim(), c);
+          });
+        }
+
+        const payloadWl = AppState.whitelist.map(w => {
+          const cleanE = (w.email || '').toLowerCase().trim();
+          const cloudItem = cloudMap.get(cleanE);
+
+          // Pertahankan password hash dari cloud jika lokal masih null/kosong
+          const finalPass = w.passwordHash || cloudItem?.password_hash || null;
+          // Pertahankan nama kustom dari cloud jika lokal masih default
+          const finalName = (w.fullName && w.fullName !== 'Siswa Zettbos') 
+            ? w.fullName 
+            : (cloudItem?.full_name || w.fullName || 'Siswa Zettbos');
+
+          // Sinkronkan balik ke state lokal
+          w.passwordHash = finalPass;
+          w.fullName = finalName;
+
+          return {
+            id: w.id,
+            email: cleanE,
+            full_name: finalName,
+            role: w.role || 'member',
+            is_active: w.isActive !== false,
+            password_hash: finalPass
+          };
+        });
+
+        // Batch upload per 100 baris agar andal
+        for (let i = 0; i < payloadWl.length; i += 100) {
+          const chunk = payloadWl.slice(i, i + 100);
+          await this.client.from('whitelist_members').upsert(chunk, { onConflict: 'email' });
+        }
       }
 
       // 4. Push Resources

@@ -50,11 +50,12 @@ module.exports = async (req, res) => {
       }
     }
 
-    // 2. Simpan ke Supabase Database
+    // 2. Simpan ke Supabase Database (Anti-Overwrite & Safe Upsert)
     const supabaseUrl = process.env.SUPABASE_URL || 'https://dtbbmpuqfstwxewylbao.supabase.co';
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || 'sb_publishable_QX8Kjj5QukJXXqXcIILp5w_Dye0avf1';
 
-    const patchRes = await fetch(`${supabaseUrl}/rest/v1/whitelist_members?email=eq.${encodeURIComponent(cleanEmail)}`, {
+    // Coba PATCH terlebih dahulu dengan pencocokan case-insensitive
+    const patchRes = await fetch(`${supabaseUrl}/rest/v1/whitelist_members?email=ilike.${encodeURIComponent(cleanEmail)}`, {
       method: 'PATCH',
       headers: {
         'apikey': supabaseKey,
@@ -68,9 +69,39 @@ module.exports = async (req, res) => {
       })
     });
 
-    if (!patchRes.ok) {
-      console.warn('[Set Password DB Error]', patchRes.statusText);
-      return res.status(500).json({ success: false, error: 'Gagal memperbarui profil di database.' });
+    let updatedRows = [];
+    if (patchRes.ok) {
+      try {
+        updatedRows = await patchRes.json();
+      } catch (_) {
+        updatedRows = [];
+      }
+    }
+
+    // Jika PATCH tidak mengenai baris apapun (misal email belum pernah di-seed ke Supabase), lakukan UPSERT langsung!
+    if (!Array.isArray(updatedRows) || updatedRows.length === 0) {
+      const postRes = await fetch(`${supabaseUrl}/rest/v1/whitelist_members`, {
+        method: 'POST',
+        headers: {
+          'apikey': supabaseKey,
+          'Authorization': `Bearer ${supabaseKey}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'resolution=merge-duplicates,return=representation'
+        },
+        body: JSON.stringify({
+          id: 'wl-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
+          email: cleanEmail,
+          full_name: fullName.trim(),
+          role: cleanEmail === 'zettbos2025@gmail.com' ? 'admin' : 'member',
+          is_active: true,
+          password_hash: passwordHash
+        })
+      });
+
+      if (!postRes.ok) {
+        console.warn('[Set Password DB Upsert Error]', postRes.statusText);
+        return res.status(500).json({ success: false, error: 'Gagal mendaftarkan kata sandi ke database.' });
+      }
     }
 
     return res.status(200).json({
@@ -79,7 +110,7 @@ module.exports = async (req, res) => {
       user: {
         email: cleanEmail,
         fullName: fullName.trim(),
-        role: 'member'
+        role: cleanEmail === 'zettbos2025@gmail.com' ? 'admin' : 'member'
       }
     });
 

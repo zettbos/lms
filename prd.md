@@ -1,8 +1,8 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 # Projek: Zettbos LMS (Member Hub & Notion-Style Learning Management System)
 ================================================================================
-VERSI DOKUMEN : v1.5.4
-STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 78 SELESAI)
+VERSI DOKUMEN : v1.5.5
+STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 79 SELESAI)
 ARSITEK SISTEM: ZettBOT by Zettbos
 ENGINE STACK  : Next.js 14+ (App Router) + Supabase (Postgres & Auth OTP) + Vercel
 ================================================================================
@@ -905,6 +905,23 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
          - Mengganti teks notifikasi toast *"Memverifikasi kode OTP via Resend..."* menjadi *"Memverifikasi kode OTP..."*.
       3. Cache Buster:
          - Menaikkan seluruh link stylesheet dan script JavaScript di `index.html` ke versi `?v=78`.
+   - [2026-10-15] Implementasi Revisi 79: Cloud-First & Anti-Overwrite Architecture (Sinkronisasi Whitelist & Sandi).
+      1. Anti-Overwrite Cloud Sync (`js/core/supabase.js` & `js/controllers/admin.js`):
+         - Menambahkan mekanisme proteksi `cloudMap` sebelum melakukan push/upsert whitelist ke Supabase.
+         - State lokal tidak akan pernah lagi menimpa kata sandi siswa yang sudah tersimpan di cloud dengan `null`.
+         - Nama kustom dan hash kata sandi dari cloud secara otomatis diwariskan ke `AppState.whitelist` lokal.
+      2. Safe Upsert Serverless API (`api/set-password.js`):
+         - Menggunakan pencocokan case-insensitive `email=ilike.<cleanEmail>`.
+         - Jika respon PATCH kosong (0 baris diperbarui), API otomatis melakukan fallback POST/UPSERT baris member baru dengan nama dan hash password lengkap.
+      3. PostgREST Case-Insensitive Hardening (`api/verify-login.js`, `api/check-whitelist.js`, `api/send-otp.js`):
+         - Seluruh query filter email di REST API dialihkan ke operator `ilike` untuk menjamin toleransi variasi huruf kapital.
+      4. Direct Client Upsert Fallback (`js/controllers/auth.js`):
+         - Pembuatan sandi dari client kini menggunakan `.upsert()` berkonflik pada email alih-alih `.update()`, menjamin ketersediaan row di Supabase.
+      5. Tombol "Tarik dari Cloud" & Auto-Sync Tab Whitelist (`index.html` & `js/controllers/admin.js`):
+         - Menambahkan tombol live fetch `pullWhitelistFromSupabaseLive()` di toolbar whitelist Admin.
+         - Mengaktifkan auto-pull data cloud instan begitu tab Whitelist dibuka oleh Admin/Owner.
+      6. Cache Buster:
+         - Menaikkan seluruh link script JavaScript di `index.html` ke versi `?v=79`.
 
 
 

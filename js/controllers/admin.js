@@ -45,6 +45,7 @@ function switchAdminTab(tabName) {
     renderAdminResourcesCms();
   } else if (tabName === 'whitelist') {
     renderAdminWhitelist();
+    pullWhitelistFromSupabaseLive(true);
   } else if (tabName === 'analytics') {
     renderAdminAnalytics();
   } else if (tabName === 'quickactions') {
@@ -1779,43 +1780,49 @@ function renderAdminWhitelist() {
   // Live Background Sync from Supabase Cloud (jika terhubung & belum sedang fetch)
   if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected() && !window._isSyncingWhitelistBackground) {
     window._isSyncingWhitelistBackground = true;
-    ZettSupabase.client.from('whitelist_members').select('id, email, full_name, role, is_active, password_hash').then(({ data, error }) => {
-      window._isSyncingWhitelistBackground = false;
-      if (data && !error && data.length > 0) {
-        let hasChanges = false;
-        data.forEach(cloudM => {
-          const localM = AppState.whitelist.find(m => m.email.toLowerCase() === cloudM.email.toLowerCase());
-          if (localM) {
-            if (cloudM.password_hash && localM.passwordHash !== cloudM.password_hash) {
-              localM.passwordHash = cloudM.password_hash;
+    ZettSupabase.client
+      .from('whitelist_members')
+      .select('id, email, full_name, role, is_active, password_hash')
+      .limit(10000)
+      .then(({ data, error }) => {
+        window._isSyncingWhitelistBackground = false;
+        if (data && !error && data.length > 0) {
+          let hasChanges = false;
+          data.forEach(cloudM => {
+            const cleanE = (cloudM.email || '').toLowerCase().trim();
+            if (!cleanE) return;
+            const localM = AppState.whitelist.find(m => (m.email || '').toLowerCase().trim() === cleanE);
+            if (localM) {
+              if (cloudM.password_hash && localM.passwordHash !== cloudM.password_hash) {
+                localM.passwordHash = cloudM.password_hash;
+                hasChanges = true;
+              }
+              if (cloudM.full_name && localM.fullName !== cloudM.full_name && cloudM.full_name !== 'Siswa Zettbos') {
+                localM.fullName = cloudM.full_name;
+                hasChanges = true;
+              }
+            } else {
+              AppState.whitelist.push({
+                id: cloudM.id,
+                email: cleanE,
+                fullName: cloudM.full_name || cleanE.split('@')[0],
+                role: cloudM.role || 'member',
+                isActive: cloudM.is_active !== false,
+                passwordHash: cloudM.password_hash || null,
+                registeredAt: new Date().toISOString()
+              });
               hasChanges = true;
             }
-            if (cloudM.full_name && localM.fullName !== cloudM.full_name && cloudM.full_name !== 'Siswa Zettbos') {
-              localM.fullName = cloudM.full_name;
-              hasChanges = true;
-            }
-          } else {
-            AppState.whitelist.push({
-              id: cloudM.id,
-              email: cloudM.email.toLowerCase(),
-              fullName: cloudM.full_name || cloudM.email.split('@')[0],
-              role: cloudM.role || 'member',
-              isActive: cloudM.is_active !== false,
-              passwordHash: cloudM.password_hash || null,
-              registeredAt: new Date().toISOString()
-            });
-            hasChanges = true;
+          });
+          if (hasChanges) {
+            saveState();
+            renderAdminWhitelist();
+            if (AppState.activeAdminTab === 'analytics') renderAdminAnalytics();
           }
-        });
-        if (hasChanges) {
-          saveState();
-          renderAdminWhitelist();
-          if (AppState.activeAdminTab === 'analytics') renderAdminAnalytics();
         }
-      }
-    }).catch(() => {
-      window._isSyncingWhitelistBackground = false;
-    });
+      }).catch(() => {
+        window._isSyncingWhitelistBackground = false;
+      });
   }
 
   // 1. Hitung statistik filter
@@ -2370,17 +2377,46 @@ async function syncWhitelistToSupabaseLive() {
     return;
   }
 
-  showToast('Sedang menyinkronkan seluruh database whitelist ke Supabase Cloud...', 'info', 10000);
+  showToast('Sedang memproteksi kata sandi dan menyinkronkan whitelist ke Supabase Cloud...', 'info', 10000);
 
   try {
-    const payload = AppState.whitelist.map(m => ({
-      id: m.id,
-      email: m.email.toLowerCase(),
-      full_name: m.fullName || 'Siswa Zettbos',
-      role: m.role || 'member',
-      is_active: m.isActive !== false,
-      password_hash: m.passwordHash || null
-    }));
+    // 1. Tarik dulu password_hash dan full_name dari cloud agar data siswa TIDAK terhapus/ter-overwrite null!
+    const { data: cloudWl } = await ZettSupabase.client
+      .from('whitelist_members')
+      .select('email, password_hash, full_name')
+      .limit(10000);
+
+    const cloudMap = new Map();
+    if (Array.isArray(cloudWl)) {
+      cloudWl.forEach(c => {
+        if (c.email) cloudMap.set(c.email.toLowerCase().trim(), c);
+      });
+    }
+
+    const payload = AppState.whitelist.map(m => {
+      const cleanE = (m.email || '').toLowerCase().trim();
+      const cloudItem = cloudMap.get(cleanE);
+
+      const finalPass = m.passwordHash || cloudItem?.password_hash || null;
+      const finalName = (m.fullName && m.fullName !== 'Siswa Zettbos')
+        ? m.fullName
+        : (cloudItem?.full_name || m.fullName || 'Siswa Zettbos');
+
+      // Sinkronkan ke local state agar sinkron
+      m.passwordHash = finalPass;
+      m.fullName = finalName;
+
+      return {
+        id: m.id,
+        email: cleanE,
+        full_name: finalName,
+        role: m.role || 'member',
+        is_active: m.isActive !== false,
+        password_hash: finalPass
+      };
+    });
+
+    saveState();
 
     const batchSize = 100;
     for (let i = 0; i < payload.length; i += batchSize) {
@@ -2389,13 +2425,96 @@ async function syncWhitelistToSupabaseLive() {
       if (error) throw error;
     }
 
-    showToast(`Sukses menyinkronkan seluruh ${payload.length} akun whitelist ke Supabase Cloud!`, 'success');
+    showToast(`Sukses menyinkronkan seluruh ${payload.length} akun whitelist ke Supabase Cloud (Anti-Overwrite Aktif)!`, 'success');
+    renderAdminWhitelist();
   } catch (err) {
     console.error('[Sync Whitelist Error]', err);
     showToast(`Gagal menyinkronkan ke Supabase: ${err.message || err.toString()}`, 'error');
   }
 }
 window.syncWhitelistToSupabaseLive = syncWhitelistToSupabaseLive;
+
+async function pullWhitelistFromSupabaseLive(isSilent = false) {
+  if (typeof ZettSupabase === 'undefined' || !ZettSupabase.isConnected()) {
+    if (!isSilent) {
+      showToast('Supabase belum terhubung. Silakan atur URL & Key di tombol "Database Cloud".', 'warning');
+      openSupabaseSettingsModal();
+    }
+    return;
+  }
+
+  if (!isSilent) {
+    showToast('Menarik data member & status kata sandi terbaru dari Supabase Cloud...', 'info');
+  }
+
+  try {
+    const { data, error } = await ZettSupabase.client
+      .from('whitelist_members')
+      .select('id, email, full_name, role, is_active, password_hash')
+      .limit(10000);
+
+    if (error) throw error;
+
+    if (Array.isArray(data) && data.length > 0) {
+      let updatedCount = 0;
+      let newCount = 0;
+
+      data.forEach(cloudM => {
+        const cleanE = (cloudM.email || '').toLowerCase().trim();
+        if (!cleanE) return;
+
+        const localM = AppState.whitelist.find(m => (m.email || '').toLowerCase().trim() === cleanE);
+        if (localM) {
+          let modified = false;
+          if (cloudM.password_hash && localM.passwordHash !== cloudM.password_hash) {
+            localM.passwordHash = cloudM.password_hash;
+            modified = true;
+          }
+          if (cloudM.full_name && cloudM.full_name !== 'Siswa Zettbos' && localM.fullName !== cloudM.full_name) {
+            localM.fullName = cloudM.full_name;
+            modified = true;
+          }
+          if (cloudM.role && localM.role !== cloudM.role) {
+            localM.role = cloudM.role;
+            modified = true;
+          }
+          if (typeof cloudM.is_active === 'boolean' && localM.isActive !== cloudM.is_active) {
+            localM.isActive = cloudM.is_active;
+            modified = true;
+          }
+          if (modified) updatedCount++;
+        } else {
+          AppState.whitelist.push({
+            id: cloudM.id || ('wl-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5)),
+            email: cleanE,
+            fullName: cloudM.full_name || cleanE.split('@')[0],
+            role: cloudM.role || 'member',
+            isActive: cloudM.is_active !== false,
+            passwordHash: cloudM.password_hash || null,
+            registeredAt: new Date().toISOString()
+          });
+          newCount++;
+        }
+      });
+
+      saveState();
+      renderAdminWhitelist();
+      if (AppState.activeAdminTab === 'analytics') renderAdminAnalytics();
+
+      if (!isSilent) {
+        showToast(`Sinkronisasi selesai! ${updatedCount} member diperbarui, ${newCount} member baru ditarik dari Cloud.`, 'success');
+      }
+    } else {
+      if (!isSilent) showToast('Data whitelist di Cloud masih kosong.', 'info');
+    }
+  } catch (err) {
+    console.error('[Pull Whitelist Live Error]', err);
+    if (!isSilent) {
+      showToast('Gagal menarik data dari Supabase: ' + (err.message || err.toString()), 'error');
+    }
+  }
+}
+window.pullWhitelistFromSupabaseLive = pullWhitelistFromSupabaseLive;
 
 // ==========================================
 // 7. SISWA PROGRESS ANALYTICS (FAST PAGINATION & FILTERS)

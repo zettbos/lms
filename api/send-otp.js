@@ -40,7 +40,7 @@ module.exports = async (req, res) => {
     let isAuthorized = (cleanEmail === 'zettbos2025@gmail.com');
     if (!isAuthorized) {
       try {
-        const checkRes = await fetch(`${supabaseUrl}/rest/v1/whitelist_members?email=eq.${encodeURIComponent(cleanEmail)}&select=id,is_active`, {
+        const checkRes = await fetch(`${supabaseUrl}/rest/v1/whitelist_members?email=ilike.${encodeURIComponent(cleanEmail)}&select=id,is_active`, {
           headers: {
             'apikey': supabaseKey,
             'Authorization': `Bearer ${supabaseKey}`
