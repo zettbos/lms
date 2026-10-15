@@ -1,8 +1,8 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 # Projek: Zettbos LMS (Member Hub & Notion-Style Learning Management System)
 ================================================================================
-VERSI DOKUMEN : v1.4.1
-STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 70 SELESAI)
+VERSI DOKUMEN : v1.4.2
+STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 73 SELESAI)
 ARSITEK SISTEM: ZettBOT by Zettbos
 ENGINE STACK  : Next.js 14+ (App Router) + Supabase (Postgres & Auth OTP) + Vercel
 ================================================================================
@@ -835,6 +835,15 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
          - Saat materi terakhir di modul tersebut tercapai, tombol secara cerdas mengarahkan siswa berpindah halaman secara bersih ke Modul Baru (`pindah ke modul selanjutnya`).
       3. Cache Buster:
          - Menaikkan seluruh link stylesheet dan script JavaScript di `index.html` ke versi `?v=72`.
+   - [2026-10-15] Implementasi Revisi 73: Eliminasi Celah Kosong Tengah (Centered Balanced Dual-Column Learning Canvas).
+      1. Eliminasi Ruang Kosong Tengah & Centered Balanced Dual-Column Canvas (`index.html`):
+         - Menghapus class dorongan paksa `ml-auto` pada elemen kurikulum `<aside>`.
+         - Mengunci lebar container utama `#learn-player-view` menjadi `max-w-[1180px] w-full mx-auto px-4 sm:px-6 py-4 sm:py-6 flex flex-col lg:flex-row gap-8 justify-center items-start pb-24 lg:pb-8`.
+         - Kolom kiri (Card Materi) disetel ke `max-w-[780px] w-full flex-1 min-w-0`, berjarak tepat 32px (`gap-8`) dari sidebar kurikulum kanan (`w-80 flex-shrink-0 sticky top-20 self-start`).
+         - Menyelaraskan inner sub-nav `#learn-player-subnav > div` ke `max-w-[1180px] w-full mx-auto flex items-center justify-between` sehingga tombol kembali dan navigasi sejajar tegak lurus dengan tepi luar kanvas belajar.
+         - Seluruh sisa ruang pada monitor widescreen kini dialokasikan secara simetris ke margin tepi luar (kiri dan kanan), menghasilkan estetika profesional, proporsional, dan nyaman di mata tanpa lubang kosong di tengah.
+      2. Cache Buster:
+         - Menaikkan seluruh link stylesheet dan script JavaScript di `index.html` ke versi `?v=73`.
 
 
 

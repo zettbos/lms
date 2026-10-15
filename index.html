@@ -79,7 +79,7 @@
   </script>
 
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="css/style.css?v=72" />
+  <link rel="stylesheet" href="css/style.css?v=73" />
 </head>
 <body class="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--fg)] selection:bg-emerald-500/30 selection:text-emerald-300 transition-colors duration-150">
 
@@ -1161,9 +1161,9 @@
     </div>
 
     <!-- STATE 2: DISTRACTION-FREE VIDEO & LESSON PLAYER -->
-    <!-- Top Sub-Bar for Learning Room (Edge-to-Edge Alignment) -->
-    <div id="learn-player-subnav" class="border-b border-[var(--border)] bg-[var(--surface)] px-4 sm:px-6 lg:px-8 py-3 hidden">
-      <div class="w-full flex items-center justify-between">
+    <!-- Top Sub-Bar for Learning Room (Centered Alignment) -->
+    <div id="learn-player-subnav" class="border-b border-[var(--border)] bg-[var(--surface)] px-4 sm:px-6 py-3 hidden">
+      <div class="max-w-[1180px] w-full mx-auto flex items-center justify-between">
         <div class="flex items-center gap-3 truncate">
           <button onclick="showLearnModulesCatalog()" class="px-2.5 py-1.5 rounded-lg bg-emerald-950/70 hover:bg-emerald-900/80 text-emerald-300 border border-emerald-500/40 transition-colors flex items-center gap-1.5 text-xs font-semibold shadow-sm">
             <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
@@ -1193,11 +1193,11 @@
       </div>
     </div>
 
-    <!-- Main Learning Layout: Wide Viewport with Spacious Reading Area & Right-Aligned Curriculum -->
-    <div id="learn-player-view" class="flex-1 max-w-[1440px] 2xl:max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex flex-col lg:flex-row gap-8 items-start pb-24 lg:pb-8 hidden">
+    <!-- Main Learning Layout: Centered Balanced Canvas with Snug Curriculum Sidebar -->
+    <div id="learn-player-view" class="flex-1 max-w-[1180px] w-full mx-auto px-4 sm:px-6 py-4 sm:py-6 flex flex-col lg:flex-row gap-8 justify-center items-start pb-24 lg:pb-8 hidden">
       
-      <!-- Left Column: Lesson Header & Notion Content Area (Refined Ergonomic 800px Column) -->
-      <div class="w-full flex-1 min-w-0 max-w-[800px] mx-auto lg:mx-0">
+      <!-- Left Column: Lesson Header & Notion Content Area (Centered 780px Column) -->
+      <div class="w-full flex-1 min-w-0 max-w-[780px]">
 
         <!-- Lesson Header & Actions (100% Flush with Card Below) -->
         <div id="learn-lesson-header-inner" class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-800/80 mb-6 w-full">
@@ -1247,8 +1247,8 @@
 
       </div>
 
-      <!-- Right Column: Curriculum Navigation Sidebar (Sticky Floating on Scroll) -->
-      <aside class="hidden lg:block w-80 xl:w-96 flex-shrink-0 ml-auto sticky top-20 self-start">
+      <!-- Right Column: Curriculum Navigation Sidebar (Snug Sticky Sidebar) -->
+      <aside class="hidden lg:block w-80 flex-shrink-0 sticky top-20 self-start">
         <div class="glass-card rounded-xl p-4 sm:p-5 shadow-xl">
           <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800 text-xs font-bold text-white">
             <span class="flex items-center gap-2">
@@ -3694,18 +3694,18 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- Application Scripts (Modular Architecture with Cache Buster) -->
-  <script src="js/whitelist-data.js?v=72"></script>
-  <script src="js/mock-data.js?v=72"></script>
-  <script src="js/editor.js?v=72"></script>
-  <script src="js/core/state.js?v=72"></script>
-  <script src="js/core/supabase.js?v=72"></script>
-  <script src="js/core/router.js?v=72"></script>
-  <script src="js/core/particles.js?v=72"></script>
-  <script src="js/controllers/auth.js?v=72"></script>
-  <script src="js/controllers/landing.js?v=72"></script>
-  <script src="js/controllers/classroom.js?v=72"></script>
-  <script src="js/controllers/resources.js?v=72"></script>
-  <script src="js/controllers/admin.js?v=72"></script>
-  <script src="js/app.js?v=72"></script>
+  <script src="js/whitelist-data.js?v=73"></script>
+  <script src="js/mock-data.js?v=73"></script>
+  <script src="js/editor.js?v=73"></script>
+  <script src="js/core/state.js?v=73"></script>
+  <script src="js/core/supabase.js?v=73"></script>
+  <script src="js/core/router.js?v=73"></script>
+  <script src="js/core/particles.js?v=73"></script>
+  <script src="js/controllers/auth.js?v=73"></script>
+  <script src="js/controllers/landing.js?v=73"></script>
+  <script src="js/controllers/classroom.js?v=73"></script>
+  <script src="js/controllers/resources.js?v=73"></script>
+  <script src="js/controllers/admin.js?v=73"></script>
+  <script src="js/app.js?v=73"></script>
 </body>
 </html>

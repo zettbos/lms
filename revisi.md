@@ -1,43 +1,54 @@
-# ZETTBOS MEMBER HUB - LAPORAN EKSEKUSI RESMI (REVISI 72)
+# ZETTBOS MEMBER HUB - RENCANA PERBAIKAN RESMI (REVISI 73 RESMI)
 ================================================================================
-STATUS: IMPLEMENTED & VERIFIED (SELESAI 100%)
+STATUS: IMPLEMENTED & VERIFIED (REVISI 73 SELESAI)
 ARSITEK SISTEM: ZettBOT by Zettbos (Universal Product Architect & Lead Engineering Mentor)
-FOKUS TUGAS: CONTINUOUS VERTICAL LESSON STREAM & 100% FLUSH CARD-HEADER ALIGNMENT
+FOKUS TUGAS: ELIMINASI CELAH KOSONG TENGAH (CENTERED BALANCED DUAL-COLUMN LEARNING CANVAS)
 ================================================================================
 
-## 1. PENJELASAN & HASIL PERBAIKAN REVISI 72
-
-1. **Rampingkan Wadah Kolom Baca & Penyelarasan Flush 100% (Gambar 2):**
-   - **Akar Masalah Sebelumnya:** Di layar monitor lebar, wadah kolom kiri memakai `max-w-4xl xl:max-w-5xl` (1024px), sementara judul materi di atasnya dibatasi `max-w-[768px]`. Akibatnya, `.glass-card` melebar jauh ke kiri dan kanan dengan "sayap hitam kosong", sehingga card terlihat kedodoran/gemuk dan tidak sejajar dengan judulnya.
-   - **Solusi Ramping & Sejajar:**
-     * Menyatukan lebar kolom ruang belajar menjadi terpadu **`max-w-[800px] w-full min-w-0 mx-auto lg:mx-0`** di [index.html](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/index.html).
-     * Seluruh elemen di dalamnya (`#learn-lesson-header-inner`, `.glass-card`, `#learn-notion-content`, dan `#learn-reading-footer-inner`) kini mengisi lebar kolom secara penuh (`w-full`).
-     * Ujung kiri judul di atas kini **100% sejajar lurus (flush)** dengan garis kiri card.
-     * Ujung kanan tombol aksi di atas kini **100% sejajar lurus (flush)** dengan garis kanan card.
-     * Padding card dikompakkan menjadi **`p-6 sm:p-8`** sehingga card terasa pas, padat, dan proporsional.
-
-2. **Alur Belajar Vertikal Mengalir (*Continuous Vertical Lesson Stream*) (Gambar 1):**
-   - **Kebutuhan Pengguna:** *"saat di klik render materi selanjutnya tepat dibawah materi saat ini, jadi memanjang vertikal kebawah terus sampai selesai."*
-   - **Solusi Implementasi:**
-     * Menambahkan state pelacak `AppState.renderedLessonIds` di [js/controllers/classroom.js](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/js/controllers/classroom.js).
-     * Saat siswa menekan `[Selesai & Lanjut]` atau `[Materi Berikutnya →]` pada materi dalam modul yang sama:
-       1. Materi saat ini otomatis ditandai selesai (`AppState.progress`) dan checkmark hijau langsung aktif di kurikulum sidebar.
-       2. Materi berikutnya **langsung dirender tersambung tepat di bawah materi saat ini** (`.lesson-stream-segment`) tanpa menghapus materi lama dan tanpa reload halaman.
-       3. Di atas materi lanjutan disematkan header bab baru yang elegan: badge durasi (`10 Menit`) + judul materi + video/teks pendukung.
-       4. Layar secara otomatis melakukan *smooth scroll* ke awal materi baru yang baru terbuka.
-       5. Tombol `[Selesai & Lanjut]` dan `[Materi Berikutnya →]` berpindah ke ujung bawah materi terbaru untuk melanjutkan ke materi selanjutnya (memanjang terus ke bawah hingga modul tuntas).
-       6. Siswa bebas scroll ke atas kapan saja untuk meninjau materi sebelumnya.
-     * **Perpindahan Antar-Modul Tetap Bersih:** Saat materi terakhir di satu modul selesai, tombol mengarahkan siswa berpindah halaman secara bersih ke Modul Baru (`pindah ke modul selanjutnya`, bukan memanjang terus tanpa batas), sesuai instruksi pengguna sebelumnya.
-
-3. **Cache Buster:**
-   - Seluruh link CSS dan script JS di `index.html` dinaikkan ke versi **`?v=72`** untuk memastikan browser memuat kode terbaru secara instan.
+## 1. AKAR MASALAH (BERDASARKAN TANGKAPAN LAYAR)
+1. Pada tangkapan layar yang dikirimkan pengguna:
+   - Kolom kiri (Card Materi) menempel ke tepi kiri layar.
+   - Kolom kanan (Sidebar Kurikulum) menempel ke tepi kanan layar.
+   - Di tengah-tengah terdapat **ruang kosong/bolong yang sangat lebar (~450px - 500px)**.
+2. Penyebab di Kode:
+   - Di [index.html](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/index.html), `#learn-player-view` memiliki lebar container `max-w-[1600px]` dengan perilaku flex default `justify-between`.
+   - Sidebar kurikulum `<aside>` memiliki kelas `ml-auto` yang secara paksa mendorong sidebar ke dinding paling kanan container, sementara card materi `max-w-[800px]` berada di dinding paling kiri.
+   - Akibatnya, seluruh sisa ruang kosong monitor terlempar dan terjebak di tengah-tengah antara Card dan Sidebar.
 
 ---
 
-## 2. BERKAS TERVERIFIKASI
-1. [index.html](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/index.html)
-2. [js/controllers/classroom.js](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/js/controllers/classroom.js)
-3. [js/editor.js](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/js/editor.js)
-4. [css/style.css](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/css/style.css)
-5. [prd.md](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/prd.md)
-6. [revisi.md](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/revisi.md)
+## 2. SOLUSI TEKNIS REVISI 73 (RAPAT DI TENGAH, KOSONG DI TEPI LUAR)
+
+1. **Hapus Dorongan Paksa ke Kanan (`ml-auto`):**
+   - Menghapus class `ml-auto` pada elemen `<aside>` kurikulum sidebar di [index.html](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/index.html).
+2. **Kunci Lebar Total Kanvas Belajar Terpusat (`max-w-[1180px] mx-auto justify-center`):**
+   - Mengubah container `#learn-player-view` dari `max-w-[1600px]` menjadi **`max-w-[1180px] w-full mx-auto justify-center`**.
+   - Lebar 1180px adalah kombinasi presisi:
+     * Card Materi: `780px`
+     * Jarak Antara (Gutter): `32px` (`gap-8`)
+     * Sidebar Kurikulum: `320px` (`w-80`)
+     * Total: `780px + 32px + 320px = 1132px` (pas di dalam container 1180px).
+3. **Selaraskan Top Subnav:**
+   - Menyelaraskan inner container `#learn-player-subnav` menjadi `max-w-[1180px] mx-auto` agar tombol `< Daftar Modul` segaris lurus dengan card materi, dan tombol `[Prev][Next]` segaris lurus dengan sidebar.
+4. **Hasil Visual:**
+   - Bagian kiri (Card Materi) bergeser ke kanan sedikit.
+   - Bagian kanan (Sidebar Kurikulum) bergeser ke kiri sedikit.
+   - Celah tengah tidak lagi bolong, melainkan berjarak pas dan nyaman (32px).
+   - Seluruh sisa ruang layar monitor widescreen berpindah menjadi margin kiri dan kanan luar yang simetris dan elegan.
+5. **Cache Buster:**
+   - Naikkan ke **`?v=73`**.
+
+---
+
+## 3. BERKAS YANG DIUBAH
+1. [index.html](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/index.html) - Layout centered container `max-w-[1180px] justify-center`, hapus `ml-auto` sidebar, dan bump cache buster ke `?v=73`.
+2. [prd.md](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/prd.md) - Living PRD v1.4.2 & changelog Revisi 73.
+3. [revisi.md](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/revisi.md) - Dokumentasi status implementasi.
+
+---
+
+## 4. VERIFIKASI HASIL IMPLEMENTASI
+- **Celah Tengah Bolong**: Tuntas tereliminasi. Jarak card baca ke sidebar kurikulum kini terkunci rapat dan nyaman pada 32px (`gap-8`).
+- **Distribusi Ruang Kosong**: Seluruh sisa lebar layar monitor dialokasikan secara simetris ke margin luar (kiri dan kanan kanvas belajar), menghilangkan kesan asimetris atau timpang.
+- **Top Subnav Alignment**: Bar navigasi atas (`learn-player-subnav`) sejajar tegak lurus dengan tepi luar kanvas pembelajaran.
+- **Cache Buster**: Seluruh link stylesheet dan skrip JS dinaikkan ke `?v=73` untuk menjamin klien memuat perubahan layout terbaru tanpa cache lawas.
