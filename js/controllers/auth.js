@@ -148,45 +148,12 @@ async function handleLoginSubmit(event) {
         navigate(loginData.user.role === 'admin' ? 'admin' : 'home');
         return;
       } else {
-        // Fallback khusus Super Admin jika serverless/Supabase mengalami kendala sinkronisasi
-        if (isSuperAdmin && (enteredPassword === 'Zettboz_1!' || (member && member.passwordHash === inputHash))) {
-          AppState.currentUser = {
-            id: 'owner-1',
-            email: 'zettbos2025@gmail.com',
-            fullName: 'Owner Zettbos (Super Admin)',
-            role: 'admin'
-          };
-          saveState();
-          showToast('Login berhasil! Selamat datang, Owner Zettbos (Super Admin)', 'success');
-          navigate('admin');
-          return;
-        }
-
         showToast(loginData.error || 'Kata sandi salah! Periksa kembali atau gunakan opsi "Lupa sandi? Kirim OTP"', 'error');
         if (passwordInput) passwordInput.select();
         return;
       }
     } catch (loginErr) {
-      console.warn('[Verify Login Server Error, checking local fallback]', loginErr);
-      if (isSuperAdmin && (enteredPassword === 'Zettboz_1!' || (member && member.passwordHash === inputHash))) {
-        AppState.currentUser = {
-          id: 'owner-1',
-          email: 'zettbos2025@gmail.com',
-          fullName: 'Owner Zettbos (Super Admin)',
-          role: 'admin'
-        };
-        saveState();
-        showToast('Login berhasil! Selamat datang, Owner Zettbos (Super Admin)', 'success');
-        navigate('admin');
-        return;
-      }
-      if (member && member.passwordHash && member.passwordHash === inputHash) {
-        AppState.currentUser = member;
-        saveState();
-        showToast(`Login berhasil! Selamat datang, ${member.fullName || member.email}`, 'success');
-        navigate(member.role === 'admin' ? 'admin' : 'home');
-        return;
-      }
+      console.warn('[Verify Login Server Error]', loginErr);
       showToast('Gagal memverifikasi login ke server. Periksa koneksi internet Anda.', 'error');
       return;
     }

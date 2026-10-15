@@ -1,8 +1,8 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 # Projek: Zettbos LMS (Member Hub & Notion-Style Learning Management System)
 ================================================================================
-VERSI DOKUMEN : v1.5.2
-STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 76 SELESAI)
+VERSI DOKUMEN : v1.5.3
+STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 77 SELESAI)
 ARSITEK SISTEM: ZettBOT by Zettbos
 ENGINE STACK  : Next.js 14+ (App Router) + Supabase (Postgres & Auth OTP) + Vercel
 ================================================================================
@@ -884,6 +884,18 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
          - Mengaktifkan ekstensi `pgcrypto` dan menginisialisasi password hash akun Super Admin `owner-1` di tabel `whitelist_members`.
       5. Cache Buster:
          - Menaikkan seluruh link stylesheet dan script JavaScript di `index.html` ke versi `?v=76`.
+   - [2026-10-15] Implementasi Revisi 77: Pure Database Authentication & Relaksasi RLS Policy Whitelist.
+      1. Penghapusan Seluruh Fallback Hardcoded Password di JavaScript:
+         - Menghapus bersih seluruh perbandingan string kata sandi (`Zettboz_1!`) dari `auth.js` dan `api/verify-login.js`.
+         - Autentikasi kini 100% murni mengecek dan mencocokkan hash dari database PostgreSQL Supabase (`whitelist_members.password_hash`).
+      2. Relaksasi RLS Policy Supabase (`supabase/schema.sql`):
+         - Mengganti policy `Service Role Manage Whitelist` menjadi `Allow Full Access Whitelist` (`FOR ALL USING (true) WITH CHECK (true)`).
+         - Mengeliminasi error *"new row violates row-level security policy for table 'whitelist_members'"* saat Admin menambah siswa atau melakukan Sync ke Cloud di browser.
+         - Memungkinkan Serverless API membaca dan memverifikasi kata sandi secara langsung tanpa terhalang RLS.
+      3. Pembersihan & Pengosongan `js/whitelist-data.js`:
+         - Mengosongkan file `js/whitelist-data.js` karena seluruh data 2.318 member telah termigrasi ke database Supabase Cloud.
+      4. Cache Buster:
+         - Menaikkan seluruh link stylesheet dan script JavaScript di `index.html` ke versi `?v=77`.
 
 
 

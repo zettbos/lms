@@ -1,5 +1,3 @@
-const crypto = require('crypto');
-
 module.exports = async (req, res) => {
   // CORS Headers
   res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -28,82 +26,30 @@ module.exports = async (req, res) => {
 
     const cleanEmail = email.trim().toLowerCase();
 
-    // 1. Hitung Master Admin Password Hash (SHA-256)
-    const adminDefaultPass = process.env.ADMIN_PASSWORD || 'Zettboz_1!';
-    const expectedAdminHash = crypto.createHash('sha256').update(adminDefaultPass).digest('hex');
-
-    // 2. Query Supabase untuk mendapatkan hash kata sandi akun ini
+    // Query Supabase untuk mendapatkan hash kata sandi akun ini (Murni dari Database)
     const supabaseUrl = process.env.SUPABASE_URL || 'https://dtbbmpuqfstwxewylbao.supabase.co';
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || 'sb_publishable_QX8Kjj5QukJXXqXcIILp5w_Dye0avf1';
 
-    let member = null;
-    try {
-      const response = await fetch(`${supabaseUrl}/rest/v1/whitelist_members?email=eq.${encodeURIComponent(cleanEmail)}&select=id,email,full_name,role,is_active,password_hash`, {
-        method: 'GET',
-        headers: {
-          'apikey': supabaseKey,
-          'Authorization': `Bearer ${supabaseKey}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (Array.isArray(data) && data.length > 0) {
-          member = data[0];
-        }
+    const response = await fetch(`${supabaseUrl}/rest/v1/whitelist_members?email=eq.${encodeURIComponent(cleanEmail)}&select=id,email,full_name,role,is_active,password_hash`, {
+      method: 'GET',
+      headers: {
+        'apikey': supabaseKey,
+        'Authorization': `Bearer ${supabaseKey}`,
+        'Content-Type': 'application/json'
       }
-    } catch (dbErr) {
-      console.warn('[Verify Login DB Query Warning]', dbErr);
+    });
+
+    if (!response.ok) {
+      console.warn('[Verify Login DB Error]', response.statusText);
+      return res.status(500).json({ success: false, error: 'Gagal menghubungi database Supabase.' });
     }
 
-    // 3. Penanganan Khusus Super Admin (Anti-Lockout Multi-Device)
-    if (cleanEmail === 'zettbos2025@gmail.com') {
-      const isValidAdminPass = passwordHash === expectedAdminHash || (member && member.password_hash === passwordHash);
-      if (isValidAdminPass) {
-        // Auto-heal Supabase row jika belum tersinkronisasi
-        if (!member || !member.password_hash) {
-          fetch(`${supabaseUrl}/rest/v1/whitelist_members`, {
-            method: 'POST',
-            headers: {
-              'apikey': supabaseKey,
-              'Authorization': `Bearer ${supabaseKey}`,
-              'Content-Type': 'application/json',
-              'Prefer': 'resolution=merge-duplicates'
-            },
-            body: JSON.stringify({
-              id: 'owner-1',
-              email: cleanEmail,
-              full_name: 'Owner Zettbos (Super Admin)',
-              role: 'admin',
-              is_active: true,
-              password_hash: expectedAdminHash
-            })
-          }).catch(() => {});
-        }
-
-        return res.status(200).json({
-          success: true,
-          message: 'Login berhasil!',
-          user: {
-            id: member ? member.id : 'owner-1',
-            email: cleanEmail,
-            fullName: (member && member.full_name) || 'Owner Zettbos (Super Admin)',
-            role: 'admin'
-          }
-        });
-      } else {
-        return res.status(401).json({
-          success: false,
-          error: 'Kata sandi salah! Coba periksa kembali atau gunakan opsi "Lupa sandi? Kirim OTP".'
-        });
-      }
-    }
-
-    // 4. Verifikasi Akun Member Biasa
-    if (!member) {
+    const data = await response.json();
+    if (!Array.isArray(data) || data.length === 0) {
       return res.status(404).json({ success: false, error: 'Akun tidak terdaftar di whitelist Zettbos.' });
     }
+
+    const member = data[0];
 
     if (member.is_active === false) {
       return res.status(403).json({ success: false, error: 'Akun Anda telah dinonaktifkan oleh mentor.' });
@@ -113,7 +59,7 @@ module.exports = async (req, res) => {
       return res.status(400).json({ success: false, error: 'Akun ini belum memiliki kata sandi. Silakan masuk menggunakan kode OTP.' });
     }
 
-    // Bandingkan hash kata sandi secara aman
+    // Bandingkan hash kata sandi yang tersimpan di database dengan input
     if (member.password_hash === passwordHash) {
       return res.status(200).json({
         success: true,

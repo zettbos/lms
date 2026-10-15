@@ -92,30 +92,19 @@ function initStorage() {
       });
     }
 
-    const studentList = (typeof WHITELIST_STUDENT_EMAILS !== 'undefined' && Array.isArray(WHITELIST_STUDENT_EMAILS))
-      ? WHITELIST_STUDENT_EMAILS
-      : [];
-
-    const cleanWhitelist = [
-      {
-        id: 'owner-1',
-        email: 'zettbos2025@gmail.com',
-        fullName: 'Owner Zettbos (Super Admin)',
-        role: 'admin',
-        isActive: true,
-        passwordHash: existingPasswordMap['zettbos2025@gmail.com'] || null,
-        registeredAt: '2026-10-13'
-      },
-      ...studentList.map((email, idx) => ({
-        id: 'wl-' + (idx + 1),
-        email: email,
-        fullName: 'Siswa Zettbos',
-        role: 'member',
-        isActive: true,
-        passwordHash: existingPasswordMap[email.toLowerCase()] || null,
-        registeredAt: '2026-10-13'
-      }))
-    ];
+    const cleanWhitelist = (Array.isArray(storedWhitelist) && storedWhitelist.length > 0)
+      ? storedWhitelist
+      : [
+          {
+            id: 'owner-1',
+            email: 'zettbos2025@gmail.com',
+            fullName: 'Owner Zettbos (Super Admin)',
+            role: 'admin',
+            isActive: true,
+            passwordHash: existingPasswordMap['zettbos2025@gmail.com'] || null,
+            registeredAt: '2026-10-13'
+          }
+        ];
     localStorage.setItem('zett_whitelist', JSON.stringify(cleanWhitelist));
     localStorage.setItem('zett_data_clean_version', DATA_CLEAN_VERSION);
     storedWhitelist = cleanWhitelist;

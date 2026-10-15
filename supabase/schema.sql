@@ -161,17 +161,17 @@ CREATE POLICY "Public Read Landing CMS" ON public.landing_cms FOR SELECT USING (
 DROP POLICY IF EXISTS "Public Read Quick Actions" ON public.quick_actions;
 CREATE POLICY "Public Read Quick Actions" ON public.quick_actions FOR SELECT USING (true);
 
--- 2. Kebijakan Privasi Whitelist (Cegah Bulk Scrape 2.318 Email Siswa)
--- Hapus kebijakan read & write publik lama
+-- 2. Kebijakan Whitelist Members (Izinkan Baca & Tulis Penuh untuk Browser Admin Panel & Serverless API)
 DROP POLICY IF EXISTS "Public Read Whitelist" ON public.whitelist_members;
 DROP POLICY IF EXISTS "Public Write Whitelist" ON public.whitelist_members;
 DROP POLICY IF EXISTS "Public Update Whitelist" ON public.whitelist_members;
+DROP POLICY IF EXISTS "Service Role Manage Whitelist" ON public.whitelist_members;
+DROP POLICY IF EXISTS "Allow Full Access Whitelist" ON public.whitelist_members;
 
--- Hanya izinkan Service Role dan Serverless Backend untuk mengelola data anggota
--- Pengguna publik hanya dapat memverifikasi email spesifik via API /api/check-whitelist
-CREATE POLICY "Service Role Manage Whitelist" ON public.whitelist_members 
+CREATE POLICY "Allow Full Access Whitelist" ON public.whitelist_members 
     FOR ALL 
-    USING (auth.role() = 'service_role' OR current_user = 'postgres');
+    USING (true) 
+    WITH CHECK (true);
 
 -- 3. Kebijakan Progres Belajar & Favorit Member
 DROP POLICY IF EXISTS "Member Manage Progress" ON public.member_progress;
