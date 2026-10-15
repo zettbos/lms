@@ -1,8 +1,8 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 # Projek: Zettbos LMS (Member Hub & Notion-Style Learning Management System)
 ================================================================================
-VERSI DOKUMEN : v1.5.5
-STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 79 SELESAI)
+VERSI DOKUMEN : v1.5.6
+STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 80 SELESAI)
 ARSITEK SISTEM: ZettBOT by Zettbos
 ENGINE STACK  : Next.js 14+ (App Router) + Supabase (Postgres & Auth OTP) + Vercel
 ================================================================================
@@ -922,6 +922,21 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
          - Mengaktifkan auto-pull data cloud instan begitu tab Whitelist dibuka oleh Admin/Owner.
       6. Cache Buster:
          - Menaikkan seluruh link script JavaScript di `index.html` ke versi `?v=79`.
+   - [2026-10-15] Implementasi Revisi 80: Strict Database Verification & Fitur Profil / Kata Sandi Mandiri Siswa.
+      1. Validasi Ketat Database Sebelum Login (`js/controllers/auth.js`):
+         - Menghilangkan ilusi "login berhasil" lokal jika update ke Supabase database gagal/ditolak RLS.
+         - Modal pembuatan password tidak akan ditutup dan siswa tidak akan login sebelum respons database terkonfirmasi sukses (`200 OK`).
+      2. Dynamic Universal Profile & Password Update API (`api/set-password.js`):
+         - Menjadikan kolom password opsional saat pembaruan profil reguler.
+         - Memvalidasi panjang signature secara aman sebelum evaluasi `timingSafeEqual`.
+         - Mengembalikan deskripsi error terperinci dari PostgREST untuk kemudahan pemantauan.
+      3. Fitur Edit Profil & Ganti Sandi Mandiri Siswa (`index.html` & `js/controllers/auth.js`):
+         - Menghubungkan tombol `⚙️ Edit Profil` di header navbar ke `modal-profile-settings`.
+         - Memungkinkan setiap siswa mengubah nama lengkap dan kata sandi baru mereka secara mandiri.
+         - Menambahkan tombol intip kata sandi (*toggle password visibility*) pada modal profil.
+         - Mengimplementasikan dual-sync (Serverless API + Supabase Client) dengan notifikasi status instan.
+      4. Cache Buster:
+         - Menaikkan seluruh link script JavaScript di `index.html` ke versi `?v=80`.
 
 
 

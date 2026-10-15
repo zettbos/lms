@@ -2552,10 +2552,20 @@
           <input id="profile-fullname-input" type="text" required minlength="2" placeholder="Contoh: Farhan Zettbos" class="w-full px-3.5 py-2.5 rounded-lg bg-slate-950 border border-slate-800 text-sm text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
         </div>
 
-        <div class="pt-2 border-t border-slate-800/80">
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Ubah Kata Sandi (Opsional)</label>
-          <input id="profile-new-password" type="password" placeholder="Kosongkan jika tidak ingin ganti sandi (min 8 karakter)" class="w-full px-3.5 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-emerald-500 mb-2">
-          <input id="profile-confirm-password" type="password" placeholder="Ulangi kata sandi baru" class="w-full px-3.5 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-emerald-500">
+        <div class="pt-2 border-t border-slate-800/80 space-y-2">
+          <label class="block text-xs font-semibold text-slate-300">Ubah Kata Sandi (Opsional)</label>
+          <div class="relative">
+            <input id="profile-new-password" type="password" placeholder="Kosongkan jika tidak ingin ganti sandi (min 8 karakter)" class="w-full pl-3.5 pr-10 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-emerald-500">
+            <button type="button" onclick="togglePasswordVisibility('profile-new-password', this)" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-300">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            </button>
+          </div>
+          <div class="relative">
+            <input id="profile-confirm-password" type="password" placeholder="Ulangi kata sandi baru" class="w-full pl-3.5 pr-10 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-emerald-500">
+            <button type="button" onclick="togglePasswordVisibility('profile-confirm-password', this)" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-300">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            </button>
+          </div>
         </div>
 
         <div class="flex items-center justify-end gap-2 pt-2">
@@ -3698,17 +3708,17 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- Application Scripts (Modular Architecture with Cache Buster) -->
-  <script src="js/mock-data.js?v=79"></script>
-  <script src="js/editor.js?v=79"></script>
-  <script src="js/core/state.js?v=79"></script>
-  <script src="js/core/supabase.js?v=79"></script>
-  <script src="js/core/router.js?v=79"></script>
-  <script src="js/core/particles.js?v=79"></script>
-  <script src="js/controllers/auth.js?v=79"></script>
-  <script src="js/controllers/landing.js?v=79"></script>
-  <script src="js/controllers/classroom.js?v=79"></script>
-  <script src="js/controllers/resources.js?v=79"></script>
-  <script src="js/controllers/admin.js?v=79"></script>
-  <script src="js/app.js?v=79"></script>
+  <script src="js/mock-data.js?v=80"></script>
+  <script src="js/editor.js?v=80"></script>
+  <script src="js/core/state.js?v=80"></script>
+  <script src="js/core/supabase.js?v=80"></script>
+  <script src="js/core/router.js?v=80"></script>
+  <script src="js/core/particles.js?v=80"></script>
+  <script src="js/controllers/auth.js?v=80"></script>
+  <script src="js/controllers/landing.js?v=80"></script>
+  <script src="js/controllers/classroom.js?v=80"></script>
+  <script src="js/controllers/resources.js?v=80"></script>
+  <script src="js/controllers/admin.js?v=80"></script>
+  <script src="js/app.js?v=80"></script>
 </body>
 </html>

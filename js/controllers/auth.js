@@ -394,6 +394,9 @@ async function handleSetPasswordSubmit(event) {
   member.fullName = fullName;
   member.passwordHash = hashedPassword;
 
+  let isSaved = false;
+  let saveErrorMessage = '';
+
   // 1. Simpan ke Supabase Database via Serverless API /api/set-password (Aman & Anti-Bypass)
   try {
     const setPassRes = await fetch(getApiEndpoint('/api/set-password'), {
@@ -407,17 +410,21 @@ async function handleSetPasswordSubmit(event) {
       })
     });
     const setPassData = await setPassRes.json();
-    if (!setPassData.success) {
-      console.warn('[Set Password API Warning]', setPassData.error);
+    if (setPassData.success) {
+      isSaved = true;
+    } else {
+      saveErrorMessage = setPassData.error || 'Server menolak pendaftaran kata sandi.';
+      console.warn('[Set Password API Warning]', saveErrorMessage);
     }
   } catch (apiErr) {
+    saveErrorMessage = apiErr.message || 'Gagal menghubungi server.';
     console.warn('[Set Password API Exception]', apiErr);
   }
 
   // 2. Fallback sinkronisasi lokal Supabase jika terkoneksi (Gunakan Upsert agar pasti tersimpan)
   if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
     try {
-      await ZettSupabase.client
+      const { error: sbErr } = await ZettSupabase.client
         .from('whitelist_members')
         .upsert({ 
           id: member.id || ('wl-' + Date.now()),
@@ -427,9 +434,22 @@ async function handleSetPasswordSubmit(event) {
           is_active: true,
           password_hash: hashedPassword 
         }, { onConflict: 'email' });
+
+      if (!sbErr) {
+        isSaved = true;
+      } else {
+        console.warn('[Supabase Direct Whitelist Upsert Warning]', sbErr);
+        if (!isSaved) saveErrorMessage = sbErr.message || saveErrorMessage;
+      }
     } catch (err) {
-      console.warn('[Supabase Direct Whitelist Upsert Warning]', err);
+      console.warn('[Supabase Direct Whitelist Upsert Exception]', err);
     }
+  }
+
+  // VALIDASI KETAT: Jika database belum berhasil menyimpan, JANGAN tutup modal dan JANGAN login-kan!
+  if (!isSaved) {
+    showToast(`Gagal menyimpan kata sandi ke database: ${saveErrorMessage || 'Akses database ditolak'}. Pastikan koneksi internet stabil dan coba lagi.`, 'error', 9000);
+    return;
   }
 
   // Tutup Modal Set Password
@@ -440,7 +460,7 @@ async function handleSetPasswordSubmit(event) {
   AppState.currentUser = member;
   saveState();
 
-  showToast(`Selamat datang, ${fullName}! Profil dan kata sandi berhasil disimpan.`, 'success');
+  showToast(`Selamat datang, ${fullName}! Profil dan kata sandi berhasil disimpan di database cloud.`, 'success');
   navigate(member.role === 'admin' ? 'admin' : 'home');
 }
 
@@ -571,7 +591,60 @@ async function handleSaveProfileSubmit(e) {
     newPasswordHash = await hashPassword(newPass);
   }
 
-  showToast('Menyimpan perubahan profil...', 'info');
+  showToast('Menyimpan perubahan profil ke database cloud...', 'info');
+
+  let isProfileSaved = false;
+  let profileSaveError = '';
+
+  // 1. Simpan ke Supabase via Serverless API /api/set-password
+  try {
+    const apiRes = await fetch(getApiEndpoint('/api/set-password'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: user.email,
+        fullName: newName,
+        passwordHash: newPasswordHash || null
+      })
+    });
+    const apiData = await apiRes.json();
+    if (apiData.success) {
+      isProfileSaved = true;
+    } else {
+      profileSaveError = apiData.error || '';
+      console.warn('[Profile API Warning]', profileSaveError);
+    }
+  } catch (apiEx) {
+    profileSaveError = apiEx.message || '';
+    console.warn('[Profile API Exception]', apiEx);
+  }
+
+  // 2. Direct Update to Supabase jika terhubung
+  if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+    try {
+      const updatePayload = { full_name: newName };
+      if (newPasswordHash) updatePayload.password_hash = newPasswordHash;
+
+      const { error: updErr } = await ZettSupabase.client
+        .from('whitelist_members')
+        .update(updatePayload)
+        .eq('email', user.email);
+
+      if (!updErr) {
+        isProfileSaved = true;
+      } else {
+        console.warn('[Profile Supabase Update Error]', updErr);
+        if (!isProfileSaved) profileSaveError = updErr.message || profileSaveError;
+      }
+    } catch (err) {
+      console.warn('[Profile Supabase Exception]', err);
+    }
+  }
+
+  if (!isProfileSaved) {
+    showToast(`Gagal memperbarui profil di database: ${profileSaveError || 'Akses ditolak'}. Silakan coba lagi.`, 'error', 8000);
+    return;
+  }
 
   // Update in local state
   user.fullName = newName;
@@ -588,34 +661,17 @@ async function handleSaveProfileSubmit(e) {
 
   saveState();
 
-  // Update in Supabase Cloud
-  if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
-    try {
-      const updatePayload = { full_name: newName };
-      if (newPasswordHash) updatePayload.password_hash = newPasswordHash;
-
-      const { error: updErr } = await ZettSupabase.client
-        .from('whitelist_members')
-        .update(updatePayload)
-        .eq('email', user.email);
-
-      if (updErr) {
-        console.warn('[Profile Supabase Update Error]', updErr);
-      } else {
-        console.log('[Profile Supabase Update Success]');
-      }
-    } catch (err) {
-      console.warn('[Profile Supabase Exception]', err);
-    }
-  }
-
   // Re-render UI
   if (typeof updateNavbarState === 'function') updateNavbarState(AppState.currentView);
   if (typeof updateDrawerState === 'function') updateDrawerState();
   if (AppState.currentView === 'home' && typeof renderHome === 'function') renderHome();
+  const navUserName = document.getElementById('nav-user-name');
+  if (navUserName) navUserName.textContent = newName;
+  const mUser = document.getElementById('mobile-popover-user');
+  if (mUser) mUser.textContent = newName;
 
   closeProfileSettingsModal();
-  showToast('Profil Anda berhasil diperbarui!', 'success');
+  showToast('Profil dan kata sandi berhasil diperbarui di database cloud!', 'success');
 }
 
 // Window bindings (Aman, tanpa fungsi bypass/dummy)

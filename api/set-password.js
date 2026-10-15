@@ -24,13 +24,13 @@ module.exports = async (req, res) => {
   try {
     const { email, fullName, passwordHash, resetToken } = req.body || {};
 
-    if (!email || !fullName || !passwordHash) {
-      return res.status(400).json({ success: false, error: 'Data nama, email, dan kata sandi wajib diisi.' });
+    if (!email || !fullName) {
+      return res.status(400).json({ success: false, error: 'Data nama dan email wajib diisi.' });
     }
 
     const cleanEmail = email.trim().toLowerCase();
 
-    // 1. Verifikasi Otentikasi Bukti OTP (Anti-Bypass)
+    // 1. Verifikasi Otentikasi Bukti OTP jika resetToken disertakan (Anti-Bypass)
     if (resetToken) {
       const parts = resetToken.split('.');
       if (parts.length === 2) {
@@ -44,7 +44,7 @@ module.exports = async (req, res) => {
         const proofPayload = `${cleanEmail}:verified:${expiresAt}`;
         const expectedSig = crypto.createHmac('sha256', HMAC_SECRET).update(proofPayload).digest('hex');
 
-        if (!crypto.timingSafeEqual(Buffer.from(signature, 'hex'), Buffer.from(expectedSig, 'hex'))) {
+        if (signature.length !== expectedSig.length || !crypto.timingSafeEqual(Buffer.from(signature, 'hex'), Buffer.from(expectedSig, 'hex'))) {
           return res.status(403).json({ success: false, error: 'Token verifikasi OTP tidak sah.' });
         }
       }
@@ -53,6 +53,11 @@ module.exports = async (req, res) => {
     // 2. Simpan ke Supabase Database (Anti-Overwrite & Safe Upsert)
     const supabaseUrl = process.env.SUPABASE_URL || 'https://dtbbmpuqfstwxewylbao.supabase.co';
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || 'sb_publishable_QX8Kjj5QukJXXqXcIILp5w_Dye0avf1';
+
+    const patchPayload = { full_name: fullName.trim() };
+    if (passwordHash) {
+      patchPayload.password_hash = passwordHash;
+    }
 
     // Coba PATCH terlebih dahulu dengan pencocokan case-insensitive
     const patchRes = await fetch(`${supabaseUrl}/rest/v1/whitelist_members?email=ilike.${encodeURIComponent(cleanEmail)}`, {
@@ -63,10 +68,7 @@ module.exports = async (req, res) => {
         'Content-Type': 'application/json',
         'Prefer': 'return=representation'
       },
-      body: JSON.stringify({
-        full_name: fullName.trim(),
-        password_hash: passwordHash
-      })
+      body: JSON.stringify(patchPayload)
     });
 
     let updatedRows = [];
@@ -80,6 +82,17 @@ module.exports = async (req, res) => {
 
     // Jika PATCH tidak mengenai baris apapun (misal email belum pernah di-seed ke Supabase), lakukan UPSERT langsung!
     if (!Array.isArray(updatedRows) || updatedRows.length === 0) {
+      const postPayload = {
+        id: 'wl-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
+        email: cleanEmail,
+        full_name: fullName.trim(),
+        role: cleanEmail === 'zettbos2025@gmail.com' ? 'admin' : 'member',
+        is_active: true
+      };
+      if (passwordHash) {
+        postPayload.password_hash = passwordHash;
+      }
+
       const postRes = await fetch(`${supabaseUrl}/rest/v1/whitelist_members`, {
         method: 'POST',
         headers: {
@@ -88,25 +101,22 @@ module.exports = async (req, res) => {
           'Content-Type': 'application/json',
           'Prefer': 'resolution=merge-duplicates,return=representation'
         },
-        body: JSON.stringify({
-          id: 'wl-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
-          email: cleanEmail,
-          full_name: fullName.trim(),
-          role: cleanEmail === 'zettbos2025@gmail.com' ? 'admin' : 'member',
-          is_active: true,
-          password_hash: passwordHash
-        })
+        body: JSON.stringify(postPayload)
       });
 
       if (!postRes.ok) {
-        console.warn('[Set Password DB Upsert Error]', postRes.statusText);
-        return res.status(500).json({ success: false, error: 'Gagal mendaftarkan kata sandi ke database.' });
+        const postErrText = await postRes.text().catch(() => '');
+        console.warn('[Set Password DB Upsert Error]', postRes.status, postRes.statusText, postErrText);
+        return res.status(500).json({ 
+          success: false, 
+          error: `Gagal mendaftarkan ke database Supabase (${postRes.status}): ${postRes.statusText || postErrText}` 
+        });
       }
     }
 
     return res.status(200).json({
       success: true,
-      message: 'Kata sandi dan profil berhasil dibuat!',
+      message: 'Profil dan kata sandi berhasil diperbarui di database!',
       user: {
         email: cleanEmail,
         fullName: fullName.trim(),
