@@ -1229,6 +1229,8 @@ function renderLearningRoom(lessonId) {
   if (lesTitle) lesTitle.textContent = lesson.title;
   if (durBadge) durBadge.textContent = `${lesson.durationMinutes || 15} Menit`;
 
+  AppState.renderedLessonIds = [lesson.id];
+
   const contentContainer = document.getElementById('learn-notion-content');
   if (contentContainer) {
     let blocksToRender = Array.isArray(lesson.blocks) ? [...lesson.blocks] : [];
@@ -1237,25 +1239,13 @@ function renderLearningRoom(lessonId) {
       const url = lesson.youtubeUrl || `https://www.youtube.com/watch?v=${lesson.youtubeEmbedId}`;
       blocksToRender = [{ type: 'video', url }, ...blocksToRender];
     }
-    contentContainer.innerHTML = renderBlocksToHtml(blocksToRender);
-  }
-
-  const btnToggleComplete = document.getElementById('btn-toggle-complete');
-  if (btnToggleComplete) {
-    if (isLessonCompleted) {
-      btnToggleComplete.innerHTML = `
-        <svg class="w-5 h-5 text-emerald-400 animate-pulse-check" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-        <span>Materi Selesai</span>
-      `;
-      btnToggleComplete.className = 'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-emerald-950/80 text-emerald-300 border border-emerald-500/50 hover:bg-emerald-900/60 transition-all';
-    } else {
-      btnToggleComplete.innerHTML = `
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-        <span>Tandai Selesai & Lanjut</span>
-      `;
-      btnToggleComplete.className = 'btn-primary-action flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold';
-    }
-    btnToggleComplete.onclick = () => toggleLessonCompletion(lesson.id);
+    contentContainer.innerHTML = `
+      <div id="lesson-segment-${lesson.id}" class="lesson-stream-segment" data-lesson-id="${lesson.id}">
+        <div class="lesson-segment-content">
+          ${renderBlocksToHtml(blocksToRender)}
+        </div>
+      </div>
+    `;
   }
 
   const userFavs = (user && AppState.favorites[user.email]) ? AppState.favorites[user.email] : [];
@@ -1280,84 +1270,71 @@ function renderLearningRoom(lessonId) {
   if (floatingMod) floatingMod.textContent = parentModule ? parentModule.title : 'Modul Kursus';
 
   if (floatingActions) {
-    if (isLessonCompleted) {
-      floatingActions.innerHTML = `
-        <button onclick="handleFloatingNextLesson()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-950/90 text-emerald-300 border border-emerald-500/50 hover:bg-emerald-900/60 flex items-center gap-1.5 transition-all">
-          <span>Lanjut &rarr;</span>
-        </button>
-        <button onclick="dismissFloatingPill()" title="Tutup Bar" class="p-1 text-slate-400 hover:text-white rounded">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
-      `;
-    } else {
-      floatingActions.innerHTML = `
-        <button onclick="toggleLessonCompletion('${lesson.id}')" class="btn-primary-action px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-          <span>Selesai</span>
-        </button>
-        <button onclick="dismissFloatingPill()" title="Tutup Bar" class="p-1 text-slate-400 hover:text-white rounded">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
-      `;
-    }
+    floatingActions.innerHTML = `
+      <button onclick="handleFloatingNextLesson()" class="btn-primary-action px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+        <span>Selesai & Lanjut</span>
+      </button>
+      <button onclick="dismissFloatingPill()" title="Tutup Bar" class="p-1 text-slate-400 hover:text-white rounded">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    `;
   }
 
+  updateStreamNavigationButtons(lesson.id);
+  renderCurriculumSidebar(lesson.id);
+}
+
+/**
+ * Updates the navigation buttons (top subnav, reading footer, complete toggle)
+ * to reflect the latest active lesson in the stream.
+ */
+function updateStreamNavigationButtons(activeLessonId) {
   const orderedLessons = getCurriculumOrderedLessons();
-  const currentIndex = orderedLessons.findIndex(l => l.id === lesson.id);
+  const currentIndex = orderedLessons.findIndex(l => l.id === activeLessonId);
+  const currentLesson = orderedLessons[currentIndex] || AppState.lessons.find(l => l.id === activeLessonId);
+  if (!currentLesson) return;
+
   const prevLesson = currentIndex > 0 ? orderedLessons[currentIndex - 1] : null;
   const nextLesson = currentIndex >= 0 && currentIndex < orderedLessons.length - 1 ? orderedLessons[currentIndex + 1] : null;
+
+  const user = AppState.currentUser;
+  const userCompleted = (user && AppState.progress[user.email]) ? AppState.progress[user.email] : [];
+  const isLessonCompleted = userCompleted.includes(currentLesson.id);
+
+  const parentModule = AppState.modules.find(m => m.id === currentLesson.moduleId);
+  const lesTitle = document.getElementById('learn-lesson-title');
+  const durBadge = document.getElementById('learn-duration-badge');
+  const modBadge = document.getElementById('learn-module-badge');
+
+  if (lesTitle) lesTitle.textContent = currentLesson.title;
+  if (durBadge) durBadge.textContent = `${currentLesson.durationMinutes || 15} Menit`;
+  if (modBadge && parentModule) modBadge.textContent = parentModule.title;
 
   const btnPrev = document.getElementById('btn-prev-lesson');
   const btnNext = document.getElementById('btn-next-lesson');
   const btnFooterPrev = document.getElementById('btn-footer-prev-lesson');
   const btnFooterNext = document.getElementById('btn-footer-next-lesson');
   const btnFooterComplete = document.getElementById('btn-footer-complete');
+  const btnToggleComplete = document.getElementById('btn-toggle-complete');
 
   if (btnPrev) {
     btnPrev.disabled = !prevLesson;
-    btnPrev.onclick = () => {
-      if (prevLesson) {
-        renderLearningRoom(prevLesson.id);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-    };
-    if (prevLesson) {
-      const prevMod = AppState.modules.find(m => m.id === prevLesson.moduleId);
-      btnPrev.title = prevMod && prevMod.id !== lesson.moduleId
-        ? `Sebelumnya: ${prevMod.title} • ${prevLesson.title}`
-        : `Sebelumnya: ${prevLesson.title}`;
-    } else {
-      btnPrev.title = 'Materi pertama';
-    }
+    btnPrev.onclick = () => goToAdjacentLesson(-1);
+    btnPrev.title = prevLesson ? `Sebelumnya: ${prevLesson.title}` : 'Materi pertama';
   }
 
   if (btnNext) {
     btnNext.disabled = !nextLesson;
-    btnNext.onclick = () => {
-      if (nextLesson) {
-        const nextMod = AppState.modules.find(m => m.id === nextLesson.moduleId);
-        if (nextMod && nextMod.id !== lesson.moduleId) {
-          showToast(`Lanjut ke Modul: ${nextMod.title}`, 'info');
-        }
-        renderLearningRoom(nextLesson.id);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-    };
-    if (nextLesson) {
-      const nextMod = AppState.modules.find(m => m.id === nextLesson.moduleId);
-      btnNext.title = nextMod && nextMod.id !== lesson.moduleId
-        ? `Lanjut: ${nextMod.title} • ${nextLesson.title}`
-        : `Lanjut: ${nextLesson.title}`;
-    } else {
-      btnNext.title = 'Materi terakhir';
-    }
+    btnNext.onclick = () => advanceToNextLesson(false);
+    btnNext.title = nextLesson ? `Lanjut: ${nextLesson.title}` : 'Materi terakhir';
   }
 
   if (btnFooterPrev) {
     btnFooterPrev.disabled = !prevLesson;
     if (prevLesson) {
       const prevMod = AppState.modules.find(m => m.id === prevLesson.moduleId);
-      const isDiffMod = prevMod && prevMod.id !== lesson.moduleId;
+      const isDiffMod = prevMod && prevMod.id !== currentLesson.moduleId;
       btnFooterPrev.innerHTML = isDiffMod
         ? `&larr; <span class="hidden sm:inline">${escapeHtml(prevMod.title)} &bull;</span> Materi Sebelumnya`
         : `&larr; Materi Sebelumnya`;
@@ -1371,13 +1348,13 @@ function renderLearningRoom(lessonId) {
     btnFooterNext.disabled = !nextLesson;
     if (nextLesson) {
       const nextMod = AppState.modules.find(m => m.id === nextLesson.moduleId);
-      const isDiffMod = nextMod && nextMod.id !== lesson.moduleId;
+      const isDiffMod = nextMod && nextMod.id !== currentLesson.moduleId;
       btnFooterNext.innerHTML = isDiffMod
         ? `<span class="hidden sm:inline">Lanjut: ${escapeHtml(nextMod.title)} &bull;</span> Materi Berikutnya &rarr;`
         : `Materi Berikutnya &rarr;`;
       btnFooterNext.title = nextLesson.title;
     } else {
-      btnFooterNext.innerHTML = `Materi Berikutnya &rarr;`;
+      btnFooterNext.innerHTML = `Materi Terakhir Selesai`;
     }
   }
 
@@ -1385,9 +1362,134 @@ function renderLearningRoom(lessonId) {
     btnFooterComplete.innerHTML = isLessonCompleted 
       ? '<svg class="w-4 h-4 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg><span>Materi Selesai</span>'
       : '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg><span>Selesai & Lanjut</span>';
+    btnFooterComplete.onclick = () => advanceToNextLesson(true);
   }
 
-  renderCurriculumSidebar(lesson.id);
+  if (btnToggleComplete) {
+    if (isLessonCompleted) {
+      btnToggleComplete.innerHTML = `
+        <svg class="w-5 h-5 text-emerald-400 animate-pulse-check" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+        <span>Materi Selesai</span>
+      `;
+      btnToggleComplete.className = 'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-emerald-950/80 text-emerald-300 border border-emerald-500/50 hover:bg-emerald-900/60 transition-all';
+    } else {
+      btnToggleComplete.innerHTML = `
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+        <span>Tandai Selesai & Lanjut</span>
+      `;
+      btnToggleComplete.className = 'btn-primary-action flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold';
+    }
+    btnToggleComplete.onclick = () => advanceToNextLesson(true);
+  }
+}
+
+/**
+ * Continuous Stream Advance Logic:
+ * In the same module, appends next lesson vertically below.
+ * When crossing to next module, cleanly switches page to Module N+1 Lesson 1.
+ */
+function advanceToNextLesson(isMarkComplete = false) {
+  const user = AppState.currentUser;
+  const orderedLessons = getCurriculumOrderedLessons();
+  const currentLesson = AppState.lessons.find(l => l.id === AppState.currentLessonId);
+  if (!currentLesson) return;
+
+  const currentIndex = orderedLessons.findIndex(l => l.id === currentLesson.id);
+  if (currentIndex === -1) return;
+
+  // 1. Mark complete if requested
+  if (isMarkComplete && user) {
+    if (!AppState.progress[user.email]) {
+      AppState.progress[user.email] = [];
+    }
+    if (!AppState.progress[user.email].includes(currentLesson.id)) {
+      AppState.progress[user.email].push(currentLesson.id);
+      
+      const now = new Date();
+      const yyyy = now.getFullYear();
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      const dd = String(now.getDate()).padStart(2, '0');
+      const todayStr = `${yyyy}-${mm}-${dd}`;
+      if (!AppState.activity) AppState.activity = {};
+      if (!AppState.activity[user.email]) AppState.activity[user.email] = { studiedDates: [] };
+      if (!Array.isArray(AppState.activity[user.email].studiedDates)) AppState.activity[user.email].studiedDates = [];
+      if (!AppState.activity[user.email].studiedDates.includes(todayStr)) {
+        AppState.activity[user.email].studiedDates.push(todayStr);
+      }
+      saveState();
+      showToast('Materi berhasil diselesaikan', 'success');
+    }
+  }
+
+  // 2. Check if reached end of curriculum
+  if (currentIndex >= orderedLessons.length - 1) {
+    showToast('Selamat! Anda telah menyelesaikan seluruh kurikulum materi.', 'success');
+    updateStreamNavigationButtons(currentLesson.id);
+    renderCurriculumSidebar(currentLesson.id);
+    return;
+  }
+
+  const nextLesson = orderedLessons[currentIndex + 1];
+
+  // Case A: Next lesson is in the SAME module -> APPEND VERTICALLY DOWNWARD!
+  if (nextLesson.moduleId === currentLesson.moduleId) {
+    if (!Array.isArray(AppState.renderedLessonIds)) {
+      AppState.renderedLessonIds = [currentLesson.id];
+    }
+
+    const contentContainer = document.getElementById('learn-notion-content');
+    let existingSegment = document.getElementById(`lesson-segment-${nextLesson.id}`);
+
+    if (!existingSegment && contentContainer) {
+      AppState.renderedLessonIds.push(nextLesson.id);
+
+      let blocksToRender = Array.isArray(nextLesson.blocks) ? [...nextLesson.blocks] : [];
+      const hasVideoBlock = blocksToRender.some(b => b.type === 'video');
+      if (!hasVideoBlock && (nextLesson.youtubeUrl || nextLesson.youtubeEmbedId)) {
+        const url = nextLesson.youtubeUrl || `https://www.youtube.com/watch?v=${nextLesson.youtubeEmbedId}`;
+        blocksToRender = [{ type: 'video', url }, ...blocksToRender];
+      }
+
+      const segment = document.createElement('div');
+      segment.id = `lesson-segment-${nextLesson.id}`;
+      segment.className = 'lesson-stream-segment mt-12 pt-8 border-t border-slate-800/80 scroll-mt-20';
+      segment.dataset.lessonId = nextLesson.id;
+      segment.innerHTML = `
+        <div class="flex items-center gap-2 mb-3">
+          <span class="px-2.5 py-0.5 rounded text-[11px] font-semibold bg-emerald-950/90 text-emerald-300 border border-emerald-500/40 font-mono">
+            ${nextLesson.durationMinutes || 10} Menit
+          </span>
+          <span class="text-xs text-slate-400 font-medium">Lanjutan Materi</span>
+        </div>
+        <h2 class="text-xl sm:text-2xl font-extrabold text-white mb-6 tracking-tight">
+          ${escapeHtml(nextLesson.title)}
+        </h2>
+        <div class="lesson-segment-content">
+          ${renderBlocksToHtml(blocksToRender)}
+        </div>
+      `;
+      contentContainer.appendChild(segment);
+      existingSegment = segment;
+    }
+
+    AppState.currentLessonId = nextLesson.id;
+    updateStreamNavigationButtons(nextLesson.id);
+    renderCurriculumSidebar(nextLesson.id);
+
+    if (existingSegment) {
+      setTimeout(() => {
+        existingSegment.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 60);
+    }
+
+    showToast(`Membuka: ${nextLesson.title}`, 'info');
+  } else {
+    // Case B: Next lesson is in a DIFFERENT module -> CLEAN SWITCH PAGE (as requested by user!)
+    const nextMod = AppState.modules.find(m => m.id === nextLesson.moduleId);
+    showToast(`Lanjut ke Modul: ${nextMod ? nextMod.title : 'Selanjutnya'}`, 'info');
+    renderLearningRoom(nextLesson.id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 }
 
 function renderCurriculumSidebar(activeLessonId) {
@@ -1590,48 +1692,13 @@ function toggleLessonCompletion(lessonId) {
 
   if (idx > -1) {
     list.splice(idx, 1);
+    saveState();
     showToast('Status materi dikembalikan ke Belum Selesai', 'info');
+    updateStreamNavigationButtons(lessonId);
+    renderCurriculumSidebar(lessonId);
   } else {
-    list.push(lessonId);
-    showToast('Materi berhasil diselesaikan', 'success');
-
-    const now = new Date();
-    const yyyy = now.getFullYear();
-    const mm = String(now.getMonth() + 1).padStart(2, '0');
-    const dd = String(now.getDate()).padStart(2, '0');
-    const todayStr = `${yyyy}-${mm}-${dd}`;
-    if (!AppState.activity) AppState.activity = {};
-    if (!AppState.activity[user.email]) {
-      AppState.activity[user.email] = { studiedDates: [] };
-    }
-    if (!Array.isArray(AppState.activity[user.email].studiedDates)) {
-      AppState.activity[user.email].studiedDates = [];
-    }
-    if (!AppState.activity[user.email].studiedDates.includes(todayStr)) {
-      AppState.activity[user.email].studiedDates.push(todayStr);
-    }
-
-    const orderedLessons = getCurriculumOrderedLessons();
-    const currentIndex = orderedLessons.findIndex(l => l.id === lessonId);
-    if (currentIndex >= 0 && currentIndex < orderedLessons.length - 1) {
-      setTimeout(() => {
-        const nextLesson = orderedLessons[currentIndex + 1];
-        const currentLesson = orderedLessons[currentIndex];
-        const targetMod = AppState.modules.find(m => m.id === nextLesson.moduleId);
-        const currentMod = AppState.modules.find(m => m.id === currentLesson.moduleId);
-
-        if (targetMod && currentMod && targetMod.id !== currentMod.id) {
-          showToast(`Lanjut ke Modul: ${targetMod.title}`, 'info');
-        }
-
-        renderLearningRoom(nextLesson.id);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }, 700);
-    }
+    advanceToNextLesson(true);
   }
-
-  saveState();
-  renderLearningRoom(lessonId);
 }
 
 // ==========================================
@@ -1639,23 +1706,7 @@ function toggleLessonCompletion(lessonId) {
 // ==========================================
 
 function handleFloatingNextLesson() {
-  const orderedLessons = getCurriculumOrderedLessons();
-  const currentIndex = orderedLessons.findIndex(l => l.id === AppState.currentLessonId);
-  if (currentIndex >= 0 && currentIndex < orderedLessons.length - 1) {
-    const nextLesson = orderedLessons[currentIndex + 1];
-    const currentLesson = orderedLessons[currentIndex];
-    const targetMod = AppState.modules.find(m => m.id === nextLesson.moduleId);
-    const currentMod = AppState.modules.find(m => m.id === currentLesson.moduleId);
-
-    if (targetMod && currentMod && targetMod.id !== currentMod.id) {
-      showToast(`Lanjut ke Modul: ${targetMod.title}`, 'info');
-    }
-
-    renderLearningRoom(nextLesson.id);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  } else {
-    showToast('Selamat! Anda telah menyelesaikan seluruh materi di kelas ini', 'success');
-  }
+  advanceToNextLesson(true);
 }
 
 function setupFloatingPillScrollListener() {
@@ -1692,32 +1743,31 @@ function dismissFloatingPill() {
 }
 
 function goToAdjacentLesson(direction) {
-  const orderedLessons = getCurriculumOrderedLessons();
-  const currentIndex = orderedLessons.findIndex(l => l.id === AppState.currentLessonId);
-  if (currentIndex === -1) return;
+  if (direction > 0) {
+    advanceToNextLesson(false);
+  } else {
+    const orderedLessons = getCurriculumOrderedLessons();
+    const currentIndex = orderedLessons.findIndex(l => l.id === AppState.currentLessonId);
+    if (currentIndex <= 0) return;
 
-  const targetIndex = currentIndex + direction;
-  if (targetIndex >= 0 && targetIndex < orderedLessons.length) {
-    const targetLesson = orderedLessons[targetIndex];
+    const prevLesson = orderedLessons[currentIndex - 1];
     const currentLesson = orderedLessons[currentIndex];
-    const targetMod = AppState.modules.find(m => m.id === targetLesson.moduleId);
-    const currentMod = AppState.modules.find(m => m.id === currentLesson.moduleId);
 
-    if (targetMod && currentMod && targetMod.id !== currentMod.id && direction > 0) {
-      showToast(`Lanjut ke Modul: ${targetMod.title}`, 'info');
+    const prevSegment = document.getElementById(`lesson-segment-${prevLesson.id}`);
+    if (prevSegment && prevLesson.moduleId === currentLesson.moduleId) {
+      AppState.currentLessonId = prevLesson.id;
+      updateStreamNavigationButtons(prevLesson.id);
+      renderCurriculumSidebar(prevLesson.id);
+      prevSegment.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      renderLearningRoom(prevLesson.id);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-
-    renderLearningRoom(targetLesson.id);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  } else if (direction > 0) {
-    showToast('Selamat! Anda telah menyelesaikan seluruh kurikulum materi.', 'success');
   }
 }
 
 function toggleCurrentLessonCompletion() {
-  if (AppState.currentLessonId) {
-    toggleLessonCompletion(AppState.currentLessonId);
-  }
+  advanceToNextLesson(true);
 }
 
 // ==========================================
@@ -2034,6 +2084,8 @@ window.renderUserDashboard = renderUserDashboard;
 window.renderMonthlyLearningCalendar = renderMonthlyLearningCalendar;
 window.showCalendarDayDetail = showCalendarDayDetail;
 window.getCurriculumOrderedLessons = getCurriculumOrderedLessons;
+window.advanceToNextLesson = advanceToNextLesson;
+window.updateStreamNavigationButtons = updateStreamNavigationButtons;
 window.renderLearningRoom = renderLearningRoom;
 window.renderCurriculumSidebar = renderCurriculumSidebar;
 window.toggleLessonCompletion = toggleLessonCompletion;

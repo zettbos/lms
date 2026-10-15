@@ -3652,22 +3652,18 @@ html.light .global-search-badge {
 }
 
 /* ------------------------------------------------------------------------
-   NOTION-STYLE FOCUSED READING LAYOUT & ERGONOMIC MEASURE (Revisi 71)
+   NOTION-STYLE FOCUSED READING LAYOUT & ERGONOMIC MEASURE (Revisi 71 & 72)
    ------------------------------------------------------------------------ */
 .notion-reading-container,
 #learn-notion-content,
 #learn-lesson-header-inner,
 #learn-reading-footer-inner {
-  max-width: 768px !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
+  max-width: 100% !important;
   width: 100% !important;
 }
 
 #learn-notion-content .prose-reading {
-  max-width: 768px !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
+  max-width: 100% !important;
   width: 100% !important;
   font-size: 1rem;
   line-height: 1.75;
@@ -3682,4 +3678,20 @@ html.light .global-search-badge {
 #learn-notion-content .notion-code-block,
 #learn-notion-content .video-responsive-container {
   max-width: 100%;
+}
+
+/* Continuous Vertical Lesson Stream Segment (Revisi 72) */
+.lesson-stream-segment {
+  animation: fadeInLessonSegment 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeInLessonSegment {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

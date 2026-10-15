@@ -379,7 +379,7 @@ function renderBlocksToHtml(blocks) {
     return '<p class="text-slate-400 italic">Belum ada catatan materi.</p>';
   }
 
-  let html = '<div class="space-y-6 text-slate-100 prose-reading w-full max-w-[768px] mx-auto">';
+  let html = '<div class="space-y-6 text-slate-100 prose-reading w-full">';
 
   blocks.forEach(block => {
     if (block.type === 'h1') {

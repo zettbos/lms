@@ -823,6 +823,18 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
          - Menampilkan toast notifikasi `Lanjut ke Modul: [Nama Modul]` dan menggeser otomatis (*auto-scroll*) kurikulum sidebar ke materi aktif di modul baru tersebut.
       3. Cache Buster:
          - Menaikkan seluruh link stylesheet dan script JavaScript di `index.html` ke versi `?v=71`.
+   - [2026-10-15] Implementasi Revisi 72: Continuous Vertical Lesson Stream Flow & 100% Flush Card-Header Alignment.
+      1. Rampingkan Wadah Kolom Baca & Penyelarasan Flush 100% (`index.html`, `css/style.css`, `js/editor.js`):
+         - Menyesuaikan lebar kolom utama ruang belajar menjadi terpadu `max-w-[800px] w-full min-w-0 mx-auto lg:mx-0`.
+         - Menghilangkan disparitas lebar antara header dan card: Ujung kiri dan kanan `#learn-lesson-header-inner`, `.glass-card`, `#learn-notion-content`, dan footer navigasi membaca kini 100% sejajar *flush* tanpa sayap hitam kosong yang sebelumnya membuat card tampak kedodoran/gemuk.
+         - Mengompakkan padding kartu materi menjadi `p-6 sm:p-8`, menghasilkan proporsi kartu yang padat, proporsional, dan elegan selaras dengan judul di atasnya.
+      2. Alur Belajar Vertikal Mengalir (*Continuous Vertical Lesson Stream*) (`js/controllers/classroom.js`, `css/style.css`):
+         - Mengimplementasikan `advanceToNextLesson()` dan pelacakan segmen `AppState.renderedLessonIds`.
+         - Ketika siswa menekan `[Selesai & Lanjut]` atau `[Materi Berikutnya →]` pada materi dalam modul yang sama, materi saat ini ditandai selesai dan materi selanjutnya **dirender tersambung tepat di bawah materi saat ini** (`.lesson-stream-segment`) lengkap dengan pembatas elegan, badge durasi, dan video/teks pendukung tanpa refresh layar.
+         - Layar secara otomatis melakukan *smooth scroll* ke judul materi lanjutan yang baru dibuka. Tombol aksi `[Selesai & Lanjut]` berpindah ke bawah materi terbaru untuk melanjutkan ke materi berikutnya secara berkesinambungan.
+         - Saat materi terakhir di modul tersebut tercapai, tombol secara cerdas mengarahkan siswa berpindah halaman secara bersih ke Modul Baru (`pindah ke modul selanjutnya`).
+      3. Cache Buster:
+         - Menaikkan seluruh link stylesheet dan script JavaScript di `index.html` ke versi `?v=72`.
 
 
 
