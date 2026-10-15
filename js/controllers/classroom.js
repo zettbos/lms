@@ -1156,6 +1156,42 @@ function showLearnModulesCatalog() {
   renderLearnModulesCatalog();
 }
 
+/**
+ * Returns all active curriculum lessons in strict sequence across all modules.
+ * Sorted by module.orderIndex ASC, then lesson.orderIndex ASC.
+ * Enables seamless cross-module navigation (e.g. last lesson of Modul 1 -> first lesson of Modul 2).
+ */
+function getCurriculumOrderedLessons() {
+  const user = AppState.currentUser;
+  const isSuperAdmin = user && user.role === 'admin' && user.email?.toLowerCase() === 'zettbos2025@gmail.com';
+  
+  const sortedModules = (AppState.modules || [])
+    .filter(m => isSuperAdmin || !m.isDraft)
+    .sort((a, b) => (Number(a.orderIndex) || 0) - (Number(b.orderIndex) || 0));
+
+  const orderedLessons = [];
+  const handledIds = new Set();
+
+  sortedModules.forEach(mod => {
+    const modLessons = (AppState.lessons || [])
+      .filter(l => l.moduleId === mod.id && (isSuperAdmin || !l.isDraft))
+      .sort((a, b) => (Number(a.orderIndex) || 0) - (Number(b.orderIndex) || 0));
+      
+    modLessons.forEach(l => {
+      orderedLessons.push(l);
+      handledIds.add(l.id);
+    });
+  });
+
+  // Include any orphan lessons not assigned to sorted modules (if any)
+  (AppState.lessons || [])
+    .filter(l => !handledIds.has(l.id) && (isSuperAdmin || !l.isDraft))
+    .sort((a, b) => (Number(a.orderIndex) || 0) - (Number(b.orderIndex) || 0))
+    .forEach(l => orderedLessons.push(l));
+
+  return orderedLessons;
+}
+
 function renderLearningRoom(lessonId) {
   const catalogView = document.getElementById('learn-catalog-view');
   const playerSubnav = document.getElementById('learn-player-subnav');
@@ -1266,10 +1302,10 @@ function renderLearningRoom(lessonId) {
     }
   }
 
-  const visibleLessons = AppState.lessons.filter(l => isSuperAdmin || !l.isDraft);
-  const currentIndex = visibleLessons.findIndex(l => l.id === lesson.id);
-  const prevLesson = currentIndex > 0 ? visibleLessons[currentIndex - 1] : null;
-  const nextLesson = currentIndex < visibleLessons.length - 1 ? visibleLessons[currentIndex + 1] : null;
+  const orderedLessons = getCurriculumOrderedLessons();
+  const currentIndex = orderedLessons.findIndex(l => l.id === lesson.id);
+  const prevLesson = currentIndex > 0 ? orderedLessons[currentIndex - 1] : null;
+  const nextLesson = currentIndex >= 0 && currentIndex < orderedLessons.length - 1 ? orderedLessons[currentIndex + 1] : null;
 
   const btnPrev = document.getElementById('btn-prev-lesson');
   const btnNext = document.getElementById('btn-next-lesson');
@@ -1279,18 +1315,72 @@ function renderLearningRoom(lessonId) {
 
   if (btnPrev) {
     btnPrev.disabled = !prevLesson;
-    btnPrev.onclick = () => prevLesson && renderLearningRoom(prevLesson.id);
+    btnPrev.onclick = () => {
+      if (prevLesson) {
+        renderLearningRoom(prevLesson.id);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    };
+    if (prevLesson) {
+      const prevMod = AppState.modules.find(m => m.id === prevLesson.moduleId);
+      btnPrev.title = prevMod && prevMod.id !== lesson.moduleId
+        ? `Sebelumnya: ${prevMod.title} • ${prevLesson.title}`
+        : `Sebelumnya: ${prevLesson.title}`;
+    } else {
+      btnPrev.title = 'Materi pertama';
+    }
   }
+
   if (btnNext) {
     btnNext.disabled = !nextLesson;
-    btnNext.onclick = () => nextLesson && renderLearningRoom(nextLesson.id);
+    btnNext.onclick = () => {
+      if (nextLesson) {
+        const nextMod = AppState.modules.find(m => m.id === nextLesson.moduleId);
+        if (nextMod && nextMod.id !== lesson.moduleId) {
+          showToast(`Lanjut ke Modul: ${nextMod.title}`, 'info');
+        }
+        renderLearningRoom(nextLesson.id);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    };
+    if (nextLesson) {
+      const nextMod = AppState.modules.find(m => m.id === nextLesson.moduleId);
+      btnNext.title = nextMod && nextMod.id !== lesson.moduleId
+        ? `Lanjut: ${nextMod.title} • ${nextLesson.title}`
+        : `Lanjut: ${nextLesson.title}`;
+    } else {
+      btnNext.title = 'Materi terakhir';
+    }
   }
+
   if (btnFooterPrev) {
     btnFooterPrev.disabled = !prevLesson;
+    if (prevLesson) {
+      const prevMod = AppState.modules.find(m => m.id === prevLesson.moduleId);
+      const isDiffMod = prevMod && prevMod.id !== lesson.moduleId;
+      btnFooterPrev.innerHTML = isDiffMod
+        ? `&larr; <span class="hidden sm:inline">${escapeHtml(prevMod.title)} &bull;</span> Materi Sebelumnya`
+        : `&larr; Materi Sebelumnya`;
+      btnFooterPrev.title = prevLesson.title;
+    } else {
+      btnFooterPrev.innerHTML = `&larr; Materi Sebelumnya`;
+    }
   }
+
   if (btnFooterNext) {
     btnFooterNext.disabled = !nextLesson;
+    if (nextLesson) {
+      const nextMod = AppState.modules.find(m => m.id === nextLesson.moduleId);
+      const isDiffMod = nextMod && nextMod.id !== lesson.moduleId;
+      btnFooterNext.innerHTML = isDiffMod
+        ? `<span class="hidden sm:inline">Lanjut: ${escapeHtml(nextMod.title)} &bull;</span> Materi Berikutnya &rarr;`
+        : `Materi Berikutnya &rarr;`;
+      btnFooterNext.title = nextLesson.title;
+    } else {
+      btnFooterNext.innerHTML = `Materi Berikutnya &rarr;`;
+    }
   }
+
   if (btnFooterComplete) {
     btnFooterComplete.innerHTML = isLessonCompleted 
       ? '<svg class="w-4 h-4 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg><span>Materi Selesai</span>'
@@ -1477,6 +1567,14 @@ function renderCurriculumSidebar(activeLessonId) {
       mobileTree.appendChild(mWrapper);
     }
   });
+
+  // Auto-scroll active item into view inside desktop curriculum sidebar smoothly
+  setTimeout(() => {
+    const activeEl = desktopSidebar ? desktopSidebar.querySelector('.active-sidebar-lesson') : null;
+    if (activeEl) {
+      activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, 100);
 }
 
 function toggleLessonCompletion(lessonId) {
@@ -1513,10 +1611,21 @@ function toggleLessonCompletion(lessonId) {
       AppState.activity[user.email].studiedDates.push(todayStr);
     }
 
-    const currentIndex = AppState.lessons.findIndex(l => l.id === lessonId);
-    if (currentIndex < AppState.lessons.length - 1) {
+    const orderedLessons = getCurriculumOrderedLessons();
+    const currentIndex = orderedLessons.findIndex(l => l.id === lessonId);
+    if (currentIndex >= 0 && currentIndex < orderedLessons.length - 1) {
       setTimeout(() => {
-        renderLearningRoom(AppState.lessons[currentIndex + 1].id);
+        const nextLesson = orderedLessons[currentIndex + 1];
+        const currentLesson = orderedLessons[currentIndex];
+        const targetMod = AppState.modules.find(m => m.id === nextLesson.moduleId);
+        const currentMod = AppState.modules.find(m => m.id === currentLesson.moduleId);
+
+        if (targetMod && currentMod && targetMod.id !== currentMod.id) {
+          showToast(`Lanjut ke Modul: ${targetMod.title}`, 'info');
+        }
+
+        renderLearningRoom(nextLesson.id);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }, 700);
     }
   }
@@ -1530,9 +1639,19 @@ function toggleLessonCompletion(lessonId) {
 // ==========================================
 
 function handleFloatingNextLesson() {
-  const currentIndex = AppState.lessons.findIndex(l => l.id === AppState.currentLessonId);
-  if (currentIndex < AppState.lessons.length - 1) {
-    renderLearningRoom(AppState.lessons[currentIndex + 1].id);
+  const orderedLessons = getCurriculumOrderedLessons();
+  const currentIndex = orderedLessons.findIndex(l => l.id === AppState.currentLessonId);
+  if (currentIndex >= 0 && currentIndex < orderedLessons.length - 1) {
+    const nextLesson = orderedLessons[currentIndex + 1];
+    const currentLesson = orderedLessons[currentIndex];
+    const targetMod = AppState.modules.find(m => m.id === nextLesson.moduleId);
+    const currentMod = AppState.modules.find(m => m.id === currentLesson.moduleId);
+
+    if (targetMod && currentMod && targetMod.id !== currentMod.id) {
+      showToast(`Lanjut ke Modul: ${targetMod.title}`, 'info');
+    }
+
+    renderLearningRoom(nextLesson.id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   } else {
     showToast('Selamat! Anda telah menyelesaikan seluruh materi di kelas ini', 'success');
@@ -1573,11 +1692,25 @@ function dismissFloatingPill() {
 }
 
 function goToAdjacentLesson(direction) {
-  const currentIndex = AppState.lessons.findIndex(l => l.id === AppState.currentLessonId);
+  const orderedLessons = getCurriculumOrderedLessons();
+  const currentIndex = orderedLessons.findIndex(l => l.id === AppState.currentLessonId);
+  if (currentIndex === -1) return;
+
   const targetIndex = currentIndex + direction;
-  if (targetIndex >= 0 && targetIndex < AppState.lessons.length) {
-    renderLearningRoom(AppState.lessons[targetIndex].id);
+  if (targetIndex >= 0 && targetIndex < orderedLessons.length) {
+    const targetLesson = orderedLessons[targetIndex];
+    const currentLesson = orderedLessons[currentIndex];
+    const targetMod = AppState.modules.find(m => m.id === targetLesson.moduleId);
+    const currentMod = AppState.modules.find(m => m.id === currentLesson.moduleId);
+
+    if (targetMod && currentMod && targetMod.id !== currentMod.id && direction > 0) {
+      showToast(`Lanjut ke Modul: ${targetMod.title}`, 'info');
+    }
+
+    renderLearningRoom(targetLesson.id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else if (direction > 0) {
+    showToast('Selamat! Anda telah menyelesaikan seluruh kurikulum materi.', 'success');
   }
 }
 
@@ -1900,6 +2033,7 @@ window.renderHome = renderHome;
 window.renderUserDashboard = renderUserDashboard;
 window.renderMonthlyLearningCalendar = renderMonthlyLearningCalendar;
 window.showCalendarDayDetail = showCalendarDayDetail;
+window.getCurriculumOrderedLessons = getCurriculumOrderedLessons;
 window.renderLearningRoom = renderLearningRoom;
 window.renderCurriculumSidebar = renderCurriculumSidebar;
 window.toggleLessonCompletion = toggleLessonCompletion;

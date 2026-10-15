@@ -811,6 +811,18 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
          - Pada Light Mode: Teks `ZETTBOS` berwarna hitam pekat `#0F172A !important` di atas latar putih bersih (terbaca sangat tajam dan jelas, menyelesaikan keluhan pengguna pada Gambar 2 secara tuntas).
       3. Cache Buster:
          - Menaikkan seluruh query string stylesheet dan script JavaScript di `index.html` ke versi `?v=70`.
+   - [2026-10-15] Implementasi Revisi 71: Notion-Style Ergonomic Focused Reading Measure & Seamless Inter-Module Navigation.
+      1. Tata Letak Catatan Belajar Berfokus Ergonomis Ala Notion (`index.html`, `js/editor.js`, `css/style.css`):
+         - Menerapkan batasan kolom membaca terpusat `max-w-[768px] mx-auto` pada `#learn-lesson-header-inner`, `#learn-notion-content`, `.prose-reading`, dan `#learn-reading-footer-inner`.
+         - Mengatur panjang baris teks pada rentang emas 65–75 karakter per baris (golden ratio ergonomi baca ala Notion & Substack), mengeliminasi kelelahan mata akibat teks yang membentang terlalu lebar di monitor PC.
+         - Mengatur tipografi membaca dengan `line-height: 1.75–1.8`, spasi antar blok `space-y-6`, dan keselarasan penuh pada Dark Mode maupun Light Mode.
+      2. Navigasi Lintas-Modul Tanpa Penumpukan Vertikal (`js/controllers/classroom.js`):
+         - Mengimplementasikan `getCurriculumOrderedLessons()` yang meratakan seluruh materi secara sekuensial berdasarkan `module.orderIndex` dan `lesson.orderIndex`.
+         - Ketika siswa berada di akhir Modul N dan menekan "Materi Berikutnya" (atau "Tandai Selesai & Lanjut"), sistem berpindah halaman secara bersih ke Materi 1 Modul N+1 (`navigate` / `renderLearningRoom`) dengan smooth scroll ke atas video/judul materi, BUKAN membuka/menumpuk modul ke bawah (sesuai instruksi tegas pengguna).
+         - Label tombol navigasi bawah otomatis menyesuaikan diri: `Lanjut: [Nama Modul Baru] • Materi Berikutnya →`.
+         - Menampilkan toast notifikasi `Lanjut ke Modul: [Nama Modul]` dan menggeser otomatis (*auto-scroll*) kurikulum sidebar ke materi aktif di modul baru tersebut.
+      3. Cache Buster:
+         - Menaikkan seluruh link stylesheet dan script JavaScript di `index.html` ke versi `?v=71`.
 
 
 

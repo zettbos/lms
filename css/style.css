@@ -3651,8 +3651,35 @@ html.light .global-search-badge {
   color: #475569 !important;
 }
 
+/* ------------------------------------------------------------------------
+   NOTION-STYLE FOCUSED READING LAYOUT & ERGONOMIC MEASURE (Revisi 71)
+   ------------------------------------------------------------------------ */
+.notion-reading-container,
+#learn-notion-content,
+#learn-lesson-header-inner,
+#learn-reading-footer-inner {
+  max-width: 768px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  width: 100% !important;
+}
 
+#learn-notion-content .prose-reading {
+  max-width: 768px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  width: 100% !important;
+  font-size: 1rem;
+  line-height: 1.75;
+  letter-spacing: -0.01em;
+}
 
+#learn-notion-content .prose-reading p {
+  line-height: 1.8;
+  margin-bottom: 1.25rem;
+}
 
-
-
+#learn-notion-content .notion-code-block,
+#learn-notion-content .video-responsive-container {
+  max-width: 100%;
+}
