@@ -1,8 +1,8 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 # Projek: Zettbos LMS (Member Hub & Notion-Style Learning Management System)
 ================================================================================
-VERSI DOKUMEN : v1.3.9
-STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 68 SELESAI)
+VERSI DOKUMEN : v1.4.0
+STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 69 SELESAI)
 ARSITEK SISTEM: ZettBOT by Zettbos
 ENGINE STACK  : Next.js 14+ (App Router) + Supabase (Postgres & Auth OTP) + Vercel
 ================================================================================
@@ -792,6 +792,15 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
          - Dilengkapi fitur live search instan untuk mencari modul-modul kurikulum langsung dari basis data `AppState.modules`.
       6. Cache Buster:
          - Menaikkan seluruh query string stylesheet dan script JavaScript di `index.html` ke versi `?v=68`.
+   - [2026-10-15] Implementasi Revisi 69: Restorasi Penuh Logo Monogram ZB & Glowing Circular Pulse Ring pada Splash Boot Loader.
+      1. Eliminasi Glitch Kapsul Vertikal Lonjong pada `#app-boot-loader` (`index.html`, `classroom.js`, `css/style.css`):
+         - Menghapus override dinamis yang mencopot class kotak `w-16 h-16 sm:w-20 sm:h-20 rounded-2xl` dari `#brand-logo-boot-loader`.
+         - Mengembalikan wadah logo monogram ikonik `ZB` font-mono font-black dengan glowing pulse ring bulat sempurna (`.boot-loader-pulse-ring`) berotasi dan berdenyut secara simetris 1:1, mengeliminasi distorsi kapsul lonjong memanjang yang merusak estetika splash screen.
+         - Di Dark Mode: Kotak berbalut `bg-emerald-950/80 border border-emerald-500/40`, teks `ZB` emerald terang `#34D399`, pulse ring circular, teks `ZETTBOS` putih tebal.
+         - Di Light Mode: Kotak berbalut hijau pastel `#ECFDF5 border-[#A7F3D0]`, teks `ZB` hijau zamrud `#059669`, pulse ring circular, teks `ZETTBOS` hitam tajam `#0F172A`.
+      2. Cache Buster:
+         - Menaikkan seluruh query string stylesheet dan script JavaScript di `index.html` ke versi `?v=69`.
+
 
 
 

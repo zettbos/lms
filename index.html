@@ -79,7 +79,7 @@
   </script>
 
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="css/style.css?v=68" />
+  <link rel="stylesheet" href="css/style.css?v=69" />
 </head>
 <body class="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--fg)] selection:bg-emerald-500/30 selection:text-emerald-300 transition-colors duration-150">
 
@@ -113,11 +113,6 @@
           var driveRegex = /(?:drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=)|lh3\.googleusercontent\.com\/d\/)([a-zA-Z0-9_-]{20,})/i;
           var match = trimmed.match(driveRegex);
           var finalUrl = match ? 'https://lh3.googleusercontent.com/d/' + match[1] : trimmed;
-          var bootContainer = document.getElementById('brand-logo-boot-loader');
-          if (bootContainer) {
-            bootContainer.className = 'relative flex items-center justify-center mb-5 bg-transparent border-0 shadow-none overflow-visible';
-            bootContainer.innerHTML = '<div class="boot-loader-pulse-ring"></div><img src="' + finalUrl + '" alt="Logo ZETTBOS" class="h-16 sm:h-20 w-auto max-w-[150px] object-contain relative z-10" onerror="this.onerror=null; this.parentElement.className=\'relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-emerald-950/80 border border-emerald-500/40 flex items-center justify-center shadow-2xl shadow-emerald-500/20 mb-5\'; this.parentElement.innerHTML=\'<div class=\\\'boot-loader-pulse-ring\\\'></div><span class=\\\'font-mono font-black text-xl sm:text-2xl text-emerald-400 tracking-tighter\\\'>ZB</span>\';">';
-          }
           var loginLogo = document.getElementById('brand-logo-login');
           if (loginLogo) {
             loginLogo.className = 'flex items-center justify-center mb-4 bg-transparent border-0 shadow-none p-0 overflow-visible';
@@ -3694,18 +3689,18 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- Application Scripts (Modular Architecture with Cache Buster) -->
-  <script src="js/whitelist-data.js?v=68"></script>
-  <script src="js/mock-data.js?v=68"></script>
-  <script src="js/editor.js?v=68"></script>
-  <script src="js/core/state.js?v=68"></script>
-  <script src="js/core/supabase.js?v=68"></script>
-  <script src="js/core/router.js?v=68"></script>
-  <script src="js/core/particles.js?v=68"></script>
-  <script src="js/controllers/auth.js?v=68"></script>
-  <script src="js/controllers/landing.js?v=68"></script>
-  <script src="js/controllers/classroom.js?v=68"></script>
-  <script src="js/controllers/resources.js?v=68"></script>
-  <script src="js/controllers/admin.js?v=68"></script>
-  <script src="js/app.js?v=68"></script>
+  <script src="js/whitelist-data.js?v=69"></script>
+  <script src="js/mock-data.js?v=69"></script>
+  <script src="js/editor.js?v=69"></script>
+  <script src="js/core/state.js?v=69"></script>
+  <script src="js/core/supabase.js?v=69"></script>
+  <script src="js/core/router.js?v=69"></script>
+  <script src="js/core/particles.js?v=69"></script>
+  <script src="js/controllers/auth.js?v=69"></script>
+  <script src="js/controllers/landing.js?v=69"></script>
+  <script src="js/controllers/classroom.js?v=69"></script>
+  <script src="js/controllers/resources.js?v=69"></script>
+  <script src="js/controllers/admin.js?v=69"></script>
+  <script src="js/app.js?v=69"></script>
 </body>
 </html>

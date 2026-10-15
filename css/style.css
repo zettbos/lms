@@ -3482,12 +3482,12 @@ html.light #app-boot-loader .boot-loader-pulse-ring {
   border-color: rgba(16, 185, 129, 0.45) !important;
 }
 
-html.light #brand-logo-boot-loader:not(.overflow-visible) {
+html.light #brand-logo-boot-loader {
   background-color: #ECFDF5 !important;
   border-color: #A7F3D0 !important;
 }
 
-html.light #brand-logo-boot-loader:not(.overflow-visible) span {
+html.light #brand-logo-boot-loader span {
   color: #059669 !important;
 }
 
