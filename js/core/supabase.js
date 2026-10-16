@@ -61,6 +61,9 @@ const ZettSupabase = {
   },
 
   isConnected() {
+    if (!this.isInitialized || !this.client) {
+      this.init();
+    }
     return this.isInitialized && this.client !== null;
   },
 
@@ -138,6 +141,7 @@ const ZettSupabase = {
       // 3. Pull Whitelist (Diunduh jika pengguna aktif adalah Admin / Super Admin)
       const user = AppState.currentUser;
       const isAdmin = user && (user.role === 'admin' || user.email?.toLowerCase() === 'zettbos2025@gmail.com');
+      if (isAdmin) {
         const [resPass, resAdmin] = await Promise.all([
           this.client.from('whitelist_members').select('id, email, full_name, role, is_active, password_hash, registered_at').not('password_hash', 'is', null),
           this.client.from('whitelist_members').select('id, email, full_name, role, is_active, password_hash, registered_at').eq('role', 'admin')
@@ -870,13 +874,20 @@ function openSupabaseSettingsModal() {
   const modal = document.getElementById('modal-supabase-settings');
   const inpUrl = document.getElementById('supabase-config-url');
   const inpKey = document.getElementById('supabase-config-anon');
-  if (!modal) return;
+  if (!modal) {
+    console.warn('[ZettSupabase] Element #modal-supabase-settings tidak ditemukan di DOM');
+    return;
+  }
 
-  const conf = ZettSupabase.getConfig();
-  if (inpUrl) inpUrl.value = conf.url;
-  if (inpKey) inpKey.value = conf.anonKey;
+  try {
+    const conf = ZettSupabase.getConfig();
+    if (inpUrl) inpUrl.value = conf.url;
+    if (inpKey) inpKey.value = conf.anonKey;
+    ZettSupabase.updateStatusBadge();
+  } catch (e) {
+    console.warn('[ZettSupabase Modal Open Warning]', e);
+  }
 
-  ZettSupabase.updateStatusBadge();
   modal.classList.remove('hidden');
 }
 

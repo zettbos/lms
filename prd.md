@@ -950,6 +950,16 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
          - Memastikan proses pembuatan atau penggantian kata sandi tidak mereset role Admin kembali ke member.
       4. Cache Buster:
          - Menaikkan seluruh link script JavaScript di `index.html` ke versi `?v=81`.
+   - [2026-10-17] Implementasi Revisi 82: Hotfix Syntax Error di `supabase.js` & Pengaktifan Otomatis Live Connection.
+      1. Perbaikan Blok Kondisional `pullAllData` (`js/core/supabase.js`):
+         - Memulihkan kurung pembuka `if (isAdmin) {` yang sempat hilang, memperbaiki fatal `SyntaxError: Unexpected token 'catch'` saat peramban mengompilasi skrip `supabase.js`.
+         - Mengembalikan registrasi fungsi global `window.ZettSupabase` dan `window.openSupabaseSettingsModal`.
+      2. Mekanisme Auto-Init & Resilient Connection (`js/core/supabase.js`):
+         - Menambahkan auto-retry inisialisasi pada `ZettSupabase.isConnected()` jika Supabase client belum aktif saat dipanggil.
+         - Melindungi pemanggilan `openSupabaseSettingsModal()` dengan blok `try-catch` dan pencarian elemen DOM yang aman.
+      3. Cache Buster:
+         - Menaikkan seluruh link script JavaScript di `index.html` ke versi `?v=82`.
+
 
 
 
