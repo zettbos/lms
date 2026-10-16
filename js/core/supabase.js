@@ -187,8 +187,8 @@ const ZettSupabase = {
             const cleanE = (localM.email || '').toLowerCase().trim();
             if (cloudMap.has(cleanE)) {
               const c = cloudMap.get(cleanE);
-              if (c.password_hash) localM.passwordHash = c.password_hash;
-              if (c.full_name && c.full_name !== 'Siswa Zettbos') localM.fullName = c.full_name;
+              localM.passwordHash = c.password_hash || null;
+              if (c.full_name) localM.fullName = c.full_name;
               if (c.role) localM.role = c.role;
               localM.isActive = c.is_active !== false;
               cloudMap.delete(cleanE);

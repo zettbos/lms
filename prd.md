@@ -959,6 +959,14 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
          - Melindungi pemanggilan `openSupabaseSettingsModal()` dengan blok `try-catch` dan pencarian elemen DOM yang aman.
       3. Cache Buster:
          - Menaikkan seluruh link script JavaScript di `index.html` ke versi `?v=82`.
+   - [2026-10-17] Implementasi Revisi 83: True Single Source of Truth Synchronization & Reset Sandi Null Otomatis.
+      1. Sinkronisasi Mutlak Status Sandi & Profil ke Database Supabase (`js/controllers/admin.js` & `js/core/supabase.js`):
+         - Menghapus pengecekan parsial `if (cloudM.password_hash)` yang sebelumnya menolak menimpa nilai `NULL` ke browser.
+         - Baik pada penarikan live `pullWhitelistFromSupabaseLive()`, background sync, maupun `pullAllData()`, jika akun di Supabase memiliki `password_hash: null`, maka status lokal browser 100% langsung di-reset menjadi `Belum Buat Sandi`.
+         - Mengeliminasi retensi data lama di `localStorage` peramban untuk akun seperti `farhandi378@gmail.com` sehingga sinkron seketika dengan Table Editor Supabase.
+      2. Cache Buster:
+         - Menaikkan seluruh link script JavaScript di `index.html` ke versi `?v=83`.
+
 
 
 

@@ -1800,18 +1800,33 @@ function renderAdminWhitelist() {
       (resPass.data || []).forEach(addCloudRow);
       (resAdmin.data || []).forEach(addCloudRow);
 
+      let hasChanges = false;
+
+      // Resync status sandi: Supabase Cloud adalah Single Source of Truth
+      // Jika di Supabase akun tidak terdaftar memiliki password_hash, reset passwordHash lokal menjadi null
+      if (resPass && !resPass.error && Array.isArray(resPass.data)) {
+        const cloudPassEmails = new Set(resPass.data.map(r => (r.email || '').toLowerCase().trim()));
+        AppState.whitelist.forEach(localM => {
+          const cleanE = (localM.email || '').toLowerCase().trim();
+          if (localM.passwordHash && !cloudPassEmails.has(cleanE) && cleanE !== 'zettbos2025@gmail.com') {
+            localM.passwordHash = null;
+            hasChanges = true;
+          }
+        });
+      }
+
       if (combined.length > 0) {
-        let hasChanges = false;
         combined.forEach(cloudM => {
           const cleanE = (cloudM.email || '').toLowerCase().trim();
           if (!cleanE) return;
           const localM = AppState.whitelist.find(m => (m.email || '').toLowerCase().trim() === cleanE);
           if (localM) {
-            if (cloudM.password_hash && localM.passwordHash !== cloudM.password_hash) {
-              localM.passwordHash = cloudM.password_hash;
+            const cloudPass = cloudM.password_hash || null;
+            if (localM.passwordHash !== cloudPass) {
+              localM.passwordHash = cloudPass;
               hasChanges = true;
             }
-            if (cloudM.full_name && localM.fullName !== cloudM.full_name && cloudM.full_name !== 'Siswa Zettbos') {
+            if (cloudM.full_name && localM.fullName !== cloudM.full_name) {
               localM.fullName = cloudM.full_name;
               hasChanges = true;
             }
@@ -1836,11 +1851,12 @@ function renderAdminWhitelist() {
             hasChanges = true;
           }
         });
-        if (hasChanges) {
-          saveState();
-          renderAdminWhitelist();
-          if (AppState.activeAdminTab === 'analytics') renderAdminAnalytics();
-        }
+      }
+
+      if (hasChanges) {
+        saveState();
+        renderAdminWhitelist();
+        if (AppState.activeAdminTab === 'analytics') renderAdminAnalytics();
       }
     }).catch(() => {
       window._isSyncingWhitelistBackground = false;
@@ -2529,11 +2545,12 @@ async function pullWhitelistFromSupabaseLive(isSilent = false) {
         const localM = AppState.whitelist.find(m => (m.email || '').toLowerCase().trim() === cleanE);
         if (localM) {
           let modified = false;
-          if (cloudM.password_hash && localM.passwordHash !== cloudM.password_hash) {
-            localM.passwordHash = cloudM.password_hash;
+          const cloudPass = cloudM.password_hash || null;
+          if (localM.passwordHash !== cloudPass) {
+            localM.passwordHash = cloudPass;
             modified = true;
           }
-          if (cloudM.full_name && cloudM.full_name !== 'Siswa Zettbos' && localM.fullName !== cloudM.full_name) {
+          if (cloudM.full_name && localM.fullName !== cloudM.full_name) {
             localM.fullName = cloudM.full_name;
             modified = true;
           }

@@ -58,9 +58,9 @@ TARGET RILIS   : LMS Production Enterprise Grade
 5. [js/controllers/resources.js](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/js/controllers/resources.js) - Universal admin shared resources deletion & creation.
 6. [api/set-password.js](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/api/set-password.js) - Preserves active database role on password update response.
 7. [js/controllers/auth.js](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/js/controllers/auth.js) - Preserves active role in fallback state and captures server role on set-password.
-8. [index.html](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/index.html) - Cache buster update to `?v=82`.
-9. [prd.md](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/prd.md) - Dokumentasi arsitektur rilis v1.5.8.
-10. [revisi.md](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/revisi.md) - Catatan pelacak implementasi Revisi 81 & 82.
+8. [index.html](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/index.html) - Cache buster update to `?v=83`.
+9. [prd.md](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/prd.md) - Dokumentasi arsitektur rilis v1.5.9.
+10. [revisi.md](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/revisi.md) - Catatan pelacak implementasi Revisi 81, 82, & 83.
 
 ---
 
@@ -71,5 +71,7 @@ TARGET RILIS   : LMS Production Enterprise Grade
 - [x] **Universal Admin Access**: Akun dengan `role: admin` (seperti `asepsolihin1288@gmail.com`) langsung masuk sebagai ADMIN (badge merah, tombol admin aktif, menu drawer terbuka).
 - [x] **Owner Distinction**: Akun `zettbos2025@gmail.com` tetap berpredikat `OWNER` dengan badge eksklusif amber.
 - [x] **Supabase Modal & Connection Hotfix**: Memulihkan sintaks `supabase.js`, mengaktifkan auto-init, dan memastikan tombol *"Database Cloud (Supabase)"* membuka modal pengaturan secara instan.
-- [x] **Cache Buster Updated**: Seluruh script JavaScript berjalan di versi `?v=82`.
+- [x] **True Single Source of Truth**: Akun seperti `farhandi378@gmail.com` yang di Supabase bernilai `password_hash: null` otomatis di-reset menjadi *"Belum Buat Sandi"* dan namanya kembali sinkron.
+- [x] **Cache Buster Updated**: Seluruh script JavaScript berjalan di versi `?v=83`.
+
 
