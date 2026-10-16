@@ -248,7 +248,7 @@ function renderPinnedModuleHero() {
   if (!container) return;
 
   const user = AppState.currentUser;
-  const isSuperAdmin = user && user.role === 'admin' && user.email?.toLowerCase() === 'zettbos2025@gmail.com';
+  const isSuperAdmin = user && (user.role === 'admin' || user.email?.toLowerCase() === 'zettbos2025@gmail.com');
   const userCompletedLessonIds = (user && AppState.progress[user.email]) ? AppState.progress[user.email] : [];
 
   // Find pinned modules (visible to students if published, or to super admin)
@@ -398,7 +398,7 @@ function renderModuleCategoryPills() {
   if (!container) return;
 
   const user = AppState.currentUser;
-  const isSuperAdmin = user && user.role === 'admin' && user.email?.toLowerCase() === 'zettbos2025@gmail.com';
+  const isSuperAdmin = user && (user.role === 'admin' || user.email?.toLowerCase() === 'zettbos2025@gmail.com');
   const visibleModules = AppState.modules.filter(m => isSuperAdmin || !m.isDraft);
 
   // Extract unique categories dynamically from visible modules
@@ -476,7 +476,7 @@ function renderModuleCatalogGrid() {
   if (!container) return;
 
   const user = AppState.currentUser;
-  const isSuperAdmin = user && user.role === 'admin' && user.email?.toLowerCase() === 'zettbos2025@gmail.com';
+  const isSuperAdmin = user && (user.role === 'admin' || user.email?.toLowerCase() === 'zettbos2025@gmail.com');
   const userCompletedLessonIds = (user && AppState.progress[user.email]) ? AppState.progress[user.email] : [];
   const userFavs = (user && AppState.favorites[user.email]) ? AppState.favorites[user.email] : [];
 
@@ -974,7 +974,7 @@ function renderLearnModuleCategoryPills() {
   if (!container) return;
 
   const user = AppState.currentUser;
-  const isSuperAdmin = user && user.role === 'admin' && user.email?.toLowerCase() === 'zettbos2025@gmail.com';
+  const isSuperAdmin = user && (user.role === 'admin' || user.email?.toLowerCase() === 'zettbos2025@gmail.com');
   const visibleModules = (AppState.modules || []).filter(m => isSuperAdmin || !m.isDraft);
 
   const rawCategories = visibleModules
@@ -1022,7 +1022,7 @@ function renderLearnModulesCatalog() {
   if (!container) return;
 
   const user = AppState.currentUser;
-  const isSuperAdmin = user && user.role === 'admin' && user.email?.toLowerCase() === 'zettbos2025@gmail.com';
+  const isSuperAdmin = user && (user.role === 'admin' || user.email?.toLowerCase() === 'zettbos2025@gmail.com');
   const userCompletedLessonIds = (user && AppState.progress[user.email]) ? AppState.progress[user.email] : [];
 
   let filtered = (AppState.modules || []).filter(m => isSuperAdmin || !m.isDraft);
@@ -1163,7 +1163,7 @@ function showLearnModulesCatalog() {
  */
 function getCurriculumOrderedLessons() {
   const user = AppState.currentUser;
-  const isSuperAdmin = user && user.role === 'admin' && user.email?.toLowerCase() === 'zettbos2025@gmail.com';
+  const isSuperAdmin = user && (user.role === 'admin' || user.email?.toLowerCase() === 'zettbos2025@gmail.com');
 
   const sortedModules = (AppState.modules || [])
     .filter(m => isSuperAdmin || !m.isDraft)
@@ -1209,7 +1209,7 @@ function renderLearningRoom(lessonId) {
   }
 
   const user = AppState.currentUser;
-  const isSuperAdmin = user && user.role === 'admin' && user.email?.toLowerCase() === 'zettbos2025@gmail.com';
+  const isSuperAdmin = user && (user.role === 'admin' || user.email?.toLowerCase() === 'zettbos2025@gmail.com');
   if (lesson.isDraft && !isSuperAdmin) {
     showToast('Materi ini masih berupa draf dan belum dipublikasikan oleh mentor ke Supabase.', 'info');
     showLearnModulesCatalog();
@@ -1498,7 +1498,7 @@ function renderCurriculumSidebar(activeLessonId) {
   const countBadge = document.getElementById('learn-curriculum-count');
 
   const user = AppState.currentUser;
-  const isSuperAdmin = user && user.role === 'admin' && user.email?.toLowerCase() === 'zettbos2025@gmail.com';
+  const isSuperAdmin = user && (user.role === 'admin' || user.email?.toLowerCase() === 'zettbos2025@gmail.com');
   const visibleLessons = AppState.lessons.filter(l => isSuperAdmin || !l.isDraft);
   const userCompleted = (user && AppState.progress[user.email]) ? AppState.progress[user.email] : [];
 

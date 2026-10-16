@@ -10,8 +10,10 @@
 
 function renderAdminPanel() {
   const user = AppState.currentUser;
-  if (!user || user.role !== 'admin' || user.email.toLowerCase() !== 'zettbos2025@gmail.com') {
-    showToast('Akses dibatasi hanya untuk Super Admin (zettbos2025@gmail.com)', 'error');
+  const isSuperAdmin = user && user.email && user.email.toLowerCase() === 'zettbos2025@gmail.com';
+  const isAdmin = isSuperAdmin || (user && user.role === 'admin');
+  if (!user || !isAdmin) {
+    showToast('Akses dibatasi hanya untuk Administrator LMS', 'error');
     navigate(user ? 'home' : 'landing');
     return;
   }
@@ -1780,49 +1782,69 @@ function renderAdminWhitelist() {
   // Live Background Sync from Supabase Cloud (jika terhubung & belum sedang fetch)
   if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected() && !window._isSyncingWhitelistBackground) {
     window._isSyncingWhitelistBackground = true;
-    ZettSupabase.client
-      .from('whitelist_members')
-      .select('id, email, full_name, role, is_active, password_hash')
-      .limit(10000)
-      .then(({ data, error }) => {
-        window._isSyncingWhitelistBackground = false;
-        if (data && !error && data.length > 0) {
-          let hasChanges = false;
-          data.forEach(cloudM => {
-            const cleanE = (cloudM.email || '').toLowerCase().trim();
-            if (!cleanE) return;
-            const localM = AppState.whitelist.find(m => (m.email || '').toLowerCase().trim() === cleanE);
-            if (localM) {
-              if (cloudM.password_hash && localM.passwordHash !== cloudM.password_hash) {
-                localM.passwordHash = cloudM.password_hash;
-                hasChanges = true;
-              }
-              if (cloudM.full_name && localM.fullName !== cloudM.full_name && cloudM.full_name !== 'Siswa Zettbos') {
-                localM.fullName = cloudM.full_name;
-                hasChanges = true;
-              }
-            } else {
-              AppState.whitelist.push({
-                id: cloudM.id,
-                email: cleanE,
-                fullName: cloudM.full_name || cleanE.split('@')[0],
-                role: cloudM.role || 'member',
-                isActive: cloudM.is_active !== false,
-                passwordHash: cloudM.password_hash || null,
-                registeredAt: new Date().toISOString()
-              });
+    Promise.all([
+      ZettSupabase.client.from('whitelist_members').select('id, email, full_name, role, is_active, password_hash').not('password_hash', 'is', null),
+      ZettSupabase.client.from('whitelist_members').select('id, email, full_name, role, is_active, password_hash').eq('role', 'admin')
+    ]).then(([resPass, resAdmin]) => {
+      window._isSyncingWhitelistBackground = false;
+      const combined = [];
+      const seenEmails = new Set();
+      const addCloudRow = (cloudM) => {
+        if (!cloudM || !cloudM.email) return;
+        const cleanE = cloudM.email.toLowerCase().trim();
+        if (!seenEmails.has(cleanE)) {
+          seenEmails.add(cleanE);
+          combined.push(cloudM);
+        }
+      };
+      (resPass.data || []).forEach(addCloudRow);
+      (resAdmin.data || []).forEach(addCloudRow);
+
+      if (combined.length > 0) {
+        let hasChanges = false;
+        combined.forEach(cloudM => {
+          const cleanE = (cloudM.email || '').toLowerCase().trim();
+          if (!cleanE) return;
+          const localM = AppState.whitelist.find(m => (m.email || '').toLowerCase().trim() === cleanE);
+          if (localM) {
+            if (cloudM.password_hash && localM.passwordHash !== cloudM.password_hash) {
+              localM.passwordHash = cloudM.password_hash;
               hasChanges = true;
             }
-          });
-          if (hasChanges) {
-            saveState();
-            renderAdminWhitelist();
-            if (AppState.activeAdminTab === 'analytics') renderAdminAnalytics();
+            if (cloudM.full_name && localM.fullName !== cloudM.full_name && cloudM.full_name !== 'Siswa Zettbos') {
+              localM.fullName = cloudM.full_name;
+              hasChanges = true;
+            }
+            if (cloudM.role && localM.role !== cloudM.role) {
+              localM.role = cloudM.role;
+              hasChanges = true;
+            }
+            if (typeof cloudM.is_active === 'boolean' && localM.isActive !== cloudM.is_active) {
+              localM.isActive = cloudM.is_active;
+              hasChanges = true;
+            }
+          } else {
+            AppState.whitelist.push({
+              id: cloudM.id,
+              email: cleanE,
+              fullName: cloudM.full_name || cleanE.split('@')[0],
+              role: cloudM.role || 'member',
+              isActive: cloudM.is_active !== false,
+              passwordHash: cloudM.password_hash || null,
+              registeredAt: new Date().toISOString()
+            });
+            hasChanges = true;
           }
+        });
+        if (hasChanges) {
+          saveState();
+          renderAdminWhitelist();
+          if (AppState.activeAdminTab === 'analytics') renderAdminAnalytics();
         }
-      }).catch(() => {
-        window._isSyncingWhitelistBackground = false;
-      });
+      }
+    }).catch(() => {
+      window._isSyncingWhitelistBackground = false;
+    });
   }
 
   // 1. Hitung statistik filter
@@ -2444,22 +2466,63 @@ async function pullWhitelistFromSupabaseLive(isSilent = false) {
   }
 
   if (!isSilent) {
-    showToast('Menarik data member & status kata sandi terbaru dari Supabase Cloud...', 'info');
+    showToast('Menarik seluruh data member & status kata sandi terbaru dari Supabase Cloud...', 'info');
   }
 
   try {
-    const { data, error } = await ZettSupabase.client
-      .from('whitelist_members')
-      .select('id, email, full_name, role, is_active, password_hash')
-      .limit(10000);
+    // 1. Tarik prioritas instan: Semua member dengan password aktif & semua akun Admin
+    const [resPass, resAdmin] = await Promise.all([
+      ZettSupabase.client.from('whitelist_members').select('id, email, full_name, role, is_active, password_hash').not('password_hash', 'is', null),
+      ZettSupabase.client.from('whitelist_members').select('id, email, full_name, role, is_active, password_hash').eq('role', 'admin')
+    ]);
 
-    if (error) throw error;
+    const allCloudRows = [];
+    const seenEmails = new Set();
 
-    if (Array.isArray(data) && data.length > 0) {
+    const addRow = (row) => {
+      if (!row || !row.email) return;
+      const cleanE = row.email.toLowerCase().trim();
+      if (!seenEmails.has(cleanE)) {
+        seenEmails.add(cleanE);
+        allCloudRows.push(row);
+      } else {
+        const idx = allCloudRows.findIndex(x => (x.email || '').toLowerCase().trim() === cleanE);
+        if (idx !== -1) {
+          allCloudRows[idx] = { ...allCloudRows[idx], ...row };
+        }
+      }
+    };
+
+    (resPass.data || []).forEach(addRow);
+    (resAdmin.data || []).forEach(addRow);
+
+    // 2. Tarik seluruh member (2.000+ data) secara chunked paging (0-999, 1000-1999, dst)
+    let from = 0;
+    const batchSize = 1000;
+    let keepPaging = true;
+    while (keepPaging) {
+      const { data: chunk, error: pageErr } = await ZettSupabase.client
+        .from('whitelist_members')
+        .select('id, email, full_name, role, is_active, password_hash')
+        .range(from, from + batchSize - 1);
+
+      if (pageErr || !Array.isArray(chunk) || chunk.length === 0) {
+        keepPaging = false;
+      } else {
+        chunk.forEach(addRow);
+        if (chunk.length < batchSize) {
+          keepPaging = false;
+        } else {
+          from += batchSize;
+        }
+      }
+    }
+
+    if (allCloudRows.length > 0) {
       let updatedCount = 0;
       let newCount = 0;
 
-      data.forEach(cloudM => {
+      allCloudRows.forEach(cloudM => {
         const cleanE = (cloudM.email || '').toLowerCase().trim();
         if (!cleanE) return;
 
@@ -2502,7 +2565,7 @@ async function pullWhitelistFromSupabaseLive(isSilent = false) {
       if (AppState.activeAdminTab === 'analytics') renderAdminAnalytics();
 
       if (!isSilent) {
-        showToast(`Sinkronisasi selesai! ${updatedCount} member diperbarui, ${newCount} member baru ditarik dari Cloud.`, 'success');
+        showToast(`Sinkronisasi selesai! ${allCloudRows.length} member ditarik (${updatedCount} diperbarui, ${newCount} baru).`, 'success');
       }
     } else {
       if (!isSilent) showToast('Data whitelist di Cloud masih kosong.', 'info');

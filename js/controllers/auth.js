@@ -303,7 +303,7 @@ async function verifyOtpCode() {
       id: 'wl-' + Date.now(),
       email: targetEmail,
       fullName: targetEmail.split('@')[0],
-      role: targetEmail.toLowerCase() === 'zettbos2025@gmail.com' ? 'admin' : 'member',
+      role: (member && member.role) || (targetEmail.toLowerCase() === 'zettbos2025@gmail.com' ? 'admin' : 'member'),
       isActive: true,
       passwordHash: null
     };
@@ -412,6 +412,9 @@ async function handleSetPasswordSubmit(event) {
     const setPassData = await setPassRes.json();
     if (setPassData.success) {
       isSaved = true;
+      if (setPassData.user && setPassData.user.role) {
+        member.role = setPassData.user.role;
+      }
     } else {
       saveErrorMessage = setPassData.error || 'Server menolak pendaftaran kata sandi.';
       console.warn('[Set Password API Warning]', saveErrorMessage);

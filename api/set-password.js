@@ -114,13 +114,17 @@ module.exports = async (req, res) => {
       }
     }
 
+    const activeRole = (Array.isArray(updatedRows) && updatedRows[0]?.role)
+      ? updatedRows[0].role
+      : (cleanEmail === 'zettbos2025@gmail.com' ? 'admin' : 'member');
+
     return res.status(200).json({
       success: true,
       message: 'Profil dan kata sandi berhasil diperbarui di database!',
       user: {
         email: cleanEmail,
         fullName: fullName.trim(),
-        role: cleanEmail === 'zettbos2025@gmail.com' ? 'admin' : 'member'
+        role: activeRole
       }
     });
 

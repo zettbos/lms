@@ -77,9 +77,9 @@ function handleAddResourceSubmit(event) {
 
 function deleteResource(resId) {
   const user = AppState.currentUser;
-  const isSuperAdmin = user && user.role === 'admin' && user.email.toLowerCase() === 'zettbos2025@gmail.com';
+  const isSuperAdmin = user && (user.role === 'admin' || user.email?.toLowerCase() === 'zettbos2025@gmail.com');
   if (!isSuperAdmin) {
-    showToast('Hanya Super Admin yang dapat menghapus link dokumen', 'error');
+    showToast('Hanya Administrator yang dapat menghapus link dokumen', 'error');
     return;
   }
 
@@ -170,7 +170,7 @@ function renderResources() {
   }
 
   const user = AppState.currentUser;
-  const isSuperAdmin = user && user.role === 'admin' && user.email?.toLowerCase() === 'zettbos2025@gmail.com';
+  const isSuperAdmin = user && (user.role === 'admin' || user.email?.toLowerCase() === 'zettbos2025@gmail.com');
 
   // Toggle '+ Bagikan Link Dokumen' button strictly for Super Admin
   const addBtn = document.getElementById('btn-admin-add-resource');

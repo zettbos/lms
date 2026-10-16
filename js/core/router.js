@@ -67,14 +67,15 @@ function updateDrawerState() {
   const drawerUserRole = document.getElementById('drawer-user-role');
   const drawerAdminSec = document.getElementById('drawer-admin-section');
   if (user) {
-    const isSuperAdmin = user.role === 'admin' && user.email.toLowerCase() === 'zettbos2025@gmail.com';
+    const isSuperAdmin = user.email && user.email.toLowerCase() === 'zettbos2025@gmail.com';
+    const isAdmin = isSuperAdmin || user.role === 'admin';
     if (drawerUserName) drawerUserName.textContent = user.fullName || user.email;
     if (drawerUserRole) {
-      drawerUserRole.textContent = isSuperAdmin ? 'OWNER / ADMIN' : 'MEMBER SISWA';
-      drawerUserRole.className = isSuperAdmin ? 'text-[10px] text-rose-400 font-mono font-bold' : 'text-[10px] text-emerald-400 font-mono font-bold';
+      drawerUserRole.textContent = isSuperAdmin ? 'OWNER / SUPER ADMIN' : (isAdmin ? 'ADMIN LMS' : 'MEMBER SISWA');
+      drawerUserRole.className = isAdmin ? 'text-[10px] text-rose-400 font-mono font-bold' : 'text-[10px] text-emerald-400 font-mono font-bold';
     }
     if (drawerAdminSec) {
-      if (isSuperAdmin) drawerAdminSec.classList.remove('hidden');
+      if (isAdmin) drawerAdminSec.classList.remove('hidden');
       else drawerAdminSec.classList.add('hidden');
     }
   }
@@ -128,10 +129,11 @@ function navigate(viewName, params = {}) {
 
   if (viewName === 'admin') {
     const user = AppState.currentUser;
-    const isSuperAdmin = user && user.role === 'admin' && user.email.toLowerCase() === 'zettbos2025@gmail.com';
-    if (!isSuperAdmin) {
+    const isSuperAdmin = user && user.email && user.email.toLowerCase() === 'zettbos2025@gmail.com';
+    const isAdmin = isSuperAdmin || (user && user.role === 'admin');
+    if (!isAdmin) {
       if (typeof showToast === 'function') {
-        showToast('Akses Ditolak! Halaman ini dilindungi khusus Super Admin Zettbos.', 'error');
+        showToast('Akses Ditolak! Halaman ini dilindungi khusus Administrator & Owner Zettbos.', 'error');
       }
       viewName = user ? 'home' : 'landing';
     }
@@ -282,16 +284,19 @@ function updateNavbarState(currentView) {
     if (userNameEl) userNameEl.textContent = AppState.currentUser.fullName || AppState.currentUser.email;
     if (mUser) mUser.textContent = AppState.currentUser.fullName || AppState.currentUser.email;
 
-    const isSuperAdmin = AppState.currentUser.role === 'admin' && AppState.currentUser.email.toLowerCase() === 'zettbos2025@gmail.com';
+    const isSuperAdmin = AppState.currentUser.email && AppState.currentUser.email.toLowerCase() === 'zettbos2025@gmail.com';
+    const isAdmin = isSuperAdmin || AppState.currentUser.role === 'admin';
     if (mAdminBtn) {
-      if (isSuperAdmin) mAdminBtn.classList.remove('hidden');
+      if (isAdmin) mAdminBtn.classList.remove('hidden');
       else mAdminBtn.classList.add('hidden');
     }
 
-    if (isSuperAdmin) {
+    if (isAdmin) {
       if (roleBadge) {
-        roleBadge.textContent = 'ADMIN';
-        roleBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold tracking-wider bg-rose-950 text-rose-300 border border-rose-800/80';
+        roleBadge.textContent = isSuperAdmin ? 'OWNER' : 'ADMIN';
+        roleBadge.className = isSuperAdmin
+          ? 'px-2 py-0.5 rounded text-[10px] font-bold tracking-wider bg-amber-950 text-amber-300 border border-amber-800/80'
+          : 'px-2 py-0.5 rounded text-[10px] font-bold tracking-wider bg-rose-950 text-rose-300 border border-rose-800/80';
       }
       if (modeSwitchBtn) modeSwitchBtn.classList.remove('nav-hidden');
     } else {

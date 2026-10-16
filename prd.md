@@ -937,6 +937,20 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
          - Mengimplementasikan dual-sync (Serverless API + Supabase Client) dengan notifikasi status instan.
       4. Cache Buster:
          - Menaikkan seluruh link script JavaScript di `index.html` ke versi `?v=80`.
+   - [2026-10-17] Implementasi Revisi 81: Whitelist Sync Pagination Anti-Truncate & Universal Admin Role Authorization.
+      1. Eliminasi Batasan 1.000 Baris Supabase PostgREST (`js/controllers/admin.js` & `js/core/supabase.js`):
+         - Mengatasi pemotongan data PostgREST (`max-rows: 1000`) dengan query prioritas paralel untuk semua akun bersandi (`not.password_hash.is.null`) dan akun Admin (`role.eq.admin`).
+         - Menerapkan *chunked range pagination* (`.range(from, from + 999)`) pada `pullWhitelistFromSupabaseLive()` dan `pullAllData()`, menjamin seluruh 2.362+ data member ditarik secara lengkap tanpa ada yang tertinggal.
+         - Memperbaiki background sync whitelist agar langsung memperbarui status kata sandi dan hak akses role di tabel Admin LMS.
+      2. Fleksibilitas Multi-Admin & Hak Akses Berbasis Role (`js/core/router.js`, `js/controllers/admin.js`, `js/controllers/classroom.js`, `js/controllers/resources.js`):
+         - Membuka hak akses Admin Panel, Route Guard, Sidebar Drawer, dan Top Navbar bagi seluruh akun dengan status `role === 'admin'`.
+         - Menetapkan predikat khusus OWNER (`zettbos2025@gmail.com`) dengan badge eksklusif warna amber, dan predikat ADMIN dengan badge merah elegan.
+         - Mengizinkan akun Admin membuat, mengedit modul draf kurikulum, dan mengelola shared resources.
+      3. Preservasi Role pada API Set-Password (`api/set-password.js` & `js/controllers/auth.js`):
+         - Memastikan proses pembuatan atau penggantian kata sandi tidak mereset role Admin kembali ke member.
+      4. Cache Buster:
+         - Menaikkan seluruh link script JavaScript di `index.html` ke versi `?v=81`.
+
 
 
 

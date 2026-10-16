@@ -138,16 +138,45 @@ const ZettSupabase = {
       // 3. Pull Whitelist (Diunduh jika pengguna aktif adalah Admin / Super Admin)
       const user = AppState.currentUser;
       const isAdmin = user && (user.role === 'admin' || user.email?.toLowerCase() === 'zettbos2025@gmail.com');
-      if (isAdmin) {
-        const { data: wl, error: wlErr } = await this.client
-          .from('whitelist_members')
-          .select('id, email, full_name, role, is_active, password_hash, registered_at')
-          .limit(10000);
-        if (!wlErr && Array.isArray(wl) && wl.length > 0) {
-          const cloudMap = new Map();
-          wl.forEach(w => {
-            if (w.email) cloudMap.set(w.email.toLowerCase().trim(), w);
-          });
+        const [resPass, resAdmin] = await Promise.all([
+          this.client.from('whitelist_members').select('id, email, full_name, role, is_active, password_hash, registered_at').not('password_hash', 'is', null),
+          this.client.from('whitelist_members').select('id, email, full_name, role, is_active, password_hash, registered_at').eq('role', 'admin')
+        ]);
+
+        const cloudMap = new Map();
+        const addCloudMapItem = (w) => {
+          if (w && w.email) {
+            const cleanE = w.email.toLowerCase().trim();
+            if (!cloudMap.has(cleanE)) {
+              cloudMap.set(cleanE, w);
+            } else {
+              cloudMap.set(cleanE, { ...cloudMap.get(cleanE), ...w });
+            }
+          }
+        };
+
+        (resPass.data || []).forEach(addCloudMapItem);
+        (resAdmin.data || []).forEach(addCloudMapItem);
+
+        // Paging untuk seluruh 2.000+ member agar tidak terpotong batas 1.000 Supabase PostgREST
+        let wlFrom = 0;
+        const wlBatch = 1000;
+        let wlKeepPaging = true;
+        while (wlKeepPaging) {
+          const { data: chunk, error: chunkErr } = await this.client
+            .from('whitelist_members')
+            .select('id, email, full_name, role, is_active, password_hash, registered_at')
+            .range(wlFrom, wlFrom + wlBatch - 1);
+          if (chunkErr || !Array.isArray(chunk) || chunk.length === 0) {
+            wlKeepPaging = false;
+          } else {
+            chunk.forEach(addCloudMapItem);
+            if (chunk.length < wlBatch) wlKeepPaging = false;
+            else wlFrom += wlBatch;
+          }
+        }
+
+        if (cloudMap.size > 0) {
 
           // Update data lokal dengan prioritas data cloud
           AppState.whitelist.forEach(localM => {
