@@ -25,7 +25,7 @@ function closeAddResourceModal() {
   if (modal) modal.classList.add('hidden');
 }
 
-function handleAddResourceSubmit(event) {
+async function handleAddResourceSubmit(event) {
   event.preventDefault();
   const title = document.getElementById('new-res-title').value.trim();
   const url = document.getElementById('new-res-url').value.trim();

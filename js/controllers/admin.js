@@ -936,7 +936,7 @@ function toggleQuickActionTargetType() {
   }
 }
 
-function handleSaveQuickActionSubmit(e) {
+async function handleSaveQuickActionSubmit(e) {
   if (e) e.preventDefault();
 
   const id = document.getElementById('edit-qa-id').value;
@@ -1306,7 +1306,7 @@ function updateEditorLivePreview(blocks) {
   }
 }
 
-function saveLessonFromEditor(publishToCloud = true) {
+async function saveLessonFromEditor(publishToCloud = true) {
   if (!AppState.editorInstance || !AppState.adminSelectedLessonId) {
     showToast('Pilih materi yang ingin disimpan terlebih dahulu', 'error');
     return;
@@ -1701,7 +1701,7 @@ function closeAddLessonModal() {
 }
 window.closeAddLessonModal = closeAddLessonModal;
 
-function handleSaveAddLessonSubmit(e, publishToCloud = true) {
+async function handleSaveAddLessonSubmit(e, publishToCloud = true) {
   if (e) e.preventDefault();
 
   const targetModuleId = document.getElementById('add-lesson-module-select')?.value || AppState.adminSelectedModuleId || AppState.modules[0]?.id;

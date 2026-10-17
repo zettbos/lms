@@ -98,6 +98,28 @@ TARGET RILIS   : LMS Production Enterprise Grade
 - [x] **True Single Source of Truth**: Password null di Supabase langsung terefleksi bersih di peramban.
 - [x] **RLS Restored & Audit Complete**: File migrasi `supabase/fix_rls_all_tables.sql` siap dijalankan 1-klik di Supabase SQL Editor.
 - [x] **Accurate Async Save Toast**: Frontend menunggu konfirmasi Supabase dan tidak lagi menampilkan notifikasi sukses palsu.
-- [x] **Cache Buster Updated**: Seluruh script JavaScript berjalan di versi `?v=84`.
+- [x] **Cache Buster Updated**: Seluruh script JavaScript berjalan di versi `?v=85`.
+
+---
+
+## 6. IMPLEMENTASI REVISI 85: HOTFIX SYNTAX ERROR (MISSING ASYNC KEYWORDS)
+
+### Akar Masalah:
+- Pada Revisi 84, ditambahkan pemanggilan `await ZettSupabase...` di dalam beberapa fungsi handler:
+  1. `handleSaveQuickActionSubmit` di [js/controllers/admin.js](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/js/controllers/admin.js)
+  2. `saveLessonFromEditor` di [js/controllers/admin.js](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/js/controllers/admin.js)
+  3. `handleSaveAddLessonSubmit` di [js/controllers/admin.js](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/js/controllers/admin.js)
+  4. `handleAddResourceSubmit` di [js/controllers/resources.js](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/js/controllers/resources.js)
+- Keempat fungsi tersebut dideklarasikan sebagai fungsi reguler (`function ...`) tanpa keyword `async`.
+- Hal ini menyebabkan fatal parsing error di peramban: `Uncaught SyntaxError: await is only valid in async functions and the top level bodies of modules`.
+- Akibatnya, seluruh berkas `admin.js` dan `resources.js` gagal dieksekusi oleh peramban sehingga seluruh tombol interaksi di admin panel menjadi tidak berfungsi (`ReferenceError`) dan dropdown modul/materi kosong.
+
+### Solusi & Tindakan:
+1. Menambahkan keyword `async` pada deklarasi ke-4 fungsi tersebut:
+   - `async function handleSaveQuickActionSubmit(e)`
+   - `async function saveLessonFromEditor(publishToCloud = true)`
+   - `async function handleSaveAddLessonSubmit(e, publishToCloud = true)`
+   - `async function handleAddResourceSubmit(event)`
+2. Memperbarui cache buster di [index.html](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/index.html) menjadi **`?v=85`**.
 
 
