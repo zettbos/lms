@@ -53,22 +53,28 @@ function handleAddResourceSubmit(event) {
   saveState();
 
   if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
-    ZettSupabase.client.from('shared_resources').upsert({
-      id: newRes.id,
-      title: newRes.title,
-      description: newRes.description || '',
-      url: newRes.url,
-      category: newRes.category || 'sheet',
-      badge: newRes.badge || 'Official Link',
-      order_index: 1
-    }, { onConflict: 'id' }).then(({ error }) => {
-      if (error) console.warn('[Supabase Shared Resources Insert Warning]', error);
-    });
+    try {
+      const { error } = await ZettSupabase.client.from('shared_resources').upsert({
+        id: newRes.id,
+        title: newRes.title,
+        description: newRes.description || '',
+        url: newRes.url,
+        category: newRes.category || 'sheet',
+        badge: newRes.badge || 'Official Link',
+        order_index: 1
+      }, { onConflict: 'id' });
+      if (error) throw error;
+      showToast('Link dokumen berhasil dibagikan & LIVE ke Database!', 'success');
+    } catch (err) {
+      console.error('[Supabase Shared Resources Error]', err);
+      showToast(`Tersimpan lokal, tapi gagal kirim ke Database: ${err.message || 'RLS'}`, 'warning');
+    }
+  } else {
+    showToast('Link dokumen berhasil disimpan secara lokal!', 'info');
   }
 
   closeAddResourceModal();
   event.target.reset();
-  showToast('Link dokumen berhasil dibagikan & LIVE ke Database!', 'success');
   renderResources();
   if (typeof renderAdminResourcesCms === 'function') {
     renderAdminResourcesCms();
@@ -89,19 +95,25 @@ function deleteResource(resId) {
     confirmText: 'Ya, Hapus Dokumen',
     cancelText: 'Batal',
     isDanger: true,
-    onConfirm: () => {
+    onConfirm: async () => {
       const idx = AppState.resources.findIndex(r => r.id === resId);
       if (idx > -1) {
         AppState.resources.splice(idx, 1);
         saveState();
 
         if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
-          ZettSupabase.client.from('shared_resources').delete().eq('id', resId).then(({ error }) => {
-            if (error) console.warn('[Supabase Shared Resources Delete Warning]', error);
-          });
+          try {
+            const { error } = await ZettSupabase.client.from('shared_resources').delete().eq('id', resId);
+            if (error) throw error;
+            showToast('Link dokumen telah dihapus dari database & lokal', 'info');
+          } catch (err) {
+            console.error('[Supabase Resource Delete Error]', err);
+            showToast(`Dihapus lokal, tapi gagal di database: ${err.message || 'RLS'}`, 'warning');
+          }
+        } else {
+          showToast('Link dokumen telah dihapus', 'info');
         }
 
-        showToast('Link dokumen telah dihapus dari database', 'info');
         renderResources();
         if (typeof renderAdminResourcesCms === 'function') {
           renderAdminResourcesCms();

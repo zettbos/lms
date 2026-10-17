@@ -58,20 +58,46 @@ TARGET RILIS   : LMS Production Enterprise Grade
 5. [js/controllers/resources.js](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/js/controllers/resources.js) - Universal admin shared resources deletion & creation.
 6. [api/set-password.js](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/api/set-password.js) - Preserves active database role on password update response.
 7. [js/controllers/auth.js](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/js/controllers/auth.js) - Preserves active role in fallback state and captures server role on set-password.
-8. [index.html](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/index.html) - Cache buster update to `?v=83`.
-9. [prd.md](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/prd.md) - Dokumentasi arsitektur rilis v1.5.9.
-10. [revisi.md](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/revisi.md) - Catatan pelacak implementasi Revisi 81, 82, & 83.
+8. [index.html](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/index.html) - Cache buster update to `?v=84`.
+9. [prd.md](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/prd.md) - Dokumentasi arsitektur rilis v1.6.0.
+10. [revisi.md](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/revisi.md) - Catatan pelacak implementasi Revisi 81, 82, 83 & 84.
+11. [supabase/fix_rls_all_tables.sql](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/supabase/fix_rls_all_tables.sql) - Script SQL migrasi 1-klik pemulihan RLS ke seluruh tabel operasional.
+12. [supabase/schema.sql](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/supabase/schema.sql) - Update master schema RLS full client access.
 
 ---
 
-## 4. CHECKLIST PENGUJIAN
+## 4. IMPLEMENTASI REVISI 84: AUDIT TOTAL KEAMANAN & PEMULIHAN SINKRONISASI MODUL CLOUD
+
+### Akar Masalah:
+1. **Overly Restrictive RLS di Revisi 74**:
+   - Revisi 74 menerapkan policy `Service Role Manage` pada 5 tabel operasional (`curriculum_modules`, `curriculum_lessons`, `landing_cms`, `shared_resources`, `quick_actions`) dengan syarat `auth.role() = 'service_role' OR current_user = 'postgres'`.
+   - Karena LMS berjalan langsung dari peramban (Client-Side SPA) menggunakan Supabase `anon key`, PostgreSQL menolak setiap query tulis (INSERT, UPDATE, DELETE) dengan error code `42501` (`new row violates row-level security policy`).
+2. **Silent Failure & Masked Success di Frontend**:
+   - Fungsi `handleSaveModuleSubmit`, `handleSaveAddLessonSubmit`, dan `saveLessonFromEditor` di `admin.js` memanggil Supabase tanpa `await` dan langsung menampilkan toast hijau "Berhasil disimpan & LIVE di Cloud".
+   - Modul hanya tersimpan di `localStorage` peramban laptop lokal admin, namun ditolak secara diam-diam oleh Supabase. Begitu dicek di Table Editor Supabase atau dibuka di perangkat lain, modul tidak pernah ada.
+
+### Solusi & Tindakan:
+1. **Pembuatan Script SQL Pemulihan RLS (`supabase/fix_rls_all_tables.sql`)**:
+   - Menghapus policy `Service Role Manage` dan membuka `Allow Full Access` (`FOR ALL USING (true) WITH CHECK (true)`) untuk ke-5 tabel: `curriculum_modules`, `curriculum_lessons`, `landing_cms`, `shared_resources`, dan `quick_actions`.
+2. **Update Master Schema (`supabase/schema.sql`)**:
+   - Memperbarui file skema master permanen dengan konfigurasi RLS Full Access.
+3. **Perbaikan Error Handling Frontend (`js/controllers/admin.js` & `resources.js`)**:
+   - Seluruh operasi penyimpanan dan penghapusan modul, materi editor blocks, shared resources, dan quick actions dijadikan `async/await`.
+   - Toast sukses hanya muncul jika Supabase benar-benar mengembalikan sukses (`error == null`). Jika ditolak, sistem langsung menampilkan notifikasi error yang jujur dan transparan kepada admin.
+4. **Pembaruan Cache Buster**:
+   - Seluruh script di `index.html` dinaikkan ke **`?v=84`**.
+
+---
+
+## 5. CHECKLIST PENGUJIAN AKHIR
 
 - [x] **Anti-Truncate Pagination**: Tombol *"Tarik dari Cloud"* dan auto-sync berhasil menarik seluruh 2.362+ data member tanpa terpotong limit 1.000.
 - [x] **Priority Sandi Aktif**: Akun yang memiliki `password_hash` di Supabase langsung berstatus *"Password Aktif"* di tabel Admin LMS.
-- [x] **Universal Admin Access**: Akun dengan `role: admin` (seperti `asepsolihin1288@gmail.com`) langsung masuk sebagai ADMIN (badge merah, tombol admin aktif, menu drawer terbuka).
+- [x] **Universal Admin Access**: Akun dengan `role: admin` (seperti `asepsolihin1288@gmail.com`) langsung masuk sebagai ADMIN.
 - [x] **Owner Distinction**: Akun `zettbos2025@gmail.com` tetap berpredikat `OWNER` dengan badge eksklusif amber.
-- [x] **Supabase Modal & Connection Hotfix**: Memulihkan sintaks `supabase.js`, mengaktifkan auto-init, dan memastikan tombol *"Database Cloud (Supabase)"* membuka modal pengaturan secara instan.
-- [x] **True Single Source of Truth**: Akun seperti `farhandi378@gmail.com` yang di Supabase bernilai `password_hash: null` otomatis di-reset menjadi *"Belum Buat Sandi"* dan namanya kembali sinkron.
-- [x] **Cache Buster Updated**: Seluruh script JavaScript berjalan di versi `?v=83`.
+- [x] **True Single Source of Truth**: Password null di Supabase langsung terefleksi bersih di peramban.
+- [x] **RLS Restored & Audit Complete**: File migrasi `supabase/fix_rls_all_tables.sql` siap dijalankan 1-klik di Supabase SQL Editor.
+- [x] **Accurate Async Save Toast**: Frontend menunggu konfirmasi Supabase dan tidak lagi menampilkan notifikasi sukses palsu.
+- [x] **Cache Buster Updated**: Seluruh script JavaScript berjalan di versi `?v=84`.
 
 

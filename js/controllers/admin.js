@@ -995,15 +995,21 @@ function handleSaveQuickActionSubmit(e) {
       target: q.target || '',
       order_index: i + 1
     }));
-    ZettSupabase.client.from('quick_actions').upsert(payload, { onConflict: 'id' }).then(({ error }) => {
-      if (error) console.warn('[Supabase QA Save Error]', error);
-    });
+    try {
+      const { error } = await ZettSupabase.client.from('quick_actions').upsert(payload, { onConflict: 'id' });
+      if (error) throw error;
+      showToast(id ? 'Kartu Quick Action berhasil diperbarui & LIVE di Cloud!' : 'Quick Action baru berhasil ditambahkan & LIVE di Cloud!', 'success');
+    } catch (err) {
+      console.error('[Supabase QA Save Error]', err);
+      showToast(`Tersimpan lokal, tapi gagal ke Cloud: ${err.message || 'RLS'}`, 'warning');
+    }
+  } else {
+    showToast(id ? 'Kartu Quick Action berhasil diperbarui!' : 'Quick Action baru berhasil ditambahkan!', 'success');
   }
 
   closeEditQuickActionModal();
   renderAdminQuickActions();
   if (typeof renderQuickActionHub === 'function') renderQuickActionHub();
-  showToast(id ? 'Kartu Quick Action berhasil diperbarui!' : 'Quick Action baru berhasil ditambahkan!', 'success');
 }
 window.handleSaveQuickActionSubmit = handleSaveQuickActionSubmit;
 
@@ -1017,19 +1023,25 @@ function deleteQuickAction(qaId) {
     confirmText: 'Ya, Hapus Kartu',
     cancelText: 'Batal',
     isDanger: true,
-    onConfirm: () => {
+    onConfirm: async () => {
       AppState.quickActions = (AppState.quickActions || []).filter(a => a.id !== qaId);
       saveState();
 
       if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
-        ZettSupabase.client.from('quick_actions').delete().eq('id', qaId).then(({ error }) => {
-          if (error) console.warn('[Supabase QA Delete Error]', error);
-        });
+        try {
+          const { error } = await ZettSupabase.client.from('quick_actions').delete().eq('id', qaId);
+          if (error) throw error;
+          showToast(`Kartu "${qa.title}" berhasil dihapus dari cloud & lokal.`, 'info');
+        } catch (err) {
+          console.error('[Supabase QA Delete Error]', err);
+          showToast(`Kartu dihapus di lokal, tapi gagal di Cloud: ${err.message || 'RLS'}`, 'warning');
+        }
+      } else {
+        showToast(`Kartu "${qa.title}" berhasil dihapus.`, 'info');
       }
 
       renderAdminQuickActions();
       if (typeof renderQuickActionHub === 'function') renderQuickActionHub();
-      showToast(`Kartu "${qa.title}" berhasil dihapus.`, 'info');
     }
   });
 }
@@ -1327,19 +1339,26 @@ function saveLessonFromEditor(publishToCloud = true) {
   if (publishToCloud) {
     // Live Auto-Push ke Supabase Cloud
     if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
-      ZettSupabase.client.from('curriculum_lessons').upsert({
-        id: lesson.id,
-        module_id: lesson.moduleId,
-        title: lesson.title,
-        youtube_url: lesson.youtubeUrl || '',
-        duration_minutes: lesson.durationMinutes || 15,
-        order_index: lesson.orderIndex || 1,
-        blocks: lesson.blocks || []
-      }, { onConflict: 'id' }).then(({ error }) => {
-        if (error) console.warn('[Supabase Lesson Editor Save Error]', error);
-      });
+      try {
+        const { error } = await ZettSupabase.client.from('curriculum_lessons').upsert({
+          id: lesson.id,
+          module_id: lesson.moduleId,
+          title: lesson.title,
+          youtube_url: lesson.youtubeUrl || '',
+          duration_minutes: lesson.durationMinutes || 15,
+          order_index: lesson.orderIndex || 1,
+          blocks: lesson.blocks || []
+        }, { onConflict: 'id' });
+
+        if (error) throw error;
+        showToast(`Materi '${lesson.title}' berhasil disimpan & LIVE di Supabase Cloud!`, 'success');
+      } catch (err) {
+        console.error('[Supabase Lesson Editor Save Error]', err);
+        showToast(`Tersimpan lokal, tapi GAGAL dikirim ke Supabase: ${err.message || 'Izin ditolak (RLS)'}`, 'error');
+      }
+    } else {
+      showToast(`Materi '${lesson.title}' tersimpan lokal (Supabase belum terhubung).`, 'warning');
     }
-    showToast(`Materi '${lesson.title}' berhasil disimpan & LIVE di Supabase Cloud!`, 'success');
   } else {
     showToast(`Materi '${lesson.title}' disimpan sebagai DRAFT lokal (belum masuk ke Supabase).`, 'info');
   }
@@ -1468,7 +1487,7 @@ function openEditModuleModal() {
 }
 window.openEditModuleModal = openEditModuleModal;
 
-function togglePinCurrentModule() {
+async function togglePinCurrentModule() {
   if (!AppState.adminSelectedModuleId) return;
   const mod = AppState.modules.find(m => m.id === AppState.adminSelectedModuleId);
   if (!mod) return;
@@ -1477,15 +1496,20 @@ function togglePinCurrentModule() {
   saveState();
 
   if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
-    ZettSupabase.client.from('curriculum_modules')
-      .update({ is_pinned: !!mod.isPinned })
-      .eq('id', mod.id)
-      .then(({ error }) => {
-        if (error) console.warn('[Supabase Module Pin Update Warning]', error);
-      });
+    try {
+      const { error } = await ZettSupabase.client.from('curriculum_modules')
+        .update({ is_pinned: !!mod.isPinned })
+        .eq('id', mod.id);
+      if (error) throw error;
+      showToast(mod.isPinned ? `Modul "${mod.title}" berhasil disematkan di Beranda & LIVE ke Database!` : `Sematkan modul "${mod.title}" dilepas.`, 'success');
+    } catch (err) {
+      console.warn('[Supabase Module Pin Update Warning]', err);
+      showToast(`Status pin berubah di lokal, tapi gagal ke cloud: ${err.message || 'RLS'}`, 'warning');
+    }
+  } else {
+    showToast(mod.isPinned ? `Modul "${mod.title}" disematkan di Beranda.` : `Sematkan modul "${mod.title}" dilepas.`, 'info');
   }
 
-  showToast(mod.isPinned ? `Modul "${mod.title}" berhasil disematkan di Beranda & LIVE ke Database!` : `Sematkan modul "${mod.title}" dilepas.`, 'success');
   renderAdminCurriculum();
   if (typeof renderPinnedModuleHero === 'function') renderPinnedModuleHero();
 }
@@ -1496,7 +1520,7 @@ function closeManageModuleModal() {
 }
 window.closeManageModuleModal = closeManageModuleModal;
 
-function handleSaveModuleSubmit(e, publishToCloud = true) {
+async function handleSaveModuleSubmit(e, publishToCloud = true) {
   if (e) e.preventDefault();
   const id = document.getElementById('manage-module-id').value;
   const title = document.getElementById('manage-module-title').value.trim();
@@ -1561,15 +1585,22 @@ function handleSaveModuleSubmit(e, publishToCloud = true) {
         is_pinned: !!targetMod.isPinned
       };
 
-      ZettSupabase.client.from('curriculum_modules').upsert(payload, { onConflict: 'id' }).then(({ error }) => {
+      try {
+        let { error } = await ZettSupabase.client.from('curriculum_modules').upsert(payload, { onConflict: 'id' });
         if (error) {
           // If column is_pinned does not exist in remote DB, fallback safely
           delete payload.is_pinned;
-          ZettSupabase.client.from('curriculum_modules').upsert(payload, { onConflict: 'id' });
+          const retry = await ZettSupabase.client.from('curriculum_modules').upsert(payload, { onConflict: 'id' });
+          if (retry.error) throw retry.error;
         }
-      });
+        showToast(`Modul '${title}' berhasil disimpan & LIVE di Supabase Cloud!`, 'success');
+      } catch (err) {
+        console.error('[Supabase Module Save Error]', err);
+        showToast(`Tersimpan di lokal, tapi GAGAL dikirim ke Supabase Cloud: ${err.message || 'Izin ditolak (RLS)'}`, 'error');
+      }
+    } else {
+      showToast(`Modul '${title}' tersimpan lokal (Supabase belum terhubung).`, 'warning');
     }
-    showToast(`Modul '${title}' berhasil disimpan & LIVE di Supabase Cloud!`, 'success');
   } else {
     showToast(`Modul '${title}' disimpan sebagai DRAFT lokal (belum masuk ke Supabase).`, 'info');
   }
@@ -1592,7 +1623,7 @@ function deleteCurrentModule() {
     confirmText: 'Ya, Hapus Modul',
     cancelText: 'Batal',
     isDanger: true,
-    onConfirm: () => {
+    onConfirm: async () => {
       const delModId = mod.id;
       AppState.modules = AppState.modules.filter(m => m.id !== delModId);
       AppState.lessons = AppState.lessons.filter(l => l.moduleId !== delModId);
@@ -1602,16 +1633,20 @@ function deleteCurrentModule() {
       saveState();
 
       if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
-        // Hapus materi di dalam modul terlebih dahulu untuk menjamin cascade bersih
-        ZettSupabase.client.from('curriculum_lessons').delete().eq('module_id', delModId).then(({ error }) => {
-          if (error) console.warn('[Supabase Cascade Lesson Delete Warning]', error);
-        });
-        ZettSupabase.client.from('curriculum_modules').delete().eq('id', delModId).then(({ error }) => {
-          if (error) console.warn('[Supabase Module Delete Error]', error);
-        });
+        try {
+          // Hapus materi di dalam modul terlebih dahulu untuk menjamin cascade bersih
+          await ZettSupabase.client.from('curriculum_lessons').delete().eq('module_id', delModId);
+          const { error } = await ZettSupabase.client.from('curriculum_modules').delete().eq('id', delModId);
+          if (error) throw error;
+          showToast(`Modul "${mod.title}" telah dihapus dari cloud & lokal.`, 'info');
+        } catch (err) {
+          console.error('[Supabase Module Delete Error]', err);
+          showToast(`Modul dihapus di lokal, tapi gagal di Cloud: ${err.message || 'RLS'}`, 'warning');
+        }
+      } else {
+        showToast(`Modul "${mod.title}" telah dihapus.`, 'info');
       }
 
-      showToast(`Modul "${mod.title}" telah dihapus.`, 'info');
       renderAdminCurriculum();
       if (typeof renderLandingCurriculumBento === 'function') renderLandingCurriculumBento();
     }
@@ -1706,19 +1741,26 @@ function handleSaveAddLessonSubmit(e, publishToCloud = true) {
 
   if (publishToCloud) {
     if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
-      ZettSupabase.client.from('curriculum_lessons').upsert({
-        id: newLesson.id,
-        module_id: newLesson.moduleId,
-        title: newLesson.title,
-        youtube_url: newLesson.youtubeUrl || '',
-        duration_minutes: newLesson.durationMinutes || 15,
-        order_index: newLesson.orderIndex || 1,
-        blocks: newLesson.blocks || []
-      }, { onConflict: 'id' }).then(({ error }) => {
-        if (error) console.warn('[Supabase Lesson Save Error]', error);
-      });
+      try {
+        const { error } = await ZettSupabase.client.from('curriculum_lessons').upsert({
+          id: newLesson.id,
+          module_id: newLesson.moduleId,
+          title: newLesson.title,
+          youtube_url: newLesson.youtubeUrl || '',
+          duration_minutes: newLesson.durationMinutes || 15,
+          order_index: newLesson.orderIndex || 1,
+          blocks: newLesson.blocks || []
+        }, { onConflict: 'id' });
+
+        if (error) throw error;
+        showToast(`Materi "${title}" berhasil ditambahkan & LIVE di Supabase Cloud!`, 'success');
+      } catch (err) {
+        console.error('[Supabase Lesson Save Error]', err);
+        showToast(`Tersimpan lokal, tapi GAGAL dikirim ke Supabase: ${err.message || 'RLS'}`, 'error');
+      }
+    } else {
+      showToast(`Materi "${title}" tersimpan lokal (Supabase belum terhubung).`, 'warning');
     }
-    showToast(`Materi "${title}" berhasil ditambahkan & LIVE di Supabase Cloud!`, 'success');
   } else {
     showToast(`Materi "${title}" ditambahkan sebagai DRAFT lokal (belum masuk ke Supabase).`, 'info');
   }
@@ -1744,19 +1786,25 @@ function deleteCurrentLesson() {
     confirmText: 'Ya, Hapus Materi',
     cancelText: 'Batal',
     isDanger: true,
-    onConfirm: () => {
+    onConfirm: async () => {
       const delLesId = lesson.id;
       AppState.lessons = AppState.lessons.filter(l => l.id !== delLesId);
       AppState.adminSelectedLessonId = null;
       saveState();
 
       if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
-        ZettSupabase.client.from('curriculum_lessons').delete().eq('id', delLesId).then(({ error }) => {
-          if (error) console.warn('[Supabase Lesson Delete Error]', error);
-        });
+        try {
+          const { error } = await ZettSupabase.client.from('curriculum_lessons').delete().eq('id', delLesId);
+          if (error) throw error;
+          showToast('Materi telah dihapus dari cloud & lokal', 'info');
+        } catch (err) {
+          console.error('[Supabase Lesson Delete Error]', err);
+          showToast(`Materi dihapus lokal, tapi gagal di Cloud: ${err.message || 'RLS'}`, 'warning');
+        }
+      } else {
+        showToast('Materi telah dihapus', 'info');
       }
 
-      showToast('Materi telah dihapus', 'info');
       renderAdminCurriculum();
       if (typeof renderLandingCurriculumBento === 'function') renderLandingCurriculumBento();
     }
