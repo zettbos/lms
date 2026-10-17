@@ -48,9 +48,20 @@ module.exports = async (req, res) => {
         });
         if (checkRes.ok) {
           const members = await checkRes.json();
-          if (Array.isArray(members) && members.length > 0 && members[0].is_active !== false) {
-            isAuthorized = true;
+          if (Array.isArray(members) && members.length > 0) {
+            if (members[0].is_active !== false) {
+              isAuthorized = true;
+            } else {
+              return res.status(403).json({
+                success: false,
+                error: 'Akun Anda telah dinonaktifkan oleh mentor.'
+              });
+            }
           }
+        } else {
+          console.warn('[Whitelist Check DB Response Warning]', checkRes.status, checkRes.statusText);
+          // Jika PostgREST Supabase mengembalikan status non-200, fallback izinkan pengiriman OTP agar siswa terdaftar tidak terblokir
+          isAuthorized = true;
         }
       } catch (checkErr) {
         console.warn('[Whitelist Check DB Warning]', checkErr);

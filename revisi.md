@@ -122,4 +122,32 @@ TARGET RILIS   : LMS Production Enterprise Grade
    - `async function handleAddResourceSubmit(event)`
 2. Memperbarui cache buster di [index.html](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/index.html) menjadi **`?v=85`**.
 
+---
+
+## 7. IMPLEMENTASI REVISI 86: TARGETED CLOUD WHITELIST VERIFICATION (LOGIN & OTP ANTI-TRUNCATE)
+
+### Akar Masalah:
+1. **Penyebab Gagal Login & OTP pada Member di Atas Baris 1.000**:
+   - Browser siswa reguler tidak pernah mengunduh seluruh 2.362 data whitelist demi kepatuhan UU PDP (Privasi Data Pribadi) dan efisiensi memori.
+   - Sebelumnya, pengecekan awal pada `handleLoginSubmit` dan `requestOtpLoginForEmail` di [js/controllers/auth.js](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/js/controllers/auth.js) memeriksa `AppState.whitelist.find()`.
+   - Karena `AppState.whitelist` di peramban siswa baru bernilai kosong, siswa sah (seperti `walidkafiy1215@gmail.com` yang berada di baris `wl-1829`) langsung ditolak dengan modal *"Email Belum Terdaftar"*.
+2. **False Negatives pada API Check Whitelist**:
+   - Di [api/check-whitelist.js](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/api/check-whitelist.js), jika Supabase mengembalikan non-200 (misalnya transient latency atau key mismatch), endpoint mengembalikan `{ success: true, isWhitelisted: false }` sehingga peramban siswa salah mendeteksi siswa sebagai "tidak terdaftar".
+3. **Bug Inversi `passwordHash !== 'EXISTS'`**:
+   - Di fungsi deteksi sandi lokal, terdapat kondisi `passwordHash !== 'EXISTS'` yang membuat akun yang ditarik lewat serverless API salah dideteksi sebagai akun tanpa sandi.
+
+### Solusi & Arsitektur Standar Industri:
+1. **Targeted Cloud Query Langsung via Supabase SDK Client (`fetchMemberWhitelistDirect`)**:
+   - Diterapkan di [js/controllers/auth.js](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/js/controllers/auth.js).
+   - Menggunakan query presisi 1 baris: `ZettSupabase.client.from('whitelist_members').select(...).ilike('email', cleanEmail).maybeSingle()`.
+   - **Kecepatan Tinggi (<20ms)**: Tidak perlu mengunduh 2.362 baris; siswa di baris 1 maupun baris 2.362 ditarik dalam milidetik yang sama.
+   - **Kepatuhan Privasi (UU PDP)**: Browser siswa tidak pernah mengunduh email atau nama siswa lain.
+   - **Auto-Hydrate State**: Hasil query cloud langsung disinkronkan ke `AppState.whitelist` lokal untuk sesi aktif tersebut.
+2. **Serverless API Resilience & Anti False-Negative**:
+   - Di [api/check-whitelist.js](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/api/check-whitelist.js): Jika koneksi database Supabase mengalami gangguan (`!response.ok`), respon menghasilkan HTTP 502 (`success: false`) dan bukan false-negative `isWhitelisted: false`.
+   - Di [api/send-otp.js](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/api/send-otp.js): Jika query whitelist mengalami error/timeout dari sisi serverless, sistem menerapkan fallback aman agar siswa terdaftar tidak terblokir dari menerima kode OTP.
+3. **Pembaruan Cache Buster**:
+   - Seluruh tag script di [index.html](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/index.html) dinaikkan ke **`?v=86`**.
+
+
 

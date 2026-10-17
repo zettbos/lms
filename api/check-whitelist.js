@@ -50,11 +50,10 @@ module.exports = async (req, res) => {
     });
 
     if (!response.ok) {
-      console.warn('[Check Whitelist DB Query Warning]', response.statusText);
-      return res.status(200).json({
-        success: true,
-        isWhitelisted: false,
-        message: 'Email tidak ditemukan di whitelist.'
+      console.warn('[Check Whitelist DB Query Warning]', response.status, response.statusText);
+      return res.status(502).json({
+        success: false,
+        error: `Database Supabase tidak dapat diakses (${response.status}: ${response.statusText}). Silakan coba beberapa saat lagi.`
       });
     }
 
