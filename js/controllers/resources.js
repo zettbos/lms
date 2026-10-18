@@ -373,7 +373,7 @@ function renderSingleResourceCardHtml(item, isSuperAdmin, categoryNameFallback) 
   const catLabel = categoryNameFallback || item.category?.toUpperCase() || 'DOKUMEN';
 
   return `
-    <div class="glass-card bg-slate-900/90 rounded-2xl p-4 sm:p-5 flex flex-col justify-between group relative overflow-hidden transition-all duration-300 border border-slate-800 hover:border-emerald-500/50 hover:shadow-xl hover:-translate-y-0.5">
+    <div onclick="openResourceDetailModal('${item.id}')" class="glass-card bg-slate-900/90 rounded-2xl p-4 sm:p-5 flex flex-col justify-between group relative overflow-hidden transition-all duration-300 border border-slate-800 hover:border-emerald-500/50 hover:shadow-xl hover:-translate-y-0.5 cursor-pointer">
       <div>
         <!-- Top Row: Category Badge & Date (Sesuai Gambar 2) -->
         <div class="flex items-center justify-between gap-2 mb-3">
@@ -402,32 +402,79 @@ function renderSingleResourceCardHtml(item, isSuperAdmin, categoryNameFallback) 
           </span>
           <span class="micro-tag-pill">
             <svg class="w-3 h-3 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-            <span>Verified Link</span>
+            <span>Lihat SOP &amp; Detail ↗</span>
           </span>
         </div>
       </div>
 
-      <!-- Bottom Action Bar (Sesuai Gambar 2) -->
+      <!-- Bottom Action Bar (Gambar 3 - Revisi 89: Buka Modal Detail Sebelum Redirect) -->
       <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between gap-2 mt-auto">
         <div class="flex items-center gap-2">
-          <a href="${item.url}" target="_blank" rel="noopener noreferrer" class="btn-primary-action px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm">
+          <button type="button" onclick="event.stopPropagation(); openResourceDetailModal('${item.id}')" class="btn-primary-action px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm">
             <span>Buka Dokumen</span>
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-          </a>
-          <button onclick="navigator.clipboard.writeText('${item.url}').then(() => showToast('Tautan dokumen berhasil disalin', 'success'))" title="Salin Tautan" class="px-2.5 py-1.5 rounded-xl text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 flex items-center gap-1 transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+          </button>
+          <button type="button" onclick="event.stopPropagation(); navigator.clipboard.writeText('${item.url}').then(() => showToast('Tautan dokumen berhasil disalin', 'success'))" title="Salin Tautan" class="px-2.5 py-1.5 rounded-xl text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 flex items-center gap-1 transition-colors">
             <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
             <span class="text-[11px]">Salin</span>
           </button>
         </div>
 
         ${isSuperAdmin ? `
-          <button onclick="deleteResource('${item.id}')" title="Hapus Dokumen" class="p-1.5 text-slate-500 hover:text-rose-400 rounded-lg hover:bg-slate-800 transition-colors">
+          <button type="button" onclick="event.stopPropagation(); deleteResource('${item.id}')" title="Hapus Dokumen" class="p-1.5 text-slate-500 hover:text-rose-400 rounded-lg hover:bg-slate-800 transition-colors">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
           </button>
         ` : ''}
       </div>
     </div>
   `;
+}
+
+function openResourceDetailModal(resId) {
+  const item = (AppState.resources || []).find(r => r.id === resId);
+  if (!item) return;
+
+  const categories = AppState.resourceCategories || [];
+  const matchedCat = categories.find(c => isResourceInCategory(item, c));
+  const folderName = matchedCat ? matchedCat.name : (item.category ? item.category.toUpperCase() : 'Dokumen');
+
+  const titleEl = document.getElementById('res-preview-title');
+  const folderEl = document.getElementById('res-preview-folder-name');
+  const badgeEl = document.getElementById('res-preview-badge');
+  const dateEl = document.getElementById('res-preview-date');
+  const descEl = document.getElementById('res-preview-desc');
+  const btnOpen = document.getElementById('res-preview-btn-open');
+  const btnCopy = document.getElementById('res-preview-btn-copy');
+
+  if (titleEl) titleEl.textContent = item.title;
+  if (folderEl) folderEl.textContent = folderName;
+  if (badgeEl) badgeEl.textContent = item.badge || 'Official Link';
+  if (dateEl) dateEl.textContent = item.date || '';
+  if (descEl) {
+    descEl.textContent = item.description || 'Tidak ada deskripsi tambahan untuk link dokumen ini.';
+  }
+
+  if (btnOpen) {
+    btnOpen.href = item.url || '#';
+  }
+
+  if (btnCopy) {
+    btnCopy.onclick = () => {
+      if (item.url) {
+        navigator.clipboard.writeText(item.url).then(() => {
+          showToast('Tautan dokumen berhasil disalin!', 'success');
+        });
+      }
+    };
+  }
+
+  const modal = document.getElementById('modal-resource-detail-preview');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function closeResourceDetailModal() {
+  const modal = document.getElementById('modal-resource-detail-preview');
+  if (modal) modal.classList.add('hidden');
 }
 
 // Global window bindings
@@ -439,3 +486,5 @@ window.populateCategoryDropdowns = populateCategoryDropdowns;
 window.handleAddResourceSubmit = handleAddResourceSubmit;
 window.deleteResource = deleteResource;
 window.renderResources = renderResources;
+window.openResourceDetailModal = openResourceDetailModal;
+window.closeResourceDetailModal = closeResourceDetailModal;

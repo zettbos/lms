@@ -301,6 +301,9 @@ function renderPinnedModuleHero() {
                   <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-900 text-cyan-400 border border-cyan-500/30">
                     ${escapeHtml(pinnedMod.badge || 'MODUL PILIHAN')}
                   </span>
+                  <span class="text-[10px] font-bold font-mono px-2 py-0.5 rounded bg-emerald-950/90 text-emerald-300 border border-emerald-500/40 uppercase tracking-wider">
+                    ${escapeHtml(pinnedMod.category || 'Kurikulum')}
+                  </span>
                 </div>
 
                 <div class="flex items-center gap-1 text-[10px] font-mono">
@@ -310,8 +313,8 @@ function renderPinnedModuleHero() {
                 </div>
               </div>
 
-              <!-- Title & Description (Proporsional 2 Kolom) -->
-              <h3 class="text-base sm:text-lg font-black text-white group-hover:text-emerald-400 transition-colors tracking-tight leading-snug mb-1.5 line-clamp-2">
+              <!-- Title & Description (Bigger Bold Title Font - Revisi 89) -->
+              <h3 class="text-lg sm:text-xl lg:text-2xl font-black text-white group-hover:text-emerald-400 transition-colors tracking-tight leading-snug mb-2 line-clamp-2">
                 ${escapeHtml(pinnedMod.title)}
               </h3>
               <p class="text-xs text-slate-400 line-clamp-2 leading-relaxed mb-3">
@@ -560,6 +563,9 @@ function renderModuleCatalogGrid() {
           <div class="flex items-center gap-2 flex-wrap">
             <span class="px-2.5 py-0.5 rounded text-[10px] font-extrabold tracking-wider font-mono uppercase ${isModFullyCompleted ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/50 shadow-sm' : 'bg-slate-950 text-cyan-400 border border-cyan-500/40'}">
               ${escapeHtml(mod.badge || 'MODUL')}
+            </span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 uppercase tracking-wider">
+              ${escapeHtml(mod.category || 'Kurikulum')}
             </span>
             <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold ${modCompleted > 0 ? 'bg-emerald-950/90 text-emerald-400 border border-emerald-500/30' : 'bg-slate-950/80 text-slate-400 border border-[var(--border)]'}">
               ${modCompleted}/${moduleLessons.length} Selesai (${completionPercent}%)
@@ -1078,6 +1084,9 @@ function renderLearnModulesCatalog() {
             ` : ''}
             <span class="px-2.5 py-0.5 rounded text-[10px] font-extrabold tracking-wider font-mono uppercase ${isModFullyCompleted ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/50 shadow-sm' : 'bg-slate-950 text-cyan-400 border border-cyan-500/40'}">
               ${escapeHtml(mod.badge || 'MODUL')}
+            </span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 uppercase tracking-wider">
+              ${escapeHtml(mod.category || 'Kurikulum')}
             </span>
             <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold ${modCompleted > 0 ? 'bg-emerald-950/90 text-emerald-400 border border-emerald-500/30' : 'bg-slate-950/80 text-slate-400 border border-slate-800'}">
               ${modCompleted}/${moduleLessons.length} Selesai (${completionPercent}%)

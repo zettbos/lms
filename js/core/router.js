@@ -203,6 +203,9 @@ function navigate(viewName, params = {}) {
       }
     } else if (viewName === 'resources') {
       if (window.renderResources) window.renderResources();
+      if (typeof window.pullZettLinkFromCloudLive === 'function') {
+        window.pullZettLinkFromCloudLive(true);
+      }
     } else if (viewName === 'favorites') {
       if (window.renderFavorites) window.renderFavorites();
     } else if (viewName === 'admin') {

@@ -129,3 +129,70 @@ Berdasarkan 4 gambar dan 2 pertanyaan strategis yang diajukan:
 ================================================================================
 STATUS: EKSEKUSI SELESAI & TERVERIFIKASI (SIAP COMMIT & PUSH KE GITHUB)
 ================================================================================
+
+
+# ZETTBOS MEMBER HUB - RENCANA PERBAIKAN & BLUEPRINT REVISI 89
+================================================================================
+STATUS         : COMPLETED & VERIFIED (REVISI 89 SIAP DEPLOY)
+ARSITEK SISTEM : ZettBOT by Zettbos (Universal Product Architect & Lead Engineering Mentor)
+FOKUS UTAMA    : PINNED MODULE BOLD TITLE, MODULE CATEGORY BADGE TAGS, ZETTLINK INTERMEDIATE PREVIEW MODAL (SOP FIRST), & DUAL-WAY CLOUD SYNC FOR ZETTLINK (ADMIN PUSH + REALTIME PULL)
+TANGGAL        : 2026-10-18
+TARGET RILIS   : LMS Production Enterprise Grade v1.8.1 (v89)
+================================================================================
+
+## 1. ANALISIS KEBUTUHAN PENGGUNA (REVISI 89)
+
+Berdasarkan permintaan revisi pengguna (Gambar 1, 2, 3, 4 & 5):
+
+1. **Gambar 1 (Modul Pinned - Judul Lebih Besar & Menonjol)**:
+   - **Kebutuhan:** Pada hero card modul yang disematkan (*pinned module*) di Beranda, ukuran font judul modul perlu diperbesar agar tampil gagah, berwibawa, dan langsung menarik perhatian siswa sebagai modul rekomendasi utama.
+   - **Implementasi:** Mengubah kelas typography judul modul di `renderPinnedModuleHero()` dari `text-base sm:text-lg` menjadi `text-lg sm:text-xl lg:text-2xl font-black text-white group-hover:text-emerald-400 tracking-tight leading-snug`.
+
+2. **Gambar 2 (Tag Badge Kategori pada Setiap Modul)**:
+   - **Kebutuhan:** Setiap kartu modul di katalog Beranda (`renderModuleCatalogGrid`) maupun di Ruang Belajar (`renderLearnModulesCatalog`) harus memiliki tag jenis modul sesuai filter kategori (contoh: `[ANTIGRAVITY IDE]`, `[GEMINI WEB]`, `[CURSOR]`, `[VIBE CODING]`, dsb).
+   - **Implementasi:** Menyematkan badge kategori berdesain cyber-pill monoline di header kartu modul:
+     `<span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 uppercase tracking-wider">${escapeHtml(mod.category || 'Kurikulum')}</span>`.
+
+3. **Gambar 3 (ZettLink: Pratinjau Deskripsi & SOP Lengkap Sebelum Buka Link)**:
+   - **Kebutuhan:** Dokumen atau tools di ZettLink seringkali memiliki SOP rahasia dan aturan ketat (contoh: *"DILARANG KERAS MENYEBARKAN TOOLS INI KELUAR GRUP"*). Siswa tidak boleh langsung dialihkan ke Google Drive / Spreadsheet saat mengklik kartu. Harus muncul modal pratinjau yang menampilkan deskripsi lengkap tanpa terpotong (`...`), dan di dalam modal tersebut barulah disediakan tombol *"Buka Dokumen Sekarang ↗"* serta *"Salin Link"*.
+   - **Implementasi:**
+     - Menambahkan markup `modal-resource-detail-preview` di `index.html` dengan tata letak modal responsif, header folder, badge verifikasi, teks deskripsi berformat `whitespace-pre-line` (menjaga format baris baru / SOP), serta tombol aksi.
+     - Mengubah interaksi kartu ZettLink di `js/controllers/resources.js` (`renderSingleResourceCardHtml`): Baik klik kartu maupun klik tombol *"Buka Dokumen"* kini membuka `openResourceDetailModal('${item.id}')`.
+     - Menyediakan fungsi `openResourceDetailModal(resId)` dan `closeResourceDetailModal()`.
+
+4. **Gambar 4 & 5 (Tombol Cloud Sync untuk ZettLink & Realtime Auto-Update)**:
+   - **Kebutuhan:** Di Admin Panel tab CMS ZettLink (`tab-pane-resources_cms`), sebelumnya belum tersedia tombol Sinkronisasi Cloud seperti pada tab Kurikulum, sehingga ketika Admin memperbarui atau menambahkan dokumen/kategori, perubahan belum terunggah serempak ke Supabase Cloud dan member belum otomatis terupdate.
+   - **Implementasi:**
+     - Menambahkan tombol aksi `[🔄 Sync ZettLink ke Cloud]` dan `[☁️ Tarik Data Cloud]` di header `tab-pane-resources_cms` di `index.html`.
+     - Mengimplementasikan `ZettSupabase.syncZettLinkToCloudLive(showNotification)` di `js/core/supabase.js`: Melakukan batch upsert seluruh data dokumen ke tabel `shared_resources` dan menyimpan folder kategori dinamis ke `landing_cms`.
+     - Mengimplementasikan `ZettSupabase.pullZettLinkFromCloudLive(silent)` di `js/core/supabase.js`: Menarik data link dokumen dan kategori terbaru dari Supabase Cloud dan langsung merefleksikannya ke tampilan antarmuka.
+     - Mengintegrasikan auto-pull di router (`js/core/router.js`): Saat member berpindah ke halaman ZettLink (`navigate('resources')`), sistem otomatis memicu pembaruan latar belakang secara hening (`pullZettLinkFromCloudLive(true)`) sehingga data yang dilihat member selalu realtime dan terupdate.
+
+---
+
+## 2. MODIFIKASI BERKAS
+
+| Berkas | Komponen / Fungsi | Deskripsi Perubahan |
+|---|---|---|
+| [js/controllers/classroom.js](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/js/controllers/classroom.js) | `renderPinnedModuleHero`, `renderModuleCatalogGrid`, `renderLearnModulesCatalog` | Perbesar font judul pinned module (`2xl font-black`), tambahkan category tag badge pill pada seluruh kartu modul. |
+| [index.html](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/index.html) | `tab-pane-resources_cms`, `modal-resource-detail-preview`, script tags | Tambahkan tombol Sync Cloud di ZettLink CMS, tambahkan modal pratinjau detail SOP ZettLink, naikkan versi script ke `?v=89`. |
+| [js/controllers/resources.js](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/js/controllers/resources.js) | `renderSingleResourceCardHtml`, `openResourceDetailModal`, `closeResourceDetailModal` | Arahkan klik kartu dan tombol buka ke modal deskripsi ZettLink; render teks deskripsi lengkap `whitespace-pre-line`. |
+| [js/core/supabase.js](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/js/core/supabase.js) | `syncZettLinkToCloudLive`, `pullZettLinkFromCloudLive` | Tambahkan batch upsert ke tabel `shared_resources` dan sinkronisasi kategori dinamis cloud. |
+| [js/core/router.js](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/js/core/router.js) | `navigate('resources')` | Pemicu auto-pull latar belakang ZettLink dari Supabase Cloud saat siswa masuk ke halaman ZettLink. |
+| [revisi.md](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/revisi.md) | Dokumentasi Blueprint & Eksekusi | Ringkasan teknis dan checklist validasi Revisi 89. |
+
+---
+
+## 3. CHECKLIST PENGUJIAN AKHIR REVISI 89
+
+- [x] **Judul Modul Pinned (Gambar 1):** Tampil gagah dan menonjol dengan font ekstra tebal dan lebih besar (`text-lg sm:text-xl lg:text-2xl font-black`).
+- [x] **Tag Kategori Modul (Gambar 2):** Seluruh kartu modul (Pinned, Katalog Beranda, dan Ruang Belajar) menampilkan tag kategori yang sesuai (misal: `[ANTIGRAVITY IDE]`, `[GEMINI WEB]`, dsb).
+- [x] **Modal Pratinjau ZettLink (Gambar 3):** Mengklik kartu atau tombol *"Buka Dokumen"* menampilkan modal deskripsi dan SOP lengkap terlebih dahulu tanpa terpotong, baru kemudian tombol *"Buka Dokumen Sekarang ↗"*.
+- [x] **Tombol Sync Cloud ZettLink (Gambar 4 & 5):** Admin memiliki tombol `[🔄 Sync ZettLink ke Cloud]` dan `[☁️ Tarik Data Cloud]` di panel CMS ZettLink.
+- [x] **Realtime Auto-Update:** Siswa yang membuka ZettLink otomatis mendapatkan versi data dokumen dan folder paling baru dari Supabase Cloud.
+- [x] **Versi Cache Buster:** `index.html` dan seluruh berkas skrip dinaikkan ke **`?v=89`**.
+
+================================================================================
+STATUS: EKSEKUSI SELESAI & TERVERIFIKASI (SIAP COMMIT & PUSH KE GITHUB)
+================================================================================
+

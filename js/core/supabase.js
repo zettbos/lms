@@ -877,6 +877,104 @@ const ZettSupabase = {
       console.warn('[ZettSupabase syncNormalizedCurriculumToCloud Error]', e);
       return false;
     }
+  },
+
+  // ==========================================
+  // ZETTLINK CLOUD SYNC & AUTO-PULL (Gambar 4 & 5 - Revisi 89)
+  // ==========================================
+
+  async syncZettLinkToCloudLive(showNotification = true) {
+    if (!this.isConnected()) {
+      if (showNotification) showToast('Supabase belum terhubung. Periksa konfigurasi URL & Key.', 'warning');
+      return false;
+    }
+
+    try {
+      if (showNotification) showToast('Sedang mengunggah data ZettLink & folder ke Cloud...', 'info');
+
+      // 1. Batch upsert seluruh AppState.resources ke tabel shared_resources
+      const resources = AppState.resources || [];
+      if (resources.length > 0) {
+        const payloadRes = resources.map((r, idx) => ({
+          id: r.id,
+          title: r.title,
+          description: r.description || '',
+          url: r.url,
+          category: r.category || 'other',
+          badge: r.badge || 'Official Link',
+          order_index: r.orderIndex || (idx + 1)
+        }));
+        const { error: resErr } = await this.client.from('shared_resources').upsert(payloadRes, { onConflict: 'id' });
+        if (resErr) throw resErr;
+      }
+
+      // 2. Simpan struktur Folder & Kategori ke landing_cms via pushLandingCmsToSupabase
+      if (typeof this.pushLandingCmsToSupabase === 'function') {
+        await this.pushLandingCmsToSupabase(true);
+      }
+
+      if (showNotification) {
+        showToast(`Sukses! ${resources.length} link ZettLink & struktur folder LIVE di Cloud!`, 'success');
+      }
+      return true;
+    } catch (e) {
+      console.error('[ZettSupabase Sync ZettLink Error]', e);
+      if (showNotification) {
+        showToast('Gagal upload ZettLink ke Cloud: ' + (e.message || 'Error Supabase'), 'error');
+      }
+      return false;
+    }
+  },
+
+  async pullZettLinkFromCloudLive(silent = false) {
+    if (!this.isConnected()) {
+      if (!silent) showToast('Supabase belum terhubung.', 'warning');
+      return false;
+    }
+
+    try {
+      if (!silent) showToast('Mengunduh data ZettLink & folder terbaru dari Cloud...', 'info');
+
+      // 1. Pull shared_resources
+      const { data: res, error: resErr } = await this.client.from('shared_resources').select('*');
+      if (!resErr && Array.isArray(res)) {
+        AppState.resources = res.map(r => ({
+          id: r.id,
+          title: r.title,
+          description: r.description || '',
+          url: r.url,
+          category: r.category || 'other',
+          badge: r.badge || 'Official Link',
+          date: r.created_at ? new Date(r.created_at).toLocaleDateString('id-ID') : '-'
+        }));
+      }
+
+      // 2. Pull categories from landing_cms
+      const { data: cms, error: cmsErr } = await this.client.from('landing_cms').select('*').eq('id', 'active_cms').single();
+      if (!cmsErr && cms && cms.hero && Array.isArray(cms.hero._resourceCategories) && cms.hero._resourceCategories.length > 0) {
+        AppState.resourceCategories = cms.hero._resourceCategories;
+        localStorage.setItem('zett_resource_categories', JSON.stringify(AppState.resourceCategories));
+      }
+
+      saveState();
+
+      // Refresh Views
+      if (typeof renderAdminResourcesCms === 'function') renderAdminResourcesCms();
+      if (typeof renderAdminCategoryList === 'function') renderAdminCategoryList();
+      if (typeof populateCategoryDropdowns === 'function') populateCategoryDropdowns();
+      if (typeof renderResources === 'function') renderResources();
+
+      if (!silent) {
+        showToast(`Berhasil! ${AppState.resources.length} dokumen ZettLink sinkron dengan Cloud!`, 'success');
+      }
+      return true;
+    } catch (e) {
+      console.error('[ZettSupabase Pull ZettLink Error]', e);
+      if (!silent) {
+        showToast('Gagal menarik data ZettLink dari Cloud: ' + (e.message || 'Error'), 'error');
+      }
+      return false;
+    }
   }
 };
 
@@ -922,6 +1020,8 @@ window.ZettSupabase = ZettSupabase;
 window.openSupabaseSettingsModal = openSupabaseSettingsModal;
 window.closeSupabaseSettingsModal = closeSupabaseSettingsModal;
 window.handleSaveSupabaseConfig = handleSaveSupabaseConfig;
+window.syncZettLinkToCloudLive = (showNotification) => ZettSupabase.syncZettLinkToCloudLive(showNotification);
+window.pullZettLinkFromCloudLive = (silent) => ZettSupabase.pullZettLinkFromCloudLive(silent);
 
 // Initialize on script load
 try {
