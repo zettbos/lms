@@ -247,6 +247,11 @@ const ZettSupabase = {
                   ]))
         };
 
+        if (cms.hero && Array.isArray(cms.hero._resourceCategories) && cms.hero._resourceCategories.length > 0) {
+          AppState.resourceCategories = cms.hero._resourceCategories;
+          localStorage.setItem('zett_resource_categories', JSON.stringify(AppState.resourceCategories));
+        }
+
         // Extract Brand Logo from Cloud (hero.brandLogoUrl or top-level)
         const cloudLogo = (cms.brand_logo_url || cms.hero?.brandLogoUrl || '').trim();
         if (cloudLogo) {
@@ -421,7 +426,8 @@ const ZettSupabase = {
       const heroWithBrand = {
         ...(AppState.landingCms.hero || {}),
         brandLogoUrl: AppState.brandLogoUrl || '',
-        _adminContacts: contactsToSave
+        _adminContacts: contactsToSave,
+        _resourceCategories: AppState.resourceCategories || []
       };
       const payload = {
         id: 'active_cms',
@@ -618,6 +624,11 @@ const ZettSupabase = {
                       { id: 'admin2', name: 'Admin Asep', phone: '0821-9527-7812', role: 'Pendaftaran & Konsultasi Member', status: 'Online' }
                     ]))
           };
+
+          if (cms.hero && Array.isArray(cms.hero._resourceCategories) && cms.hero._resourceCategories.length > 0) {
+            AppState.resourceCategories = cms.hero._resourceCategories;
+            localStorage.setItem('zett_resource_categories', JSON.stringify(AppState.resourceCategories));
+          }
 
           // Auto-Sync Brand Logo from Cloud to all client devices
           const cloudLogo = (cms.brand_logo_url || cms.hero?.brandLogoUrl || '').trim();

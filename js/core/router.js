@@ -235,7 +235,7 @@ function updateNavbarState(currentView) {
       'home': 'Kurikulum',
       'user-dashboard': 'Data Belajar',
       'learn': 'Modul Pembelajaran',
-      'resources': 'Dokumen & Resource',
+      'resources': 'ZettLink',
       'favorites': 'Koleksi Favorit',
       'admin': 'Admin Panel'
     };

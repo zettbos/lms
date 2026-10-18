@@ -12,6 +12,7 @@ const AppState = {
   progress: {}, // { 'email@domain.com': ['les-1', 'les-2'] }
   favorites: {}, // { 'email@domain.com': [...] }
   resources: [], // Shared links & document repository
+  resourceCategories: [], // Dynamic CMS Categories/Folders for ZettLink (Revisi 87)
   landingCms: null, // Dynamic Universal CMS for Landing Portal
   activeResourceCategory: 'all',
   resourceSearchQuery: '',
@@ -39,6 +40,7 @@ function initStorage() {
   let storedProgress = null;
   let storedFavorites = null;
   let storedResources = null;
+  let storedResourceCategories = null;
   let storedLandingCms = null;
   let storedActivity = null;
   let storedQuickActions = null;
@@ -50,6 +52,7 @@ function initStorage() {
   try { storedProgress = JSON.parse(localStorage.getItem('zett_progress')); } catch (e) {}
   try { storedFavorites = JSON.parse(localStorage.getItem('zett_favorites')); } catch (e) {}
   try { storedResources = JSON.parse(localStorage.getItem('zett_resources')); } catch (e) {}
+  try { storedResourceCategories = JSON.parse(localStorage.getItem('zett_resource_categories')); } catch (e) {}
   try { storedLandingCms = JSON.parse(localStorage.getItem('zett_landing_cms')); } catch (e) {}
   try { storedActivity = JSON.parse(localStorage.getItem('zett_activity')); } catch (e) {}
   try { storedQuickActions = JSON.parse(localStorage.getItem('zett_quick_actions')); } catch (e) {}
@@ -127,6 +130,24 @@ function initStorage() {
   AppState.progress = (storedProgress && typeof storedProgress === 'object') ? storedProgress : { ...seedProgress };
   AppState.favorites = (storedFavorites && typeof storedFavorites === 'object') ? storedFavorites : { ...seedFavorites };
   AppState.resources = Array.isArray(storedResources) ? storedResources : [...seedResources];
+
+  const DEFAULT_RESOURCE_CATEGORIES = [
+    { id: 'cat-modul', name: 'Modul', icon: 'video', badge: 'Modul Belajar', orderIndex: 1 },
+    { id: 'cat-bot', name: 'ZettBOT', icon: 'bot', badge: 'AI Tools', orderIndex: 2 },
+    { id: 'cat-prompt', name: 'ZettPrompt', icon: 'prompt', badge: 'Formula Prompt', orderIndex: 3 },
+    { id: 'cat-lib', name: 'Zettbos Library', icon: 'library', badge: 'Library Resmi', orderIndex: 4 },
+    { id: 'cat-sheet', name: 'Google Sheets', icon: 'sheet', badge: 'Template GAS', orderIndex: 5 },
+    { id: 'cat-code', name: 'Starter Code', icon: 'code', badge: 'Repository GitHub', orderIndex: 6 }
+  ];
+  window.DEFAULT_RESOURCE_CATEGORIES = DEFAULT_RESOURCE_CATEGORIES;
+
+  if (Array.isArray(storedResourceCategories) && storedResourceCategories.length > 0) {
+    AppState.resourceCategories = storedResourceCategories;
+  } else if (storedLandingCms && Array.isArray(storedLandingCms.resourceCategories) && storedLandingCms.resourceCategories.length > 0) {
+    AppState.resourceCategories = storedLandingCms.resourceCategories;
+  } else {
+    AppState.resourceCategories = JSON.parse(JSON.stringify(DEFAULT_RESOURCE_CATEGORIES));
+  }
 
   const CMS_COPY_VERSION = 'v52_separate_facilities_and_usecases';
   const storedCmsVer = localStorage.getItem('zett_landing_cms_ver');
@@ -399,6 +420,10 @@ function saveState() {
   localStorage.setItem('zett_progress', JSON.stringify(AppState.progress));
   localStorage.setItem('zett_favorites', JSON.stringify(AppState.favorites));
   localStorage.setItem('zett_resources', JSON.stringify(AppState.resources));
+  localStorage.setItem('zett_resource_categories', JSON.stringify(AppState.resourceCategories));
+  if (AppState.landingCms) {
+    AppState.landingCms.resourceCategories = AppState.resourceCategories;
+  }
   localStorage.setItem('zett_landing_cms', JSON.stringify(AppState.landingCms));
   localStorage.setItem('zett_activity', JSON.stringify(AppState.activity));
   localStorage.setItem('zett_quick_actions', JSON.stringify(AppState.quickActions));

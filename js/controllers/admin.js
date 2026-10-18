@@ -658,10 +658,172 @@ function resetLandingTestimonialsToDefault() {
 // 3. CMS SHARED RESOURCES
 // ==========================================
 
+function renderAdminCategoryList() {
+  const container = document.getElementById('admin-category-pills-container');
+  if (!container) return;
+
+  const categories = AppState.resourceCategories || [];
+  const resources = AppState.resources || [];
+
+  if (categories.length === 0) {
+    container.innerHTML = '<span class="text-xs text-slate-500 font-mono">Belum ada folder/kategori. Klik "+ Tambah Folder / Kategori".</span>';
+    return;
+  }
+
+  container.innerHTML = categories.map(cat => {
+    const linkCount = resources.filter(r => 
+      r.category === cat.id || 
+      (r.category || '').toLowerCase() === cat.name.toLowerCase()
+    ).length;
+
+    return `
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-200">
+        <span class="flex items-center gap-1.5 font-semibold text-white">
+          <span>${typeof getCategoryIconSvg === 'function' ? getCategoryIconSvg(cat.icon, 'w-3.5 h-3.5 text-emerald-400') : '📁'}</span>
+          <span>${escapeHtml(cat.name)}</span>
+        </span>
+        <span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-slate-800 text-emerald-400 font-bold border border-emerald-500/20">
+          ${linkCount} Link
+        </span>
+        <div class="flex items-center gap-1 ml-1 pl-1 border-l border-slate-700">
+          <button onclick="openEditCategoryModal('${escapeHtml(cat.id)}')" title="Edit Kategori" class="p-1 text-slate-400 hover:text-white rounded hover:bg-slate-800">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+          </button>
+          <button onclick="deleteCategory('${escapeHtml(cat.id)}')" title="Hapus Kategori" class="p-1 text-slate-400 hover:text-rose-400 rounded hover:bg-slate-800">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function openAddCategoryModal() {
+  const idInput = document.getElementById('manage-category-id');
+  const nameInput = document.getElementById('manage-category-name');
+  const iconInput = document.getElementById('manage-category-icon');
+  const badgeInput = document.getElementById('manage-category-badge');
+  const titleEl = document.getElementById('manage-category-modal-title');
+
+  if (idInput) idInput.value = '';
+  if (nameInput) nameInput.value = '';
+  if (iconInput) iconInput.value = 'folder';
+  if (badgeInput) badgeInput.value = '';
+  if (titleEl) titleEl.textContent = 'Tambah Folder / Kategori ZettLink';
+
+  const modal = document.getElementById('modal-manage-category');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function openEditCategoryModal(catId) {
+  const cat = (AppState.resourceCategories || []).find(c => c.id === catId);
+  if (!cat) return;
+
+  const idInput = document.getElementById('manage-category-id');
+  const nameInput = document.getElementById('manage-category-name');
+  const iconInput = document.getElementById('manage-category-icon');
+  const badgeInput = document.getElementById('manage-category-badge');
+  const titleEl = document.getElementById('manage-category-modal-title');
+
+  if (idInput) idInput.value = cat.id;
+  if (nameInput) nameInput.value = cat.name;
+  if (iconInput) iconInput.value = cat.icon || 'folder';
+  if (badgeInput) badgeInput.value = cat.badge || '';
+  if (titleEl) titleEl.textContent = 'Edit Folder / Kategori ZettLink';
+
+  const modal = document.getElementById('modal-manage-category');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function closeCategoryModal() {
+  const modal = document.getElementById('modal-manage-category');
+  if (modal) modal.classList.add('hidden');
+}
+
+async function handleSaveCategorySubmit(e) {
+  if (e) e.preventDefault();
+  const id = document.getElementById('manage-category-id')?.value;
+  const name = document.getElementById('manage-category-name')?.value.trim();
+  const icon = document.getElementById('manage-category-icon')?.value || 'folder';
+  const badge = document.getElementById('manage-category-badge')?.value.trim();
+
+  if (!name) {
+    showToast('Harap isi nama folder / kategori', 'error');
+    return;
+  }
+
+  AppState.resourceCategories = AppState.resourceCategories || [];
+
+  if (id) {
+    const existing = AppState.resourceCategories.find(c => c.id === id);
+    if (existing) {
+      existing.name = name;
+      existing.icon = icon;
+      existing.badge = badge;
+    }
+  } else {
+    const newId = 'cat-' + Date.now();
+    AppState.resourceCategories.push({
+      id: newId,
+      name,
+      icon,
+      badge: badge || name,
+      orderIndex: AppState.resourceCategories.length + 1
+    });
+  }
+
+  saveState();
+
+  if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+    try {
+      await ZettSupabase.pushLandingCmsToSupabase(true);
+    } catch (err) {
+      console.warn('[Category Sync Error]', err);
+    }
+  }
+
+  closeCategoryModal();
+  renderAdminCategoryList();
+  if (typeof populateCategoryDropdowns === 'function') populateCategoryDropdowns();
+  if (typeof renderAdminResourcesCms === 'function') renderAdminResourcesCms();
+  if (typeof renderResources === 'function') renderResources();
+  showToast('Kategori ZettLink berhasil disimpan!', 'success');
+}
+
+function deleteCategory(catId) {
+  showCustomConfirm({
+    title: 'Hapus Kategori ZettLink?',
+    message: 'Apakah Anda yakin ingin menghapus kategori ini? Link di dalamnya tidak akan terhapus, namun kategori ini akan dihilangkan dari menu.',
+    confirmText: 'Ya, Hapus Kategori',
+    cancelText: 'Batal',
+    isDanger: true,
+    onConfirm: async () => {
+      AppState.resourceCategories = (AppState.resourceCategories || []).filter(c => c.id !== catId);
+      saveState();
+
+      if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+        try {
+          await ZettSupabase.pushLandingCmsToSupabase(true);
+        } catch (err) {
+          console.warn('[Category Delete Sync Error]', err);
+        }
+      }
+
+      renderAdminCategoryList();
+      if (typeof populateCategoryDropdowns === 'function') populateCategoryDropdowns();
+      if (typeof renderAdminResourcesCms === 'function') renderAdminResourcesCms();
+      if (typeof renderResources === 'function') renderResources();
+      showToast('Kategori ZettLink telah dihapus', 'info');
+    }
+  });
+}
+
 function renderAdminResourcesCms() {
   const tbody = document.getElementById('admin-resources-table-body');
   const countEl = document.getElementById('admin-resource-count');
   if (!tbody) return;
+
+  renderAdminCategoryList();
 
   if (!AppState.resources || !Array.isArray(AppState.resources) || AppState.resources.length === 0) {
     const zData = window.ZettData || {};
@@ -670,6 +832,7 @@ function renderAdminResourcesCms() {
   }
 
   const all = AppState.resources || [];
+  const categories = AppState.resourceCategories || [];
   const searchVal = (document.getElementById('admin-resource-search-input')?.value || '').toLowerCase();
 
   const filtered = all.filter(r => 
@@ -686,20 +849,14 @@ function renderAdminResourcesCms() {
     const row = document.createElement('tr');
     row.className = 'border-b border-slate-800/80 hover:bg-slate-900/50 transition-colors text-xs';
 
-    const catClassMap = {
-      'sheet': 'bg-emerald-950 text-emerald-300 border-emerald-800',
-      'code': 'bg-cyan-950 text-cyan-300 border-cyan-800',
-      'prompt': 'bg-purple-950 text-purple-300 border-purple-800',
-      'drive': 'bg-amber-950 text-amber-300 border-amber-800',
-      'sop': 'bg-blue-950 text-blue-300 border-blue-800'
-    };
-    const badgeClass = catClassMap[res.category] || 'bg-slate-800 text-slate-300 border-slate-700';
+    const catObj = categories.find(c => c.id === res.category || c.name.toLowerCase() === (res.category || '').toLowerCase());
+    const catDisplayName = catObj ? catObj.name : (res.badge || (res.category ? res.category.toUpperCase() : 'UMUM'));
 
     row.innerHTML = `
       <td class="py-3 px-4 text-center font-mono text-slate-500">${idx + 1}</td>
       <td class="py-3 px-4">
-        <span class="px-2 py-0.5 rounded text-[10px] font-bold border ${badgeClass}">
-          ${escapeHtml(res.badge || res.category.toUpperCase())}
+        <span class="px-2 py-0.5 rounded text-[10px] font-bold border bg-emerald-950 text-emerald-300 border-emerald-800/80">
+          ${escapeHtml(catDisplayName)}
         </span>
       </td>
       <td class="py-3 px-4 max-w-[280px]">
@@ -728,13 +885,14 @@ function renderAdminResourcesCms() {
 }
 
 function openEditResourceModal(id) {
+  if (typeof populateCategoryDropdowns === 'function') populateCategoryDropdowns();
   const res = (AppState.resources || []).find(r => r.id === id);
   if (!res) return;
 
   document.getElementById('edit-res-id').value = res.id;
   document.getElementById('edit-res-title').value = res.title;
   document.getElementById('edit-res-url').value = res.url;
-  document.getElementById('edit-res-category').value = res.category || 'sheet';
+  document.getElementById('edit-res-category').value = res.category || 'cat-modul';
   document.getElementById('edit-res-badge').value = res.badge || '';
   document.getElementById('edit-res-desc').value = res.description || '';
 
@@ -3016,4 +3174,11 @@ function handleResetBrandLogo() {
 window.handleBrandLogoInputPreview = handleBrandLogoInputPreview;
 window.handleSaveBrandLogo = handleSaveBrandLogo;
 window.handleResetBrandLogo = handleResetBrandLogo;
+window.renderAdminCategoryList = renderAdminCategoryList;
+window.openAddCategoryModal = openAddCategoryModal;
+window.openEditCategoryModal = openEditCategoryModal;
+window.closeCategoryModal = closeCategoryModal;
+window.handleSaveCategorySubmit = handleSaveCategorySubmit;
+window.deleteCategory = deleteCategory;
+
 

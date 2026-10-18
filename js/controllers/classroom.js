@@ -284,101 +284,81 @@ function renderPinnedModuleHero() {
     return `
           <div 
             onclick="${targetLessonId ? `navigate('learn', { lessonId: '${targetLessonId}' })` : `showToast('Modul ini belum memiliki materi', 'info')`}"
-            class="pinned-hero-card relative overflow-hidden rounded-3xl p-5 sm:p-7 bg-gradient-to-br from-slate-900/95 via-slate-950/90 to-slate-900/95 border border-emerald-500/40 shadow-2xl shadow-emerald-950/30 group cursor-pointer hover:border-emerald-500/70 hover:shadow-emerald-500/10 transition-all duration-300"
+            class="pinned-hero-card relative overflow-hidden rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-slate-900/95 via-slate-950 to-slate-900/95 border border-emerald-500/40 shadow-2xl shadow-emerald-950/30 group cursor-pointer hover:border-emerald-500/70 hover:shadow-emerald-500/10 transition-all duration-300"
           >
             <!-- Background Ambient Glow -->
-            <div class="absolute -top-20 -right-20 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-emerald-500/15 transition-all"></div>
-            <div class="absolute -bottom-20 -left-20 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -top-24 -right-24 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-emerald-500/15 transition-all"></div>
+            <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
             <!-- Top Header Badge -->
-            <div class="flex flex-wrap items-center justify-between gap-3 mb-5 relative z-10 border-b border-slate-800/80 pb-3.5">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-4 relative z-10 border-b border-slate-800/80 pb-3">
               <div class="flex items-center gap-2">
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/40 shadow-sm">
-                  <svg class="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
-                  <span>Modul Pilihan</span>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-amber-500/15 text-amber-300 border border-amber-500/40 shadow-sm">
+                  <svg class="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                  <span>MODUL REKOMENDASI UTAMA</span>
                 </span>
-                <span class="badge-module-pill text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-900/90 text-cyan-400 border border-cyan-500/30">
-                  ${escapeHtml(pinnedMod.badge || 'MODUL UTAMA')}
+                <span class="badge-module-pill text-xs font-mono font-bold px-2.5 py-0.5 rounded bg-slate-900/90 text-cyan-400 border border-cyan-500/30">
+                  ${escapeHtml(pinnedMod.badge || 'MODUL PILIHAN')}
                 </span>
               </div>
 
-              <div class="flex items-center gap-2 text-xs font-mono text-slate-400">
-                <span class="badge-progress-pill px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-emerald-400 font-bold">
+              <div class="flex items-center gap-2 text-xs font-mono">
+                <span class="badge-progress-pill px-2.5 py-1 rounded bg-slate-900 border border-slate-800 text-emerald-400 font-bold">
                   ${completedCount}/${moduleLessons.length} Materi Selesai (${percent}%)
                 </span>
               </div>
             </div>
 
-            <!-- Center Content: Grid with Large Cover Image & Detailed Information -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center relative z-10">
-              <!-- Big Cover Image Showcase -->
-              <div class="lg:col-span-5 relative">
-                <div class="relative w-full aspect-video rounded-2xl overflow-hidden border border-slate-700/80 bg-slate-950 group-hover:border-emerald-500/50 transition-all shadow-xl">
-                  <img 
-                    src="${coverImg}" 
-                    alt="${escapeHtml(pinnedMod.title)}" 
-                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-90 group-hover:opacity-100"
-                  />
-                  <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
-                  
-                  <!-- Category Chip on Image -->
-                  <div class="absolute top-3 left-3">
-                    <span class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-950/80 backdrop-blur-md text-emerald-300 border border-emerald-500/40 shadow">
-                      ${escapeHtml(pinnedMod.category || 'Fundamental AI')}
-                    </span>
-                  </div>
+            <!-- Center Content: Full Width Bold Typography & Metrics (Revisi 87) -->
+            <div class="relative z-10 space-y-4">
+              <div>
+                <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black text-white group-hover:text-emerald-400 transition-colors tracking-tight leading-tight mb-2.5">
+                  ${escapeHtml(pinnedMod.title)}
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-300 max-w-4xl leading-relaxed">
+                  ${escapeHtml(pinnedMod.description || 'Pelajari materi fundamental web app AI terstruktur dengan praktek langsung dari mentor Zettbos.')}
+                </p>
+              </div>
 
-                  <!-- Big Floating Play Badge -->
-                  <div class="absolute inset-0 flex items-center justify-center">
-                    <div class="w-14 h-14 rounded-full bg-emerald-500/90 text-slate-950 flex items-center justify-center shadow-2xl group-hover:scale-110 group-hover:bg-emerald-400 transition-all duration-300">
-                      <svg class="w-7 h-7 ml-1 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                    </div>
-                  </div>
-
-                  <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between text-[11px] font-mono text-slate-300">
-                    <span class="bg-slate-950/80 px-2 py-0.5 rounded border border-slate-800">${moduleLessons.length} Video Materi</span>
-                    <span class="bg-slate-950/80 px-2 py-0.5 rounded border border-slate-800">${totalMinutes} Menit Total</span>
-                  </div>
+              <!-- Quick Metrics Row -->
+              <div class="flex flex-wrap items-center gap-2.5 pt-1">
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/80 border border-slate-800 text-xs font-mono text-slate-300">
+                  <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                  <span>${moduleLessons.length} Video Materi</span>
+                </div>
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/80 border border-slate-800 text-xs font-mono text-slate-300">
+                  <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                  <span>${totalMinutes} Menit Total</span>
+                </div>
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/80 border border-slate-800 text-xs font-mono text-slate-300">
+                  <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                  <span>Kurikulum Resmi Zettbos</span>
                 </div>
               </div>
 
-              <!-- Right Side: Title, Description, Lessons Highlight & Call to Action -->
-              <div class="lg:col-span-7 flex flex-col justify-between space-y-4">
-                <div>
-                  <div class="text-xs font-semibold text-emerald-400 uppercase tracking-caps mb-1.5 flex items-center gap-1.5">
-                    <span>★ Rekomendasi Utama Zettbos Academy</span>
-                  </div>
-                  <h2 class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white group-hover:text-emerald-400 transition-colors leading-tight mb-2.5">
-                    ${escapeHtml(pinnedMod.title)}
-                  </h2>
-                  <p class="text-xs sm:text-sm text-slate-300 line-clamp-3 leading-relaxed mb-4">
-                    ${escapeHtml(pinnedMod.description || 'Modul kurikulum unggulan yang disematkan langsung oleh mentor Zettbos. Tonton materi video dan pelajari studi kasusnya langkah demi langkah.')}
-                  </p>
-
-                  <!-- Micro Quick Lessons Preview -->
-                  ${moduleLessons.length > 0 ? `
-                    <div class="surface-well p-2 rounded-xl mb-4 max-h-28 overflow-y-auto custom-scrollbar space-y-1">
-                      ${moduleLessons.slice(0, 3).map((l, i) => `
-                        <div class="flex items-center justify-between text-xs py-1 px-2 rounded hover:bg-slate-800/60 text-slate-300">
-                          <span class="truncate">${i + 1}. ${escapeHtml(l.title)}</span>
-                          <span class="text-[10px] text-slate-500 font-mono flex-shrink-0">${l.durationMinutes || 15}m</span>
-                        </div>
-                      `).join('')}
-                      ${moduleLessons.length > 3 ? `<div class="text-[11px] text-slate-500 italic px-2">+ ${moduleLessons.length - 3} materi lainnya di modul ini</div>` : ''}
-                    </div>
-                  ` : ''}
+              <!-- Bottom Preview & Action Row -->
+              <div class="pt-3.5 border-t border-slate-800/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div class="flex items-center gap-2 overflow-x-auto max-w-full pb-1 sm:pb-0 custom-scrollbar">
+                  <span class="text-[11px] font-bold text-slate-500 uppercase tracking-caps flex-shrink-0">Materi Terdekat:</span>
+                  ${moduleLessons.slice(0, 3).map((l, i) => {
+                    const isDone = userCompletedLessonIds.includes(l.id);
+                    return `
+                      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs ${isDone ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-500/40' : 'bg-slate-900 text-slate-300 border border-slate-800'} flex-shrink-0">
+                        ${isDone ? '<svg class="w-3 h-3 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>' : '<span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>'}
+                        <span class="truncate max-w-[150px] sm:max-w-[200px]">${i + 1}. ${escapeHtml(l.title)}</span>
+                      </span>
+                    `;
+                  }).join('')}
+                  ${moduleLessons.length > 3 ? `<span class="text-xs text-slate-500 font-mono">+${moduleLessons.length - 3} lainnya</span>` : ''}
                 </div>
 
-                <!-- Bottom Action Buttons inside Card -->
-                <div class="flex flex-wrap items-center gap-3 pt-2">
-                  <button 
-                    onclick="event.stopPropagation(); ${targetLessonId ? `navigate('learn', { lessonId: '${targetLessonId}' })` : `showToast('Modul ini belum memiliki materi', 'info')`}" 
-                    class="btn-primary-action px-6 py-3 rounded-xl text-xs sm:text-sm font-bold shadow-lg shadow-emerald-950/50 flex items-center gap-2 group-hover:scale-[1.02] transition-transform"
-                  >
-                    <span>${completedCount > 0 ? 'Lanjutkan Belajar Modul Ini' : 'Mulai Belajar Modul Ini Sekarang'}</span>
-                    <svg class="w-4 h-4 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                  </button>
-                </div>
+                <button 
+                  onclick="event.stopPropagation(); ${targetLessonId ? `navigate('learn', { lessonId: '${targetLessonId}' })` : `showToast('Modul ini belum memiliki materi', 'info')`}" 
+                  class="btn-primary-action px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold shadow-lg shadow-emerald-950/50 flex items-center gap-2 group-hover:scale-[1.02] transition-transform flex-shrink-0"
+                >
+                  <span>${completedCount > 0 ? 'Lanjutkan Belajar Sekarang' : 'Mulai Belajar Sekarang'}</span>
+                  <svg class="w-4 h-4 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                </button>
               </div>
             </div>
           </div>
@@ -575,30 +555,30 @@ function renderModuleCatalogGrid() {
 
     card.innerHTML = `
       <div>
-        <div class="relative h-32 sm:h-36 w-full bg-[var(--surface-subtle)] overflow-hidden border-b border-[var(--border)]">
-          <img src="${mod.coverImage}" alt="${escapeHtml(mod.title)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-100">
-          <div class="absolute inset-0 bg-gradient-to-t from-[var(--surface)] via-[var(--surface)]/40 to-transparent"></div>
+        <!-- Cyber Pill Header & Status Strip (Revisi 87: No Image, Space-Saving) -->
+        <div class="relative px-4 sm:px-5 pt-3.5 pb-3 border-b border-[var(--border)] bg-slate-900/80 flex items-center justify-between gap-2 overflow-hidden">
+          <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-emerald-500 via-cyan-500 to-emerald-500 opacity-70 group-hover:opacity-100 transition-opacity"></div>
           
-          <div class="absolute top-2.5 left-2.5 flex items-center gap-1.5 flex-wrap">
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold tracking-caps uppercase ${isModFullyCompleted ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/50' : 'bg-[var(--surface)] text-cyan-400 border border-cyan-500/40'}">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="px-2.5 py-0.5 rounded text-[10px] font-extrabold tracking-wider font-mono uppercase ${isModFullyCompleted ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/50 shadow-sm' : 'bg-slate-950 text-cyan-400 border border-cyan-500/40'}">
               ${escapeHtml(mod.badge || 'MODUL')}
             </span>
-            <span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold ${modCompleted > 0 ? 'bg-emerald-950/90 text-emerald-400 border border-emerald-500/30' : 'bg-[var(--surface-subtle)] text-slate-400 border border-[var(--border)]'}">
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold ${modCompleted > 0 ? 'bg-emerald-950/90 text-emerald-400 border border-emerald-500/30' : 'bg-slate-950/80 text-slate-400 border border-[var(--border)]'}">
               ${modCompleted}/${moduleLessons.length} Selesai (${completionPercent}%)
             </span>
           </div>
 
-          <button onclick="event.stopPropagation(); toggleModuleFavorite('${mod.id}')" title="${isModFav ? 'Hapus dari Favorit' : 'Simpan Modul ke Favorit'}" class="absolute top-2.5 right-2.5 p-1.5 rounded-lg ${isModFav ? 'bg-amber-950/90 text-amber-300 border border-amber-500/60' : 'bg-[var(--surface)] hover:bg-[var(--surface-hover)] text-slate-300 border border-[var(--border)]'} shadow-sm transition-colors z-10">
+          <button onclick="event.stopPropagation(); toggleModuleFavorite('${mod.id}')" title="${isModFav ? 'Hapus dari Favorit' : 'Simpan Modul ke Favorit'}" class="p-1.5 rounded-lg ${isModFav ? 'bg-amber-950/90 text-amber-300 border border-amber-500/60' : 'bg-slate-950 hover:bg-slate-800 text-slate-300 border border-[var(--border)]'} shadow-sm transition-colors z-10">
             <svg class="w-3.5 h-3.5 ${isModFav ? 'fill-amber-400 text-amber-400' : 'text-slate-300'}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
           </button>
         </div>
 
         <div class="p-4 sm:p-5 pb-3">
-          <h3 class="font-extrabold text-base sm:text-lg lg:text-xl text-white group-hover:text-emerald-400 transition-colors leading-snug tracking-tight mb-2">
+          <h3 class="font-black text-lg sm:text-xl text-white group-hover:text-emerald-400 transition-colors leading-tight tracking-tight mb-2.5 line-clamp-2">
             ${escapeHtml(mod.title)}
           </h3>
-          <p class="text-xs text-slate-400 line-clamp-2 leading-relaxed mb-3">
-            ${escapeHtml(mod.description || '')}
+          <p class="text-xs text-slate-400 line-clamp-2 leading-relaxed mb-3.5">
+            ${escapeHtml(mod.description || 'Modul pembelajaran terstruktur web app AI bersama mentor Zettbos.')}
           </p>
 
           <div class="flex flex-wrap items-center gap-1.5 mb-3.5">

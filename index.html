@@ -241,10 +241,10 @@
         <span>Modul Pembelajaran</span>
       </button>
 
-      <!-- Dokumen & Resource -->
+      <!-- ZettLink -->
       <button id="drawer-btn-resources" onclick="handleDrawerNavClick('resources')" class="w-full px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-900 border border-transparent hover:border-slate-800 transition-all flex items-center gap-3">
-        <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-        <span class="flex-1 text-left">Dokumen & Resource</span>
+        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+        <span class="flex-1 text-left">ZettLink</span>
       </button>
 
       <button id="drawer-btn-favorites" onclick="handleDrawerNavClick('favorites')" class="w-full px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-900 border border-transparent hover:border-slate-800 transition-all flex items-center gap-3">
@@ -1347,45 +1347,31 @@
     <!-- Resources Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
       <div>
-        <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded text-[11px] font-bold bg-blue-950 text-blue-300 border border-blue-800/80 mb-2">
+        <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded text-[11px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-800/80 mb-2">
           SHARED HUB RESMI
         </div>
-        <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Dokumen & Link Resource</h1>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight flex items-center gap-2.5">
+          <span>ZettLink</span>
+          <span class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">Hub Resources</span>
+        </h1>
         <p class="text-xs sm:text-sm text-slate-400 mt-1 max-w-2xl">
-          Koleksi resmi template Google Sheets, starter code GitHub, formula prompt AI, dan asset Google Drive yang dibagikan untuk member Zettbos.
+          Koleksi resmi template Google Sheets, starter code GitHub, formula prompt AI, bot AI, dan tools yang dibagikan untuk member Zettbos.
         </p>
       </div>
 
       <div class="flex items-center gap-2 self-start sm:self-auto">
         <button id="btn-admin-add-resource" onclick="openAddResourceModal()" class="btn-primary-action px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 shadow-lg hidden">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-          <span>+ Bagikan Link Dokumen</span>
+          <span>+ Bagikan Link ke ZettLink</span>
         </button>
       </div>
     </div>
 
     <!-- Filter Bar & Search -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-6 pb-4 border-b border-slate-800">
-      <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
-        <button id="res-tab-all" onclick="filterResourceCategory('all')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-950 text-emerald-300 border border-emerald-500/40">
-          Semua Dokumen (<span id="res-count-all">0</span>)
-        </button>
-        <button id="res-tab-sheet" onclick="filterResourceCategory('sheet')" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800 transition-colors inline-flex items-center gap-1.5">
-          <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-          <span>Google Sheets</span> (<span id="res-count-sheet">0</span>)
-        </button>
-        <button id="res-tab-code" onclick="filterResourceCategory('code')" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800 transition-colors inline-flex items-center gap-1.5">
-          <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
-          <span>Starter Code</span> (<span id="res-count-code">0</span>)
-        </button>
-        <button id="res-tab-prompt" onclick="filterResourceCategory('prompt')" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800 transition-colors inline-flex items-center gap-1.5">
-          <svg class="w-3.5 h-3.5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-          <span>Prompt &amp; SOP</span> (<span id="res-count-prompt">0</span>)
-        </button>
-        <button id="res-tab-drive" onclick="filterResourceCategory('drive')" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800 transition-colors inline-flex items-center gap-1.5">
-          <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
-          <span>Google Drive</span> (<span id="res-count-drive">0</span>)
-        </button>
+      <!-- Dynamic Category Tabs Container (Revisi 87: Anti-Hardcode) -->
+      <div id="zettlink-category-tabs" class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+        <!-- Injected dynamically by renderResources() -->
       </div>
 
       <div class="w-full md:w-72">
@@ -1393,15 +1379,15 @@
           id="resource-search-input" 
           type="text" 
           oninput="handleSearchResources()" 
-          placeholder="Cari dokumen, template, link..." 
+          placeholder="Cari di ZettLink, template, tools..." 
           class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
         />
       </div>
     </div>
 
-    <!-- Resources Grid (Sleek Compact 4-Column Layout) -->
-    <div id="resources-grid-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5 sm:gap-4">
-      <!-- Injected by js/app.js renderResources() -->
+    <!-- ZettLink Folders & Resources Container (Revisi 87: Accordion Grouping) -->
+    <div id="resources-grid-container" class="space-y-4 sm:space-y-5">
+      <!-- Injected by js/controllers/resources.js renderResources() -->
     </div>
 
     <!-- Empty State -->
@@ -1455,8 +1441,8 @@
           <span>CMS Landing Portal</span>
         </button>
         <button id="tab-btn-resources_cms" onclick="switchAdminTab('resources_cms')" class="admin-tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-900 flex items-center gap-2 whitespace-nowrap transition-all border border-transparent">
-          <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-          <span>CMS Resource Hub</span>
+          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+          <span>CMS ZettLink</span>
         </button>
         <button id="tab-btn-quickactions" onclick="switchAdminTab('quickactions')" class="admin-tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-900 flex items-center gap-2 whitespace-nowrap transition-all border border-transparent">
           <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
@@ -2197,22 +2183,44 @@
       </div>
     </div>
 
-    <!-- TAB 6: CMS DOKUMEN & SHARED RESOURCE HUB -->
+    <!-- TAB 6: CMS DOKUMEN & SHARED RESOURCE HUB (ZETTLINK) -->
     <div id="tab-pane-resources_cms" class="space-y-6 hidden">
       <div class="glass-card-static rounded-xl p-6">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 mb-4 border-b border-slate-800">
           <div>
             <h2 class="text-lg font-bold text-white flex items-center gap-2">
-              <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-              Pengelola Dokumen &amp; Shared Resource Hub
+              <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+              Pengelola ZettLink &amp; Shared Resources
             </h2>
-            <p class="text-xs text-slate-400 mt-0.5">Kelola seluruh database materi file, Google Drive, Sheets, SOP, dan starter code yang dapat diakses oleh seluruh member.</p>
+            <p class="text-xs text-slate-400 mt-0.5">Kelola seluruh database materi file, Google Drive, Sheets, SOP, bot AI, dan starter code yang dapat diakses oleh seluruh member.</p>
           </div>
           <div class="flex items-center gap-2">
             <button onclick="openAddResourceModal()" class="btn-primary-action px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-              + Bagikan Dokumen Baru
+              + Bagikan Link ke ZettLink
             </button>
+          </div>
+        </div>
+
+        <!-- Section: Pengelola Folder / Kategori ZettLink Dinamis (Revisi 87) -->
+        <div class="mb-6 p-4 sm:p-5 rounded-xl bg-slate-950/70 border border-slate-800">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3.5">
+            <div>
+              <h3 class="text-xs sm:text-sm font-bold text-white flex items-center gap-2">
+                <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+                <span>Folder &amp; Kategori ZettLink (Dinamis CMS)</span>
+              </h3>
+              <p class="text-[11px] text-slate-400 mt-0.5">Kelola struktur folder, nama kategori, dan label badge untuk mengelompokkan link dokumen siswa.</p>
+            </div>
+            <button onclick="openAddCategoryModal()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/40 flex items-center gap-1.5 transition-colors self-start sm:self-auto">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              <span>+ Tambah Folder / Kategori</span>
+            </button>
+          </div>
+
+          <!-- List of Categories / Folders Pills -->
+          <div id="admin-category-pills-container" class="flex flex-wrap items-center gap-2 pt-1">
+            <!-- Rendered dynamically by renderAdminCategoryList() -->
           </div>
         </div>
 
@@ -2934,6 +2942,61 @@
   </div>
 
   <!-- ==========================================
+       MODAL 3A: MANAGE ZETTLINK CATEGORY / FOLDER (REVISI 87)
+       ========================================== -->
+  <div id="modal-manage-category" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md hidden">
+    <div class="glass-card rounded-2xl p-6 sm:p-7 max-w-md w-full relative shadow-2xl">
+      <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+        <h3 id="modal-category-title" class="text-base font-bold text-white flex items-center gap-2">
+          <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+          <span id="manage-category-modal-title">Kelola Folder / Kategori ZettLink</span>
+        </h3>
+        <button onclick="closeCategoryModal()" class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <form onsubmit="handleSaveCategorySubmit(event)" class="space-y-4">
+        <input type="hidden" id="manage-category-id" value="">
+        
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Nama Folder / Kategori</label>
+          <input id="manage-category-name" required placeholder="Contoh: ZettBOT, Modul, Template GAS" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Ikon Tipe</label>
+            <select id="manage-category-icon" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+              <option value="folder">📁 Folder Umum</option>
+              <option value="video">🎥 Modul Video</option>
+              <option value="bot">🤖 AI Bot / Assistant</option>
+              <option value="prompt">💡 Prompt AI</option>
+              <option value="library">📚 Library / Ebook</option>
+              <option value="sheet">📊 Google Sheets</option>
+              <option value="code">💻 Starter Code</option>
+              <option value="drive">📂 Google Drive</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Label Badge Ringkas</label>
+            <input id="manage-category-badge" placeholder="Contoh: Official Tools" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-slate-800 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeCategoryModal()" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800">
+            Batal
+          </button>
+          <button type="submit" class="btn-primary-action px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5">
+            <span>Simpan Kategori</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================
        MODAL 3B: ADD SHARED RESOURCE / DOKUMEN LINK
        ========================================== -->
   <div id="modal-add-resource" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md hidden">
@@ -3436,9 +3499,9 @@
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
       <span class="text-[9px] font-semibold">Belajar</span>
     </button>
-    <button onclick="navigate('resources')" id="mobile-nav-resources" class="flex flex-col items-center gap-0.5 py-1 px-2 rounded-lg text-slate-400 hover:text-blue-400 transition-colors">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-      <span class="text-[9px] font-semibold">Dokumen</span>
+    <button onclick="navigate('resources')" id="mobile-nav-resources" class="flex flex-col items-center gap-0.5 py-1 px-2 rounded-lg text-slate-400 hover:text-emerald-400 transition-colors">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+      <span class="text-[9px] font-semibold">ZettLink</span>
     </button>
     <button onclick="navigate('favorites')" id="mobile-nav-favorites" class="flex flex-col items-center gap-0.5 py-1 px-2 rounded-lg text-slate-400 hover:text-amber-400 transition-colors">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
@@ -3638,10 +3701,10 @@
       <span class="text-[9px] font-bold tracking-tight">BELAJAR</span>
     </button>
 
-    <!-- 4. Dokumen -->
+    <!-- 4. ZettLink -->
     <button id="mobile-nav-resources" onclick="navigate('resources')" class="flex flex-col items-center justify-center gap-0.5 py-1 px-2.5 rounded-xl text-slate-400 hover:text-white transition-colors">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-      <span class="text-[9px] font-bold tracking-tight">DOKUMEN</span>
+      <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+      <span class="text-[9px] font-bold tracking-tight">ZETTLINK</span>
     </button>
 
     <!-- 5. Menu (Opens Elevated Popover Sheet) -->
@@ -3708,17 +3771,17 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- Application Scripts (Modular Architecture with Cache Buster) -->
-  <script src="js/mock-data.js?v=86"></script>
-  <script src="js/editor.js?v=86"></script>
-  <script src="js/core/state.js?v=86"></script>
-  <script src="js/core/supabase.js?v=86"></script>
-  <script src="js/core/router.js?v=86"></script>
-  <script src="js/core/particles.js?v=86"></script>
-  <script src="js/controllers/auth.js?v=86"></script>
-  <script src="js/controllers/landing.js?v=86"></script>
-  <script src="js/controllers/classroom.js?v=86"></script>
-  <script src="js/controllers/resources.js?v=86"></script>
-  <script src="js/controllers/admin.js?v=86"></script>
-  <script src="js/app.js?v=86"></script>
+  <script src="js/mock-data.js?v=87"></script>
+  <script src="js/editor.js?v=87"></script>
+  <script src="js/core/state.js?v=87"></script>
+  <script src="js/core/supabase.js?v=87"></script>
+  <script src="js/core/router.js?v=87"></script>
+  <script src="js/core/particles.js?v=87"></script>
+  <script src="js/controllers/auth.js?v=87"></script>
+  <script src="js/controllers/landing.js?v=87"></script>
+  <script src="js/controllers/classroom.js?v=87"></script>
+  <script src="js/controllers/resources.js?v=87"></script>
+  <script src="js/controllers/admin.js?v=87"></script>
+  <script src="js/app.js?v=87"></script>
 </body>
 </html>
