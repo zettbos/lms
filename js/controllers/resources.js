@@ -1,21 +1,9 @@
 /**
  * Zettbos LMS - Shared Resources & Documents Controller (ZettLink)
  * js/controllers/resources.js
- * Menangani repository ZettLink: folder dinamis (ala Gambar 2 dengan estetika Gambar 1),
- * filter kategori CMS, sinkronisasi state, dan akses link dokumen.
+ * Menangani repository ZettLink: Card Grid kompak presisi (Gambar 2),
+ * pengelompokan folder dinamis CMS, dan akses link dokumen.
  */
-
-// State tracking for accordion folder expand/collapse
-window._expandedFoldersState = window._expandedFoldersState || {};
-
-function toggleFolderAccordion(folderId) {
-  if (typeof window._expandedFoldersState[folderId] === 'undefined') {
-    window._expandedFoldersState[folderId] = false; // Default was expanded, toggle to collapse
-  } else {
-    window._expandedFoldersState[folderId] = !window._expandedFoldersState[folderId];
-  }
-  renderResources();
-}
 
 function filterResourceCategory(categoryId) {
   AppState.activeResourceCategory = categoryId;
@@ -99,7 +87,7 @@ async function handleAddResourceSubmit(event) {
         title: newRes.title,
         description: newRes.description || '',
         url: newRes.url,
-        category: newRes.category || 'cat-modul',
+        category: newRes.category || 'cat-sheets',
         badge: newRes.badge || 'Official Link',
         order_index: 1
       }, { onConflict: 'id' });
@@ -184,6 +172,27 @@ function getCategoryIconSvg(iconType, extraClass = 'w-4 h-4 text-emerald-400') {
   }
 }
 
+// Helper to match an item to a category object
+function isResourceInCategory(r, cat) {
+  if (!r || !cat) return false;
+  const rCat = (r.category || '').toLowerCase().trim();
+  const cId = (cat.id || '').toLowerCase().trim();
+  const cName = (cat.name || '').toLowerCase().trim();
+
+  if (rCat === cId || rCat === cName) return true;
+
+  // Legacy aliases
+  if (cId === 'cat-sheets' && (rCat === 'sheet' || rCat === 'sheets' || rCat.includes('sheet'))) return true;
+  if (cId === 'cat-code' && (rCat === 'code' || rCat === 'starter code' || rCat.includes('code'))) return true;
+  if (cId === 'cat-prompt' && (rCat === 'prompt' || rCat === 'sop' || rCat.includes('prompt'))) return true;
+  if (cId === 'cat-drive' && (rCat === 'drive' || rCat.includes('drive'))) return true;
+  if (cId === 'cat-zettbot' && (rCat === 'bot' || rCat === 'zettbot' || rCat.includes('bot'))) return true;
+  if (cId === 'cat-library' && (rCat === 'library' || rCat.includes('library') || rCat.includes('ebook'))) return true;
+  if (cId === 'cat-modul' && (rCat === 'modul' || rCat.includes('modul'))) return true;
+
+  return false;
+}
+
 function renderResources() {
   const container = document.getElementById('resources-grid-container');
   const tabsContainer = document.getElementById('zettlink-category-tabs');
@@ -193,7 +202,7 @@ function renderResources() {
   const allResources = AppState.resources || [];
   const categories = AppState.resourceCategories || [];
 
-  // 1. Render Dynamic Filter Tabs (Anti-Hardcode)
+  // 1. Render Dynamic Filter Tabs
   if (tabsContainer) {
     const totalCount = allResources.length;
     const isAllActive = AppState.activeResourceCategory === 'all';
@@ -209,12 +218,7 @@ function renderResources() {
     `;
 
     categories.forEach(cat => {
-      const catCount = allResources.filter(r => 
-        r.category === cat.id || 
-        (r.category || '').toLowerCase() === cat.name.toLowerCase() ||
-        (r.category || '').toLowerCase().replace(/[^a-z0-9]/g, '') === cat.name.toLowerCase().replace(/[^a-z0-9]/g, '')
-      ).length;
-
+      const catCount = allResources.filter(r => isResourceInCategory(r, cat)).length;
       const isActive = AppState.activeResourceCategory === cat.id;
 
       tabsHtml += `
@@ -248,7 +252,6 @@ function renderResources() {
   const user = AppState.currentUser;
   const isSuperAdmin = user && (user.role === 'admin' || user.email?.toLowerCase() === 'zettbos2025@gmail.com');
 
-  // Toggle '+ Bagikan Link ke ZettLink' button strictly for Super Admin
   const addBtn = document.getElementById('btn-admin-add-resource');
   if (addBtn) {
     if (isSuperAdmin) addBtn.classList.remove('hidden');
@@ -272,177 +275,154 @@ function renderResources() {
   if (emptyState) emptyState.classList.add('hidden');
   container.innerHTML = '';
 
-  // 3. Group Filtered Resources into Categories/Folders (Ala Gambar 2 dengan Desain Gambar 1)
-  // Determine folders to display
-  let foldersToDisplay = [];
-  if (AppState.activeResourceCategory === 'all') {
-    foldersToDisplay = categories;
-  } else {
-    foldersToDisplay = categories.filter(c => c.id === AppState.activeResourceCategory);
-  }
+  // 3. Render Mode: Gambar 2 Card Grid Layout
+  if (AppState.activeResourceCategory === 'all' && !searchQ) {
+    // Mode Grouping per Folder yang memiliki link
+    const assignedIds = new Set();
 
-  // Also catch unassigned / legacy resources
-  const assignedResIds = new Set();
+    categories.forEach(cat => {
+      const matchingItems = filtered.filter(r => isResourceInCategory(r, cat));
+      if (matchingItems.length === 0) return; // Skip folder kosong agar tidak buang space!
 
-  foldersToDisplay.forEach(cat => {
-    const matchingItems = filtered.filter(r => {
-      const match = r.category === cat.id || 
-                    (r.category || '').toLowerCase() === cat.name.toLowerCase() ||
-                    (r.category || '').toLowerCase().replace(/[^a-z0-9]/g, '') === cat.name.toLowerCase().replace(/[^a-z0-9]/g, '');
-      if (match) assignedResIds.add(r.id);
-      return match;
+      matchingItems.forEach(r => assignedIds.add(r.id));
+
+      const sectionEl = document.createElement('div');
+      sectionEl.className = 'mb-8 last:mb-2';
+
+      sectionEl.innerHTML = `
+        <div class="flex items-center justify-between gap-3 mb-3.5 pb-2.5 border-b border-slate-800/80">
+          <div class="flex items-center gap-2.5">
+            <div class="w-6 h-6 rounded-lg bg-emerald-950/80 border border-emerald-500/40 flex items-center justify-center text-emerald-400 flex-shrink-0">
+              ${getCategoryIconSvg(cat.icon, 'w-3.5 h-3.5 text-emerald-400')}
+            </div>
+            <h3 class="text-xs sm:text-sm font-bold text-white tracking-wide uppercase font-mono flex items-center gap-2">
+              <span>${escapeHtml(cat.name)}</span>
+              <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-emerald-400">
+                ${matchingItems.length} Link
+              </span>
+            </h3>
+          </div>
+          ${cat.badge ? `<span class="text-[11px] text-slate-400 font-mono hidden sm:inline">${escapeHtml(cat.badge)}</span>` : ''}
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          ${matchingItems.map(item => renderSingleResourceCardHtml(item, isSuperAdmin, cat.name)).join('')}
+        </div>
+      `;
+
+      container.appendChild(sectionEl);
     });
 
-    // If search is active or specific tab selected, only show folders with items
-    if (matchingItems.length === 0 && (searchQ || AppState.activeResourceCategory !== 'all')) {
+    // Render items that don't match any explicit category
+    const unassignedItems = filtered.filter(r => !assignedIds.has(r.id));
+    if (unassignedItems.length > 0) {
+      const otherSection = document.createElement('div');
+      otherSection.className = 'mb-8 last:mb-2';
+      otherSection.innerHTML = `
+        <div class="flex items-center justify-between gap-3 mb-3.5 pb-2.5 border-b border-slate-800/80">
+          <div class="flex items-center gap-2.5">
+            <div class="w-6 h-6 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 flex-shrink-0">
+              📁
+            </div>
+            <h3 class="text-xs sm:text-sm font-bold text-white tracking-wide uppercase font-mono flex items-center gap-2">
+              <span>Link &amp; Dokumen Lainnya</span>
+              <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-300">
+                ${unassignedItems.length} Link
+              </span>
+            </h3>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          ${unassignedItems.map(item => renderSingleResourceCardHtml(item, isSuperAdmin, 'Lainnya')).join('')}
+        </div>
+      `;
+      container.appendChild(otherSection);
+    }
+  } else {
+    // Mode Filter Spesifik atau Pencarian Aktif: Render langsung Grid Kartu Kompak Gambar 2
+    let displayItems = filtered;
+    if (AppState.activeResourceCategory !== 'all') {
+      const activeCat = categories.find(c => c.id === AppState.activeResourceCategory);
+      if (activeCat) {
+        displayItems = filtered.filter(r => isResourceInCategory(r, activeCat));
+      }
+    }
+
+    if (displayItems.length === 0) {
+      container.innerHTML = `
+        <div class="p-8 rounded-2xl glass-card border border-slate-800 text-center flex flex-col items-center justify-center gap-2 col-span-full">
+          <p class="text-xs text-slate-400 font-mono">Belum ada link di folder ini.</p>
+        </div>
+      `;
       return;
     }
 
-    // Default expanded state: true (if search is active, always expand; otherwise check window._expandedFoldersState)
-    const isExpanded = searchQ ? true : (window._expandedFoldersState[cat.id] !== false);
+    const gridContainer = document.createElement('div');
+    gridContainer.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4';
+    gridContainer.innerHTML = displayItems.map(item => {
+      const matchedCat = categories.find(c => isResourceInCategory(item, c));
+      return renderSingleResourceCardHtml(item, isSuperAdmin, matchedCat?.name);
+    }).join('');
 
-    const folderCard = document.createElement('div');
-    folderCard.className = 'glass-card glass-card-translucent rounded-2xl overflow-hidden border border-slate-800 transition-all duration-200';
-
-    folderCard.innerHTML = `
-      <!-- Folder Header Bar (Clickable Accordion) -->
-      <div 
-        onclick="toggleFolderAccordion('${escapeHtml(cat.id)}')"
-        class="p-4 sm:p-5 flex items-center justify-between gap-3 cursor-pointer select-none bg-slate-900/60 hover:bg-slate-900/90 transition-colors border-b ${isExpanded ? 'border-slate-800/80' : 'border-transparent'}"
-      >
-        <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-emerald-950/80 border border-emerald-500/40 text-emerald-400 flex items-center justify-center flex-shrink-0 shadow-sm">
-            ${getCategoryIconSvg(cat.icon, 'w-5 h-5 text-emerald-400')}
-          </div>
-          <div>
-            <div class="flex items-center gap-2">
-              <h3 class="text-sm sm:text-base font-bold text-white tracking-tight flex items-center gap-2">
-                <span>${escapeHtml(cat.name)}</span>
-              </h3>
-              <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-800/80 text-emerald-400 border border-emerald-500/30">
-                ${matchingItems.length} Link${matchingItems.length !== 1 ? 's' : ''}
-              </span>
-            </div>
-            ${cat.badge ? `<p class="text-[11px] text-slate-400 mt-0.5">${escapeHtml(cat.badge)}</p>` : ''}
-          </div>
-        </div>
-
-        <div class="flex items-center gap-2">
-          <button 
-            type="button" 
-            class="p-2 rounded-lg text-slate-400 hover:text-white bg-slate-800/50 hover:bg-slate-800 transition-transform duration-300 ${isExpanded ? 'rotate-180' : 'rotate-0'}"
-            title="${isExpanded ? 'Tutup Folder' : 'Buka Folder'}"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- Folder Inner Links Grid -->
-      <div class="${isExpanded ? 'p-4 sm:p-5' : 'hidden'} bg-slate-950/40">
-        ${matchingItems.length === 0 ? `
-          <div class="p-6 text-center text-xs text-slate-500 font-mono">
-            Folder ini belum memiliki link atau file tersimpan.
-          </div>
-        ` : `
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5 sm:gap-4">
-            ${matchingItems.map(item => renderSingleResourceCardHtml(item, isSuperAdmin)).join('')}
-          </div>
-        `}
-      </div>
-    `;
-
-    container.appendChild(folderCard);
-  });
-
-  // Catch remaining unassigned links (if any)
-  const unassignedItems = filtered.filter(r => !assignedResIds.has(r.id));
-  if (unassignedItems.length > 0 && (AppState.activeResourceCategory === 'all' || AppState.activeResourceCategory === 'other')) {
-    const isExpanded = searchQ ? true : (window._expandedFoldersState['other'] !== false);
-
-    const otherCard = document.createElement('div');
-    otherCard.className = 'glass-card glass-card-translucent rounded-2xl overflow-hidden border border-slate-800 transition-all duration-200';
-
-    otherCard.innerHTML = `
-      <div 
-        onclick="toggleFolderAccordion('other')"
-        class="p-4 sm:p-5 flex items-center justify-between gap-3 cursor-pointer select-none bg-slate-900/60 hover:bg-slate-900/90 transition-colors border-b ${isExpanded ? 'border-slate-800/80' : 'border-transparent'}"
-      >
-        <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 flex items-center justify-center flex-shrink-0">
-            <svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
-          </div>
-          <div>
-            <div class="flex items-center gap-2">
-              <h3 class="text-sm sm:text-base font-bold text-white tracking-tight">Dokumen &amp; Link Lainnya</h3>
-              <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-800/80 text-slate-300 border border-slate-700">
-                ${unassignedItems.length} Link
-              </span>
-            </div>
-            <p class="text-[11px] text-slate-400 mt-0.5">Tautan pendukung kelas Zettbos.</p>
-          </div>
-        </div>
-        <button 
-          type="button" 
-          class="p-2 rounded-lg text-slate-400 hover:text-white bg-slate-800/50 hover:bg-slate-800 transition-transform duration-300 ${isExpanded ? 'rotate-180' : 'rotate-0'}"
-        >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-        </button>
-      </div>
-
-      <div class="${isExpanded ? 'p-4 sm:p-5' : 'hidden'} bg-slate-950/40">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5 sm:gap-4">
-          ${unassignedItems.map(item => renderSingleResourceCardHtml(item, isSuperAdmin)).join('')}
-        </div>
-      </div>
-    `;
-
-    container.appendChild(otherCard);
+    container.appendChild(gridContainer);
   }
 }
 
-function renderSingleResourceCardHtml(item, isSuperAdmin) {
+function renderSingleResourceCardHtml(item, isSuperAdmin, categoryNameFallback) {
   const badgeText = item.badge || 'Official Link';
+  const catLabel = categoryNameFallback || item.category?.toUpperCase() || 'DOKUMEN';
 
   return `
-    <div class="glass-card bg-slate-900/90 rounded-xl p-4 flex flex-col justify-between group relative overflow-hidden transition-all duration-200 border border-slate-800 hover:border-emerald-500/50">
+    <div class="glass-card bg-slate-900/90 rounded-2xl p-4 sm:p-5 flex flex-col justify-between group relative overflow-hidden transition-all duration-300 border border-slate-800 hover:border-emerald-500/50 hover:shadow-xl hover:-translate-y-0.5">
       <div>
-        <div class="flex items-center justify-between gap-2 mb-2">
-          <div class="flex items-center gap-1.5 truncate">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0 animate-pulse"></span>
-            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-950/90 text-emerald-300 border border-emerald-800/80 tracking-caps truncate">
-              ${escapeHtml(badgeText)}
-            </span>
-          </div>
-          <span class="text-[10px] text-slate-500 font-mono flex-shrink-0">${escapeHtml(item.date || '')}</span>
+        <!-- Top Row: Category Badge & Date (Sesuai Gambar 2) -->
+        <div class="flex items-center justify-between gap-2 mb-3">
+          <span class="px-2.5 py-0.5 rounded text-[10px] font-bold bg-emerald-950/90 text-emerald-300 border border-emerald-800/80 tracking-caps truncate max-w-[170px] inline-flex items-center gap-1.5">
+            <span>📁</span>
+            <span class="truncate">${escapeHtml(catLabel)}</span>
+          </span>
+          <span class="text-[11px] text-slate-500 font-mono flex-shrink-0">${escapeHtml(item.date || '')}</span>
         </div>
 
-        <h4 class="text-xs sm:text-sm font-bold text-white mb-1.5 leading-snug group-hover:text-emerald-300 transition-colors line-clamp-2">
+        <!-- Title -->
+        <h4 class="text-sm sm:text-base font-bold text-white mb-2 leading-snug group-hover:text-emerald-300 transition-colors line-clamp-2">
           ${escapeHtml(item.title)}
         </h4>
 
-        ${item.description ? `
-          <p class="text-xs text-slate-400 mb-3 leading-relaxed line-clamp-2">
-            ${escapeHtml(item.description)}
-          </p>
-        ` : '<div class="mb-2"></div>'}
+        <!-- Description -->
+        <p class="text-xs text-slate-400 mb-3.5 leading-relaxed line-clamp-2">
+          ${escapeHtml(item.description || 'Tautan resmi materi pembelajaran Zettbos.')}
+        </p>
+
+        <!-- Micro Tag Pills -->
+        <div class="flex flex-wrap items-center gap-1.5 mb-3.5">
+          <span class="micro-tag-pill">
+            <svg class="w-3 h-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            <span>${escapeHtml(badgeText)}</span>
+          </span>
+          <span class="micro-tag-pill">
+            <svg class="w-3 h-3 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            <span>Verified Link</span>
+          </span>
+        </div>
       </div>
 
-      <div class="pt-2.5 border-t border-slate-800/80 flex items-center justify-between gap-2 mt-auto">
-        <div class="flex items-center gap-1.5">
-          <a href="${item.url}" target="_blank" rel="noopener noreferrer" class="btn-primary-action px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all">
-            <span>Buka</span>
+      <!-- Bottom Action Bar (Sesuai Gambar 2) -->
+      <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between gap-2 mt-auto">
+        <div class="flex items-center gap-2">
+          <a href="${item.url}" target="_blank" rel="noopener noreferrer" class="btn-primary-action px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm">
+            <span>Buka Dokumen</span>
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
           </a>
-          <button onclick="navigator.clipboard.writeText('${item.url}').then(() => showToast('Tautan link berhasil disalin', 'success'))" title="Salin Tautan" class="px-2 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 flex items-center gap-1 transition-colors">
+          <button onclick="navigator.clipboard.writeText('${item.url}').then(() => showToast('Tautan dokumen berhasil disalin', 'success'))" title="Salin Tautan" class="px-2.5 py-1.5 rounded-xl text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 flex items-center gap-1 transition-colors">
             <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-            <span class="hidden sm:inline text-[11px]">Salin</span>
+            <span class="text-[11px]">Salin</span>
           </button>
         </div>
 
         ${isSuperAdmin ? `
-          <button onclick="deleteResource('${item.id}')" title="Hapus Link" class="p-1.5 text-slate-500 hover:text-rose-400 rounded-lg hover:bg-slate-800 transition-colors">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+          <button onclick="deleteResource('${item.id}')" title="Hapus Dokumen" class="p-1.5 text-slate-500 hover:text-rose-400 rounded-lg hover:bg-slate-800 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
           </button>
         ` : ''}
       </div>
@@ -451,7 +431,6 @@ function renderSingleResourceCardHtml(item, isSuperAdmin) {
 }
 
 // Global window bindings
-window.toggleFolderAccordion = toggleFolderAccordion;
 window.filterResourceCategory = filterResourceCategory;
 window.handleSearchResources = handleSearchResources;
 window.openAddResourceModal = openAddResourceModal;

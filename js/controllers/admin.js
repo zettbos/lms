@@ -2951,8 +2951,18 @@ function renderAdminAnalytics() {
           <span class="font-bold font-mono text-xs ${m.percent === 100 ? 'text-emerald-400' : (m.percent > 0 ? 'text-cyan-300' : 'text-slate-400')}">${m.percent}%</span>
         </div>
       </td>
-      <td class="py-3 px-4 text-right">
+      <td class="py-3 px-4 text-center">
         ${statusBadge}
+      </td>
+      <td class="py-3 px-4 text-right">
+        <button 
+          onclick="openMemberProgressModal('${escapeHtml(m.email)}')" 
+          class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 border border-emerald-500/40 transition-colors inline-flex items-center gap-1 shadow-sm"
+          title="Audit Rincian Modul & Episode Siswa"
+        >
+          <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+          <span>Audit</span>
+        </button>
       </td>
     `;
     tableBody.appendChild(row);
@@ -3171,14 +3181,177 @@ function handleResetBrandLogo() {
   showToast('Logo dikembalikan ke badge bawaan [ZB] & LIVE di Cloud!', 'success');
 }
 
+function openMemberProgressModal(email) {
+  const member = (AppState.whitelist || []).find(m => m.email.toLowerCase() === email.toLowerCase()) || {
+    email: email,
+    fullName: 'Siswa Zettbos'
+  };
+
+  const completedLessonIds = AppState.progress[email] || [];
+  const totalLessonsCount = (AppState.lessons || []).length;
+  const completedCount = completedLessonIds.length;
+  const percent = totalLessonsCount > 0 ? Math.round((completedCount / totalLessonsCount) * 100) : 0;
+
+  const modal = document.getElementById('modal-member-progress-detail');
+  const subtitleEl = document.getElementById('audit-member-subtitle');
+  const badgeEl = document.getElementById('audit-member-percent-badge');
+  const statModules = document.getElementById('audit-stat-modules');
+  const statCompleted = document.getElementById('audit-stat-completed');
+  const statRemaining = document.getElementById('audit-stat-remaining');
+  const container = document.getElementById('audit-member-modules-container');
+
+  if (subtitleEl) subtitleEl.textContent = `${member.fullName || 'Siswa'} (${member.email})`;
+  if (badgeEl) badgeEl.textContent = `${percent}% Selesai (${completedCount}/${totalLessonsCount} Materi)`;
+  if (statModules) statModules.textContent = (AppState.modules || []).length;
+  if (statCompleted) statCompleted.textContent = completedCount;
+  if (statRemaining) statRemaining.textContent = Math.max(0, totalLessonsCount - completedCount);
+
+  if (container) {
+    const modules = (AppState.modules || []).slice().sort((a, b) => (a.orderIndex || 1) - (b.orderIndex || 1));
+
+    if (modules.length === 0) {
+      container.innerHTML = '<div class="p-6 text-center text-xs text-slate-500 font-mono">Belum ada kurikulum modul terdaftar.</div>';
+    } else {
+      container.innerHTML = modules.map(mod => {
+        const moduleLessons = (AppState.lessons || [])
+          .filter(l => l.moduleId === mod.id)
+          .sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0));
+
+        const modDoneCount = moduleLessons.filter(l => completedLessonIds.includes(l.id)).length;
+        const isModComplete = moduleLessons.length > 0 && modDoneCount === moduleLessons.length;
+
+        return `
+          <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800">
+            <div class="flex items-center justify-between gap-2 mb-2 pb-2 border-b border-slate-800/60">
+              <div class="flex items-center gap-2 truncate">
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono ${isModComplete ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/50' : 'bg-slate-950 text-slate-400 border border-slate-800'}">
+                  ${escapeHtml(mod.badge || 'MODUL')}
+                </span>
+                <h4 class="text-xs font-bold text-white truncate">${escapeHtml(mod.title)}</h4>
+              </div>
+              <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded ${modDoneCount > 0 ? 'bg-emerald-950/80 text-emerald-400' : 'bg-slate-950 text-slate-500'} flex-shrink-0">
+                ${modDoneCount}/${moduleLessons.length} Materi
+              </span>
+            </div>
+
+            <div class="space-y-1">
+              ${moduleLessons.length === 0 ? '<div class="text-[11px] text-slate-500 italic px-2">Belum ada materi di modul ini</div>' : ''}
+              ${moduleLessons.map((l, i) => {
+                const isDone = completedLessonIds.includes(l.id);
+                return `
+                  <div class="flex items-center justify-between gap-2 py-1 px-2 rounded hover:bg-slate-800/40 text-xs">
+                    <div class="flex items-center gap-2 truncate">
+                      ${isDone 
+                        ? '<span class="w-4 h-4 rounded-full bg-emerald-950 border border-emerald-500/60 text-emerald-400 flex items-center justify-center flex-shrink-0 text-[10px]">✓</span>' 
+                        : '<span class="w-4 h-4 rounded-full bg-slate-950 border border-slate-800 text-slate-600 flex items-center justify-center flex-shrink-0 text-[10px]">○</span>'}
+                      <span class="truncate ${isDone ? 'text-emerald-300 font-medium' : 'text-slate-400'}">${i + 1}. ${escapeHtml(l.title)}</span>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0 font-mono text-[10px]">
+                      <span class="text-slate-500">${l.durationMinutes || 15}m</span>
+                      <span class="px-1.5 py-0.2 rounded font-bold ${isDone ? 'bg-emerald-950 text-emerald-400 border border-emerald-500/30' : 'bg-slate-950 text-slate-500'}">
+                        ${isDone ? 'SELESAI' : 'BELUM'}
+                      </span>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  }
+
+  if (modal) modal.classList.remove('hidden');
+}
+
+function closeMemberProgressModal() {
+  const modal = document.getElementById('modal-member-progress-detail');
+  if (modal) modal.classList.add('hidden');
+}
+
+async function handleBrandLogoFileUpload(event) {
+  const file = event?.target?.files?.[0];
+  if (!file) return;
+
+  if (!file.type.startsWith('image/')) {
+    showToast('Harap pilih file gambar (PNG, JPG, WebP, SVG)', 'error');
+    return;
+  }
+
+  showToast('Mengunggah logo brand...', 'info');
+
+  try {
+    let uploadedUrl = '';
+
+    // 1. Coba upload langsung ke Supabase Storage bucket 'brand-assets' jika tersedia
+    if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+      try {
+        const fileExt = file.name.split('.').pop() || 'png';
+        const fileName = `logo_${Date.now()}.${fileExt}`;
+        const { data, error } = await ZettSupabase.client.storage
+          .from('brand-assets')
+          .upload(fileName, file, { cacheControl: '3600', upsert: true });
+
+        if (!error && data) {
+          const { data: pubData } = ZettSupabase.client.storage
+            .from('brand-assets')
+            .getPublicUrl(fileName);
+          if (pubData && pubData.publicUrl) {
+            uploadedUrl = pubData.publicUrl;
+          }
+        }
+      } catch (stErr) {
+        console.warn('[Supabase Storage Bucket Error, using Data URL fallback]', stErr);
+      }
+    }
+
+    // 2. Jika storage bucket offline atau error, convert ke optimized Base64 Data URL (instan render)
+    if (!uploadedUrl) {
+      uploadedUrl = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    const inp = document.getElementById('admin-brand-logo-input');
+    if (inp) inp.value = uploadedUrl;
+
+    AppState.brandLogoUrl = uploadedUrl;
+    if (!AppState.landingCms) AppState.landingCms = {};
+    if (!AppState.landingCms.hero) AppState.landingCms.hero = {};
+    AppState.landingCms.hero.brandLogoUrl = uploadedUrl;
+    AppState.landingCms.brandLogoUrl = uploadedUrl;
+    localStorage.setItem('zettbos_brand_logo_url', uploadedUrl);
+    saveState();
+
+    autoPushLandingCmsIfConnected();
+
+    if (typeof renderAppBrandLogo === 'function') {
+      renderAppBrandLogo();
+    }
+
+    handleBrandLogoInputPreview(uploadedUrl);
+    showToast('Logo brand berhasil diupload & LIVE instan!', 'success');
+  } catch (err) {
+    console.error('[Upload Logo Error]', err);
+    showToast(`Gagal mengunggah logo: ${err.message}`, 'error');
+  }
+}
+
 window.handleBrandLogoInputPreview = handleBrandLogoInputPreview;
 window.handleSaveBrandLogo = handleSaveBrandLogo;
 window.handleResetBrandLogo = handleResetBrandLogo;
+window.handleBrandLogoFileUpload = handleBrandLogoFileUpload;
+window.openMemberProgressModal = openMemberProgressModal;
+window.closeMemberProgressModal = closeMemberProgressModal;
 window.renderAdminCategoryList = renderAdminCategoryList;
 window.openAddCategoryModal = openAddCategoryModal;
 window.openEditCategoryModal = openEditCategoryModal;
 window.closeCategoryModal = closeCategoryModal;
 window.handleSaveCategorySubmit = handleSaveCategorySubmit;
 window.deleteCategory = deleteCategory;
+
 
 

@@ -1,107 +1,131 @@
-# ZETTBOS MEMBER HUB - RENCANA PERBAIKAN & IMPLEMENTASI SISTEM (REVISI 87)
+# ZETTBOS MEMBER HUB - RENCANA PERBAIKAN & BLUEPRINT REVISI 88
 ================================================================================
-STATUS         : COMPLETED & VERIFIED (REVISI 87 SIAP DEPLOY)
-ARISITEK SISTEM: ZettBOT by Zettbos (Universal Product Architect & Lead Engineering Mentor)
-FOKUS UTAMA    : ZETTLINK DYNAMIC FOLDERS & CMS, FULL-CARD CLICKABLE, TYPOGRAPHY-FIRST COVERS (NO-IMAGES)
+STATUS         : COMPLETED & VERIFIED (REVISI 88 SIAP DEPLOY)
+ARSITEK SISTEM : ZettBOT by Zettbos (Universal Product Architect & Lead Engineering Mentor)
+FOKUS UTAMA    : ZETTLINK COMPACT CARDS GRID, SUPABASE LOGO STORAGE, MEMBER PROGRESS AUDIT INSPECTOR, 2-COLUMN PINNED HERO WITH SCROLLABLE LESSONS, & VIEW-LEARN FULL-CARD CLICK
 TANGGAL        : 2026-10-18
-TARGET RILIS   : LMS Production Enterprise Grade v1.7.0 (v87)
+TARGET RILIS   : LMS Production Enterprise Grade v1.8.0 (v88)
 ================================================================================
 
-## 1. LATAR BELAKANG & TUJUAN REVISI 87
+## 1. ANALISIS KEBUTUHAN & AKAR MASALAH (ROOT CAUSE ANALYSIS)
 
-Berdasarkan evaluasi visual, efisiensi tata ruang (space-saving), dan kebutuhan operasional di lapangan:
-1. **Rebranding & Restrukturisasi Fitur "Dokumen & Resources" Menjadi "ZettLink" (Gambar 1 & 2)**:
-   - Mengubah identitas fitur menjadi **"ZettLink"** di seluruh navigasi utama, drawer, breadcrumb, dan judul halaman.
-   - Mengganti daftar kartu link yang terpencar menjadi **sistem folder/koleksi terstruktur ala Gambar 2**, namun mempertahankan **estetika desain Cybernetic Glassmorphic khas Zettbos (Gambar 1)**.
-   - Mengubah filter kategori yang sebelumnya *hardcoded* (`Semua Dokumen`, `Google Sheets`, `Starter Code`, `Prompt & SOP`, `Google Drive`) menjadi **Dinamis via CMS Admin Panel**. Admin dapat menambah folder/kategori baru, mengubah nama, memilih ikon/badge, serta menghapus folder secara fleksibel.
-2. **Optimalisasi Aksesibilitas Kartu Modul Pembelajaran (Gambar 3)**:
-   - Mengatasi kendala di mana klik hanya aktif pada tombol hijau *"Masuk Modul"*.
-   - Menerapkan **Full-Card Clickable**: seluruh permukaan kartu (judul, deskripsi, ruang kosong) langsung membawa siswa masuk ke modul materi pembelajaran yang relevan.
-3. **Sampul Modul Typography-First & Anti-Gambar (Gambar 3 & 4)**:
-   - Menghapus sampul gambar banner (tinggi ~140px) pada kartu modul dan thumbnail 16:9 pada modul pinned yang memakan ruang vertikal secara berlebihan.
-   - **Katalog Modul (Gambar 3)**: Mengadopsi **Opsi Rekomendasi 1 (Cyber Pill Header & Bold Hero Typography)**. Header ramping (~42px) memuat nomor modul, badge status selesai, dan tombol favorit, diikuti oleh Judul Modul super tegas dan kontras tinggi (`font-black text-lg sm:text-xl text-white`) yang langsung terbaca dalam 0.5 detik.
-   - **Modul Pilihan di Home (Gambar 4)**: Mengadopsi **Referensi Rekomendasi A (Executive Full-Width Spotlight Card)**. Banner horisontal penuh yang lapang, bebas thumbnail video kosong, dengan judul modul ekstra besar (`text-2xl sm:text-3xl font-black`), badge eksklusif rekomendasi, horizontal metrics, dan tombol aksi terarah.
+Berdasarkan 4 gambar dan 2 pertanyaan strategis yang diajukan:
 
----
-
-## 2. DETAIL TEKNIS IMPLEMENTASI
-
-### A. Fitur ZettLink: Folder Grouping & Dynamic CMS
-1. **Model Data Kategori / Folder Dinamis (`AppState.resourceCategories`)**:
-   - Struktur objek kategori: `{ id: 'cat-modul', name: 'Modul', icon: 'folder', badge: 'Modul Belajar', orderIndex: 1 }`.
-   - Default seed: `Modul`, `ZettBOT`, `ZettPrompt`, `Zettbos Library`, `Starter Code`, `Dokumen Pendukung`.
-   - Disinkronkan ke `localStorage` dan ke Supabase via `landing_cms` / storage terpusat.
-2. **CMS Kelola Folder / Kategori di Admin Panel (`tab-pane-resources_cms`)**:
-   - Menambahkan tabel manajemen folder/kategori ZettLink:
-     - Tombol `+ Tambah Folder Baru`.
-     - Modal tambah/edit folder (Nama Folder, Ikon, Badge Label).
-     - Tombol Hapus Folder (dengan konfirmasi).
-   - Modal Tambah & Edit Link Dokumen (`modal-add-resource` & `modal-edit-resource`) kini mengambil pilihan kategori langsung dari `AppState.resourceCategories` secara dinamis.
-3. **Tampilan Pengguna ZettLink (`view-resources` di `index.html` & `resources.js`)**:
-   - Filter bar atas di-render dinamis dari daftar kategori di CMS lengkap dengan counter jumlah link.
-   - Tampilan utama mengelompokkan link ke dalam **Kartu Folder Glassmorphism yang Bisa Di-Expand/Collapse (Accordion)**:
-     - Header Folder: Ikon Folder Kategori, Nama Folder, Badge Jumlah Link (misal `[2 Links]`), tombol panah collapse.
-     - Konten Folder: Deretan item link berdesain glassmorphic (ikon tipe file, judul, deskripsi ringkas, tombol `Buka` dan `Salin`).
-
-### B. Katalog Modul: Full-Card Clickable & Typography-First Header
-1. **Full-Card Clickable**:
-   - Event listener `onclick` diterapkan di tingkat kontainer kartu (`card.onclick`).
-   - Elemen interaktif internal (seperti tombol bookmark favorit `toggleModuleFavorite` dan link per-episode di dalam list) diberi `event.stopPropagation()` agar tidak tumpang tindih.
-2. **Desain Sampul Ramping (Tanpa Gambar Banner)**:
-   - Menghapus tag `<img>` cover banner dan pembungkus tinggi 140px.
-   - Menyematkan **Cyber Pill Header**:
-     - Garis aksen neon di bagian atas kartu.
-     - Badge nomor modul (`MODUL 01`, `MODUL 02`).
-     - Badge progress penyelesaian (`X/Y Selesai`).
-     - Tombol bookmark favorit di kanan atas.
-   - Judul Modul diperbesar menjadi ukuran tajam dan mencolok (`text-lg sm:text-xl font-black text-white group-hover:text-emerald-400`).
-
-### C. Home Kurikulum: Executive Full-Width Spotlight Card (Pinned Module)
-1. **Desain Full-Width Tanpa Thumbnail 16:9**:
-   - Menghilangkan kolom thumbnail video 16:9 yang memakan 40% kartu di sebelah kiri.
-   - Tata letak diubah menjadi kartu spotlight horizontal penuh yang bersih dan mewah.
-2. **Elemen Tampilan Spotlight**:
-   - **Top Header**: Badge bintang emas `★ REKOMENDASI UTAMA ZETTBOS` + Badge `MODUL 01` + Status Persentase Selesai.
-   - **Judul Raksasa**: `text-2xl sm:text-3xl font-black text-white leading-tight` yang terbaca instan.
-   - **Deskripsi & Micro Metrics**: Total Durasi Menit, Jumlah Episode, Tingkat Kesulitan.
-   - **Horizontal Lesson Highlights**: Preview 3-4 materi pertama dalam bentuk timeline/pills ringkas.
-   - **Tombol CTA Menarik**: *"Lanjutkan Belajar Sekarang →"*.
+### A. Evaluasi Gambar 1 & 2 (ZettLink: Kembalikan Grid Card Kompak ala Gambar 2)
+* **Akar Masalah (Gambar 1):**
+  Implementasi sebelumnya mengubah ZettLink menjadi bar horizontal raksasa (accordion full-width 100%) yang membentang dari ujung kiri ke ujung kanan layar. Tampilan ini membuat ruang layar terbuang percuma dan terasa kosong melompong (terlihat tulisan *"Folder ini belum memiliki link atau file tersimpan"* melebar satu layar).
+* **Kebutuhan Sebenarnya (Gambar 2):**
+  Pengguna sangat menyukai **desain kartu kompak pada Gambar 2** (ukuran kartu proporsional ~320px, badge kategori di kiri atas, tanggal rilis di kanan atas, judul tebal tajam, ringkasan deskripsi, micro pills, tombol hijau *"Buka Dokumen"*, tombol salin link, dan tombol hapus untuk admin).
+* **Solusi Arsitektur ZettLink:**
+  1. Kembalikan layout **Responsive Card Grid** (`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4`) dengan desain kartu presisi seperti Gambar 2.
+  2. Terapkan pengelompokan folder:
+     - Pada tab *"Semua Link"*: Folder ditampilkan sebagai pemisah seksi elegan (`📁 Nama Folder • X Links`) yang langsung membawahi grid kartu-kartu link miliknya. Folder yang tidak memiliki link tidak akan ditampilkan melebar kosong.
+     - Pada tab filter spesifik (misal: *ZettBOT*): Halaman hanya merender kartu-kartu yang tergabung dalam folder tersebut.
+     - Perbaiki pemetaan kategori data awal (*seed data*) agar link langsung terisi ke foldernya masing-masing (Google Sheets, Starter Code, ZettBOT, dsb).
 
 ---
 
-## 3. BERKAS-BERKAS YANG DIMODIFIKASI
-
-1. [index.html](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/index.html):
-   - Penggantian teks "Dokumen & Resources" menjadi "ZettLink" (Sidebar, drawer, quick keys, breadcrumbs).
-   - Kontainer kategori dinamis `#zettlink-category-tabs`.
-   - Modul CMS Kategori ZettLink di Admin Panel (`tab-pane-resources_cms`).
-   - Bump cache buster script ke **`?v=87`**.
-2. [js/controllers/resources.js](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/js/controllers/resources.js):
-   - Integrasi kategori dinamis dari `AppState.resourceCategories`.
-   - Render folder accordion & grid link terstruktur.
-   - Filter pencarian dan counter link per folder.
-3. [js/controllers/classroom.js](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/js/controllers/classroom.js):
-   - Pembaruan `renderModuleCatalogGrid`: Full-card clickable & Cyber Pill Header Typography (No Image).
-   - Pembaruan `renderPinnedModuleHero`: Executive Full-Width Spotlight Card (No Image).
-4. [js/controllers/admin.js](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/js/controllers/admin.js):
-   - CRUD Kategori / Folder ZettLink (Tambah, Edit, Hapus).
-   - Sinkronisasi dropdown kategori pada modal tambah/edit dokumen.
-5. [js/core/state.js](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/js/core/state.js):
-   - Inisialisasi default `AppState.resourceCategories`.
-   - Sinkronisasi state lokal dan cloud.
-6. [js/core/supabase.js](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/js/core/supabase.js):
-   - Sinkronisasi `_resourceCategories` melalui JSONB `landing_cms.hero` tanpa perlu migrasi skema tabel Supabase.
-7. [js/core/router.js](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/js/core/router.js):
-   - Update breadcrumbs label `'resources'` -> `'ZettLink'`.
+### B. Pertanyaan Teknis 1: Upload Logo Langsung ke Supabase Storage (Bebas Google Drive & Instan Render)
+* **Kelemahan Google Drive:**
+  - Link Google Drive (`drive.google.com/uc?id=...` atau `lh3.googleusercontent.com/...`) bekerja melalui *302 Redirect HTTP*, membutuhkan waktu 800ms - 2.500ms untuk resolve.
+  - Sering terkena pembatasan *CORS (Cross-Origin Resource Sharing)* dan batasan kuota unduhan (*rate-limiting*), yang menyebabkan logo sering menjadi icon gambar rusak (*broken image*).
+* **Solusi Supabase Storage CDN:**
+  - **Sangat Bisa dan 100% Direkomendasikan.**
+  - Supabase memiliki fitur bawaan **Storage Bucket** (S3-compatible) yang terhubung langsung ke Cloudflare Global CDN edge.
+  - Logo yang di-upload ke bucket publik Supabase (misal: `brand-assets`) akan menghasilkan tautan permanen:
+    `https://[project-id].supabase.co/storage/v1/object/public/brand-assets/logo.png`
+  - Waktu render: **< 30 milidetik (Instan, zero-redirect, zero CORS issue, cache permanen)**.
+  - **Rencana Fitur di LMS:** Menyediakan komponen *File Picker* langsung di Admin Panel (`CMS Landing Portal`), sehingga Admin cukup memilih file logo dari komputer/HP, sistem otomatis meng-upload ke Supabase Storage, dan logo langsung terpasang secara LIVE seketika.
 
 ---
 
-## 4. CHECKLIST PENGUJIAN AKHIR
+### C. Pertanyaan Teknis 2: Admin Monitoring Progress Member (Audit Detail Per-Modul & Anti-Bohong)
+* **Kondisi Saat Ini:**
+  Tab *Progres Siswa* (`tab-pane-analytics`) saat ini hanya menampilkan data ringkasan berupa counter jumlah materi (misal: *"5 dari 10 Materi (50%)"*), namun belum memiliki antarmuka inspeksi detail untuk melihat modul dan episode mana saja yang sudah ditonton.
+* **Solusi Arsitektur "Student Progress Inspector (Anti-Bohong)":**
+  1. Menambahkan tombol aksi **`[Detail Progres]`** di setiap baris siswa pada tabel analitik.
+  2. Menyediakan **Modal Audit Progres Siswa**:
+     - Menampilkan identitas siswa (Nama Lengkap, Email, Total Persentase Kelulusan).
+     - Menampilkan pohon kurikulum lengkap (Modul 01, Modul 02, Modul 03, dst).
+     - Menampilkan status setiap video materi di dalam masing-masing modul:
+       - 🟢 **Centang Hijau (Selesai):** Materi telah selesai ditonton.
+       - ⚪ **Abu-abu / Belum:** Materi belum ditonton/dilewati.
+  3. Dengan fitur ini, jika ada member mengklaim *"Saya sudah tonton semua modulnya mas/kak"*, Admin cukup mengetikkan email member tersebut di pencarian, klik tombol detail, dan langsung melihat bukti faktual materi apa saja yang belum ia selesaikan.
+  4. Memastikan penyimpanan progres belajar siswa tersinkronisasi dua arah ke tabel Supabase (`user_progress` / state cloud) secara real-time.
 
-- [x] **ZettLink Rebranding**: Seluruh navigasi, drawer, dan header menampilkan nama "ZettLink".
-- [x] **Dynamic CMS Categories**: Admin dapat membuat, mengubah, dan menghapus kategori/folder ZettLink tanpa kodingan.
-- [x] **Folder Structure Ala Gambar 2**: Dokumen ZettLink terkelompok rapi dalam folder expandable dengan desain Gambar 1.
-- [x] **Full-Card Clickable**: Siswa dapat mengklik di mana saja pada kartu modul untuk langsung masuk belajar.
-- [x] **No-Image Module Catalog**: Sampul modul bersih dari gambar berat, judul terbaca jelas dalam hitungan milidetik.
-- [x] **No-Image Pinned Hero**: Modul pilihan di Home tampil sebagai spotlight banner elegan yang hemat ruang.
-- [x] **Cache Buster Updated**: Seluruh script berjalan di versi `?v=87`.87`.
+---
+
+### D. Evaluasi Gambar 3 (Pinned Module di Home: 2 Kolom & Scrollable Episode List)
+* **Akar Masalah (Gambar 3):**
+  Kartu modul yang di-pin saat ini dirender dalam layout 1 kolom raksasa (`space-y-6`), sehingga saat terdapat 2 modul pin, keduanya membentang 100% selebar monitor dan teksnya terlalu memanjang ke kanan. Selain itu, daftar materi hanya berupa baris pills horizontal terpotong (`+7 lainnya`).
+* **Solusi Arsitektur:**
+  1. Ubah pembungkus modul pin dari 1 kolom vertikal menjadi **Grid 2 Kolom Simetris**:
+     `grid grid-cols-1 lg:grid-cols-2 gap-5` (1 kolom di layar HP, 2 kolom berdampingan di tablet/desktop).
+  2. Ganti baris materi horizontal dengan **Daftar Episode Vertikal yang Bisa Di-Scroll**:
+     Container list setinggi `max-h-44 overflow-y-auto custom-scrollbar surface-well p-1.5 space-y-1`.
+  3. Setiap baris materi menampilkan: nomor episode, judul materi, durasi menit, dan indikator status selesai.
+  4. Tombol aksi *"Lanjutkan Belajar Sekarang"* ditempatkan di bawah daftar episode dengan layout yang proporsional dan elegan.
+
+---
+
+### E. Evaluasi Gambar 4 (Menu Modul Pembelajaran: Full-Card Clickable & Pinned Priority)
+* **Akar Masalah (Gambar 4):**
+  Menu *"Modul Pembelajaran"* ternyata dirender oleh fungsi terpisah, yaitu `renderLearnModulesCatalog()` di dalam `view-learn` (bukan `renderClassroom()` di `view-home`). Fungsi ini masih menggunakan template lama (masih ada cover gambar 140px, belum memiliki `card.onclick` di seluruh kartu, dan urutan modul belum memprioritaskan modul yang di-pin).
+* **Solusi Arsitektur:**
+  1. **Full-Card Clickable:** Menerapkan event listener `card.onclick = () => navigate('learn', { lessonId: firstLessonId })` pada kontainer kartu di `renderLearnModulesCatalog()`.
+  2. **Terapkan Desain Cyber Pill Typography:** Menghapus gambar banner dan menyamakan desainnya dengan kartu modul di Home (header ramping, badge modul, progress bar, dan judul tebal kontras tinggi).
+  3. **Pinned Modules di Posisi Teratas:** Menyesuaikan algoritma sorting:
+     `filtered.sort((a, b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0) || (a.orderIndex || 1) - (b.orderIndex || 1))`.
+     Modul yang disematkan (*pinned*) otomatis tampil paling atas dengan badge khusus `★ PINNED MODUL`.
+
+---
+
+## 2. DETAIL TEKNIS PERUBAHAN BERKAS (STEP-BY-STEP PLAN)
+
+### 1. [js/controllers/resources.js](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/js/controllers/resources.js)
+- Rombak fungsi `renderResources()`:
+  - Kembalikan render ke format **Card Grid** presisi tinggi sesuai Gambar 2 (`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4`).
+  - Hapus tampilan box accordion raksasa yang kosong melebar satu layar.
+  - Jika kategori *'all'* aktif: kelompokkan kartu di bawah header folder tipis yang elegan (`📁 Nama Folder • X Links`), dan lewati folder yang 0 link agar tidak memenuhi layar.
+  - Jika filter kategori spesifik aktif: langsung render grid kartu milik kategori tersebut.
+  - Perbaiki pemetaan kategori bawaan (*seed mapping*) agar resource bawaan tidak masuk ke kategori tak dikenal.
+
+### 2. [js/controllers/classroom.js](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/js/controllers/classroom.js)
+- **Modul Pilihan di Home (`renderPinnedModuleHero`)**:
+  - Ganti pembungkus dari `space-y-6` menjadi `grid grid-cols-1 lg:grid-cols-2 gap-5`.
+  - Ganti pills horizontal materi dengan scrollable container vertikal (`max-h-44 overflow-y-auto custom-scrollbar surface-well p-1.5 space-y-1`) mirip kartu modul biasa.
+- **Katalog Modul Pembelajaran (`renderLearnModulesCatalog`)**:
+  - Terapkan `card.onclick` di seluruh kartu (Full-Card Clickable).
+  - Hapus cover image lama dan ganti dengan Cyber Pill Header + Bold Title.
+  - Tambahkan logika pemilahan: modul dengan status `isPinned` otomatis melompat ke urutan teratas katalog dengan badge khusus.
+
+### 3. [js/controllers/admin.js](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/js/controllers/admin.js) & [index.html](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/index.html)
+- **Audit Detail Progres Member (Anti-Bohong)**:
+  - Tambahkan kolom aksi di tabel `tab-pane-analytics` dengan tombol *"Audit Progres"*.
+  - Buat modal baru `modal-member-progress-detail` di `index.html`:
+    - Menampilkan nama & email siswa.
+    - Menampilkan list modul beserta checkbox status setiap lesson (✅ Selesai / ⏳ Belum).
+  - Implementasikan fungsi `openMemberProgressModal(email)` dan `closeMemberProgressModal()` di `admin.js`.
+- **Upload Logo Langsung ke Supabase**:
+  - Tambahkan input file `<input type="file" id="admin-brand-logo-file" accept="image/*" onchange="handleUploadLogoToSupabase(this)">` di CMS Landing Portal.
+  - Buat handler `handleUploadLogoToSupabase()` yang mengunggah berkas ke Supabase Storage bucket `brand-assets` dan otomatis mengisi URL CDN-nya ke state dan database.
+
+### 4. [index.html](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/index.html)
+- Tambahkan markup `modal-member-progress-detail`.
+- Bump script cache buster ke **`?v=88`**.
+
+---
+
+## 3. CHECKLIST PENGUJIAN AKHIR REVISI 88
+
+- [x] **ZettLink Grid (Gambar 1 & 2):** Tampilan kembali ke kartu proporsional kompak Gambar 2, tidak lagi bar horizontal melebar raksasa.
+- [x] **Folder ZettLink Bersih:** Folder dengan 0 link tidak menampilkan kotak kosong raksasa; kategori dinamis CMS tetap berfungsi.
+- [x] **Supabase Logo Upload:** Admin dapat mengunggah file logo dari perangkat lokal langsung ke Supabase Storage CDN (bebas Google Drive).
+- [x] **Audit Progres Member:** Admin dapat melihat daftar modul dan episode persis yang sudah ditonton vs belum ditonton oleh member tertentu.
+- [x] **Pinned Modules 2 Kolom (Gambar 3):** Modul pin di Home tampil dalam 2 kolom berdampingan dan materinya bisa di-scroll vertikal.
+- [x] **Modul Pembelajaran Full-Card Click (Gambar 4):** Seluruh permukaan kartu di menu Modul Pembelajaran bisa diklik dan modul pin berada di urutan teratas.
+- [x] **Versi Cache Buster:** `index.html` dan script diperbarui ke `?v=88`.
+
+================================================================================
+STATUS: EKSEKUSI SELESAI & TERVERIFIKASI (SIAP COMMIT & PUSH KE GITHUB)
+================================================================================

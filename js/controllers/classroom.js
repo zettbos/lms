@@ -265,7 +265,7 @@ function renderPinnedModuleHero() {
   container.classList.remove('hidden');
 
   container.innerHTML = `
-    <div class="space-y-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
       ${pinnedMods.map(pinnedMod => {
     const moduleLessons = AppState.lessons
       .filter(l => l.moduleId === pinnedMod.id && (isSuperAdmin || !l.isDraft))
@@ -284,82 +284,80 @@ function renderPinnedModuleHero() {
     return `
           <div 
             onclick="${targetLessonId ? `navigate('learn', { lessonId: '${targetLessonId}' })` : `showToast('Modul ini belum memiliki materi', 'info')`}"
-            class="pinned-hero-card relative overflow-hidden rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-slate-900/95 via-slate-950 to-slate-900/95 border border-emerald-500/40 shadow-2xl shadow-emerald-950/30 group cursor-pointer hover:border-emerald-500/70 hover:shadow-emerald-500/10 transition-all duration-300"
+            class="pinned-hero-card relative overflow-hidden rounded-2xl p-5 sm:p-6 bg-gradient-to-br from-slate-900/95 via-slate-950 to-slate-900/95 border border-emerald-500/40 shadow-xl shadow-emerald-950/20 group cursor-pointer hover:border-emerald-500/70 hover:shadow-emerald-500/10 hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between"
           >
             <!-- Background Ambient Glow -->
-            <div class="absolute -top-24 -right-24 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-emerald-500/15 transition-all"></div>
-            <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -top-20 -right-20 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-emerald-500/15 transition-all"></div>
+            <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
             <!-- Top Header Badge -->
-            <div class="flex flex-wrap items-center justify-between gap-3 mb-4 relative z-10 border-b border-slate-800/80 pb-3">
-              <div class="flex items-center gap-2">
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-amber-500/15 text-amber-300 border border-amber-500/40 shadow-sm">
-                  <svg class="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                  <span>MODUL REKOMENDASI UTAMA</span>
-                </span>
-                <span class="badge-module-pill text-xs font-mono font-bold px-2.5 py-0.5 rounded bg-slate-900/90 text-cyan-400 border border-cyan-500/30">
-                  ${escapeHtml(pinnedMod.badge || 'MODUL PILIHAN')}
-                </span>
+            <div>
+              <div class="flex flex-wrap items-center justify-between gap-2.5 mb-3.5 relative z-10 border-b border-slate-800/80 pb-2.5">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/20 text-amber-300 border border-amber-500/50 shadow-sm font-mono">
+                    <svg class="w-3 h-3 text-amber-400 fill-current" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                    <span>REKOMENDASI UTAMA</span>
+                  </span>
+                  <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-900 text-cyan-400 border border-cyan-500/30">
+                    ${escapeHtml(pinnedMod.badge || 'MODUL PILIHAN')}
+                  </span>
+                </div>
+
+                <div class="flex items-center gap-1 text-[10px] font-mono">
+                  <span class="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-emerald-400 font-bold">
+                    ${completedCount}/${moduleLessons.length} Selesai (${percent}%)
+                  </span>
+                </div>
               </div>
 
-              <div class="flex items-center gap-2 text-xs font-mono">
-                <span class="badge-progress-pill px-2.5 py-1 rounded bg-slate-900 border border-slate-800 text-emerald-400 font-bold">
-                  ${completedCount}/${moduleLessons.length} Materi Selesai (${percent}%)
-                </span>
+              <!-- Title & Description (Proporsional 2 Kolom) -->
+              <h3 class="text-base sm:text-lg font-black text-white group-hover:text-emerald-400 transition-colors tracking-tight leading-snug mb-1.5 line-clamp-2">
+                ${escapeHtml(pinnedMod.title)}
+              </h3>
+              <p class="text-xs text-slate-400 line-clamp-2 leading-relaxed mb-3">
+                ${escapeHtml(pinnedMod.description || 'Pelajari materi fundamental web app AI terstruktur bersama mentor Zettbos.')}
+              </p>
+
+              <!-- Header Materi List -->
+              <div class="text-[10px] font-bold text-slate-500 uppercase tracking-caps mb-1.5 flex items-center justify-between">
+                <span>Daftar Materi di Modul Ini:</span>
+                <span class="font-mono text-slate-500">${moduleLessons.length} Materi</span>
+              </div>
+
+              <!-- Scrollable Episodes List (Vertikal Scrollable Sesuai Permintaan Gambar 3) -->
+              <div class="max-h-40 overflow-y-auto custom-scrollbar surface-well p-1.5 space-y-1 mb-3.5">
+                ${moduleLessons.map((l, i) => {
+                  const isDone = userCompletedLessonIds.includes(l.id);
+                  return `
+                    <div 
+                      onclick="event.stopPropagation(); navigate('learn', { lessonId: '${l.id}' })"
+                      class="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg text-xs hover:bg-slate-800/80 transition-colors cursor-pointer border border-transparent"
+                    >
+                      <div class="flex items-center gap-2 truncate">
+                        ${isDone 
+                          ? '<svg class="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 13l4 4L19 7"/></svg>' 
+                          : '<svg class="w-3.5 h-3.5 text-slate-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6" stroke-width="1.8"/></svg>'}
+                        <span class="truncate ${isDone ? 'text-emerald-300 font-medium' : 'text-slate-300'}">${i + 1}. ${escapeHtml(l.title)}</span>
+                      </div>
+                      <span class="text-[10px] text-slate-500 font-mono flex-shrink-0">${l.durationMinutes || 15}m</span>
+                    </div>
+                  `;
+                }).join('')}
               </div>
             </div>
 
-            <!-- Center Content: Full Width Bold Typography & Metrics (Revisi 87) -->
-            <div class="relative z-10 space-y-4">
-              <div>
-                <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black text-white group-hover:text-emerald-400 transition-colors tracking-tight leading-tight mb-2.5">
-                  ${escapeHtml(pinnedMod.title)}
-                </h2>
-                <p class="text-xs sm:text-sm text-slate-300 max-w-4xl leading-relaxed">
-                  ${escapeHtml(pinnedMod.description || 'Pelajari materi fundamental web app AI terstruktur dengan praktek langsung dari mentor Zettbos.')}
-                </p>
-              </div>
-
-              <!-- Quick Metrics Row -->
-              <div class="flex flex-wrap items-center gap-2.5 pt-1">
-                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/80 border border-slate-800 text-xs font-mono text-slate-300">
-                  <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                  <span>${moduleLessons.length} Video Materi</span>
-                </div>
-                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/80 border border-slate-800 text-xs font-mono text-slate-300">
-                  <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                  <span>${totalMinutes} Menit Total</span>
-                </div>
-                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/80 border border-slate-800 text-xs font-mono text-slate-300">
-                  <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-                  <span>Kurikulum Resmi Zettbos</span>
-                </div>
-              </div>
-
-              <!-- Bottom Preview & Action Row -->
-              <div class="pt-3.5 border-t border-slate-800/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div class="flex items-center gap-2 overflow-x-auto max-w-full pb-1 sm:pb-0 custom-scrollbar">
-                  <span class="text-[11px] font-bold text-slate-500 uppercase tracking-caps flex-shrink-0">Materi Terdekat:</span>
-                  ${moduleLessons.slice(0, 3).map((l, i) => {
-                    const isDone = userCompletedLessonIds.includes(l.id);
-                    return `
-                      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs ${isDone ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-500/40' : 'bg-slate-900 text-slate-300 border border-slate-800'} flex-shrink-0">
-                        ${isDone ? '<svg class="w-3 h-3 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>' : '<span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>'}
-                        <span class="truncate max-w-[150px] sm:max-w-[200px]">${i + 1}. ${escapeHtml(l.title)}</span>
-                      </span>
-                    `;
-                  }).join('')}
-                  ${moduleLessons.length > 3 ? `<span class="text-xs text-slate-500 font-mono">+${moduleLessons.length - 3} lainnya</span>` : ''}
-                </div>
-
-                <button 
-                  onclick="event.stopPropagation(); ${targetLessonId ? `navigate('learn', { lessonId: '${targetLessonId}' })` : `showToast('Modul ini belum memiliki materi', 'info')`}" 
-                  class="btn-primary-action px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold shadow-lg shadow-emerald-950/50 flex items-center gap-2 group-hover:scale-[1.02] transition-transform flex-shrink-0"
-                >
-                  <span>${completedCount > 0 ? 'Lanjutkan Belajar Sekarang' : 'Mulai Belajar Sekarang'}</span>
-                  <svg class="w-4 h-4 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                </button>
-              </div>
+            <!-- Bottom Action Row -->
+            <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between gap-3 mt-auto">
+              <span class="text-[11px] text-slate-400 font-mono">
+                ${moduleLessons.length} Video • ${totalMinutes} Menit
+              </span>
+              <button 
+                onclick="event.stopPropagation(); ${targetLessonId ? `navigate('learn', { lessonId: '${targetLessonId}' })` : `showToast('Modul ini belum memiliki materi', 'info')`}" 
+                class="btn-primary-action px-4 py-2 rounded-xl text-xs font-bold shadow-md shadow-emerald-950/50 flex items-center gap-1.5 group-hover:scale-[1.02] transition-transform"
+              >
+                <span>${completedCount > 0 ? 'Lanjutkan Belajar' : 'Mulai Belajar'}</span>
+                <svg class="w-3.5 h-3.5 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+              </button>
             </div>
           </div>
         `;
@@ -1020,7 +1018,7 @@ function renderLearnModulesCatalog() {
     });
   }
 
-  filtered.sort((a, b) => (a.orderIndex || 1) - (b.orderIndex || 1));
+  filtered.sort((a, b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0) || (a.orderIndex || 1) - (b.orderIndex || 1));
 
   if (filtered.length === 0) {
     container.innerHTML = `
@@ -1046,37 +1044,57 @@ function renderLearnModulesCatalog() {
     const userFavs = (user && AppState.favorites[user.email]) ? AppState.favorites[user.email] : [];
     const isModFav = userFavs.some(f => f.type === 'module' && f.targetId === mod.id);
 
-    const card = document.createElement('div');
-    card.className = 'glass-card rounded-2xl overflow-hidden border border-slate-800 hover:border-emerald-500/40 transition-all duration-300 flex flex-col justify-between group';
+    const targetLessonId = (modCompleted > 0
+      ? (moduleLessons.find(l => !userCompletedLessonIds.includes(l.id)) || moduleLessons[0])?.id
+      : moduleLessons[0]?.id);
 
-    const firstLessonId = moduleLessons[0]?.id;
+    const card = document.createElement('div');
+    card.className = 'glass-card glass-card-translucent rounded-2xl overflow-hidden flex flex-col justify-between group transition-all duration-300 border border-slate-800 hover:border-emerald-500/50 cursor-pointer hover:shadow-xl hover:-translate-y-1';
+
+    card.onclick = () => {
+      if (mod.isLocked) {
+        showToast(mod.lockReason || 'Modul terkunci', 'info');
+        return;
+      }
+      if (targetLessonId) {
+        navigate('learn', { lessonId: targetLessonId });
+      } else {
+        showToast('Modul ini belum memiliki materi', 'info');
+      }
+    };
 
     card.innerHTML = `
       <div>
-        <div class="relative h-32 sm:h-36 w-full bg-slate-900 overflow-hidden border-b border-slate-800">
-          <img src="${mod.coverImage || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80'}" alt="${escapeHtml(mod.title)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-100">
-          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
+        <!-- Cyber Pill Header & Status Strip (No Image, Fast Load, Pinned Priority) -->
+        <div class="relative px-4 sm:px-5 pt-3.5 pb-3 border-b border-slate-800 bg-slate-900/80 flex items-center justify-between gap-2 overflow-hidden">
+          <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-emerald-500 via-cyan-500 to-emerald-500 opacity-70 group-hover:opacity-100 transition-opacity"></div>
           
-          <div class="absolute top-2.5 left-2.5 flex items-center gap-1.5 flex-wrap">
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold tracking-caps uppercase ${isModFullyCompleted ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/50' : 'bg-slate-900 text-cyan-400 border border-cyan-500/40'}">
+          <div class="flex items-center gap-2 flex-wrap">
+            ${mod.isPinned ? `
+              <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-500/20 text-amber-300 border border-amber-500/50 flex items-center gap-1">
+                <svg class="w-3 h-3 text-amber-400 fill-current" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <span>PINNED</span>
+              </span>
+            ` : ''}
+            <span class="px-2.5 py-0.5 rounded text-[10px] font-extrabold tracking-wider font-mono uppercase ${isModFullyCompleted ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/50 shadow-sm' : 'bg-slate-950 text-cyan-400 border border-cyan-500/40'}">
               ${escapeHtml(mod.badge || 'MODUL')}
             </span>
-            <span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold ${modCompleted > 0 ? 'bg-emerald-950/90 text-emerald-400 border border-emerald-500/30' : 'bg-slate-900 text-slate-400 border border-slate-800'}">
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold ${modCompleted > 0 ? 'bg-emerald-950/90 text-emerald-400 border border-emerald-500/30' : 'bg-slate-950/80 text-slate-400 border border-slate-800'}">
               ${modCompleted}/${moduleLessons.length} Selesai (${completionPercent}%)
             </span>
           </div>
 
-          <button onclick="event.stopPropagation(); toggleModuleFavorite('${mod.id}')" title="${isModFav ? 'Hapus dari Favorit' : 'Simpan Modul ke Favorit'}" class="btn-card-bookmark absolute top-2.5 right-2.5 p-1.5 rounded-lg ${isModFav ? 'is-active bg-amber-950/90 text-amber-300 border border-amber-500/60' : 'bg-slate-900/90 hover:bg-slate-800 text-slate-300 border border-slate-800'} shadow-sm transition-colors z-10">
+          <button onclick="event.stopPropagation(); toggleModuleFavorite('${mod.id}')" title="${isModFav ? 'Hapus dari Favorit' : 'Simpan Modul ke Favorit'}" class="btn-card-bookmark p-1.5 rounded-lg ${isModFav ? 'is-active bg-amber-950/90 text-amber-300 border border-amber-500/60' : 'bg-slate-950 hover:bg-slate-800 text-slate-300 border border-slate-800'} shadow-sm transition-colors z-10">
             <svg class="w-3.5 h-3.5 ${isModFav ? 'fill-amber-400 text-amber-400' : 'text-slate-300'}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
           </button>
         </div>
 
         <div class="p-4 sm:p-5 pb-3">
-          <h3 class="font-extrabold text-base sm:text-lg lg:text-xl text-white group-hover:text-emerald-400 transition-colors leading-snug tracking-tight mb-2">
+          <h3 class="font-black text-lg sm:text-xl text-white group-hover:text-emerald-400 transition-colors leading-tight tracking-tight mb-2.5 line-clamp-2">
             ${escapeHtml(mod.title)}
           </h3>
-          <p class="text-xs text-slate-400 line-clamp-2 leading-relaxed mb-3">
-            ${escapeHtml(mod.description || '')}
+          <p class="text-xs text-slate-400 line-clamp-2 leading-relaxed mb-3.5">
+            ${escapeHtml(mod.description || 'Modul pembelajaran terstruktur web app AI bersama mentor Zettbos.')}
           </p>
 
           <div class="text-[10px] font-bold text-slate-500 uppercase tracking-caps mb-2 flex items-center justify-between">
@@ -1086,31 +1104,35 @@ function renderLearnModulesCatalog() {
           
           <div class="max-h-36 overflow-y-auto custom-scrollbar surface-well p-1 space-y-1 mb-2">
             ${moduleLessons.map((les, idx) => {
-      const isDone = userCompletedLessonIds.includes(les.id);
-      return `
+              const isDone = userCompletedLessonIds.includes(les.id);
+              return `
                 <div 
                   onclick="event.stopPropagation(); navigate('learn', { lessonId: '${les.id}' })"
                   class="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg text-xs hover:bg-slate-800/70 transition-colors cursor-pointer border border-transparent"
                 >
                   <div class="flex items-center gap-2 truncate">
-                    <span class="text-slate-500 font-mono text-[10px]">${idx + 1}.</span>
-                    <span class="truncate ${isDone ? 'text-emerald-300' : 'text-slate-300'}">${escapeHtml(les.title)}</span>
+                    ${isDone 
+                      ? '<svg class="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 13l4 4L19 7"/></svg>' 
+                      : '<svg class="w-3.5 h-3.5 text-slate-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6" stroke-width="1.8"/></svg>'}
+                    <span class="truncate ${isDone ? 'text-emerald-300 font-medium' : 'text-slate-300'}">${idx + 1}. ${escapeHtml(les.title)}</span>
                   </div>
                   <span class="text-[10px] font-mono text-slate-500 flex-shrink-0">${les.durationMinutes || 15}m</span>
                 </div>
               `;
-    }).join('')}
+            }).join('')}
           </div>
         </div>
       </div>
 
-      <div class="px-4 sm:p-5 py-3 border-t border-slate-800/80 flex items-center justify-between">
-        <span class="text-xs text-slate-400 font-mono">${moduleLessons.length} Materi • ${totalMinutes} Menit</span>
+      <div class="px-4 sm:p-5 pt-3 pb-4 border-t border-slate-800/80 mt-auto flex items-center justify-between gap-2">
+        <span class="text-[11px] text-slate-400 font-mono">
+          ${moduleLessons.length} Materi • ${totalMinutes} Menit
+        </span>
         <button 
-          onclick="event.stopPropagation(); ${firstLessonId ? `navigate('learn', { lessonId: '${firstLessonId}' })` : `showToast('Modul belum memiliki materi', 'info')`}" 
-          class="btn-primary-action px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5"
+          onclick="event.stopPropagation(); ${targetLessonId ? `navigate('learn', { lessonId: '${targetLessonId}' })` : `showToast('Modul belum memiliki materi', 'info')`}" 
+          class="btn-primary-action px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5"
         >
-          <span>Masuk Modul</span>
+          <span>${modCompleted > 0 ? 'Lanjutkan' : 'Masuk Modul'}</span>
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </button>
       </div>

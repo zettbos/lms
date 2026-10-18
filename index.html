@@ -1792,8 +1792,8 @@
                 <th class="py-3 px-4">Nama Siswa</th>
                 <th class="py-3 px-4">Email</th>
                 <th class="py-3 px-4">Materi Selesai</th>
-                <th class="py-3 px-4">Persentase</th>
-                <th class="py-3 px-4 text-right">Status Kelulusan</th>
+                <th class="py-3 px-4 text-center">Status Kelulusan</th>
+                <th class="py-3 px-4 text-right">Aksi Audit</th>
               </tr>
             </thead>
             <tbody id="analytics-table-body">
@@ -1922,8 +1922,23 @@
                 placeholder="https://drive.google.com/file/d/... atau https://example.com/logo.png" 
                 class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono transition-all"
               />
-              <p class="text-[11px] text-slate-400 mt-1.5">
-                💡 <span class="text-emerald-400 font-medium">Tips Google Drive:</span> Pastikan link share di Google Drive di-set ke <em>"Anyone with the link can view"</em>. Link <code>drive.google.com/file/d/.../view</code> akan otomatis dikonversi oleh sistem ke direct image.
+              <p class="text-[11px] text-slate-400 mt-1.5 flex flex-wrap items-center gap-2">
+                <span>Atau upload file gambar langsung:</span>
+                <input 
+                  type="file" 
+                  id="admin-brand-logo-file" 
+                  accept="image/png,image/jpeg,image/webp,image/svg+xml" 
+                  class="hidden" 
+                  onchange="handleBrandLogoFileUpload(event)" 
+                />
+                <button 
+                  type="button" 
+                  onclick="document.getElementById('admin-brand-logo-file').click()" 
+                  class="px-3 py-1 rounded-lg text-xs font-semibold bg-emerald-950 text-emerald-300 border border-emerald-500/50 hover:bg-emerald-900/80 transition-all inline-flex items-center gap-1.5"
+                >
+                  <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                  <span>Upload File Logo ke Supabase CDN (Instan)</span>
+                </button>
               </p>
             </div>
 
@@ -1937,7 +1952,7 @@
             </div>
           </div>
 
-          <div class="pt-2 flex justify-end">
+          <div class="pt-2 flex justify-end gap-2">
             <button type="submit" class="btn-primary-action px-5 py-2.5 rounded-lg text-xs font-semibold flex items-center gap-2">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
               <span>Simpan Logo Brand</span>
@@ -2942,6 +2957,63 @@
   </div>
 
   <!-- ==========================================
+       MODAL 2B: AUDIT DETAIL PROGRES SISWA (ANTI-BOHONG - REVISI 88)
+       ========================================== -->
+  <div id="modal-member-progress-detail" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md hidden">
+    <div class="glass-card rounded-2xl p-5 sm:p-7 max-w-2xl w-full max-h-[90vh] flex flex-col relative shadow-2xl border border-slate-800">
+      <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-800 flex-shrink-0">
+        <div>
+          <div class="flex items-center gap-2">
+            <h3 class="text-base font-bold text-white flex items-center gap-2">
+              <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <span>Audit Progres Belajar Siswa</span>
+            </h3>
+            <span id="audit-member-percent-badge" class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">
+              0% Selesai
+            </span>
+          </div>
+          <p id="audit-member-subtitle" class="text-xs text-slate-400 mt-1 font-mono">
+            Memuat data siswa...
+          </p>
+        </div>
+        <button onclick="closeMemberProgressModal()" class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <!-- Quick Summary Metric Bar -->
+      <div class="grid grid-cols-3 gap-2.5 mb-4 flex-shrink-0">
+        <div class="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800/80 text-center">
+          <span class="text-[10px] text-slate-400 block font-semibold uppercase">Total Modul</span>
+          <span id="audit-stat-modules" class="text-sm font-bold text-white font-mono">0</span>
+        </div>
+        <div class="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800/80 text-center">
+          <span class="text-[10px] text-slate-400 block font-semibold uppercase">Materi Selesai</span>
+          <span id="audit-stat-completed" class="text-sm font-bold text-emerald-400 font-mono">0</span>
+        </div>
+        <div class="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800/80 text-center">
+          <span class="text-[10px] text-slate-400 block font-semibold uppercase">Belum Selesai</span>
+          <span id="audit-stat-remaining" class="text-sm font-bold text-amber-400 font-mono">0</span>
+        </div>
+      </div>
+
+      <!-- Tree of Modules & Lessons -->
+      <div id="audit-member-modules-container" class="flex-1 overflow-y-auto custom-scrollbar space-y-3 pr-1">
+        <!-- Rendered dynamically by admin.js -->
+      </div>
+
+      <div class="pt-4 border-t border-slate-800 flex items-center justify-between mt-4 flex-shrink-0">
+        <span class="text-[11px] text-slate-500 font-mono">
+          Data real-time disinkronkan dari database aktivitas member.
+        </span>
+        <button onclick="closeMemberProgressModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200">
+          Tutup
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
        MODAL 3A: MANAGE ZETTLINK CATEGORY / FOLDER (REVISI 87)
        ========================================== -->
   <div id="modal-manage-category" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md hidden">
@@ -3771,17 +3843,17 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- Application Scripts (Modular Architecture with Cache Buster) -->
-  <script src="js/mock-data.js?v=87"></script>
-  <script src="js/editor.js?v=87"></script>
-  <script src="js/core/state.js?v=87"></script>
-  <script src="js/core/supabase.js?v=87"></script>
-  <script src="js/core/router.js?v=87"></script>
-  <script src="js/core/particles.js?v=87"></script>
-  <script src="js/controllers/auth.js?v=87"></script>
-  <script src="js/controllers/landing.js?v=87"></script>
-  <script src="js/controllers/classroom.js?v=87"></script>
-  <script src="js/controllers/resources.js?v=87"></script>
-  <script src="js/controllers/admin.js?v=87"></script>
-  <script src="js/app.js?v=87"></script>
+  <script src="js/mock-data.js?v=88"></script>
+  <script src="js/editor.js?v=88"></script>
+  <script src="js/core/state.js?v=88"></script>
+  <script src="js/core/supabase.js?v=88"></script>
+  <script src="js/core/router.js?v=88"></script>
+  <script src="js/core/particles.js?v=88"></script>
+  <script src="js/controllers/auth.js?v=88"></script>
+  <script src="js/controllers/landing.js?v=88"></script>
+  <script src="js/controllers/classroom.js?v=88"></script>
+  <script src="js/controllers/resources.js?v=88"></script>
+  <script src="js/controllers/admin.js?v=88"></script>
+  <script src="js/app.js?v=88"></script>
 </body>
 </html>
