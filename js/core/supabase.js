@@ -272,6 +272,15 @@ const ZettSupabase = {
         }
       }
 
+      // 6. Pull Progress from Cloud (Multi-device student & admin monitoring sync)
+      if (AppState.currentUser && AppState.currentUser.email) {
+        await this.pullMemberProgress(AppState.currentUser.email);
+      }
+      if (AppState.currentUser && AppState.currentUser.role === 'admin') {
+        await this.pullAllMembersProgressForAdmin(true);
+      }
+      this.subscribeToMemberProgressRealtime();
+
       saveState();
       showToast('Sinkronisasi cloud Supabase berhasil!', 'success');
 
@@ -1192,6 +1201,199 @@ const ZettSupabase = {
       reader.onerror = () => resolve('');
       reader.readAsDataURL(file);
     });
+  },
+
+  /**
+   * Pushes single lesson progress to Supabase Cloud ('member_progress' table)
+   * Idempotent upsert on conflict (user_email, lesson_id).
+   */
+  async pushMemberLessonProgress(userEmail, lessonId) {
+    if (!userEmail || !lessonId) return false;
+    const cleanEmail = userEmail.toLowerCase().trim();
+    if (!this.isConnected()) return false;
+
+    try {
+      const { error } = await this.client
+        .from('member_progress')
+        .upsert({
+          user_email: cleanEmail,
+          lesson_id: lessonId,
+          completed_at: new Date().toISOString()
+        }, { onConflict: 'user_email,lesson_id' });
+
+      if (error) {
+        console.warn('[ZettSupabase pushMemberLessonProgress Warning]', error);
+        return false;
+      }
+      return true;
+    } catch (err) {
+      console.warn('[ZettSupabase pushMemberLessonProgress Exception]', err);
+      return false;
+    }
+  },
+
+  /**
+   * Removes lesson progress from Supabase Cloud when member unchecks completed lesson.
+   */
+  async removeMemberLessonProgress(userEmail, lessonId) {
+    if (!userEmail || !lessonId) return false;
+    const cleanEmail = userEmail.toLowerCase().trim();
+    if (!this.isConnected()) return false;
+
+    try {
+      const { error } = await this.client
+        .from('member_progress')
+        .delete()
+        .match({ user_email: cleanEmail, lesson_id: lessonId });
+
+      if (error) {
+        console.warn('[ZettSupabase removeMemberLessonProgress Warning]', error);
+        return false;
+      }
+      return true;
+    } catch (err) {
+      console.warn('[ZettSupabase removeMemberLessonProgress Exception]', err);
+      return false;
+    }
+  },
+
+  /**
+   * Pulls all completed lesson IDs for specific member from Cloud upon login / classroom entry.
+   * Merges with local AppState.progress to ensure multi-device continuity.
+   */
+  async pullMemberProgress(userEmail) {
+    if (!userEmail) return [];
+    const cleanEmail = userEmail.toLowerCase().trim();
+    if (!this.isConnected()) return (AppState.progress && AppState.progress[cleanEmail]) || [];
+
+    try {
+      const { data, error } = await this.client
+        .from('member_progress')
+        .select('lesson_id')
+        .eq('user_email', cleanEmail);
+
+      if (!error && Array.isArray(data)) {
+        if (!AppState.progress) AppState.progress = {};
+        const lessonIds = data.map(r => r.lesson_id).filter(Boolean);
+        const currentList = AppState.progress[cleanEmail] || [];
+        const merged = Array.from(new Set([...currentList, ...lessonIds]));
+        AppState.progress[cleanEmail] = merged;
+        saveState();
+        return merged;
+      }
+    } catch (err) {
+      console.warn('[ZettSupabase pullMemberProgress Exception]', err);
+    }
+    return (AppState.progress && AppState.progress[cleanEmail]) || [];
+  },
+
+  /**
+   * Pulls all member progress rows for Admin Monitoring Dashboard.
+   * Maps completed lessons per email in AppState.progress.
+   */
+  async pullAllMembersProgressForAdmin(silent = true) {
+    if (!this.isConnected()) return false;
+
+    try {
+      const { data, error } = await this.client
+        .from('member_progress')
+        .select('user_email, lesson_id')
+        .limit(30000);
+
+      if (!error && Array.isArray(data)) {
+        if (!AppState.progress) AppState.progress = {};
+        const cloudProgressMap = {};
+        data.forEach(r => {
+          const email = (r.user_email || '').toLowerCase().trim();
+          if (!email || !r.lesson_id) return;
+          if (!cloudProgressMap[email]) cloudProgressMap[email] = [];
+          if (!cloudProgressMap[email].includes(r.lesson_id)) {
+            cloudProgressMap[email].push(r.lesson_id);
+          }
+        });
+
+        // Sync to AppState.progress
+        Object.keys(cloudProgressMap).forEach(email => {
+          const localList = AppState.progress[email] || [];
+          AppState.progress[email] = Array.from(new Set([...localList, ...cloudProgressMap[email]]));
+        });
+
+        saveState();
+        if (!silent) {
+          showToast(`Berhasil menarik ${data.length} data progres belajar dari Cloud!`, 'success');
+        }
+        return true;
+      } else if (error) {
+        console.warn('[ZettSupabase pullAllMembersProgressForAdmin Warning]', error);
+        if (!silent) showToast('Gagal menarik progres: ' + error.message, 'error');
+      }
+    } catch (err) {
+      console.warn('[ZettSupabase pullAllMembersProgressForAdmin Exception]', err);
+    }
+    return false;
+  },
+
+  /**
+   * Subscribes to Supabase Realtime 'member_progress' table changes.
+   * Auto-updates AppState.progress and triggers re-render when any student marks lesson complete.
+   */
+  subscribeToMemberProgressRealtime(onChangeCallback) {
+    if (!this.isConnected() || !this.client) return null;
+    if (this._progressChannel) return this._progressChannel;
+
+    try {
+      this._progressChannel = this.client
+        .channel('realtime_member_progress')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'member_progress' }, (payload) => {
+          const eventType = payload.eventType; // 'INSERT', 'DELETE', 'UPDATE'
+          const record = payload.new || payload.old;
+          if (!record || !record.user_email) return;
+
+          const email = (record.user_email || '').toLowerCase().trim();
+          const lessonId = record.lesson_id;
+          if (!AppState.progress) AppState.progress = {};
+          if (!AppState.progress[email]) AppState.progress[email] = [];
+
+          if (eventType === 'INSERT') {
+            if (lessonId && !AppState.progress[email].includes(lessonId)) {
+              AppState.progress[email].push(lessonId);
+            }
+          } else if (eventType === 'DELETE') {
+            const idx = AppState.progress[email].indexOf(lessonId);
+            if (idx > -1) AppState.progress[email].splice(idx, 1);
+          }
+
+          saveState();
+
+          if (typeof onChangeCallback === 'function') {
+            onChangeCallback(payload);
+          }
+
+          // If Admin is currently on analytics tab, live re-render table & metrics!
+          if (typeof AppState !== 'undefined' && AppState.activeAdminTab === 'analytics' && typeof renderAdminAnalytics === 'function') {
+            renderAdminAnalytics();
+          }
+
+          // If current logged-in student's progress changed (e.g. from mobile), live re-render learning room!
+          if (typeof AppState !== 'undefined' && AppState.currentUser && AppState.currentUser.email.toLowerCase().trim() === email) {
+            if (typeof updateStreamNavigationButtons === 'function' && AppState.currentLessonId) {
+              updateStreamNavigationButtons(AppState.currentLessonId);
+            }
+            if (typeof renderCurriculumSidebar === 'function' && AppState.currentLessonId) {
+              renderCurriculumSidebar(AppState.currentLessonId);
+            }
+            if (typeof updateHomeProgressCard === 'function') {
+              updateHomeProgressCard();
+            }
+          }
+        })
+        .subscribe();
+
+      return this._progressChannel;
+    } catch (err) {
+      console.warn('[ZettSupabase subscribeToMemberProgressRealtime Exception]', err);
+      return null;
+    }
   }
 };
 
@@ -1241,6 +1443,11 @@ window.syncZettLinkToCloudLive = (showNotification) => ZettSupabase.syncZettLink
 window.pullZettLinkFromCloudLive = (silent) => ZettSupabase.pullZettLinkFromCloudLive(silent);
 window.syncShowcaseToCloudLive = (showNotification) => ZettSupabase.syncShowcaseToCloudLive(showNotification);
 window.pullShowcaseFromCloudLive = (silent) => ZettSupabase.pullShowcaseFromCloudLive(silent);
+window.pushMemberLessonProgress = (userEmail, lessonId) => ZettSupabase.pushMemberLessonProgress(userEmail, lessonId);
+window.removeMemberLessonProgress = (userEmail, lessonId) => ZettSupabase.removeMemberLessonProgress(userEmail, lessonId);
+window.pullMemberProgress = (userEmail) => ZettSupabase.pullMemberProgress(userEmail);
+window.pullAllMembersProgressForAdmin = (silent) => ZettSupabase.pullAllMembersProgressForAdmin(silent);
+window.subscribeToMemberProgressRealtime = (cb) => ZettSupabase.subscribeToMemberProgressRealtime(cb);
 
 // Initialize on script load
 try {

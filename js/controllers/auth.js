@@ -166,6 +166,24 @@ async function onLoginEmailChanged() {
   }, 350);
 }
 
+/**
+ * Auto-pulls member progress from Supabase Cloud on successful authentication.
+ * Guarantees cross-device continuity (e.g. learning on phone, viewing on laptop).
+ */
+function syncUserCloudProgressOnLogin(userEmail) {
+  if (!userEmail) return;
+  const cleanEmail = userEmail.toLowerCase().trim();
+  if (typeof window.pullMemberProgress === 'function') {
+    window.pullMemberProgress(cleanEmail).then(merged => {
+      if (typeof updateHomeProgressCard === 'function') updateHomeProgressCard();
+    }).catch(e => console.warn('[Cloud Progress Login Sync Warning]', e));
+  } else if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+    ZettSupabase.pullMemberProgress(cleanEmail).then(merged => {
+      if (typeof updateHomeProgressCard === 'function') updateHomeProgressCard();
+    }).catch(e => console.warn('[Cloud Progress Login Sync Warning]', e));
+  }
+}
+
 async function handleLoginSubmit(event) {
   if (event) event.preventDefault();
   const emailInput = document.getElementById('login-email-input');
@@ -228,6 +246,7 @@ async function handleLoginSubmit(event) {
       if (loginData.success && loginData.user) {
         AppState.currentUser = loginData.user;
         saveState();
+        syncUserCloudProgressOnLogin(loginData.user.email);
         showToast(`Login berhasil! Selamat datang, ${loginData.user.fullName || loginData.user.email}`, 'success');
         navigate(loginData.user.role === 'admin' ? 'admin' : 'home');
         return;
@@ -260,6 +279,7 @@ async function handleLoginSubmit(event) {
               };
               AppState.currentUser = loggedUser;
               saveState();
+              syncUserCloudProgressOnLogin(loggedUser.email);
               showToast(`Login berhasil! Selamat datang, ${loggedUser.fullName}`, 'success');
               navigate(loggedUser.role === 'admin' ? 'admin' : 'home');
               return;
@@ -459,6 +479,7 @@ async function verifyOtpCode() {
     // Jika sudah punya password sebelumnya, langsung masuk
     AppState.currentUser = member;
     saveState();
+    syncUserCloudProgressOnLogin(member.email);
     showToast(`Verifikasi sukses! Selamat datang, ${member.fullName || member.email}`, 'success');
     navigate(member.role === 'admin' ? 'admin' : 'home');
   }
@@ -586,6 +607,7 @@ async function handleSetPasswordSubmit(event) {
   // Login akun
   AppState.currentUser = member;
   saveState();
+  syncUserCloudProgressOnLogin(member.email);
 
   showToast(`Selamat datang, ${fullName}! Profil dan kata sandi berhasil disimpan di database cloud.`, 'success');
   navigate(member.role === 'admin' ? 'admin' : 'home');

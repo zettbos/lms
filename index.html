@@ -95,8 +95,8 @@
     }
   </script>
 
-  <!-- Custom Stylesheet (Bump to ?v=98) -->
-  <link rel="stylesheet" href="css/style.css?v=98" />
+  <!-- Custom Stylesheet (Bump to ?v=99) -->
+  <link rel="stylesheet" href="css/style.css?v=99" />
 </head>
 <body class="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--fg)] selection:bg-emerald-500/30 selection:text-emerald-300 transition-colors duration-150">
 
@@ -1847,8 +1847,17 @@
               <span id="analytics-total-badge" class="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">
                 2.319 Siswa
               </span>
+              <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium bg-cyan-950/80 text-cyan-300 border border-cyan-800/60">
+                <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span> Live Realtime
+              </span>
             </div>
-            <p class="text-xs text-slate-400 mt-0.5">Pantau penyelesaian materi video, persentase kelulusan, dan keaktifan belajar setiap siswa.</p>
+            <p class="text-xs text-slate-400 mt-0.5">Pantau penyelesaian materi video, persentase kelulusan, dan keaktifan belajar setiap siswa secara realtime.</p>
+          </div>
+          <div class="flex items-center gap-2.5">
+            <button id="btn-manual-sync-progress" onclick="handleManualPullProgressCloud()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-emerald-600/20 text-emerald-300 hover:bg-emerald-600/30 border border-emerald-500/30 transition shadow-sm hover:shadow-emerald-500/10 cursor-pointer">
+              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              Tarik Progres Cloud
+            </button>
           </div>
         </div>
 
@@ -4500,18 +4509,18 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- Application Scripts (Modular Architecture with Cache Buster) -->
-  <script src="js/mock-data.js?v=98"></script>
-  <script src="js/editor.js?v=98"></script>
-  <script src="js/core/state.js?v=98"></script>
-  <script src="js/core/supabase.js?v=98"></script>
-  <script src="js/core/router.js?v=98"></script>
-  <script src="js/core/particles.js?v=98"></script>
-  <script src="js/controllers/auth.js?v=98"></script>
-  <script src="js/controllers/landing.js?v=98"></script>
-  <script src="js/controllers/classroom.js?v=98"></script>
-  <script src="js/controllers/resources.js?v=98"></script>
-  <script src="js/controllers/showcase.js?v=98"></script>
-  <script src="js/controllers/admin.js?v=98"></script>
-  <script src="js/app.js?v=98"></script>
+  <script src="js/mock-data.js?v=99"></script>
+  <script src="js/editor.js?v=99"></script>
+  <script src="js/core/state.js?v=99"></script>
+  <script src="js/core/supabase.js?v=99"></script>
+  <script src="js/core/router.js?v=99"></script>
+  <script src="js/core/particles.js?v=99"></script>
+  <script src="js/controllers/auth.js?v=99"></script>
+  <script src="js/controllers/landing.js?v=99"></script>
+  <script src="js/controllers/classroom.js?v=99"></script>
+  <script src="js/controllers/resources.js?v=99"></script>
+  <script src="js/controllers/showcase.js?v=99"></script>
+  <script src="js/controllers/admin.js?v=99"></script>
+  <script src="js/app.js?v=99"></script>
 </body>
 </html>

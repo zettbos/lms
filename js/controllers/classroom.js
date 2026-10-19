@@ -1269,6 +1269,20 @@ function renderLearningRoom(lessonId) {
     try {
       localStorage.setItem(`zett_last_lesson_${user.email}`, lesson.id);
     } catch (e) {}
+
+    // Pull student progress from cloud if not yet hydrated this session (Multi-device continuity)
+    if (!window._userProgressHydrated) {
+      window._userProgressHydrated = true;
+      if (typeof window.pullMemberProgress === 'function') {
+        window.pullMemberProgress(user.email).then(merged => {
+          if (merged && AppState.currentLessonId) {
+            updateStreamNavigationButtons(AppState.currentLessonId);
+            renderCurriculumSidebar(AppState.currentLessonId);
+            if (typeof updateHomeProgressCard === 'function') updateHomeProgressCard();
+          }
+        }).catch(e => console.warn('[Classroom Pull Progress Warning]', e));
+      }
+    }
   }
   const userCompleted = (user && AppState.progress[user.email]) ? AppState.progress[user.email] : [];
   const isLessonCompleted = userCompleted.includes(lesson.id);
@@ -1525,6 +1539,13 @@ function advanceToNextLesson(isMarkComplete = false) {
         AppState.activity[user.email].studiedDates.push(todayStr);
       }
       saveState();
+
+      // Push progress to Supabase Cloud asynchronously (Multi-device & Admin Realtime Sync)
+      if (typeof window.pushMemberLessonProgress === 'function') {
+        window.pushMemberLessonProgress(user.email, currentLesson.id);
+      } else if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+        ZettSupabase.pushMemberLessonProgress(user.email, currentLesson.id);
+      }
 
       // Dopamine Micro-Reward Animation (Gambar 2 & Neuro-Pedagogy)
       const actionBtn = document.getElementById('btn-next-lesson') || document.getElementById('btn-footer-next-lesson') || document.getElementById('btn-toggle-complete-lesson');
@@ -1806,11 +1827,37 @@ function toggleLessonCompletion(lessonId) {
   if (idx > -1) {
     list.splice(idx, 1);
     saveState();
+
+    // Remove from Supabase Cloud asynchronously
+    if (typeof window.removeMemberLessonProgress === 'function') {
+      window.removeMemberLessonProgress(user.email, lessonId);
+    } else if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+      ZettSupabase.removeMemberLessonProgress(user.email, lessonId);
+    }
+
     showToast('Status materi dikembalikan ke Belum Selesai', 'info');
     updateStreamNavigationButtons(lessonId);
     renderCurriculumSidebar(lessonId);
+    if (typeof updateHomeProgressCard === 'function') updateHomeProgressCard();
   } else {
-    advanceToNextLesson(true);
+    if (AppState.currentLessonId === lessonId) {
+      advanceToNextLesson(true);
+    } else {
+      list.push(lessonId);
+      saveState();
+
+      // Push progress to Supabase Cloud asynchronously
+      if (typeof window.pushMemberLessonProgress === 'function') {
+        window.pushMemberLessonProgress(user.email, lessonId);
+      } else if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+        ZettSupabase.pushMemberLessonProgress(user.email, lessonId);
+      }
+
+      showToast('🎉 Hebat! Materi berhasil diselesaikan!', 'success');
+      updateStreamNavigationButtons(lessonId);
+      renderCurriculumSidebar(lessonId);
+      if (typeof updateHomeProgressCard === 'function') updateHomeProgressCard();
+    }
   }
 }
 

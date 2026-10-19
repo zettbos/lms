@@ -52,6 +52,14 @@ function switchAdminTab(tabName) {
     pullWhitelistFromSupabaseLive(true);
   } else if (tabName === 'analytics') {
     renderAdminAnalytics();
+    if (typeof window.pullAllMembersProgressForAdmin === 'function') {
+      window.pullAllMembersProgressForAdmin(true).then(() => {
+        if (AppState.activeAdminTab === 'analytics') renderAdminAnalytics();
+      });
+    }
+    if (typeof window.subscribeToMemberProgressRealtime === 'function') {
+      window.subscribeToMemberProgressRealtime();
+    }
   } else if (tabName === 'quickactions') {
     renderAdminQuickActions();
   }
@@ -3035,6 +3043,11 @@ function renderAdminAnalytics() {
   const tableBody = document.getElementById('analytics-table-body');
   if (!tableBody) return;
 
+  // Ensure Realtime subscription is active to catch live student completions
+  if (typeof window.subscribeToMemberProgressRealtime === 'function') {
+    window.subscribeToMemberProgressRealtime();
+  }
+
   const totalLessons = AppState.lessons.length;
   const members = AppState.whitelist || [];
 
@@ -3250,6 +3263,44 @@ function gotoAnalyticsPage(action) {
   renderAdminAnalytics();
 }
 window.gotoAnalyticsPage = gotoAnalyticsPage;
+
+/**
+ * Manually pulls all members' progress from Supabase Cloud.
+ * Triggered by the [Tarik Progres Cloud] button on the Analytics Monitoring toolbar.
+ */
+async function handleManualPullProgressCloud() {
+  const btn = document.getElementById('btn-manual-sync-progress');
+  const originalHtml = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = `<svg class="w-4 h-4 animate-spin inline-block mr-1.5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg> Menarik Progres...`;
+  }
+  showToast('Menghubungkan ke Cloud Supabase untuk menarik progres seluruh siswa...', 'info');
+
+  try {
+    let success = false;
+    if (typeof window.pullAllMembersProgressForAdmin === 'function') {
+      success = await window.pullAllMembersProgressForAdmin(false);
+    } else if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+      success = await ZettSupabase.pullAllMembersProgressForAdmin(false);
+    } else {
+      showToast('Koneksi Supabase belum terkonfigurasi!', 'error');
+    }
+
+    if (success) {
+      renderAdminAnalytics();
+    }
+  } catch (err) {
+    console.error('[handleManualPullProgressCloud Error]', err);
+    showToast('Terjadi kesalahan saat menarik progres cloud: ' + err.message, 'error');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = originalHtml || `<svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg> Tarik Progres Cloud`;
+    }
+  }
+}
+window.handleManualPullProgressCloud = handleManualPullProgressCloud;
 
 // Global window bindings
 window.renderAdminPanel = renderAdminPanel;
