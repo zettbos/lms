@@ -796,6 +796,11 @@ function renderLandingFromCms() {
 
 
   // 3. Render Testimonial Marquee Slider
+  const testiSubtitle = document.getElementById('landing-testimonials-subtitle');
+  if (testiSubtitle && cms.testimonialsSubtitle) {
+    testiSubtitle.textContent = cms.testimonialsSubtitle;
+  }
+
   const testiTrack = document.getElementById('landing-testimonials-track');
   if (testiTrack && Array.isArray(cms.testimonials)) {
     const renderTestiCard = (t, isClone = false) => {
@@ -855,6 +860,16 @@ function renderLandingFromCms() {
                 "${escapeHtml(t.quote)}"
               </p>
             </div>
+
+            <!-- Tombol Lihat Testimoni (Jika ada Bukti Foto dari CMS) -->
+            ${t.proofPhotoUrl ? `
+              <div class="mt-3.5">
+                <button type="button" onclick="openTestimonialProofModal('${escapeHtml(t.proofPhotoUrl)}', '${escapeHtml(t.name)}', '${escapeHtml(t.outcomeBadge || 'Testimoni Member')}', '${escapeHtml(t.quote)}')" class="w-full py-2 px-3.5 rounded-full text-xs font-bold bg-emerald-500/15 hover:bg-emerald-500 text-emerald-300 hover:text-slate-950 border border-emerald-500/40 hover:border-emerald-400 flex items-center justify-center gap-2 transition-all shadow-sm group/proof cursor-pointer">
+                  <svg class="w-4 h-4 text-emerald-400 group-hover/proof:scale-110 group-hover/proof:text-slate-950 transition-all shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                  <span>Lihat Testimoni</span>
+                </button>
+              </div>
+            ` : ''}
           </div>
 
           <!-- Bottom: Verified Member & Progress -->
@@ -1195,4 +1210,30 @@ window.initLandingScrollReveal = initLandingScrollReveal;
 window.openImageLightbox = openImageLightbox;
 window.closeImageLightbox = closeImageLightbox;
 window.openFacilityImageLightbox = openFacilityImageLightbox;
+
+function openTestimonialProofModal(photoUrl, name, outcome, quote) {
+  const modal = document.getElementById('modal-testi-proof-lightbox');
+  const imgEl = document.getElementById('testi-lightbox-img');
+  const nameEl = document.getElementById('testi-lightbox-name');
+  const outcomeEl = document.getElementById('testi-lightbox-outcome');
+  const quoteEl = document.getElementById('testi-lightbox-quote');
+  const downloadEl = document.getElementById('testi-lightbox-download');
+
+  if (!modal) return;
+  if (imgEl) imgEl.src = photoUrl || '';
+  if (nameEl) nameEl.textContent = name || 'Member Zettbos';
+  if (outcomeEl) outcomeEl.textContent = outcome || 'Pencapaian Member';
+  if (quoteEl) quoteEl.textContent = quote ? `"${quote}"` : '';
+  if (downloadEl) downloadEl.href = photoUrl || '#';
+
+  modal.classList.remove('hidden');
+}
+
+function closeTestimonialProofModal() {
+  const modal = document.getElementById('modal-testi-proof-lightbox');
+  if (modal) modal.classList.add('hidden');
+}
+
+window.openTestimonialProofModal = openTestimonialProofModal;
+window.closeTestimonialProofModal = closeTestimonialProofModal;
 

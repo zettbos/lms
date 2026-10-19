@@ -547,6 +547,18 @@ function openAddTestimonialModal() {
   document.getElementById('edit-testi-outcome').value = '';
   document.getElementById('edit-testi-quote').value = '';
 
+  const proofUrl = document.getElementById('edit-testi-proof-url');
+  const proofFile = document.getElementById('edit-testi-proof-file');
+  const previewBox = document.getElementById('testi-proof-preview-container');
+  const previewImg = document.getElementById('testi-proof-preview-img');
+  const uploadStatus = document.getElementById('testi-proof-upload-status');
+
+  if (proofUrl) proofUrl.value = '';
+  if (proofFile) proofFile.value = '';
+  if (previewBox) previewBox.classList.add('hidden');
+  if (previewImg) previewImg.src = '';
+  if (uploadStatus) uploadStatus.classList.add('hidden');
+
   document.getElementById('modal-edit-testimonial').classList.remove('hidden');
 }
 
@@ -566,11 +578,91 @@ function openEditTestimonialModal(id) {
   document.getElementById('edit-testi-outcome').value = t.outcomeBadge || '';
   document.getElementById('edit-testi-quote').value = t.quote;
 
+  const proofUrl = document.getElementById('edit-testi-proof-url');
+  const proofFile = document.getElementById('edit-testi-proof-file');
+  const previewBox = document.getElementById('testi-proof-preview-container');
+  const previewImg = document.getElementById('testi-proof-preview-img');
+  const uploadStatus = document.getElementById('testi-proof-upload-status');
+
+  if (proofFile) proofFile.value = '';
+  if (uploadStatus) uploadStatus.classList.add('hidden');
+  if (proofUrl) proofUrl.value = t.proofPhotoUrl || '';
+
+  if (previewBox && previewImg) {
+    if (t.proofPhotoUrl) {
+      previewImg.src = t.proofPhotoUrl;
+      previewBox.classList.remove('hidden');
+    } else {
+      previewImg.src = '';
+      previewBox.classList.add('hidden');
+    }
+  }
+
   document.getElementById('modal-edit-testimonial').classList.remove('hidden');
 }
 
 function closeEditTestimonialModal() {
   document.getElementById('modal-edit-testimonial').classList.add('hidden');
+}
+
+async function handleTestiProofFileUpload(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  if (file.size > 5 * 1024 * 1024) {
+    showToast('Ukuran foto terlalu besar (maksimal 5MB)', 'error');
+    return;
+  }
+
+  const uploadStatus = document.getElementById('testi-proof-upload-status');
+  const previewBox = document.getElementById('testi-proof-preview-container');
+  const previewImg = document.getElementById('testi-proof-preview-img');
+  const proofUrl = document.getElementById('edit-testi-proof-url');
+
+  if (uploadStatus) {
+    uploadStatus.textContent = 'Mengunggah ke Supabase Storage...';
+    uploadStatus.classList.remove('hidden');
+  }
+
+  try {
+    let uploadedUrl = '';
+    if (typeof ZettSupabase !== 'undefined' && typeof ZettSupabase.uploadTestimonialProof === 'function') {
+      uploadedUrl = await ZettSupabase.uploadTestimonialProof(file);
+    } else {
+      uploadedUrl = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result || '');
+        reader.readAsDataURL(file);
+      });
+    }
+
+    if (uploadedUrl) {
+      if (proofUrl) proofUrl.value = uploadedUrl;
+      if (previewImg) previewImg.src = uploadedUrl;
+      if (previewBox) previewBox.classList.remove('hidden');
+      showToast('Foto bukti berhasil diunggah!', 'success');
+    } else {
+      showToast('Gagal mengunggah foto bukti', 'error');
+    }
+  } catch (err) {
+    console.error('[Upload Testimonial Proof Error]', err);
+    showToast('Terjadi kendala saat mengunggah foto', 'error');
+  } finally {
+    if (uploadStatus) uploadStatus.classList.add('hidden');
+  }
+}
+
+function handleRemoveTestiProof() {
+  const proofUrl = document.getElementById('edit-testi-proof-url');
+  const proofFile = document.getElementById('edit-testi-proof-file');
+  const previewBox = document.getElementById('testi-proof-preview-container');
+  const previewImg = document.getElementById('testi-proof-preview-img');
+
+  if (proofUrl) proofUrl.value = '';
+  if (proofFile) proofFile.value = '';
+  if (previewImg) previewImg.src = '';
+  if (previewBox) previewBox.classList.add('hidden');
+  showToast('Foto bukti telah dilepas', 'info');
 }
 
 function handleSaveTestimonialSubmit(e) {
@@ -582,6 +674,7 @@ function handleSaveTestimonialSubmit(e) {
   const tint = document.getElementById('edit-testi-tint').value;
   const outcomeBadge = document.getElementById('edit-testi-outcome').value.trim();
   const quote = document.getElementById('edit-testi-quote').value.trim();
+  const proofPhotoUrl = document.getElementById('edit-testi-proof-url')?.value?.trim() || '';
 
   if (!AppState.landingCms) AppState.landingCms = {};
   if (!Array.isArray(AppState.landingCms.testimonials)) AppState.landingCms.testimonials = [];
@@ -595,6 +688,7 @@ function handleSaveTestimonialSubmit(e) {
       target.tint = tint;
       target.outcomeBadge = outcomeBadge;
       target.quote = quote;
+      target.proofPhotoUrl = proofPhotoUrl;
     }
   } else {
     const newId = generateFormattedId('TESTI', AppState.landingCms?.testimonials || [], 2);
@@ -605,7 +699,8 @@ function handleSaveTestimonialSubmit(e) {
       initials,
       quote,
       outcomeBadge,
-      tint
+      tint,
+      proofPhotoUrl
     });
   }
 
@@ -2341,8 +2436,8 @@ async function handleBatchAddMembers() {
     return;
   }
 
-  // Pisahkan berdasarkan Enter, koma, titik koma, atau baris baru
-  const rawList = rawText.split(/[\r\n,;]+/).map(e => e.trim().toLowerCase()).filter(Boolean);
+  // Pisahkan berdasarkan Enter, koma, titik koma, tab, atau spasi
+  const rawList = rawText.split(/[\r\n,;\t]+/).map(e => e.trim().toLowerCase()).filter(Boolean);
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const validEmails = [];
@@ -2360,12 +2455,29 @@ async function handleBatchAddMembers() {
     return;
   }
 
-  // Filter email yang belum ada di whitelist
-  const existingEmailSet = new Set((AppState.whitelist || []).map(m => (m.email || '').toLowerCase()));
+  // Ambil email eksisting dari local AppState secara case-insensitive
+  const existingEmailSet = new Set((AppState.whitelist || []).map(m => (m.email || '').trim().toLowerCase()));
+
+  // Cek juga ke Supabase jika sedang terhubung untuk cross-check ganda
+  if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+    try {
+      const { data: dbRows } = await ZettSupabase.client.from('whitelist_members').select('email');
+      if (Array.isArray(dbRows)) {
+        dbRows.forEach(row => {
+          if (row.email) existingEmailSet.add(row.email.trim().toLowerCase());
+        });
+      }
+    } catch (dbErr) {
+      console.warn('[Batch Whitelist] DB cross-check skipped, using local state:', dbErr);
+    }
+  }
+
+  // Filter hanya email yang benar-benar baru (belum pernah ada)
   const newEmails = validEmails.filter(e => !existingEmailSet.has(e));
+  const duplicateCount = validEmails.length - newEmails.length;
 
   if (newEmails.length === 0) {
-    showToast('Semua email yang Anda masukkan sudah terdaftar di whitelist!', 'info');
+    showToast(`Semua ${validEmails.length} email yang Anda masukkan sudah terdaftar di whitelist (tidak ada data baru).`, 'info');
     const modal = document.getElementById('modal-batch-whitelist');
     if (modal) modal.classList.add('hidden');
     return;
@@ -2393,7 +2505,7 @@ async function handleBatchAddMembers() {
   AppState.whitelist.unshift(...newMembers);
   saveState();
 
-  // Sinkronkan ke Supabase jika terhubung
+  // Sinkronkan ke Supabase jika terhubung (batching per 100 baris)
   if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
     try {
       const payload = newMembers.map(m => ({
@@ -2404,7 +2516,12 @@ async function handleBatchAddMembers() {
         is_active: true,
         password_hash: null
       }));
-      await ZettSupabase.client.from('whitelist_members').upsert(payload, { onConflict: 'email' });
+
+      const batchSize = 100;
+      for (let i = 0; i < payload.length; i += batchSize) {
+        const chunk = payload.slice(i, i + batchSize);
+        await ZettSupabase.client.from('whitelist_members').upsert(chunk, { onConflict: 'email' });
+      }
     } catch (err) {
       console.warn('[Supabase Batch Insert Error]', err);
     }
@@ -2414,7 +2531,11 @@ async function handleBatchAddMembers() {
   const modal = document.getElementById('modal-batch-whitelist');
   if (modal) modal.classList.add('hidden');
 
-  showToast(`Berhasil mendaftarkan ${newMembers.length} member baru ke whitelist!`, 'success');
+  if (duplicateCount > 0) {
+    showToast(`Berhasil mendaftarkan ${newMembers.length} member baru! (${duplicateCount} email duplikat otomatis dilewati)`, 'success');
+  } else {
+    showToast(`Berhasil mendaftarkan seluruh ${newMembers.length} member baru ke whitelist!`, 'success');
+  }
   renderAdminWhitelist();
 }
 window.handleBatchAddMembers = handleBatchAddMembers;
@@ -3067,6 +3188,8 @@ window.closeEditTestimonialModal = closeEditTestimonialModal;
 window.handleSaveTestimonialSubmit = handleSaveTestimonialSubmit;
 window.deleteTestimonial = deleteTestimonial;
 window.resetLandingTestimonialsToDefault = resetLandingTestimonialsToDefault;
+window.handleTestiProofFileUpload = handleTestiProofFileUpload;
+window.handleRemoveTestiProof = handleRemoveTestiProof;
 window.renderAdminResourcesCms = renderAdminResourcesCms;
 window.openEditResourceModal = openEditResourceModal;
 window.closeEditResourceModal = closeEditResourceModal;

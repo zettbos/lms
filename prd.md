@@ -1,8 +1,8 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 # Projek: Zettbos LMS (Member Hub & Notion-Style Learning Management System)
 ================================================================================
-VERSI DOKUMEN : v1.5.8 (REVISI 94 - FIX GHOST STICKY PROGRESS PILL)
-STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 94 SELESAI)
+VERSI DOKUMEN : v1.5.9 (REVISI 95 - WHITELIST DEDUPLICATION & TESTIMONIAL PROOF SYSTEM)
+STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 95 SELESAI)
 ARSITEK SISTEM: ZettBOT by Zettbos
 ENGINE STACK  : Next.js 14+ (App Router) + Supabase (Postgres & Auth OTP) + Vercel
 ================================================================================

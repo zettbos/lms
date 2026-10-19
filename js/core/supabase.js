@@ -1150,6 +1150,48 @@ const ZettSupabase = {
       reader.onerror = () => resolve('');
       reader.readAsDataURL(file);
     });
+  },
+
+  /**
+   * Uploads testimonial proof photo to Supabase Storage (Bucket 'showcase-covers', folder 'testimonials/')
+   * Fallbacks safely to base64 DataURL if storage bucket isn't reachable or offline.
+   */
+  async uploadTestimonialProof(file) {
+    if (!file) return '';
+
+    if (this.isConnected()) {
+      try {
+        const fileExt = (file.name ? file.name.split('.').pop() : 'png').toLowerCase();
+        const safeExt = ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(fileExt) ? fileExt : 'png';
+        const fileName = `proof_${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${safeExt}`;
+        const filePath = `testimonials/${fileName}`;
+
+        const { data, error } = await this.client.storage
+          .from('showcase-covers')
+          .upload(filePath, file, { cacheControl: '3600', upsert: true });
+
+        if (!error && data) {
+          const { data: publicData } = this.client.storage
+            .from('showcase-covers')
+            .getPublicUrl(filePath);
+
+          if (publicData && publicData.publicUrl) {
+            return publicData.publicUrl;
+          }
+        } else {
+          console.warn('[ZettSupabase Testimonial Storage Upload Warning - Fallback to DataURL]', error);
+        }
+      } catch (err) {
+        console.warn('[ZettSupabase Testimonial Storage Upload Exception - Fallback to DataURL]', err);
+      }
+    }
+
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result || '');
+      reader.onerror = () => resolve('');
+      reader.readAsDataURL(file);
+    });
   }
 };
 

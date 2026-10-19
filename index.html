@@ -95,8 +95,8 @@
     }
   </script>
 
-  <!-- Custom Stylesheet (Bump to ?v=94) -->
-  <link rel="stylesheet" href="css/style.css?v=94" />
+  <!-- Custom Stylesheet (Bump to ?v=95) -->
+  <link rel="stylesheet" href="css/style.css?v=95" />
 </head>
 <body class="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--fg)] selection:bg-emerald-500/30 selection:text-emerald-300 transition-colors duration-150">
 
@@ -705,8 +705,8 @@
     <section id="landing-testimonials" class="section-golden-amber min-h-[60vh] flex flex-col justify-center py-16 sm:py-20 overflow-hidden w-full relative z-10 scroll-reveal">
       <div class="text-center mb-8 sm:mb-10 px-4 max-w-[1440px] mx-auto">
         <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">Cerita Member Zettbos</h2>
-        <p class="text-xs sm:text-sm lg:text-base text-slate-200 mt-2 max-w-lg mx-auto leading-relaxed">
-          Bagaimana alumni member mendeploy aplikasi nyata mereka dari nol hingga siap pakai.
+        <p id="landing-testimonials-subtitle" class="text-xs sm:text-sm lg:text-base text-slate-200 mt-2 max-w-xl mx-auto leading-relaxed">
+          Kisah nyata alumni member Zettbos membuktikan hasil belajar mereka: dari berhasil meraih projek impian, diapresiasi di dunia kerja, hingga meluncurkan karya nyata yang membanggakan.
         </p>
       </div>
 
@@ -2727,9 +2727,14 @@
       </button>
 
       <h3 class="text-lg font-bold text-white mb-1">Import Batch Banyak Email Sekaligus</h3>
-      <p class="text-xs text-slate-400 mb-4">
-        Tempel (paste) daftar email member baru di bawah ini. Pisahkan dengan baris baru (Enter), koma, atau titik koma.
+      <p class="text-xs text-slate-400 mb-3">
+        Tempel (paste) daftar email member baru di bawah ini. Pisahkan dengan baris baru (Enter), koma, titik koma, atau spasi.
       </p>
+
+      <div class="flex items-center gap-2 p-2.5 rounded-xl bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 text-[11px] mb-3">
+        <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span><strong>Smart Deduplication Aktif:</strong> Sistem otomatis mendeteksi &amp; melewati email duplikat (huruf besar/kecil dianggap sama).</span>
+      </div>
 
       <textarea 
         id="batch-emails-textarea" 
@@ -3383,6 +3388,36 @@
           <textarea id="edit-testi-quote" rows="3" required placeholder="Ceritakan bagaimana materi dan bantuan AI di kelas Zettbos membantu member menyelesaikan aplikasinya..." class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-white focus:outline-none focus:border-emerald-500"></textarea>
         </div>
 
+        <!-- Foto Bukti Testimoni (Upload ke Supabase Storage) -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">
+            Foto Bukti Testimoni / Chat / Pencapaian (Opsional)
+          </label>
+          <input type="hidden" id="edit-testi-proof-url" />
+          <input type="file" id="edit-testi-proof-file" accept="image/*" class="hidden" onchange="handleTestiProofFileUpload(event)" />
+
+          <div class="flex items-center gap-3">
+            <button type="button" onclick="document.getElementById('edit-testi-proof-file').click()" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-emerald-950/70 hover:bg-emerald-900 text-emerald-300 border border-emerald-500/40 hover:border-emerald-400 flex items-center gap-2 transition-all shadow-sm">
+              <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              <span>Pilih &amp; Unggah Foto Bukti</span>
+            </button>
+            <span id="testi-proof-upload-status" class="text-[11px] text-emerald-400 font-mono animate-pulse hidden">
+              Mengunggah ke Supabase Storage...
+            </span>
+          </div>
+
+          <!-- Preview Container -->
+          <div id="testi-proof-preview-container" class="mt-2.5 p-2 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between gap-3 hidden">
+            <div class="flex items-center gap-2.5 overflow-hidden">
+              <img id="testi-proof-preview-img" src="" alt="Bukti Testimoni" class="w-12 h-12 object-cover rounded-lg border border-slate-700 flex-shrink-0" />
+              <span class="text-[11px] text-slate-300 truncate">Foto bukti siap ditampilkan di kartu member</span>
+            </div>
+            <button type="button" onclick="handleRemoveTestiProof()" class="px-2.5 py-1 rounded-lg text-xs font-semibold text-rose-400 hover:text-white hover:bg-rose-950/60 transition-colors flex-shrink-0">
+              Hapus Foto
+            </button>
+          </div>
+        </div>
+
         <div class="pt-3 border-t border-slate-800 flex items-center justify-end gap-2">
           <button type="button" onclick="closeEditTestimonialModal()" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800">
             Batal
@@ -3392,6 +3427,46 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL: LIGHTBOX BUKTI TESTIMONI (MEMBER SOCIAL PROOF)
+       ========================================== -->
+  <div id="modal-testi-proof-lightbox" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/90 backdrop-blur-xl hidden animate-fade-in" onclick="if(event.target === this) closeTestimonialProofModal()">
+    <div class="glass-card squircle-card-lg max-w-2xl w-full p-4 sm:p-6 relative shadow-2xl border border-[var(--border)] flex flex-col max-h-[92vh]">
+      <!-- Close Button -->
+      <button onclick="closeTestimonialProofModal()" class="absolute top-3.5 right-3.5 p-2 rounded-full bg-slate-900/80 hover:bg-slate-800 text-slate-400 hover:text-white transition-colors z-10" title="Tutup">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+
+      <!-- Header Info -->
+      <div class="flex items-center gap-3 pr-10 mb-4 pb-3 border-b border-slate-800/80">
+        <div class="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center font-bold font-mono text-xs flex-shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h3 id="testi-lightbox-name" class="text-sm sm:text-base font-bold text-white leading-tight">Member Zettbos</h3>
+            <span class="text-[10px] font-mono font-bold text-emerald-400 px-2 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-800/80">BUKTI TERVERIFIKASI</span>
+          </div>
+          <p id="testi-lightbox-outcome" class="text-xs text-emerald-400 font-medium mt-0.5">Pencapaian Member</p>
+        </div>
+      </div>
+
+      <!-- Scrollable Image Content -->
+      <div class="flex-1 overflow-y-auto flex flex-col items-center justify-center p-1 sm:p-2 bg-[#000F01]/60 rounded-2xl border border-slate-800/60 mb-4">
+        <img id="testi-lightbox-img" src="" alt="Bukti Foto Testimoni" class="max-h-[60vh] w-auto max-w-full rounded-xl object-contain shadow-2xl" />
+      </div>
+
+      <!-- Quote snippet & External View Button -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1 text-xs">
+        <p id="testi-lightbox-quote" class="text-slate-300 italic text-[11px] sm:text-xs truncate max-w-md">"..."</p>
+        <a id="testi-lightbox-download" href="#" target="_blank" rel="noopener noreferrer" class="px-3.5 py-1.5 rounded-full bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 flex items-center justify-center gap-1.5 transition-colors flex-shrink-0 self-end sm:self-auto font-semibold">
+          <span>Buka Resolusi Asli</span>
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+        </a>
+      </div>
     </div>
   </div>
 
@@ -4283,18 +4358,18 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- Application Scripts (Modular Architecture with Cache Buster) -->
-  <script src="js/mock-data.js?v=94"></script>
-  <script src="js/editor.js?v=94"></script>
-  <script src="js/core/state.js?v=94"></script>
-  <script src="js/core/supabase.js?v=94"></script>
-  <script src="js/core/router.js?v=94"></script>
-  <script src="js/core/particles.js?v=94"></script>
-  <script src="js/controllers/auth.js?v=94"></script>
-  <script src="js/controllers/landing.js?v=94"></script>
-  <script src="js/controllers/classroom.js?v=94"></script>
-  <script src="js/controllers/resources.js?v=94"></script>
-  <script src="js/controllers/showcase.js?v=94"></script>
-  <script src="js/controllers/admin.js?v=94"></script>
-  <script src="js/app.js?v=94"></script>
+  <script src="js/mock-data.js?v=95"></script>
+  <script src="js/editor.js?v=95"></script>
+  <script src="js/core/state.js?v=95"></script>
+  <script src="js/core/supabase.js?v=95"></script>
+  <script src="js/core/router.js?v=95"></script>
+  <script src="js/core/particles.js?v=95"></script>
+  <script src="js/controllers/auth.js?v=95"></script>
+  <script src="js/controllers/landing.js?v=95"></script>
+  <script src="js/controllers/classroom.js?v=95"></script>
+  <script src="js/controllers/resources.js?v=95"></script>
+  <script src="js/controllers/showcase.js?v=95"></script>
+  <script src="js/controllers/admin.js?v=95"></script>
+  <script src="js/app.js?v=95"></script>
 </body>
 </html>
