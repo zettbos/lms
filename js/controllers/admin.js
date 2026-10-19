@@ -177,11 +177,12 @@ function renderAdminLandingCms() {
     });
   }
 
-  // Testimonials Table
+  // Testimonials Table (Revisi 97 Moderasi Testimoni Member)
   const tBody = document.getElementById('admin-testimonials-table-body');
   if (tBody && Array.isArray(cms.testimonials)) {
     tBody.innerHTML = '';
     cms.testimonials.forEach((t, idx) => {
+      const isApproved = t.status === 'approved' || !t.status;
       const row = document.createElement('tr');
       row.className = 'border-b border-slate-800/80 hover:bg-slate-900/50 transition-colors text-xs';
       row.innerHTML = `
@@ -192,7 +193,10 @@ function renderAdminLandingCms() {
           </div>
         </td>
         <td class="py-3 px-4">
-          <div class="font-bold text-white">${escapeHtml(t.name)}</div>
+          <div class="font-bold text-white flex items-center gap-1.5">
+            <span>${escapeHtml(t.name)}</span>
+            ${t.userEmail ? `<span class="text-[10px] font-mono text-slate-400 font-normal">(${escapeHtml(t.userEmail)})</span>` : ''}
+          </div>
           <div class="text-[11px] text-slate-400">${escapeHtml(t.role)}</div>
         </td>
         <td class="py-3 px-4">
@@ -203,8 +207,36 @@ function renderAdminLandingCms() {
         <td class="py-3 px-4 text-slate-300 max-w-[280px] truncate" title="${escapeHtml(t.quote)}">
           "${escapeHtml(t.quote)}"
         </td>
+        <td class="py-3 px-4 text-center">
+          ${isApproved ? `
+            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-950/80 text-emerald-400 border border-emerald-500/40">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              APPROVED
+            </span>
+          ` : `
+            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-950/80 text-amber-300 border border-amber-500/40 animate-pulse">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+              PENDING
+            </span>
+          `}
+        </td>
         <td class="py-3 px-4 text-right">
           <div class="flex items-center justify-end gap-1.5">
+            ${!isApproved ? `
+              <button onclick="approveTestimonial('${t.id}')" class="px-2.5 py-1 rounded bg-emerald-500/20 hover:bg-emerald-500 text-emerald-300 hover:text-slate-950 border border-emerald-500/40 text-[11px] font-bold flex items-center gap-1 transition-all shadow-sm" title="Setujui & Tayangkan di Landing Page">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                <span>Setujui</span>
+              </button>
+            ` : `
+              <button onclick="unapproveTestimonial('${t.id}')" class="p-1.5 text-amber-400 hover:text-amber-300 rounded hover:bg-amber-950/40" title="Jadikan Pending (Sembunyikan dari Landing Page)">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </button>
+            `}
+            ${t.proofPhotoUrl ? `
+              <button onclick="openTestimonialProofModal('${escapeHtml(t.proofPhotoUrl)}', '${escapeHtml(t.name)}', '${escapeHtml(t.outcomeBadge || 'Testimoni Member')}', '${escapeHtml(t.quote)}')" class="p-1.5 text-emerald-400 hover:text-white rounded hover:bg-slate-800" title="Lihat Foto Bukti">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              </button>
+            ` : ''}
             <button onclick="openEditTestimonialModal('${t.id}')" class="p-1.5 text-cyan-400 hover:text-white rounded hover:bg-slate-800" title="Edit Testimoni">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
             </button>
@@ -689,6 +721,7 @@ function handleSaveTestimonialSubmit(e) {
       target.outcomeBadge = outcomeBadge;
       target.quote = quote;
       target.proofPhotoUrl = proofPhotoUrl;
+      target.status = target.status || 'approved';
     }
   } else {
     const newId = generateFormattedId('TESTI', AppState.landingCms?.testimonials || [], 2);
@@ -700,7 +733,8 @@ function handleSaveTestimonialSubmit(e) {
       quote,
       outcomeBadge,
       tint,
-      proofPhotoUrl
+      proofPhotoUrl,
+      status: 'approved'
     });
   }
 
@@ -710,6 +744,30 @@ function handleSaveTestimonialSubmit(e) {
   renderAdminLandingCms();
   if (typeof renderLandingFromCms === 'function') renderLandingFromCms();
   showToast('Testimoni berhasil disimpan!', 'success');
+}
+
+function approveTestimonial(id) {
+  if (!AppState.landingCms?.testimonials) return;
+  const target = AppState.landingCms.testimonials.find(item => item.id === id);
+  if (!target) return;
+  target.status = 'approved';
+  saveState();
+  autoPushLandingCmsIfConnected();
+  renderAdminLandingCms();
+  if (typeof renderLandingFromCms === 'function') renderLandingFromCms();
+  showToast(`Testimoni dari "${target.name}" disetujui & tayang di landing!`, 'success');
+}
+
+function unapproveTestimonial(id) {
+  if (!AppState.landingCms?.testimonials) return;
+  const target = AppState.landingCms.testimonials.find(item => item.id === id);
+  if (!target) return;
+  target.status = 'pending';
+  saveState();
+  autoPushLandingCmsIfConnected();
+  renderAdminLandingCms();
+  if (typeof renderLandingFromCms === 'function') renderLandingFromCms();
+  showToast(`Testimoni dari "${target.name}" diubah ke status Pending.`, 'info');
 }
 
 function deleteTestimonial(id) {
@@ -3186,6 +3244,8 @@ window.openAddTestimonialModal = openAddTestimonialModal;
 window.openEditTestimonialModal = openEditTestimonialModal;
 window.closeEditTestimonialModal = closeEditTestimonialModal;
 window.handleSaveTestimonialSubmit = handleSaveTestimonialSubmit;
+window.approveTestimonial = approveTestimonial;
+window.unapproveTestimonial = unapproveTestimonial;
 window.deleteTestimonial = deleteTestimonial;
 window.resetLandingTestimonialsToDefault = resetLandingTestimonialsToDefault;
 window.handleTestiProofFileUpload = handleTestiProofFileUpload;

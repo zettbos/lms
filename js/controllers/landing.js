@@ -884,24 +884,37 @@ function renderLandingFromCms() {
       `;
     };
 
-    if (cms.testimonials.length === 0) {
+    // Only show testimonials that are approved (or legacy items without status)
+    const approvedTestimonials = cms.testimonials.filter(t => t.status === 'approved' || !t.status);
+
+    if (approvedTestimonials.length === 0) {
       testiTrack.classList.add('marquee-empty-static');
       testiTrack.style.animation = 'none';
       testiTrack.style.width = '100%';
       testiTrack.style.justifyContent = 'center';
       testiTrack.innerHTML = `
         <div class="w-full max-w-2xl text-center py-6 px-4 mx-auto">
-          <p class="text-xs sm:text-sm text-slate-400 font-mono leading-relaxed">Belum ada testimoni yang dipublikasikan. Anda dapat menambahkan ulasan member asli melalui Admin Panel (Tab CMS).</p>
+          <p class="text-xs sm:text-sm text-slate-400 font-mono leading-relaxed">Belum ada testimoni yang disetujui. Testimoni member yang diverifikasi mentor akan ditampilkan di sini.</p>
         </div>
       `;
     } else {
       testiTrack.classList.remove('marquee-empty-static');
-      testiTrack.style.animation = '';
-      testiTrack.style.width = '';
-      testiTrack.style.justifyContent = '';
-      const originalSet = cms.testimonials.map(t => renderTestiCard(t, false)).join('');
-      const cloneSet = cms.testimonials.map(t => renderTestiCard(t, true)).join('');
+      testiTrack.style.animation = 'none';
+      testiTrack.style.width = 'max-content';
+      testiTrack.style.justifyContent = 'flex-start';
+
+      // Repeat items if count is small so there is ample width for seamless scrolling
+      let itemsToRepeat = [...approvedTestimonials];
+      while (itemsToRepeat.length < 5) {
+        itemsToRepeat = itemsToRepeat.concat(approvedTestimonials);
+      }
+
+      const originalSet = itemsToRepeat.map(t => renderTestiCard(t, false)).join('');
+      const cloneSet = itemsToRepeat.map(t => renderTestiCard(t, true)).join('');
       testiTrack.innerHTML = originalSet + cloneSet;
+
+      // Initialize interactive drag, swipe, and smooth kinetic glide
+      initInteractiveTestimonialsCarousel();
     }
   }
 
@@ -1236,4 +1249,366 @@ function closeTestimonialProofModal() {
 
 window.openTestimonialProofModal = openTestimonialProofModal;
 window.closeTestimonialProofModal = closeTestimonialProofModal;
+
+// ==========================================
+// INTERACTIVE TESTIMONIALS CAROUSEL CONTROLLER (Revisi 97)
+// Manual Drag, Touch Swipe, Smooth Auto-Glide & Button Navigation
+// ==========================================
+let testiCarouselState = {
+  animId: null,
+  isDragging: false,
+  isHovered: false,
+  startX: 0,
+  startScrollLeft: 0,
+  hasDragged: false,
+  pauseUntil: 0,
+  initialized: false
+};
+
+function initInteractiveTestimonialsCarousel() {
+  const container = document.getElementById('landing-testimonials-container');
+  const track = document.getElementById('landing-testimonials-track');
+  if (!container || !track) return;
+
+  // Stop previous animation loop if running
+  if (testiCarouselState.animId) {
+    cancelAnimationFrame(testiCarouselState.animId);
+    testiCarouselState.animId = null;
+  }
+
+  // Animation loop using requestAnimationFrame (continuous gentle glide)
+  const speed = 0.75; // pixels per frame
+  function step() {
+    const now = Date.now();
+    const halfWidth = track.scrollWidth / 2;
+
+    if (!testiCarouselState.isDragging && !testiCarouselState.isHovered && now > testiCarouselState.pauseUntil) {
+      if (halfWidth > 0) {
+        container.scrollLeft += speed;
+        if (container.scrollLeft >= halfWidth) {
+          container.scrollLeft -= halfWidth;
+        }
+      }
+    }
+    testiCarouselState.animId = requestAnimationFrame(step);
+  }
+
+  testiCarouselState.animId = requestAnimationFrame(step);
+
+  // If already bound listeners, avoid duplicates
+  if (testiCarouselState.initialized) return;
+  testiCarouselState.initialized = true;
+
+  // Pointer & Drag handling (Supports mouse drag and touch swipe seamlessly)
+  container.addEventListener('pointerdown', (e) => {
+    if (e.button && e.button !== 0) return; // Only left-click
+    testiCarouselState.isDragging = true;
+    testiCarouselState.hasDragged = false;
+    testiCarouselState.startX = e.pageX - container.offsetLeft;
+    testiCarouselState.startScrollLeft = container.scrollLeft;
+    container.classList.add('is-dragging');
+    try {
+      container.setPointerCapture(e.pointerId);
+    } catch (_) {}
+  });
+
+  container.addEventListener('pointermove', (e) => {
+    if (!testiCarouselState.isDragging) return;
+    const x = e.pageX - container.offsetLeft;
+    const walk = (x - testiCarouselState.startX) * 1.5;
+    if (Math.abs(walk) > 5) {
+      testiCarouselState.hasDragged = true;
+    }
+    const halfWidth = track.scrollWidth / 2;
+    let nextScroll = testiCarouselState.startScrollLeft - walk;
+    if (halfWidth > 0) {
+      if (nextScroll >= halfWidth) {
+        nextScroll -= halfWidth;
+        testiCarouselState.startScrollLeft -= halfWidth;
+      } else if (nextScroll < 0) {
+        nextScroll += halfWidth;
+        testiCarouselState.startScrollLeft += halfWidth;
+      }
+    }
+    container.scrollLeft = nextScroll;
+  });
+
+  const stopDrag = (e) => {
+    if (!testiCarouselState.isDragging) return;
+    testiCarouselState.isDragging = false;
+    container.classList.remove('is-dragging');
+    try {
+      if (e.pointerId && container.hasPointerCapture(e.pointerId)) {
+        container.releasePointerCapture(e.pointerId);
+      }
+    } catch (_) {}
+    testiCarouselState.pauseUntil = Date.now() + 1500; // Pause auto-glide briefly after drag
+  };
+
+  container.addEventListener('pointerup', stopDrag);
+  container.addEventListener('pointercancel', stopDrag);
+
+  // Prevent accidental clicks on child elements if user was actively dragging
+  container.addEventListener('click', (e) => {
+    if (testiCarouselState.hasDragged) {
+      e.preventDefault();
+      e.stopPropagation();
+      testiCarouselState.hasDragged = false;
+    }
+  }, true);
+
+  // Hover pauses auto-scroll to allow careful reading
+  container.addEventListener('mouseenter', () => {
+    testiCarouselState.isHovered = true;
+  });
+
+  container.addEventListener('mouseleave', () => {
+    testiCarouselState.isHovered = false;
+    testiCarouselState.pauseUntil = Date.now() + 1000;
+  });
+
+  // Touch touchstart / touchend safety
+  container.addEventListener('touchstart', () => {
+    testiCarouselState.isHovered = true;
+  }, { passive: true });
+  container.addEventListener('touchend', () => {
+    testiCarouselState.isHovered = false;
+    testiCarouselState.pauseUntil = Date.now() + 2000;
+  }, { passive: true });
+}
+
+function scrollTestimonials(direction) {
+  const container = document.getElementById('landing-testimonials-container');
+  const track = document.getElementById('landing-testimonials-track');
+  if (!container || !track) return;
+
+  testiCarouselState.pauseUntil = Date.now() + 3000; // Pause auto-scroll for 3s
+  const amount = Math.max(300, Math.floor(container.clientWidth * 0.7)) * direction;
+  const halfWidth = track.scrollWidth / 2;
+
+  let targetScroll = container.scrollLeft + amount;
+  if (halfWidth > 0) {
+    if (targetScroll >= halfWidth) {
+      container.scrollLeft -= halfWidth;
+      targetScroll -= halfWidth;
+    } else if (targetScroll < 0) {
+      container.scrollLeft += halfWidth;
+      targetScroll += halfWidth;
+    }
+  }
+
+  container.scrollBy({ left: amount, behavior: 'smooth' });
+}
+
+// ==========================================
+// MEMBER TESTIMONIAL SUBMISSION CONTROLLERS (Revisi 97)
+// Member can submit review, max 2 pending before admin approval
+// ==========================================
+function openMemberSubmitTestimonialModal() {
+  const user = AppState.currentUser;
+  if (!user) {
+    showToast('Silakan login dengan akun member untuk membagikan cerita Anda.', 'warning');
+    if (typeof navigate === 'function') navigate('login');
+    return;
+  }
+
+  const modal = document.getElementById('modal-member-submit-testimonial');
+  if (!modal) return;
+
+  // Check quota: max 2 pending per member
+  const allTestimonials = AppState.landingCms?.testimonials || [];
+  const userEmail = (user.email || '').toLowerCase().trim();
+  const pendingCount = allTestimonials.filter(t => 
+    ((t.userEmail || '').toLowerCase().trim() === userEmail) && t.status === 'pending'
+  ).length;
+
+  const countBadge = document.getElementById('member-testi-pending-count');
+  const quotaNotice = document.getElementById('member-testi-quota-notice');
+  const submitBtn = document.getElementById('member-testi-submit-btn');
+
+  if (countBadge) {
+    countBadge.textContent = `${pendingCount}/2 Pending`;
+  }
+
+  if (pendingCount >= 2) {
+    if (quotaNotice) {
+      quotaNotice.className = 'p-3 rounded-xl bg-amber-950/60 border border-amber-500/50 mb-4 flex items-center justify-between text-xs text-amber-300';
+      quotaNotice.innerHTML = `
+        <span class="flex items-center gap-1.5 font-medium">
+          <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+          <span>Batas 2 testimoni pending tercapai. Harap tunggu persetujuan mentor.</span>
+        </span>
+        <span class="font-mono font-bold px-2 py-0.5 rounded bg-amber-900/80 border border-amber-500/40 text-amber-300">2/2 Limit</span>
+      `;
+    }
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+      submitBtn.title = 'Batas maksimal 2 testimoni pending tercapai';
+    }
+  } else {
+    if (quotaNotice) {
+      quotaNotice.className = 'p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/30 mb-4 flex items-center justify-between text-xs text-emerald-300';
+      quotaNotice.innerHTML = `
+        <span class="flex items-center gap-1.5 font-medium">
+          <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span>Batas Pengiriman: Maksimal 2 testimoni pending sebelum diapprove.</span>
+        </span>
+        <span id="member-testi-pending-count" class="font-mono font-bold px-2 py-0.5 rounded bg-emerald-900/60 border border-emerald-500/40">${pendingCount}/2 Pending</span>
+      `;
+    }
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      submitBtn.title = '';
+    }
+  }
+
+  // Pre-fill user data
+  const nameInput = document.getElementById('member-testi-name');
+  const initialsInput = document.getElementById('member-testi-initials');
+  if (nameInput && !nameInput.value) {
+    nameInput.value = user.name || (user.email ? user.email.split('@')[0] : '');
+  }
+  if (initialsInput && !initialsInput.value) {
+    const rawName = user.name || (user.email ? user.email.split('@')[0] : 'ZB');
+    initialsInput.value = rawName.substring(0, 2).toUpperCase();
+  }
+
+  modal.classList.remove('hidden');
+}
+
+function closeMemberSubmitTestimonialModal() {
+  const modal = document.getElementById('modal-member-submit-testimonial');
+  if (modal) modal.classList.add('hidden');
+}
+
+async function handleMemberTestiProofUpload(e) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+
+  const uploadStatus = document.getElementById('member-testi-proof-upload-status');
+  const previewBox = document.getElementById('member-testi-proof-preview-container');
+  const previewImg = document.getElementById('member-testi-proof-preview-img');
+  const proofUrlInput = document.getElementById('member-testi-proof-url');
+
+  if (uploadStatus) {
+    uploadStatus.textContent = 'Mengunggah ke Cloud Storage...';
+    uploadStatus.classList.remove('hidden');
+  }
+
+  try {
+    let uploadedUrl = '';
+    if (typeof ZettSupabase !== 'undefined' && typeof ZettSupabase.uploadTestimonialProof === 'function') {
+      uploadedUrl = await ZettSupabase.uploadTestimonialProof(file);
+    } else {
+      uploadedUrl = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result || '');
+        reader.readAsDataURL(file);
+      });
+    }
+
+    if (uploadedUrl) {
+      if (proofUrlInput) proofUrlInput.value = uploadedUrl;
+      if (previewImg) previewImg.src = uploadedUrl;
+      if (previewBox) previewBox.classList.remove('hidden');
+      showToast('Foto bukti berhasil diunggah!', 'success');
+    } else {
+      showToast('Gagal mengunggah foto bukti', 'error');
+    }
+  } catch (err) {
+    console.error('[Upload Member Testimonial Proof Error]', err);
+    showToast('Terjadi kendala saat mengunggah foto', 'error');
+  } finally {
+    if (uploadStatus) uploadStatus.classList.add('hidden');
+  }
+}
+
+function handleRemoveMemberTestiProof() {
+  const proofUrlInput = document.getElementById('member-testi-proof-url');
+  const proofFileInput = document.getElementById('member-testi-proof-file');
+  const previewBox = document.getElementById('member-testi-proof-preview-container');
+  const previewImg = document.getElementById('member-testi-proof-preview-img');
+
+  if (proofUrlInput) proofUrlInput.value = '';
+  if (proofFileInput) proofFileInput.value = '';
+  if (previewImg) previewImg.src = '';
+  if (previewBox) previewBox.classList.add('hidden');
+  showToast('Foto bukti telah dilepas', 'info');
+}
+
+async function handleMemberTestimonialSubmit(e) {
+  if (e) e.preventDefault();
+
+  const user = AppState.currentUser;
+  if (!user) {
+    showToast('Silakan login terlebih dahulu', 'warning');
+    return;
+  }
+
+  const userEmail = (user.email || '').toLowerCase().trim();
+  if (!AppState.landingCms) AppState.landingCms = {};
+  if (!Array.isArray(AppState.landingCms.testimonials)) AppState.landingCms.testimonials = [];
+
+  // Re-verify quota
+  const pendingCount = AppState.landingCms.testimonials.filter(t => 
+    ((t.userEmail || '').toLowerCase().trim() === userEmail) && t.status === 'pending'
+  ).length;
+
+  if (pendingCount >= 2) {
+    showToast('Batas maksimal 2 testimoni pending tercapai. Harap tunggu persetujuan mentor.', 'warning');
+    return;
+  }
+
+  const name = document.getElementById('member-testi-name').value.trim();
+  const initials = document.getElementById('member-testi-initials').value.trim().toUpperCase() || name.substring(0, 2).toUpperCase();
+  const role = document.getElementById('member-testi-role').value.trim();
+  const tint = document.getElementById('member-testi-tint').value;
+  const outcomeBadge = document.getElementById('member-testi-outcome').value.trim();
+  const quote = document.getElementById('member-testi-quote').value.trim();
+  const proofPhotoUrl = document.getElementById('member-testi-proof-url')?.value?.trim() || '';
+
+  const newId = (typeof generateFormattedId === 'function') 
+    ? generateFormattedId('TESTI', AppState.landingCms.testimonials, 2)
+    : `TESTI-${Date.now()}`;
+
+  const newTestimonial = {
+    id: newId,
+    name,
+    role,
+    initials,
+    quote,
+    outcomeBadge,
+    tint,
+    proofPhotoUrl,
+    status: 'pending', // Pending approval by default for member submissions
+    userEmail: user.email,
+    submittedAt: new Date().toISOString()
+  };
+
+  AppState.landingCms.testimonials.unshift(newTestimonial);
+
+  if (typeof saveState === 'function') saveState();
+  if (typeof autoPushLandingCmsIfConnected === 'function') autoPushLandingCmsIfConnected();
+  if (typeof renderAdminLandingCms === 'function') renderAdminLandingCms();
+
+  // Reset form
+  const form = document.getElementById('form-member-submit-testimonial');
+  if (form) form.reset();
+  handleRemoveMemberTestiProof();
+
+  closeMemberSubmitTestimonialModal();
+  showToast('Testimoni berhasil dikirim! Menunggu persetujuan admin/mentor.', 'success');
+}
+
+// Window bindings for Interactive Carousel & Member Submission
+window.initInteractiveTestimonialsCarousel = initInteractiveTestimonialsCarousel;
+window.scrollTestimonials = scrollTestimonials;
+window.openMemberSubmitTestimonialModal = openMemberSubmitTestimonialModal;
+window.closeMemberSubmitTestimonialModal = closeMemberSubmitTestimonialModal;
+window.handleMemberTestiProofUpload = handleMemberTestiProofUpload;
+window.handleRemoveMemberTestiProof = handleRemoveMemberTestiProof;
+window.handleMemberTestimonialSubmit = handleMemberTestimonialSubmit;
+
 

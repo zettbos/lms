@@ -1,8 +1,8 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 # Projek: Zettbos LMS (Member Hub & Notion-Style Learning Management System)
 ================================================================================
-VERSI DOKUMEN : v1.6.0 (REVISI 96 - CALM READING CANVAS & ZEN FOCUS MODE)
-STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 96 SELESAI)
+VERSI DOKUMEN : v1.7.0 (REVISI 97 - TESTIMONIAL EMPOWERMENT & CALM CLASSROOM)
+STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 97 SELESAI)
 ARSITEK SISTEM: ZettBOT by Zettbos
 ENGINE STACK  : Next.js 14+ (App Router) + Supabase (Postgres & Auth OTP) + Vercel
 ================================================================================
@@ -993,6 +993,25 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
           - Menyeragamkan seluruh sebutan "Zettbos Academy" menjadi identitas resmi tunggal: "Zettbos".
        10. Cache Buster:
           - Menaikkan seluruh script tag di `index.html` ke versi `?v=92`.
+    - [2026-10-19] Implementasi Revisi 97: Testimonial Empowerment, Interactive Marquee Carousel Drag & Swipe, dan Eliminasi Floating Pill EP0.
+       1. Eliminasi Tombol Kanan Bawah `#floating-progress-pill` (`index.html`, `style.css`, `classroom.js`, `router.js`):
+          - Menghapus komponen pill floating yang sebelumnya tertahan di status "EP0" akibat pelacakan scroll yang desinkronisasi.
+          - Member kini menikmati pengalaman membaca yang tenang (*calm canvas*) tanpa distraksi visual di sudut kanan bawah, didukung navigasi deterministik di bawah materi (`#learn-reading-footer-inner`) dan Zen Focus Floating Bar (`#zen-focus-floating-bar`).
+       2. Form Pengisian Testimoni oleh Member Resmi (`index.html`, `landing.js`):
+          - Menyediakan modal `#modal-member-submit-testimonial` yang dapat diakses langsung oleh member melalui tombol `[+ Bagikan Cerita / Testimoni Member]` di section `#landing-testimonials`.
+          - Menerapkan batasan kuota ketat: maksimal 2 testimoni berstatus `pending` per member sebelum disetujui oleh mentor/admin.
+          - Mengintegrasikan upload foto bukti testimoni langsung ke Supabase Storage (bucket `showcase-covers`, folder `testimonials/`) dengan fallback base64 offline.
+       3. Pergantian Istilah Field Pencapaian:
+          - Mengganti label dan placeholder "Badge Hasil Nyata / Pencapaian" menjadi "Nama Web App / Pencapaian" di seluruh antarmuka CMS, modal pengisian member, dan tabel admin.
+       4. Transformasi Carousel Testimoni Menjadi Interaktif Penuh (`landing.js`, `index.html`, `style.css`):
+          - Mengganti animasi CSS marquee pasif dengan controller kinetik interaktif berbasis JavaScript `requestAnimationFrame`.
+          - Mendukung geser manual dengan mouse drag (`is-dragging`, cursor grabbing), touch swipe di layar sentuh ponsel/tablet, dan tombol navigasi panah kiri/kanan `[←]` `[→]`.
+          - Otomatis melanjutkan glide halus saat idle dan menjamin looping tak terbatas (*seamless infinite wrap*).
+       5. Moderasi Admin Testimoni di CMS (`admin.js`, `index.html`):
+          - Tabel manajemen testimoni admin kini memiliki kolom Status Moderasi (`APPROVED` hijau vs `PENDING REVIEW` kuning).
+          - Menyediakan tombol aksi `[✅ Setujui]` (`approveTestimonial`) untuk menyetujui testimoni member ke publik landing page, serta tombol `[⏸️ Unapprove]` (`unapproveTestimonial`) untuk mengembalikan ke pending.
+       6. Cache Buster:
+          - Menaikkan seluruh referensi file CSS dan JavaScript ke versi `?v=97`.
 
 
 

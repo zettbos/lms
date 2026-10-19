@@ -149,13 +149,6 @@ function navigate(viewName, params = {}) {
 
   AppState.currentView = viewName;
 
-  // Hide floating pill on page transitions (hanya muncul saat scroll di dalam player materi)
-  const pill = document.getElementById('floating-progress-pill');
-  if (pill) {
-    pill.classList.remove('visible-pill');
-    pill.classList.add('hidden-pill');
-  }
-
   // Reset Zen Focus Mode jika berpindah ke halaman selain learn
   if (viewName !== 'learn' && document.body.classList.contains('zen-focus-mode')) {
     if (typeof window.toggleFocusMode === 'function') {

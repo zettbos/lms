@@ -424,47 +424,6 @@ pre, code, .font-mono, .font-numeric {
   overflow: hidden;
 }
 
-/* Floating Sticky Progress Pill (Gambar 1 Obsidian Green & Gambar 2 Capsule) */
-#floating-progress-pill {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  z-index: 45;
-  background: rgba(0, 15, 1, 0.92);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--border-strong);
-  border-radius: 9999px;
-  box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 223, 129, 0.12);
-  padding: 8px 16px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  transition: opacity var(--duration-medium) var(--ease-standard),
-              transform var(--duration-medium) var(--ease-standard);
-}
-
-@media (max-width: 767px) {
-  #floating-progress-pill {
-    bottom: 76px;
-    right: 16px;
-    left: 16px;
-    justify-content: space-between;
-  }
-}
-
-#floating-progress-pill.hidden-pill {
-  opacity: 0;
-  transform: translateY(16px);
-  pointer-events: none;
-}
-
-#floating-progress-pill.visible-pill {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
-}
-
 /* Toast Container & Notification Item */
 #toast-container {
   position: fixed;
@@ -711,7 +670,6 @@ pre, code, .font-mono, .font-numeric {
     scroll-behavior: auto !important;
   }
   
-  #floating-progress-pill,
   .animate-drawer-left,
   .animate-sheet-up,
   .toast-item {
@@ -1430,13 +1388,6 @@ html.light #mobile-bottom-nav button.text-white {
   color: #059669 !important;
 }
 
-/* Floating Sticky Progress Pill */
-html.light #floating-progress-pill {
-  background: rgba(255, 255, 255, 0.96) !important;
-  border-color: #CBD5E1 !important;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12) !important;
-}
-
 /* Module Blueprint Cover */
 html.light .module-blueprint-cover {
   background: #EDF2F7 !important;
@@ -1906,23 +1857,33 @@ html.light .landing-matrix-overlay {
 .testimonial-marquee-container {
   position: relative;
   width: 100%;
-  overflow: hidden;
-  mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,1) 6%, rgba(0,0,0,1) 94%, transparent 100%);
-  -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,1) 6%, rgba(0,0,0,1) 94%, transparent 100%);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  cursor: grab;
+  user-select: none;
+  mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,1) 5%, rgba(0,0,0,1) 95%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,1) 5%, rgba(0,0,0,1) 95%, transparent 100%);
   padding: 16px 0;
+}
+
+.testimonial-marquee-container::-webkit-scrollbar {
+  display: none;
+}
+
+.testimonial-marquee-container.is-dragging {
+  cursor: grabbing !important;
+  scroll-behavior: auto;
 }
 
 .testimonial-marquee-track {
   display: flex;
   gap: 20px;
   width: max-content;
-  animation: testimonialScroll 46s linear infinite;
   will-change: transform;
-}
-
-.testimonial-marquee-track:hover,
-.testimonial-marquee-track:active {
-  animation-play-state: paused;
 }
 
 /* Proportioned Testimonial Card (Never over-stretched) */
