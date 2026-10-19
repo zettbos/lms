@@ -90,17 +90,20 @@ CREATE TABLE IF NOT EXISTS public.member_favorites (
     created_at TIMESTAMPTZ DEFAULT now()
 );
 
--- 8. TABEL DOKUMEN & SHARED RESOURCES (Sheet DB, Prompt, Code)
+-- 8. TABEL DOKUMEN & SHARED RESOURCES (Sheet DB, Prompt, Code, Dinamis CMS)
 CREATE TABLE IF NOT EXISTS public.shared_resources (
     id TEXT PRIMARY KEY DEFAULT ('RES-' || lpad(nextval('seq_shared_resources')::text, 2, '0')),
     title TEXT NOT NULL,
     description TEXT,
     url TEXT NOT NULL,
-    category TEXT DEFAULT 'sheet' CHECK (category IN ('sheet', 'code', 'prompt', 'drive', 'sop')),
+    category TEXT DEFAULT 'sheet',
     badge TEXT DEFAULT 'Official Link',
     order_index INTEGER DEFAULT 1,
     created_at TIMESTAMPTZ DEFAULT now()
 );
+
+-- Safe Migration: Hapus check constraint lama jika tabel sudah ada sebelumnya
+ALTER TABLE public.shared_resources DROP CONSTRAINT IF EXISTS shared_resources_category_check;
 
 -- 9. TABEL CMS DOKUMEN LANDING PAGE (Hero, Facilities, UseCases, Testimoni)
 CREATE TABLE IF NOT EXISTS public.landing_cms (

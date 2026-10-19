@@ -77,10 +77,10 @@ function renderHostingAndDatabasePills() {
         <button 
           type="button"
           onclick="filterShowcaseHosting('${h.id}')"
-          class="px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-all ${
+          class="px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
             isActive
-              ? 'bg-emerald-500 text-slate-950 font-bold shadow-sm shadow-emerald-500/20'
-              : 'bg-slate-900/80 hover:bg-slate-800 text-slate-300 border border-slate-800 hover:border-slate-700'
+              ? 'bg-[#00DF81] text-[#000F01] shadow-md shadow-[#00DF81]/30 font-black'
+              : 'bg-[#032221] hover:bg-[#053331] text-[#707D7D] hover:text-[#F1F7F6] border border-[#03624C]/60'
           }"
         >
           ${escapeHtml(h.label)}
@@ -96,10 +96,10 @@ function renderHostingAndDatabasePills() {
         <button 
           type="button"
           onclick="filterShowcaseDatabase('${d.id}')"
-          class="px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-all ${
+          class="px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
             isActive
-              ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm shadow-cyan-500/20'
-              : 'bg-slate-900/80 hover:bg-slate-800 text-slate-300 border border-slate-800 hover:border-slate-700'
+              ? 'bg-[#2CC295] text-[#000F01] shadow-md shadow-[#2CC295]/30 font-black'
+              : 'bg-[#032221] hover:bg-[#053331] text-[#707D7D] hover:text-[#F1F7F6] border border-[#03624C]/60'
           }"
         >
           ${escapeHtml(d.label)}
@@ -209,9 +209,9 @@ function renderSingleShowcaseCardHtml(p, isSuperAdmin, currentUserEmail) {
   const databaseName = p.database || (p.tech_stack?.includes('Sheets') ? 'Google Sheets' : 'Database');
 
   return `
-    <div class="glass-card bg-slate-900/90 rounded-2xl overflow-hidden flex flex-col justify-between group transition-all duration-300 border ${
-      isPending ? 'border-amber-500/40 bg-amber-950/10' : 'border-slate-800 hover:border-emerald-500/50'
-    } hover:shadow-xl hover:-translate-y-1">
+    <div class="glass-card squircle-card rounded-3xl overflow-hidden flex flex-col justify-between group transition-all duration-300 border ${
+      isPending ? 'border-amber-500/40 bg-amber-950/10' : 'border-[#03624C]/45 hover:border-[#00DF81]/60'
+    } hover:shadow-2xl hover:-translate-y-1.5">
       <div>
         <!-- Card Cover / Thumbnail -->
         <div class="relative h-44 overflow-hidden bg-slate-950 border-b border-slate-800/80">
@@ -222,24 +222,24 @@ function renderSingleShowcaseCardHtml(p, isSuperAdmin, currentUserEmail) {
             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80'"
           />
-          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent"></div>
+          <div class="absolute inset-0 bg-gradient-to-t from-[#000F01] via-[#000F01]/30 to-transparent"></div>
 
           <!-- Top Status Badges (Revisi 91: Hapus badge VERIFIED SHOWCASE) -->
           <div class="absolute top-3 left-3 right-3 flex items-center justify-between gap-2">
             <div class="flex items-center gap-1.5 flex-wrap">
               ${isFeatured ? `
-                <span class="px-2.5 py-0.5 rounded text-[10px] font-black bg-amber-500 text-slate-950 border border-amber-400 shadow-md font-mono flex items-center gap-1">
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-500 text-slate-950 border border-amber-400 shadow-md font-mono flex items-center gap-1">
                   ⭐ KARYA PILIHAN
                 </span>
               ` : ''}
               ${isPending ? `
-                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-950/90 text-amber-300 border border-amber-500/50 shadow-sm font-mono flex items-center gap-1 animate-pulse">
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-950/90 text-amber-300 border border-amber-500/50 shadow-sm font-mono flex items-center gap-1 animate-pulse">
                   ⏳ MENUNGGU REVIEW ADMIN
                 </span>
               ` : ''}
             </div>
 
-            <span class="px-2 py-0.5 rounded text-[10px] font-mono text-slate-300 bg-slate-950/80 backdrop-blur-md border border-slate-800">
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono text-slate-300 bg-slate-950/80 backdrop-blur-md border border-slate-800">
               ${escapeHtml(createdDate)}
             </span>
           </div>
@@ -270,11 +270,11 @@ function renderSingleShowcaseCardHtml(p, isSuperAdmin, currentUserEmail) {
 
           <!-- Hosting & Database Badges (Revisi 91) -->
           <div class="flex flex-wrap items-center gap-1.5 mb-2">
-            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 flex items-center gap-1">
+            <span class="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 flex items-center gap-1">
               <svg class="w-3 h-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15z"/></svg>
               <span>${escapeHtml(hostingName)}</span>
             </span>
-            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-cyan-950/60 border border-cyan-500/30 text-cyan-300 flex items-center gap-1">
+            <span class="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-cyan-950/60 border border-cyan-500/30 text-cyan-300 flex items-center gap-1">
               <svg class="w-3 h-3 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2 1.5 3 3.5 3h9c2 0 3.5-1 3.5-3V7m-16 0c0-2 1.5-3 3.5-3h9c2 0 3.5 1 3.5 3m-16 0h16M4 12h16"/></svg>
               <span>${escapeHtml(databaseName)}</span>
             </span>
@@ -290,7 +290,7 @@ function renderSingleShowcaseCardHtml(p, isSuperAdmin, currentUserEmail) {
               href="${escapeHtml(p.demo_url)}" 
               target="_blank" 
               rel="noopener noreferrer" 
-              class="btn-primary-action px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md shadow-emerald-950/50"
+              class="btn-primary-action px-4 py-2 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-md shadow-[#00DF81]/25"
             >
               <span>Buka Web App</span>
               <svg class="w-3.5 h-3.5 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
@@ -300,7 +300,7 @@ function renderSingleShowcaseCardHtml(p, isSuperAdmin, currentUserEmail) {
           ${isSuperAdmin ? `
             <button 
               onclick="openAdminEditShowcaseModal('${p.id}')"
-              class="px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/25 transition-colors flex items-center gap-1"
+              class="px-3 py-1.5 rounded-full text-xs font-semibold bg-[#00DF81]/15 text-[#00DF81] border border-[#00DF81]/40 hover:bg-[#00DF81]/25 transition-colors flex items-center gap-1"
               title="Edit Data Karya Siswa (Admin)"
             >
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>

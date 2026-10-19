@@ -57,6 +57,11 @@
     })();
   </script>
 
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono (Gambar 1) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -66,20 +71,32 @@
         extend: {
           colors: {
             brand: {
-              emerald: '#10B981',
-              cyan: '#06B6D4',
-              dark: '#070B14',
-              surface: '#0E1626',
-              card: '#131E33'
-            }
+              emerald: '#00DF81',
+              cyan: '#2CC295',
+              dark: '#000F01',
+              surface: '#032221',
+              card: '#032221'
+            },
+            obsidian: '#000F01',
+            darkgreen: '#032221',
+            bangladesh: '#03624C',
+            caribbean: '#00DF81',
+            meadow: '#2CC295',
+            antiflash: '#F1F7F6',
+            stone: '#707D7D'
+          },
+          borderRadius: {
+            '2xl': '1rem',
+            '3xl': '1.5rem',
+            '4xl': '1.75rem'
           }
         }
       }
     }
   </script>
 
-  <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="css/style.css?v=78" />
+  <!-- Custom Stylesheet (Bump to ?v=93) -->
+  <link rel="stylesheet" href="css/style.css?v=93" />
 </head>
 <body class="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--fg)] selection:bg-emerald-500/30 selection:text-emerald-300 transition-colors duration-150">
 
@@ -861,6 +878,11 @@
       </div>
     </div>
 
+    <!-- Smart Card: Resume Learning (Andragogi & 3-Second Rule - Malcolm Knowles) -->
+    <div id="dash-resume-learning-container" class="mb-8">
+      <!-- Rendered dynamically by renderResumeLearningCard() in classroom.js -->
+    </div>
+
     <!-- Quick Action Hub (Horizontal Inline Action Strip - Anti-Boxed) -->
     <div id="dash-quick-actions-hub" class="mb-8">
       <div class="flex items-center gap-2 mb-2.5 text-xs font-bold uppercase tracking-caps text-slate-400">
@@ -942,27 +964,44 @@
       </button>
     </div>
 
-    <!-- 2 Key Stat Cards (Waktu Belajar & Status Kelulusan) -->
+    <!-- 2 Key Stat Cards (Waktu Belajar & Zeigarnik Progress Ring - Gambar 2) -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-8">
       
       <!-- Card 1: Waktu Belajar -->
-      <div class="glass-card rounded-xl p-5 relative overflow-hidden">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-semibold text-slate-400">Total Waktu Belajar</span>
-          <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      <div class="glass-card squircle-card p-5 sm:p-6 relative overflow-hidden flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-bold text-slate-300 uppercase tracking-caps">Total Waktu Belajar</span>
+          <div class="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
         </div>
-        <div id="stat-total-minutes" class="text-2xl sm:text-3xl font-extrabold text-cyan-300 font-mono">84 Menit</div>
-        <p class="text-[11px] text-slate-400 mt-1">Total durasi materi video tuntas dipelajari</p>
+        <div>
+          <div id="stat-total-minutes" class="text-3xl sm:text-4xl font-black text-[#00DF81] font-mono tracking-tight">84 Menit</div>
+          <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">Total durasi materi video tuntas dipelajari dari awal kelas</p>
+        </div>
       </div>
 
-      <!-- Card 2: Status Kelulusan -->
-      <div class="glass-card rounded-xl p-5 relative overflow-hidden">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-semibold text-slate-400">Status Kelulusan Kelas</span>
-          <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>
+      <!-- Card 2: Status Kelulusan (The Zeigarnik Progress Ring & Donut Metric) -->
+      <div class="glass-card squircle-card p-5 sm:p-6 relative overflow-hidden flex items-center justify-between gap-4">
+        <div class="flex-1">
+          <div class="flex items-center gap-2 mb-1.5">
+            <span class="text-xs font-bold text-slate-300 uppercase tracking-caps">Status Kelulusan Kelas</span>
+          </div>
+          <div id="stat-overall-percent" class="text-2xl sm:text-3xl font-black text-white font-mono tracking-tight">0%</div>
+          <p id="stat-overall-text" class="text-xs text-[#2CC295] font-semibold mt-1">0 dari 0 Materi Selesai</p>
+          <p id="stat-zeigarnik-prompt" class="text-[11px] text-slate-400 mt-1">Semangat! Terus tonton video untuk menuntaskan kelas ini.</p>
         </div>
-        <div id="stat-overall-percent" class="text-2xl sm:text-3xl font-extrabold text-white font-mono">43%</div>
-        <p id="stat-overall-text" class="text-[11px] text-slate-400 mt-1">3 dari 7 Materi Selesai</p>
+
+        <!-- Zeigarnik Circular Ring (Gambar 2) -->
+        <div class="zeigarnik-ring-wrapper flex-shrink-0">
+          <svg class="zeigarnik-ring-svg w-20 h-20 sm:w-24 sm:h-24" viewBox="0 0 100 100">
+            <circle class="zeigarnik-ring-track" cx="50" cy="50" r="40" stroke-width="8"></circle>
+            <circle id="zeigarnik-svg-circle" class="zeigarnik-ring-circle" cx="50" cy="50" r="40" stroke-width="8" stroke-dasharray="251.2" stroke-dashoffset="251.2"></circle>
+          </svg>
+          <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+            <span id="zeigarnik-ring-percent-label" class="text-xs sm:text-sm font-black font-mono text-[#00DF81]">0%</span>
+          </div>
+        </div>
       </div>
 
     </div>
@@ -2529,11 +2568,7 @@
 
       </div>
 
-      <div class="mt-5 pt-3 border-t border-slate-800 text-center">
-        <p class="text-[11px] text-slate-500">
-          Jam operasional: Setiap hari 08.00 - 22.00 WIB • Respon cepat &amp; ramah
-        </p>
-      </div>
+
     </div>
   </div>
 
@@ -3890,35 +3925,35 @@
     </div>
   </div>
 
-  <!-- Bottom Bar Mobile (Gambar 4 Referensi) -->
-  <nav id="mobile-bottom-nav" class="fixed bottom-0 inset-x-0 z-40 h-14 bg-[#07080A]/95 backdrop-blur-xl border-t border-[#262933] md:hidden px-2 flex items-center justify-around shadow-2xl hidden">
+  <!-- Floating Glass Capsule Bottom Navigation (Gambar 2 Tactility) -->
+  <nav id="mobile-bottom-nav" class="fixed bottom-3 inset-x-3 sm:inset-x-6 z-40 h-14 bg-[#000F01]/85 backdrop-blur-xl border border-[#03624C]/60 md:hidden px-2 rounded-full flex items-center justify-around shadow-[0_12px_36px_rgba(0,0,0,0.7)] hidden">
     <!-- 1. Home -->
-    <button id="mobile-nav-home" onclick="navigate('home')" class="flex flex-col items-center justify-center gap-0.5 py-1 px-2.5 rounded-xl text-slate-400 hover:text-white transition-colors">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+    <button id="mobile-nav-home" onclick="navigate('home')" class="flex flex-col items-center justify-center gap-0.5 py-1 px-3 rounded-full text-slate-400 hover:text-white transition-all">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
       <span class="text-[9px] font-bold tracking-tight">HOME</span>
     </button>
 
     <!-- 2. Dashboard -->
-    <button id="mobile-nav-dashboard" onclick="navigate('user-dashboard')" class="flex flex-col items-center justify-center gap-0.5 py-1 px-2.5 rounded-xl text-slate-400 hover:text-white transition-colors">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+    <button id="mobile-nav-dashboard" onclick="navigate('user-dashboard')" class="flex flex-col items-center justify-center gap-0.5 py-1 px-3 rounded-full text-slate-400 hover:text-white transition-all">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
       <span class="text-[9px] font-bold tracking-tight">DASH</span>
     </button>
 
     <!-- 3. Belajar (Video Room) -->
-    <button id="mobile-nav-learn" onclick="navigate('learn')" class="flex flex-col items-center justify-center gap-0.5 py-1 px-2.5 rounded-xl text-slate-400 hover:text-white transition-colors">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    <button id="mobile-nav-learn" onclick="navigate('learn')" class="flex flex-col items-center justify-center gap-0.5 py-1 px-3 rounded-full text-slate-400 hover:text-white transition-all">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
       <span class="text-[9px] font-bold tracking-tight">BELAJAR</span>
     </button>
 
     <!-- 4. ZettLink -->
-    <button id="mobile-nav-resources" onclick="navigate('resources')" class="flex flex-col items-center justify-center gap-0.5 py-1 px-2.5 rounded-xl text-slate-400 hover:text-white transition-colors">
-      <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+    <button id="mobile-nav-resources" onclick="navigate('resources')" class="flex flex-col items-center justify-center gap-0.5 py-1 px-3 rounded-full text-slate-400 hover:text-white transition-all">
+      <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
       <span class="text-[9px] font-bold tracking-tight">ZETTLINK</span>
     </button>
 
     <!-- 5. Menu (Opens Elevated Popover Sheet) -->
-    <button id="mobile-nav-menu" onclick="toggleMobileMenuPopover()" class="flex flex-col items-center justify-center gap-0.5 py-1 px-2.5 rounded-xl text-slate-400 hover:text-white transition-colors">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    <button id="mobile-nav-menu" onclick="toggleMobileMenuPopover()" class="flex flex-col items-center justify-center gap-0.5 py-1 px-3 rounded-full text-slate-400 hover:text-white transition-all">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
       <span class="text-[9px] font-bold tracking-tight">MENU</span>
     </button>
   </nav>
@@ -4248,18 +4283,18 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- Application Scripts (Modular Architecture with Cache Buster) -->
-  <script src="js/mock-data.js?v=92"></script>
-  <script src="js/editor.js?v=92"></script>
-  <script src="js/core/state.js?v=92"></script>
-  <script src="js/core/supabase.js?v=92"></script>
-  <script src="js/core/router.js?v=92"></script>
-  <script src="js/core/particles.js?v=92"></script>
-  <script src="js/controllers/auth.js?v=92"></script>
-  <script src="js/controllers/landing.js?v=92"></script>
-  <script src="js/controllers/classroom.js?v=92"></script>
-  <script src="js/controllers/resources.js?v=92"></script>
-  <script src="js/controllers/showcase.js?v=92"></script>
-  <script src="js/controllers/admin.js?v=92"></script>
-  <script src="js/app.js?v=92"></script>
+  <script src="js/mock-data.js?v=93"></script>
+  <script src="js/editor.js?v=93"></script>
+  <script src="js/core/state.js?v=93"></script>
+  <script src="js/core/supabase.js?v=93"></script>
+  <script src="js/core/router.js?v=93"></script>
+  <script src="js/core/particles.js?v=93"></script>
+  <script src="js/controllers/auth.js?v=93"></script>
+  <script src="js/controllers/landing.js?v=93"></script>
+  <script src="js/controllers/classroom.js?v=93"></script>
+  <script src="js/controllers/resources.js?v=93"></script>
+  <script src="js/controllers/showcase.js?v=93"></script>
+  <script src="js/controllers/admin.js?v=93"></script>
+  <script src="js/app.js?v=93"></script>
 </body>
 </html>

@@ -5,8 +5,91 @@
  */
 
 // ==========================================
-// 1. QUICK ACTION HUB (HOME)
+// 1. QUICK ACTION HUB & RESUME LEARNING (HOME)
 // ==========================================
+
+function renderResumeLearningCard() {
+  const container = document.getElementById('dash-resume-learning-container');
+  if (!container) return;
+
+  const user = AppState.currentUser;
+  if (!user) {
+    container.innerHTML = '';
+    return;
+  }
+
+  const userCompleted = (AppState.progress && AppState.progress[user.email]) ? AppState.progress[user.email] : [];
+  const lessons = AppState.lessons || [];
+  const modules = AppState.modules || [];
+
+  if (lessons.length === 0) {
+    container.innerHTML = '';
+    return;
+  }
+
+  // 1. Cek riwayat lokal materi terakhir yang dibuka siswa
+  let lastLessonId = null;
+  try {
+    lastLessonId = localStorage.getItem(`zett_last_lesson_${user.email}`);
+  } catch (e) {}
+
+  let targetLesson = lessons.find(l => l.id === lastLessonId);
+
+  // 2. Jika belum ada, cari materi pertama yang belum diselesaikan
+  if (!targetLesson) {
+    targetLesson = lessons.find(l => !userCompleted.includes(l.id)) || lessons[0];
+  }
+
+  const parentModule = modules.find(m => m.id === targetLesson.moduleId) || { title: 'Kurikulum Utama', badge: 'MODUL' };
+  const isCompleted = userCompleted.includes(targetLesson.id);
+
+  container.innerHTML = `
+    <div class="resume-learning-card p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-5 relative overflow-hidden group">
+      <!-- Ambient Underglow Ripple (Gambar 2) -->
+      <div class="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-[#00DF81]/10 blur-3xl pointer-events-none"></div>
+
+      <div class="relative z-10 flex-1">
+        <div class="flex items-center gap-2 mb-2 flex-wrap">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#00DF81]/15 text-[#00DF81] border border-[#00DF81]/35 text-[10px] sm:text-[11px] font-black uppercase tracking-caps font-mono">
+            <span class="w-2 h-2 rounded-full bg-[#00DF81] animate-pulse"></span>
+            ${isCompleted ? 'ULAS MATERI TERAKHIR' : 'LANJUTKAN BELAJAR'}
+          </span>
+          <span class="text-xs text-[#707D7D] font-mono">• ${escapeHtml(parentModule.title)}</span>
+        </div>
+
+        <h3 class="text-lg sm:text-2xl font-black text-[#F1F7F6] group-hover:text-[#00DF81] transition-colors tracking-tight leading-snug">
+          ${escapeHtml(targetLesson.title)}
+        </h3>
+
+        <p class="text-xs sm:text-sm text-[#707D7D] mt-1.5 line-clamp-1 max-w-2xl">
+          ${escapeHtml(targetLesson.summary || targetLesson.description || 'Lanjutkan sesi praktek membuat web app AI dari materi terakhir Anda.')}
+        </p>
+
+        <div class="flex items-center gap-3 mt-3 text-xs text-[#707D7D] font-mono">
+          <span class="flex items-center gap-1.5 text-[#2CC295] font-semibold">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            ${targetLesson.durationMinutes || 15} Menit
+          </span>
+          <span>•</span>
+          <span class="${isCompleted ? 'text-emerald-400 font-bold' : 'text-slate-400'}">${isCompleted ? '✅ Sudah Selesai Ditonton' : '⏳ Sedang Berjalan'}</span>
+        </div>
+      </div>
+
+      <!-- Single Action Pill CTA (Andragogi 3-Second Rule & Fitts's Law) -->
+      <div class="relative z-10 flex-shrink-0 flex items-center">
+        <button 
+          onclick="navigate('learn', { lessonId: '${targetLesson.id}' })"
+          class="btn-primary-action px-6 py-3.5 rounded-full text-xs sm:text-sm font-black flex items-center gap-2.5 shadow-xl shadow-[#00DF81]/25 hover:scale-105 active:scale-95 transition-all w-full md:w-auto justify-center"
+        >
+          <svg class="w-4 h-4 fill-current text-[#000F01]" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          <span>${isCompleted ? 'Tonton Ulang Video' : 'Lanjutkan Belajar Sekarang'}</span>
+          <svg class="w-4 h-4 text-[#000F01]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+  `;
+}
+window.renderResumeLearningCard = renderResumeLearningCard;
 
 function renderQuickActionHub() {
   const container = document.getElementById('dash-quick-actions-grid');
@@ -18,15 +101,15 @@ function renderQuickActionHub() {
   actions.forEach(qa => {
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'action-chip-btn px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2.5 group cursor-pointer';
+    btn.className = 'action-chip-btn px-4 py-2.5 rounded-full text-xs font-bold flex items-center gap-2.5 group cursor-pointer bg-[#032221] hover:bg-[#053331] border border-[#03624C]/60 hover:border-[#00DF81]/60 transition-all shadow-md';
     btn.onclick = () => executeQuickAction(qa.id);
 
     btn.innerHTML = `
-      <span class="w-5 h-5 rounded-lg bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform flex-shrink-0">
-        ${getMonolineSvgIcon(qa.icon, 'w-3 h-3 text-emerald-400')}
+      <span class="w-6 h-6 rounded-full bg-[#00DF81]/15 border border-[#00DF81]/30 flex items-center justify-center text-[#00DF81] group-hover:scale-110 transition-transform flex-shrink-0">
+        ${getMonolineSvgIcon(qa.icon, 'w-3.5 h-3.5 text-[#00DF81]')}
       </span>
-      <span class="font-bold tracking-tight text-white group-hover:text-emerald-400 transition-colors">${escapeHtml(qa.title)}</span>
-      <span class="text-[10px] text-slate-500 group-hover:text-emerald-400 font-mono transition-colors">↗</span>
+      <span class="font-extrabold tracking-tight text-[#F1F7F6] group-hover:text-[#00DF81] transition-colors">${escapeHtml(qa.title)}</span>
+      <span class="text-[11px] text-[#707D7D] group-hover:text-[#00DF81] font-mono transition-colors">↗</span>
     `;
 
     container.appendChild(btn);
@@ -540,7 +623,7 @@ function renderModuleCatalogGrid() {
       : moduleLessons[0]?.id);
 
     const card = document.createElement('div');
-    card.className = 'glass-card glass-card-translucent rounded-2xl overflow-hidden flex flex-col justify-between group transition-all duration-300 border border-[var(--border)] hover:border-emerald-500/50 cursor-pointer hover:shadow-xl hover:-translate-y-1';
+    card.className = 'glass-card squircle-card rounded-3xl overflow-hidden flex flex-col justify-between group transition-all duration-300 border border-[#03624C]/45 hover:border-[#00DF81]/60 cursor-pointer hover:shadow-2xl hover:-translate-y-1.5';
 
     card.onclick = () => {
       if (mod.isLocked) {
@@ -686,6 +769,7 @@ function renderHome() {
   if (percentEl) percentEl.textContent = `${progressPercent}%`;
   if (progressBar) progressBar.style.width = `${progressPercent}%`;
 
+  renderResumeLearningCard();
   renderQuickActionHub();
   renderPinnedModuleHero();
   renderModuleCategoryPills();
@@ -714,10 +798,33 @@ function renderUserDashboard() {
   const elTotalMin = document.getElementById('stat-total-minutes');
   const elOverallPercent = document.getElementById('stat-overall-percent');
   const elOverallText = document.getElementById('stat-overall-text');
+  const circleEl = document.getElementById('zeigarnik-svg-circle');
+  const percentLabel = document.getElementById('zeigarnik-ring-percent-label');
+  const promptEl = document.getElementById('stat-zeigarnik-prompt');
 
   if (elTotalMin) elTotalMin.textContent = `${totalMinutes} Menit`;
   if (elOverallPercent) elOverallPercent.textContent = `${percent}%`;
   if (elOverallText) elOverallText.textContent = `${completedCount} dari ${totalLessons} Materi Selesai`;
+
+  // Zeigarnik Progress Ring & Donut (Gambar 2 & Neuro-Pedagogy)
+  if (circleEl) {
+    const circumference = 251.2; // 2 * pi * 40
+    const offset = circumference - (percent / 100) * circumference;
+    circleEl.style.strokeDashoffset = offset;
+  }
+  if (percentLabel) {
+    percentLabel.textContent = `${percent}%`;
+  }
+  if (promptEl) {
+    const remaining = totalLessons - completedCount;
+    if (remaining === 0 && totalLessons > 0) {
+      promptEl.textContent = '🎉 Luar biasa! Seluruh materi telah tuntas Anda selesaikan 100%!';
+    } else if (remaining <= 3 && remaining > 0) {
+      promptEl.textContent = `🔥 Tinggal ${remaining} materi lagi untuk menuntaskan kelas ini! Selesaikan sekarang!`;
+    } else {
+      promptEl.textContent = `Progres mantap! ${completedCount} materi tuntas, tersisa ${remaining} materi lagi.`;
+    }
+  }
 
   renderMonthlyLearningCalendar();
 
@@ -1158,6 +1265,11 @@ function renderLearningRoom(lessonId) {
   }
 
   AppState.currentLessonId = lesson.id;
+  if (user && user.email) {
+    try {
+      localStorage.setItem(`zett_last_lesson_${user.email}`, lesson.id);
+    } catch (e) {}
+  }
   const userCompleted = (user && AppState.progress[user.email]) ? AppState.progress[user.email] : [];
   const isLessonCompleted = userCompleted.includes(lesson.id);
 
@@ -1415,7 +1527,14 @@ function advanceToNextLesson(isMarkComplete = false) {
         AppState.activity[user.email].studiedDates.push(todayStr);
       }
       saveState();
-      showToast('Materi berhasil diselesaikan', 'success');
+
+      // Dopamine Micro-Reward Animation (Gambar 2 & Neuro-Pedagogy)
+      const actionBtn = document.getElementById('btn-next-lesson') || document.getElementById('btn-footer-next-lesson') || document.getElementById('btn-toggle-complete-lesson');
+      if (actionBtn) {
+        actionBtn.classList.add('dopamine-ripple');
+        setTimeout(() => actionBtn.classList.remove('dopamine-ripple'), 700);
+      }
+      showToast('🎉 Hebat! Materi berhasil diselesaikan!', 'success');
     }
   }
 

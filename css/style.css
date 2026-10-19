@@ -4,55 +4,65 @@
    and laws-of-ux specifications.
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 :root, html.dark {
   /* ------------------------------------------------------------------------
-     1. PALETTE STRUCTURE - DARK MODE (Linear / Raycast Matte Carbon)
+     1. PALETTE STRUCTURE - OBSIDIAN EMERALD NEURO-SYSTEM (GAMBAR 1)
      ------------------------------------------------------------------------ */
-  /* Neutrals: Deep, calm, true carbon charcoal (pitch black matte) */
-  --bg: #07080A;
-  --surface: #16181D;
-  --surface-subtle: #101216;
-  --surface-hover: #1C1F26;
-  --surface-active: #232731;
+  /* Palet Gambar 1: Deep obsidian & rich emerald biophilic ergonomics */
+  --bg-obsidian: #000F01;          /* Rich Black - Kanvas Dasar */
+  --surface-dark: #032221;         /* Dark Green - Permukaan Kartu */
+  --surface-border: #03624C;       /* Bangladesh Green - Border Presisi 1px */
+  --accent-caribbean: #00DF81;     /* Caribbean Green - Aksen CTA & Active Pill */
+  --accent-meadow: #2CC295;        /* Mountain Meadow - Hover & Teks Sub-Highlight */
+  --text-primary: #F1F7F6;         /* Anti-Flash White - Tipografi Utama */
+  --text-stone: #707D7D;           /* Stone - Metadata, Ikon, Muted Subtitle */
+
+  /* Neutrals: Deep, calm, obsidian green canvas */
+  --bg: #000F01;
+  --surface: #032221;
+  --surface-subtle: #021716;
+  --surface-hover: #053331;
+  --surface-active: #074542;
   
-  /* Hairline borders: Crisp, solid, refined structure */
-  --border: #262933;
-  --border-subtle: #1E2028;
-  --border-strong: #333745;
+  /* Hairline borders: Bangladesh Green refined structure */
+  --border: rgba(3, 98, 76, 0.45);
+  --border-subtle: rgba(3, 98, 76, 0.25);
+  --border-strong: #03624C;
 
-  /* Foreground text hierarchy (Readability minimums WCAG AA compliant) */
-  --fg: #F1F5F9;
+  /* Foreground text hierarchy (Readability minimums WCAG AAA compliant) */
+  --fg: #F1F7F6;
   --fg-heading: #FFFFFF;
-  --muted: #94A3B8;
-  --dim: #64748B;
+  --muted: #707D7D;
+  --dim: rgba(112, 125, 125, 0.7);
 
-  /* Single Accent: Curated Engineering Emerald */
-  --accent: #10B981;
-  --accent-hover: #059669;
-  --accent-subtle: rgba(16, 185, 129, 0.10);
-  --accent-fg: #34D399;
-  --accent-border: rgba(16, 185, 129, 0.35);
+  /* Single Accent: Curated Caribbean Green (Gambar 1) */
+  --accent: #00DF81;
+  --accent-hover: #2CC295;
+  --accent-subtle: rgba(0, 223, 129, 0.12);
+  --accent-fg: #00DF81;
+  --accent-border: rgba(0, 223, 129, 0.35);
 
-  /* Shadows & Depth */
-  --card-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05), 0 4px 16px -2px rgba(0, 0, 0, 0.45);
-  --card-shadow-hover: inset 0 1px 0 0 rgba(255, 255, 255, 0.08), 0 8px 24px -4px rgba(0, 0, 0, 0.6);
-  --nav-bg: #0D0E11;
-  --nav-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.5);
+  /* Shadows & Depth (Gambar 2 Squircle Tactility) */
+  --card-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+  --card-shadow-hover: 0 16px 36px -6px rgba(0, 15, 1, 0.8), 0 0 24px rgba(0, 223, 129, 0.12);
+  --nav-bg: rgba(0, 15, 1, 0.92);
+  --nav-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.7);
 
   /* Semantics */
-  --success: #10B981;
+  --success: #00DF81;
   --warn: #F59E0B;
   --danger: #EF4444;
-  --info: #3B82F6;
+  --info: #2CC295;
 
-  /* Concentric Radius Hierarchy */
-  --radius-badge: 6px;
-  --radius-btn: 8px;
-  --radius-input: 8px;
-  --radius-card: 12px;
-  --radius-modal: 16px;
+  /* Concentric Radius Hierarchy (Gambar 2 Squircle & Capsule) */
+  --radius-badge: 9999px;
+  --radius-btn: 9999px;
+  --radius-input: 16px;
+  --radius-card: 24px;
+  --radius-card-lg: 28px;
+  --radius-modal: 28px;
 
   /* Timing Tokens */
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
@@ -226,26 +236,31 @@ pre, code, .font-mono, .font-numeric {
 
 /* Clean Solid Navigation Bar */
 .glass-nav {
-  background: var(--bg);
+  background: rgba(0, 15, 1, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border);
-  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.7);
 }
 
-/* Precision Solid Matte Card: True physical weight + subtle top hairline inset */
+/* Precision Squircle Bento Card (Gambar 2 Tactility) */
 .glass-card {
   background: var(--surface);
+  background-image: radial-gradient(ellipse at top, rgba(0, 223, 129, 0.05) 0%, transparent 70%);
   border: 1px solid var(--border);
-  border-radius: var(--radius-card);
-  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05), 0 4px 16px -2px rgba(0, 0, 0, 0.45);
+  border-radius: var(--radius-card); /* 24px */
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
   transition: border-color var(--duration-fast) var(--ease-standard),
               background var(--duration-fast) var(--ease-standard),
-              transform var(--duration-fast) var(--ease-standard);
+              transform var(--duration-fast) var(--ease-standard),
+              box-shadow var(--duration-fast) var(--ease-standard);
 }
 
 .glass-card:hover {
-  border-color: var(--border-strong);
+  border-color: rgba(0, 223, 129, 0.45);
   background: var(--surface-hover);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 36px -6px rgba(0, 15, 1, 0.8), 0 0 24px rgba(0, 223, 129, 0.12);
 }
 
 /* Static Solid Card (no hover jump for forms and settings) */
@@ -253,65 +268,70 @@ pre, code, .font-mono, .font-numeric {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-card);
-  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05), 0 4px 16px -2px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
 }
 
 /* Sub-Surface / Inner Well (Law of Common Region) */
 .surface-well {
   background: var(--surface-subtle);
   border: 1px solid var(--border-subtle);
-  border-radius: 10px;
+  border-radius: 18px;
 }
 
 /* ------------------------------------------------------------------------
-   4. BUTTONS & CONTROLS (Tactile 8px Radius, 150ms State Transitions)
+   4. BUTTONS & CONTROLS (Tactile Full-Pill Radius - Gambar 2)
    ------------------------------------------------------------------------ */
 
-/* Primary CTA: Solid, High-Contrast, No Two-Stop Gradient */
+/* Primary CTA: High-Contrast Caribbean Green Pill Button */
 .btn-primary-action {
-  background-color: var(--accent);
-  color: #FFFFFF;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: var(--radius-btn);
-  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.25), 0 2px 6px 0 rgba(0, 0, 0, 0.4);
-  font-weight: 600;
+  background-color: var(--accent) !important;
+  color: #000F01 !important;
+  border: none !important;
+  border-radius: 9999px !important;
+  box-shadow: 0 4px 14px rgba(0, 223, 129, 0.35);
+  font-weight: 800 !important;
+  letter-spacing: 0.015em;
   transition: background-color var(--duration-fast) var(--ease-standard),
-              transform var(--duration-fast) var(--ease-standard);
+              transform var(--duration-fast) var(--ease-standard),
+              box-shadow var(--duration-fast) var(--ease-standard);
 }
 
 .btn-primary-action:hover {
-  background-color: var(--accent-hover);
-  transform: translateY(-0.5px);
+  background-color: var(--accent-hover) !important;
+  color: #000F01 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 223, 129, 0.45);
 }
 
 .btn-primary-action:active {
   transform: translateY(0.5px);
-  box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+  box-shadow: 0 2px 8px rgba(0, 223, 129, 0.3);
 }
 
 /* Secondary Button */
 .btn-secondary {
-  background-color: rgba(255, 255, 255, 0.04);
+  background-color: rgba(3, 98, 76, 0.2);
   color: var(--fg);
   border: 1px solid var(--border);
-  border-radius: var(--radius-btn);
-  font-weight: 500;
+  border-radius: 9999px;
+  font-weight: 600;
   transition: background-color var(--duration-fast) var(--ease-standard),
-              border-color var(--duration-fast) var(--ease-standard);
+              border-color var(--duration-fast) var(--ease-standard),
+              color var(--duration-fast) var(--ease-standard);
 }
 
 .btn-secondary:hover {
-  background-color: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.16);
+  background-color: rgba(3, 98, 76, 0.35);
+  border-color: var(--accent);
   color: #FFFFFF;
 }
 
 /* Precision Chips & Badges */
 .status-chip {
   font-size: 10px;
-  font-weight: 600;
-  padding: 3px 8px;
-  border-radius: var(--radius-badge);
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 9999px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   display: inline-flex;
@@ -326,9 +346,20 @@ pre, code, .font-mono, .font-numeric {
 }
 
 .chip-neutral {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(3, 98, 76, 0.2);
   color: var(--muted);
   border: 1px solid var(--border);
+}
+
+/* Squircle & Pill Utilitas Tambahan */
+.squircle-card {
+  border-radius: 24px !important;
+}
+.squircle-card-lg {
+  border-radius: 28px !important;
+}
+.squircle-pill {
+  border-radius: 9999px !important;
 }
 
 /* ------------------------------------------------------------------------
@@ -2587,29 +2618,99 @@ main[id^="view-"] {
   }
 }
 
-/* 7. Mobile Bottom Navigation Bar & Elevated Popover Menu (Gambar 4 Referensi) */
+/* 7. Mobile Floating Capsule Navigation Bar & Elevated Popover Menu (Gambar 2 Tactility) */
 #mobile-bottom-nav {
-  background-color: rgba(7, 8, 10, 0.95);
-  border-top: 1px solid var(--border);
-  box-shadow: 0 -4px 20px -2px rgba(0, 0, 0, 0.6);
+  position: fixed !important;
+  bottom: 0.85rem !important; /* 14px floating above bottom */
+  left: 0.85rem !important;
+  right: 0.85rem !important;
+  max-width: 480px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  height: 3.5rem !important;
+  border-radius: 9999px !important;
+  background-color: rgba(0, 15, 1, 0.88) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+  border: 1px solid rgba(3, 98, 76, 0.6) !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(0, 223, 129, 0.15) !important;
+  z-index: 45 !important;
+  padding: 0 0.5rem !important;
 }
 
 #mobile-menu-popover {
-  background-color: rgba(22, 24, 29, 0.96);
-  border: 1px solid var(--border);
-  box-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.7);
+  background-color: rgba(3, 34, 33, 0.96) !important;
+  border: 1px solid rgba(3, 98, 76, 0.6) !important;
+  border-radius: 24px !important;
+  box-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.8) !important;
 }
 
 html.light #mobile-bottom-nav {
-  background-color: rgba(255, 255, 255, 0.96) !important;
-  border-top-color: #E2E8F0 !important;
-  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06) !important;
+  background-color: rgba(255, 255, 255, 0.92) !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
 }
 
 html.light #mobile-menu-popover {
   background-color: rgba(255, 255, 255, 0.98) !important;
   border-color: #E2E8F0 !important;
+  border-radius: 24px !important;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* 7B. Zeigarnik Progress Ring & Circular Donut (Gambar 2 Referensi) */
+.zeigarnik-ring-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.zeigarnik-ring-svg {
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+  overflow: visible;
+}
+
+.zeigarnik-ring-track {
+  stroke: rgba(3, 98, 76, 0.35);
+  fill: none;
+}
+
+.zeigarnik-ring-circle {
+  stroke: var(--accent);
+  fill: none;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  filter: drop-shadow(0 0 8px rgba(0, 223, 129, 0.5));
+}
+
+/* 7C. Dopamine Micro-Reward Ripple Animation */
+@keyframes dopamineGlowRipple {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 223, 129, 0.7);
+    transform: scale(0.98);
+  }
+  50% {
+    box-shadow: 0 0 0 18px rgba(0, 223, 129, 0);
+    transform: scale(1.02);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 223, 129, 0);
+    transform: scale(1);
+  }
+}
+
+.dopamine-ripple {
+  animation: dopamineGlowRipple 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* 7D. Bento Squircle Card Glow (Gambar 2) */
+.bento-squircle-glow {
+  background: var(--surface);
+  background-image: radial-gradient(ellipse at 50% 0%, rgba(0, 223, 129, 0.08) 0%, transparent 75%);
+  border: 1px solid var(--border);
+  border-radius: 24px;
 }
 
 html.light #mobile-menu-popover button:hover {
@@ -3791,3 +3892,55 @@ html.light .glass-card a.bg-slate-800:hover {
     transform: translateY(0);
   }
 }
+
+/* ==========================================================================
+   NEURO-SQUIRCLE & SPRINT 2-5 ENHANCEMENTS (GAMBAR 1 & GAMBAR 2)
+   ========================================================================== */
+
+/* Tactile Pill Action Chips (Gambar 2 Bento Grid) */
+.action-chip-btn {
+  background-color: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 9999px !important;
+  padding: 0.6rem 1.15rem !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.action-chip-btn:hover {
+  background-color: var(--surface-hover) !important;
+  border-color: rgba(0, 223, 129, 0.5) !important;
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(0, 223, 129, 0.18);
+}
+
+/* Smart Resume Learning Hero Card (Andragogi & 3-Second Rule) */
+.resume-learning-card {
+  background: var(--surface);
+  background-image: radial-gradient(ellipse at 80% 0%, rgba(0, 223, 129, 0.12) 0%, transparent 70%);
+  border: 1px solid rgba(0, 223, 129, 0.35);
+  border-radius: 28px;
+  box-shadow: 0 14px 40px -10px rgba(0, 15, 1, 0.9), 0 0 25px rgba(0, 223, 129, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Floating Glass Capsule Navigation Active Pill (Gambar 2) */
+.mobile-nav-pill-active {
+  background-color: #00DF81 !important;
+  color: #000F01 !important;
+  border-radius: 9999px !important;
+  padding: 0.35rem 0.85rem !important;
+  box-shadow: 0 4px 16px rgba(0, 223, 129, 0.45) !important;
+  font-weight: 900 !important;
+}
+
+.mobile-nav-pill-active svg {
+  color: #000F01 !important;
+}
+
+.mobile-nav-pill-active span {
+  color: #000F01 !important;
+  font-weight: 900 !important;
+}
+

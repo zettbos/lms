@@ -279,11 +279,11 @@ function updateNavbarState(currentView) {
 
   const resetMobileBtn = (el) => {
     if (!el) return;
-    el.className = 'flex flex-col items-center justify-center gap-0.5 py-1 px-2.5 rounded-xl text-slate-400 hover:text-white transition-colors';
+    el.className = 'flex flex-col items-center justify-center gap-0.5 py-1 px-2.5 rounded-full text-[#707D7D] hover:text-[#F1F7F6] transition-all';
   };
-  const setMobileActive = (el, colorClass) => {
+  const setMobileActive = (el) => {
     if (!el) return;
-    el.className = `flex flex-col items-center justify-center gap-0.5 py-1 px-2.5 rounded-xl font-bold transition-colors ${colorClass}`;
+    el.className = 'mobile-nav-pill-active flex flex-col items-center justify-center gap-0.5 transition-all';
   };
 
   resetMobileBtn(mHome);
@@ -292,11 +292,12 @@ function updateNavbarState(currentView) {
   resetMobileBtn(mRes);
   resetMobileBtn(mMenu);
 
-  if (currentView === 'home') setMobileActive(mHome, 'text-emerald-400');
-  else if (currentView === 'user-dashboard') setMobileActive(mDash, 'text-cyan-400');
-  else if (currentView === 'learn') setMobileActive(mLearn, 'text-emerald-400');
-  else if (currentView === 'resources') setMobileActive(mRes, 'text-blue-400');
-  else if (currentView === 'showcase' || currentView === 'favorites' || currentView === 'admin') setMobileActive(mMenu, 'text-emerald-400');
+  if (currentView === 'home') setMobileActive(mHome);
+  else if (currentView === 'user-dashboard') setMobileActive(mDash);
+  else if (currentView === 'learn') setMobileActive(mLearn);
+  else if (currentView === 'resources') setMobileActive(mRes);
+  else if (currentView === 'showcase' || currentView === 'favorites' || currentView === 'admin') setMobileActive(mMenu);
+
 
   // Update theme label inside mobile popover
   if (mTheme) {
