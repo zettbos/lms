@@ -1197,6 +1197,13 @@ function showLearnModulesCatalog() {
   if (playerSubnav) playerSubnav.classList.add('hidden');
   if (playerView) playerView.classList.add('hidden');
 
+  // Pastikan floating pill langsung disembunyikan saat keluar ke katalog modul
+  const pill = document.getElementById('floating-progress-pill');
+  if (pill) {
+    pill.classList.remove('visible-pill');
+    pill.classList.add('hidden-pill');
+  }
+
   const centerLabel = document.getElementById('nav-current-page-label');
   if (centerLabel) centerLabel.textContent = 'Modul Pembelajaran';
 
@@ -1241,6 +1248,9 @@ function getCurriculumOrderedLessons() {
 }
 
 function renderLearningRoom(lessonId) {
+  // Reset status dismiss agar sticky bar dapat muncul kembali untuk materi ini
+  isFloatingPillDismissedForCurrentLesson = false;
+
   const catalogView = document.getElementById('learn-catalog-view');
   const playerSubnav = document.getElementById('learn-player-subnav');
   const playerView = document.getElementById('learn-player-view');
@@ -1324,11 +1334,11 @@ function renderLearningRoom(lessonId) {
 
   if (floatingActions) {
     floatingActions.innerHTML = `
-      <button onclick="handleFloatingNextLesson()" class="btn-primary-action px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap">
+      <button onclick="handleFloatingNextLesson()" class="btn-primary-action px-3.5 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 whitespace-nowrap shadow-md">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
         <span>Selesai & Lanjut</span>
       </button>
-      <button onclick="dismissFloatingPill()" title="Tutup Bar" class="p-1 text-slate-400 hover:text-white rounded">
+      <button onclick="dismissFloatingPill()" title="Tutup Bar" class="p-1.5 text-slate-400 hover:text-white rounded-full hover:bg-white/10 transition-colors">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
     `;
@@ -1820,6 +1830,8 @@ function toggleLessonCompletion(lessonId) {
 // 5. FLOATING PROGRESS PILL & MOBILE DRAWER
 // ==========================================
 
+let isFloatingPillDismissedForCurrentLesson = false;
+
 function handleFloatingNextLesson() {
   handleNextLessonWithConfirm();
 }
@@ -1829,7 +1841,15 @@ function setupFloatingPillScrollListener() {
     const pill = document.getElementById('floating-progress-pill');
     if (!pill) return;
 
-    if (AppState.currentView === 'learn' && window.scrollY > 300) {
+    // Hanya tampil JIKA:
+    // 1. Sedang aktif di view 'learn'
+    // 2. Ruang materi (player) sedang terbuka dan TIDAK hidden (bukan katalog modul)
+    // 3. Pengguna belum mengklik tombol dismiss (X) pada materi saat ini
+    // 4. Scroll halaman sudah melewati batas video/header (> 300px)
+    const playerView = document.getElementById('learn-player-view');
+    const isPlayerActive = AppState.currentView === 'learn' && playerView && !playerView.classList.contains('hidden');
+
+    if (isPlayerActive && !isFloatingPillDismissedForCurrentLesson && window.scrollY > 300) {
       pill.classList.remove('hidden-pill');
       pill.classList.add('visible-pill');
     } else {
@@ -1850,6 +1870,7 @@ function closeMobileCurriculumDrawer() {
 }
 
 function dismissFloatingPill() {
+  isFloatingPillDismissedForCurrentLesson = true;
   const pill = document.getElementById('floating-progress-pill');
   if (pill) {
     pill.classList.remove('visible-pill');

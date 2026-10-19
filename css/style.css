@@ -402,24 +402,33 @@ pre, code, .font-mono, .font-numeric {
   overflow: hidden;
 }
 
-/* Floating Sticky Progress Pill */
+/* Floating Sticky Progress Pill (Gambar 1 Obsidian Green & Gambar 2 Capsule) */
 #floating-progress-pill {
   position: fixed;
   bottom: 24px;
   right: 24px;
   z-index: 45;
-  background: rgba(14, 20, 34, 0.96);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: rgba(0, 15, 1, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border-strong);
-  border-radius: var(--radius-card);
-  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.1), 0 14px 35px -5px rgba(0, 0, 0, 0.7);
-  padding: 8px 14px;
+  border-radius: 9999px;
+  box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 223, 129, 0.12);
+  padding: 8px 16px;
   display: flex;
   align-items: center;
   gap: 12px;
   transition: opacity var(--duration-medium) var(--ease-standard),
               transform var(--duration-medium) var(--ease-standard);
+}
+
+@media (max-width: 767px) {
+  #floating-progress-pill {
+    bottom: 76px;
+    right: 16px;
+    left: 16px;
+    justify-content: space-between;
+  }
 }
 
 #floating-progress-pill.hidden-pill {

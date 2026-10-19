@@ -149,9 +149,9 @@ function navigate(viewName, params = {}) {
 
   AppState.currentView = viewName;
 
-  // Hide floating pill if leaving learn room
+  // Hide floating pill on page transitions (hanya muncul saat scroll di dalam player materi)
   const pill = document.getElementById('floating-progress-pill');
-  if (pill && viewName !== 'learn') {
+  if (pill) {
     pill.classList.remove('visible-pill');
     pill.classList.add('hidden-pill');
   }
