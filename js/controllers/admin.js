@@ -2431,32 +2431,6 @@ function closeAddMemberModal() {
 }
 window.closeAddMemberModal = closeAddMemberModal;
 
-async function handleSaveAddMemberSubmit(e) {
-  if (e) e.preventDefault();
-  const name = document.getElementById('add-member-fullname').value.trim();
-  const email = document.getElementById('add-member-email').value.trim().toLowerCase();
-  const role = document.getElementById('add-member-role').value;
-  const rawPass = (document.getElementById('add-member-password')?.value || '').trim();
-
-  if (!email || !email.includes('@')) {
-    showToast('Masukkan alamat email yang valid', 'error');
-    return;
-  }
-
-  if (AppState.whitelist.some(m => m.email.toLowerCase() === email)) {
-    showToast('Email ini sudah terdaftar di whitelist!', 'error');
-    return;
-  }
-
-  let passHash = null;
-  if (rawPass) {
-    if (rawPass.length < 6) {
-      showToast('Kata sandi minimal 6 karakter', 'error');
-      return;
-    }
-    passHash = await hashPassword(rawPass);
-  }
-
 /**
  * Universal Sequential Whitelist ID Generator: "Baris Terakhir + 1" (WL-XXXX)
  * Scans both Supabase Cloud and local state to find the maximum existing sequence number,
