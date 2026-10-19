@@ -1,68 +1,86 @@
-# MASTER BLUEPRINT: REVISI 98 - MULTI-DEVICE WHITELIST SYNC & MOBILE SIGN-IN
+# MASTER BLUEPRINT: REVISI 99 - CLOUD-NATIVE STUDENT PROGRESS SYNC & REALTIME ANALYTICS MONITORING
 ====================================================================================================
 STATUS DOKUMEN   : SELESAI DITERAPKAN (IMPLEMENTED & FULLY VERIFIED)
 ARSITEK SISTEM   : ZettBOT by Zettbos (Universal Product Architect & Lead Engineering Mentor)
-KODE REVISI      : REV-20261019-WHITELIST-PKEY-FIX-MOBILE-LOGIN
+KODE REVISI      : REV-20261019-PROGRESS-CLOUD-SYNC-REALTIME
 TANGGAL PERANCANGAN : 19 Oktober 2026
-LANDASAN TEORI   : Distributed Primary Key Management, Idempotent Cloud Upsert, Mobile Responsive UX
+LANDASAN TEORI   : Event-Driven Realtime Propagation, State Synchronization, Multi-Device Cloud-Native Progress
 ====================================================================================================
 
 ---
 
 ## 1. LATAR BELAKANG & DIAGNOSIS MASALAH
 
-### 🔴 MASALAH 1: Error `duplicate key value violates unique constraint "whitelist_members_pkey"`
+### 🔴 MASALAH: Monitoring Progres Siswa di Admin Masih 0% & Belum Realtime
 - **Gejala:** 
-  Ketika admin memasukkan data member baru lalu menekan tombol "Sync ke Cloud", muncul error merah:
-  `Gagal menyinkronkan ke Supabase: duplicate key value violates unique constraint "whitelist_members_pkey"`.
-  Fitur ini hanya berhasil di laptop utama developer, sedangkan di HP atau laptop admin lain selalu gagal.
+  Pada panel Admin tab "Monitoring Progres Belajar Seluruh Siswa" (2.458 Siswa), seluruh metrik kelulusan, siswa belajar, dan materi selesai masih tertulis `0 dari 36 Materi (0%) • Belum Mulai`, padahal siswa di luar sana sudah mulai belajar dan menekan tombol *"Tandai Selesai"*.
 - **Akar Masalah (Root Cause):**
-  1. Tabel Supabase `whitelist_members` memiliki dua constraint keunikan: Primary Key (`id`) dan Unique Key (`email`).
-  2. Fungsi `syncWhitelistToSupabaseLive()` di `js/controllers/admin.js` sebelumnya hanya menarik kolom `email, password_hash, full_name` dari Supabase (kolom `id` tidak di-select).
-  3. Saat menyusun payload, sistem memaksa mengirimkan `m.id` buatan browser lokal (misal `WL-0005`).
-  4. Di perangkat baru/HP dengan data cache terbatas, counter ID lokal menghitung dari `length + 1` sehingga menghasilkan ID kecil (`WL-0003`, `WL-0005`, dst.).
-  5. Padahal di Supabase Cloud, ID tersebut sudah menjadi milik member lain.
-  6. PostgreSQL menjalankan `UPSERT ... ON CONFLICT (email)`. Perintah ini hanya menangkap duplikasi pada kolom `email`. Ketika PostgreSQL mendeteksi nilai `id` yang dikirim sudah ada di baris milik email lain, PostgreSQL langsung melempar error keras pelanggaran Primary Key `whitelist_members_pkey`.
-- **Solusi Arsitektur:**
-  1. **Select `id` dari Cloud:** Saat menarik data dari cloud (`cloudWl`), wajib sertakan kolom `id`: `.select('id, email, password_hash, full_name')`.
-  2. **Gunakan ID Asli Cloud untuk Member Eksisting:** Jika email sudah terdaftar di Supabase (`cloudItem`), gunakan `cloudItem.id` yang sah dari database cloud.
-  3. **Omit ID untuk Member Baru (Auto-Sequence Database):** Jika email belum ada di database cloud, properti `id` **TIDAK dikirimkan** (`undefined` / dihapus). PostgreSQL Supabase akan otomatis membangkitkan `id` baru menggunakan sequence resmi database (`seq_whitelist_members`).
-  4. **Idempotent Single & Batch Insert:** Pada `handleSaveAddMemberSubmit` dan `handleBatchAddMembers`, insert ke Supabase tidak lagi memaksakan ID buatan lokal, melainkan membiarkan Supabase memberikan ID resmi via `.insert(...).select()`, lalu ID tersebut disimpan kembali ke state lokal.
+  1. **Progress Tersimpan Lokal di Browser Siswa:** Pada [classroom.js](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/js/controllers/classroom.js), ketika siswa menekan *"Tandai Selesai & Lanjut"* (`advanceToNextLesson`), data hanya disimpan ke memori lokal `localStorage.setItem('zett_progress', ...)`. Data ini tertahan di HP/laptop siswa dan sama sekali tidak pernah dikirimkan ke cloud.
+  2. **Tabel Database `member_progress` Kosong Melompong:** Meskipun tabel `member_progress` telah dibuat di Supabase, belum pernah ada pemanggilan API atau Supabase query (`insert`/`upsert`/`delete`) dari JavaScript untuk mencatat progres belajar siswa.
+  3. **Admin Monitoring Membaca LocalStorage Laptop Sendiri:** Dashboard Admin di [admin.js](file:///c:/Users/farha/.gemini/antigravity-ide/scratch/lms-zettbos/js/controllers/admin.js) menghitung persentase dari `AppState.progress[m.email]` yang ada di memori browser laptop Admin sendiri. Karena siswa belajar di perangkat lain dan belum mengunggah progres ke Cloud, laptop Admin tidak memiliki data progres dari 2.458 siswa tersebut.
+  4. **Multi-Device Siswa Terputus:** Siswa yang belajar di HP dan kemudian login di laptop pribadinya akan mendapati progresnya kembali 0% karena progres tidak ditarik dari Cloud saat login.
 
 ---
 
-### 🔴 MASALAH 2: Tampilan Mobile Belum Memiliki Tombol Sign In / Masuk
-- **Gejala:**
-  Pengguna atau member yang membuka LMS melalui perangkat mobile (smartphone/HP) tidak menemukan tombol "Masuk" di navigasi atas.
-- **Akar Masalah (Root Cause):**
-  Di `index.html` baris 349, tombol Masuk memiliki class Tailwind:
-  `class="... hidden sm:flex items-center gap-1"`
-  Class `hidden sm:flex` secara paksa menyembunyikan tombol Masuk pada ukuran layar di bawah 640px (`< sm`).
-- **Solusi UX & Responsivitas:**
-  1. Menghapus class `hidden sm:flex` dan menggantinya dengan `flex`.
-  2. Menyesuaikan padding tombol (`px-2.5 sm:px-3.5 py-1.5 sm:py-2`) dan gap navbar agar tombol `Theme Toggle`, `Join Kelas`, dan `Masuk` tersusun harmonis dan rapi di mobile tanpa sesak (*no horizontal overflow*).
+## 2. ARSITEKTUR SOLUSI CLOUD-NATIVE & REALTIME
+
+```
+[ Siswa Menandai Selesai di HP / Laptop ]
+                   │
+                   ▼ (1) Auto-Push Instan
+   [ Supabase: public.member_progress ]
+        (user_email, lesson_id, now())
+         │                          │
+         │ (2) Realtime Event       │ (3) Auto-Pull saat Login
+         ▼ (postgres_changes)       ▼
+[ Admin Monitoring Dashboard ]   [ Siswa Buka di Device Lain ]
+(Angka Terupdate Realtime!)       (Centang Hijau Tersinkron!)
+```
+
+### 🎯 1. Auto-Push Sisi Siswa (`classroom.js` & `supabase.js`)
+- Saat siswa mencentang materi selesai (`advanceToNextLesson(true)` atau `toggleLessonCompletion`):
+  - Sistem memperbarui state lokal `AppState.progress[user.email]`.
+  - Sistem memanggil `ZettSupabase.pushMemberLessonProgress(user.email, lesson.id)` untuk meng-upsert baris ke `public.member_progress` di Supabase.
+- Saat siswa membatalkan centang materi selesai:
+  - Sistem menghapus dari state lokal.
+  - Sistem memanggil `ZettSupabase.removeMemberLessonProgress(user.email, lesson.id)` untuk men-delete baris dari `public.member_progress` di Supabase.
+
+### 🎯 2. Auto-Pull Sisi Siswa saat Login & Masuk Kelas (`auth.js` & `classroom.js`)
+- Saat siswa berhasil login di perangkat mana pun (HP atau laptop), sistem otomatis memanggil `ZettSupabase.pullMemberProgress(user.email)`.
+- Mengisi `AppState.progress[user.email]` dengan seluruh `lesson_id` yang sudah diselesaikan dari Cloud.
+- Menjamin pengalaman belajar lintas perangkat (*seamless multi-device progress*).
+
+### 🎯 3. Auto-Pull & Refresh Sisi Admin (`admin.js` & `supabase.js`)
+- Pada fungsi `renderAdminAnalytics()` dan `switchAdminTab('analytics')`:
+  - Sistem memanggil `ZettSupabase.pullAllMembersProgressForAdmin()`.
+  - Menarik seluruh data rekap dari tabel `member_progress` dan memetakannya ke `AppState.progress`.
+  - Ditambahkan tombol aksi manual **`[🔄 Tarik Progres Cloud]`** di toolbar monitoring admin untuk sinkronisasi paksa jika koneksi lambat.
+
+### 🎯 4. Realtime Subscription Channel (`supabase.js`)
+- Memasang listener Supabase Realtime channel `realtime-member-progress`:
+  - Mendengarkan event `INSERT` dan `DELETE` pada tabel `member_progress`.
+  - Begitu ada siswa di mana pun yang menandai materi selesai, `AppState.progress` otomatis diperbarui seketika dan metrik di Admin Panel langsung bergerak secara realtime tanpa perlu reload browser!
 
 ---
 
-## 2. DETAIL PERUBAHAN TEKNIS BERKAS
+## 3. BERKAS-BERKAS YANG DIMODIFIKASI
 
-### 🎯 1. `js/controllers/admin.js`
-- **Fungsi `syncWhitelistToSupabaseLive()`:**
-  - Menambahkan kolom `id` pada query select cloud: `.select('id, email, password_hash, full_name')`.
-  - Memetakan `cloudMap` dengan `id` cloud asli.
-  - Untuk member yang sudah ada di cloud: gunakan `id = cloudItem.id`.
-  - Untuk member baru: **jangan kirim properti `id`** (biarkan sequence Supabase membangkitkan `id` unik).
-  - Setelah upsert sukses, sinkronkan ID resmi dari Supabase kembali ke `AppState.whitelist`.
-- **Fungsi `handleSaveAddMemberSubmit()`:**
-  - Saat insert member baru ke Supabase, biarkan Supabase menghasilkan ID database dan gunakan `.select()` untuk memperbarui `newMember.id`.
-- **Fungsi `handleBatchAddMembers()`:**
-  - Saat batch insert member baru ke Supabase, kirim payload tanpa `id` buatan lokal dan tangkap ID hasil sequence Supabase untuk disimpan ke `AppState.whitelist`.
-
-### 🎯 2. `index.html`
-- Memperbarui navbar header: menghapus `hidden sm:flex` dari tombol `Masuk` sehingga langsung tampil elegan di layar smartphone.
-- Mengatur gap responsif `gap-1.5 sm:gap-2.5` pada kontrol kanan navbar.
-- Menaikkan cache buster seluruh script JS dan stylesheet ke `?v=98`.
-
-### 🎯 3. `prd.md`
-- Menaikkan versi dokumen ke `v1.8.0 (REVISI 98)`.
-- Mencatat log implementasi perbaikan sinkronisasi whitelist multi-device dan tombol sign in mobile.
+1. `revisi.md`: Master Blueprint Revisi 99.
+2. `js/core/supabase.js`:
+   - Penambahan `pushMemberLessonProgress(userEmail, lessonId)`
+   - Penambahan `removeMemberLessonProgress(userEmail, lessonId)`
+   - Penambahan `pullMemberProgress(userEmail)`
+   - Penambahan `pullAllMembersProgressForAdmin()`
+   - Penambahan `subscribeToMemberProgressRealtime(callback)`
+3. `js/controllers/classroom.js`:
+   - Integrasi `pushMemberLessonProgress` dan `removeMemberLessonProgress` pada penyelesaian materi.
+   - Integrasi `pullMemberProgress` saat membuka ruang belajar.
+4. `js/controllers/auth.js`:
+   - Integrasi `pullMemberProgress` saat autentikasi/login berhasil.
+5. `js/controllers/admin.js`:
+   - Integrasi `pullAllMembersProgressForAdmin` saat tab Analytics/Monitoring dibuka.
+   - Inisialisasi realtime listener untuk pembaruan instan saat Admin berada di tab Monitoring.
+6. `index.html`:
+   - Penambahan tombol `[🔄 Tarik Progres Cloud]` di toolbar monitoring progres siswa.
+   - Menaikkan cache buster seluruh script JS ke `?v=99`.
+7. `prd.md`: Dokumentasi spesifikasi versi `v1.9.0 (REVISI 99)`.
