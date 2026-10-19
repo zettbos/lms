@@ -1138,8 +1138,10 @@ html.light .chip-neutral {
   border-color: var(--border) !important;
 }
 
-/* Semantics Color Chips in Light Mode */
+/* Semantics Color Chips in Light Mode (Comprehensive Wildcard Overrides - Revisi 90) */
+html.light [class*="bg-emerald-950"],
 html.light .bg-emerald-950,
+html.light .bg-emerald-950\/90,
 html.light .bg-emerald-950\/80,
 html.light .bg-emerald-950\/70 {
   background-color: #ECFDF5 !important;
@@ -1147,33 +1149,67 @@ html.light .bg-emerald-950\/70 {
   color: #065F46 !important;
 }
 
+html.light [class*="text-emerald-300"],
+html.light [class*="text-emerald-400"],
 html.light .text-emerald-400,
 html.light .text-emerald-300 {
   color: #059669 !important;
 }
 
+html.light [class*="border-emerald-500"],
+html.light [class*="border-emerald-800"] {
+  border-color: #A7F3D0 !important;
+}
+
+html.light [class*="bg-cyan-950"],
 html.light .bg-cyan-950,
+html.light .bg-cyan-950\/90,
+html.light .bg-cyan-950\/80,
 html.light .bg-cyan-950\/40 {
   background-color: #ECFEFF !important;
   border-color: #A5F3FC !important;
   color: #0E7490 !important;
 }
 
+html.light [class*="text-cyan-300"],
+html.light [class*="text-cyan-400"],
 html.light .text-cyan-400,
 html.light .text-cyan-300 {
   color: #0891B2 !important;
 }
 
+html.light [class*="border-cyan-500"] {
+  border-color: #A5F3FC !important;
+}
+
+html.light [class*="bg-amber-950"],
 html.light .bg-amber-950,
+html.light .bg-amber-950\/90,
 html.light .bg-amber-950\/40 {
   background-color: #FFFBEB !important;
   border-color: #FDE68A !important;
   color: #B45309 !important;
 }
 
+html.light [class*="text-amber-300"],
+html.light [class*="text-amber-400"],
 html.light .text-amber-400,
 html.light .text-amber-300 {
   color: #D97706 !important;
+}
+
+html.light [class*="bg-purple-950"],
+html.light .bg-purple-950,
+html.light .bg-purple-950\/90,
+html.light .bg-purple-950\/40 {
+  background-color: #FAF5FF !important;
+  border-color: #E9D5FF !important;
+  color: #7E22CE !important;
+}
+
+html.light [class*="text-purple-300"],
+html.light [class*="text-purple-400"] {
+  color: #9333EA !important;
 }
 
 html.light .bg-rose-950,
@@ -3624,13 +3660,32 @@ html.light .global-search-group-title {
 }
 
 html.light .global-search-item {
-  background-color: #F8FAFC !important;
+  background-color: #FFFFFF !important;
   border-color: #E2E8F0 !important;
 }
 
 html.light .global-search-item:hover {
-  background-color: #F1F5F9 !important;
-  border-color: #CBD5E1 !important;
+  background-color: #F8FAFC !important;
+  border-color: #10B981 !important;
+}
+
+html.light .global-search-item .w-8,
+html.light .global-search-item > div > div:first-child {
+  background-color: #ECFDF5 !important;
+  border-color: #A7F3D0 !important;
+}
+
+html.light .global-search-item .w-8 svg {
+  color: #059669 !important;
+}
+
+html.light #modal-global-search .bg-\[\#13161F\],
+html.light #modal-global-search .bg-\[\#0A0D14\],
+html.light #modal-global-search .border-\[\#262933\],
+html.light #modal-global-search .border-\[\#1E222D\] {
+  background-color: #F8FAFC !important;
+  border-color: #E2E8F0 !important;
+  color: #475569 !important;
 }
 
 html.light .global-search-item-title {
@@ -3649,6 +3704,47 @@ html.light .global-search-badge {
   background-color: #EDF2F7 !important;
   border-color: #CBD5E1 !important;
   color: #475569 !important;
+}
+
+/* Pinned Hero Card Light Mode (Gambar 3 - Revisi 90) */
+html.light .pinned-hero-card {
+  background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 50%, #ECFDF5 100%) !important;
+  border-color: #A7F3D0 !important;
+  box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.08), 0 8px 10px -6px rgba(16, 185, 129, 0.04) !important;
+}
+
+html.light .pinned-hero-card h3 {
+  color: #0F172A !important;
+}
+
+html.light .pinned-hero-card p {
+  color: #475569 !important;
+}
+
+/* ZettLink Card & Actions Light Mode (Gambar 4 - Revisi 90) */
+html.light .micro-tag-pill {
+  background-color: #F8FAFC !important;
+  border-color: #E2E8F0 !important;
+  color: #334155 !important;
+}
+
+html.light .micro-tag-pill:hover {
+  background-color: #F1F5F9 !important;
+  border-color: #10B981 !important;
+  color: #059669 !important;
+}
+
+html.light .glass-card button.bg-slate-800,
+html.light .glass-card a.bg-slate-800 {
+  background-color: #F1F5F9 !important;
+  border-color: #CBD5E1 !important;
+  color: #334155 !important;
+}
+
+html.light .glass-card button.bg-slate-800:hover,
+html.light .glass-card a.bg-slate-800:hover {
+  background-color: #E2E8F0 !important;
+  color: #0F172A !important;
 }
 
 /* ------------------------------------------------------------------------

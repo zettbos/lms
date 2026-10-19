@@ -686,76 +686,6 @@ function renderHome() {
   if (percentEl) percentEl.textContent = `${progressPercent}%`;
   if (progressBar) progressBar.style.width = `${progressPercent}%`;
 
-  let nextLesson = AppState.lessons.find(l => !userCompletedLessonIds.includes(l.id));
-  if (!nextLesson && AppState.lessons.length > 0) {
-    nextLesson = AppState.lessons[0];
-  }
-
-  const featuredCard = document.getElementById('dash-featured-lesson');
-  if (nextLesson) {
-    if (featuredCard) featuredCard.classList.remove('hidden');
-    const parentModule = AppState.modules.find(m => m.id === nextLesson.moduleId);
-    const featTitle = document.getElementById('feat-lesson-title');
-    const featModuleTag = document.getElementById('feat-lesson-module-tag');
-    const featDuration = document.getElementById('feat-lesson-duration');
-    const featBtnResume = document.getElementById('feat-btn-resume');
-    const featProgressBar = document.getElementById('feat-progress-bar');
-    const featProgressPercent = document.getElementById('feat-progress-percent');
-
-    if (featTitle) featTitle.textContent = nextLesson.title;
-    if (featModuleTag) featModuleTag.textContent = parentModule ? parentModule.title : 'Modul Kurikulum';
-    if (featDuration) featDuration.textContent = `${nextLesson.durationMinutes || 18} Menit`;
-
-    const isNextDone = userCompletedLessonIds.includes(nextLesson.id);
-    if (featProgressBar) featProgressBar.style.width = isNextDone ? '100%' : '48%';
-    if (featProgressPercent) featProgressPercent.textContent = isNextDone ? '100% Selesai' : '48% Selesai (Sisa 9 Menit)';
-
-    if (featBtnResume) {
-      featBtnResume.innerHTML = `
-        <span>Lanjutkan Belajar</span>
-        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-      `;
-      featBtnResume.onclick = () => {
-        navigate('learn', { lessonId: nextLesson.id });
-      };
-    }
-  } else {
-    if (featuredCard) {
-      const featTitle = document.getElementById('feat-lesson-title');
-      const featModuleTag = document.getElementById('feat-lesson-module-tag');
-      const featDuration = document.getElementById('feat-lesson-duration');
-      const featBtnResume = document.getElementById('feat-btn-resume');
-      const featProgressBar = document.getElementById('feat-progress-bar');
-      const featProgressPercent = document.getElementById('feat-progress-percent');
-
-      if (featTitle) featTitle.textContent = isSuperAdmin ? 'Mulai Buat Modul & Materi Pelajaran Pertama' : 'Kurikulum Segera Hadir';
-      if (featModuleTag) featModuleTag.textContent = isSuperAdmin ? 'Setup Awal Kurikulum' : 'Info Kelas';
-      if (featDuration) featDuration.textContent = '0 Menit';
-      if (featProgressBar) featProgressBar.style.width = '0%';
-      if (featProgressPercent) featProgressPercent.textContent = '0%';
-
-      if (featBtnResume) {
-        if (isSuperAdmin) {
-          featBtnResume.innerHTML = `
-            <span>Buka Admin Kurikulum</span>
-            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-          `;
-          featBtnResume.onclick = () => {
-            navigate('admin');
-          };
-        } else {
-          featBtnResume.innerHTML = `
-            <span>Jelajahi Resource &amp; SOP</span>
-            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-          `;
-          featBtnResume.onclick = () => {
-            navigate('resources');
-          };
-        }
-      }
-    }
-  }
-
   renderQuickActionHub();
   renderPinnedModuleHero();
   renderModuleCategoryPills();
@@ -1337,7 +1267,7 @@ function updateStreamNavigationButtons(activeLessonId) {
 
   if (btnNext) {
     btnNext.disabled = !nextLesson;
-    btnNext.onclick = () => advanceToNextLesson(false);
+    btnNext.onclick = () => handleNextLessonWithConfirm();
     btnNext.title = nextLesson ? `Lanjut: ${nextLesson.title}` : 'Materi terakhir';
   }
 
@@ -1364,6 +1294,7 @@ function updateStreamNavigationButtons(activeLessonId) {
         ? `<span class="hidden sm:inline">Lanjut: ${escapeHtml(nextMod.title)} &bull;</span> Materi Berikutnya &rarr;`
         : `Materi Berikutnya &rarr;`;
       btnFooterNext.title = nextLesson.title;
+      btnFooterNext.onclick = () => handleNextLessonWithConfirm();
     } else {
       btnFooterNext.innerHTML = `Materi Terakhir Selesai`;
     }
@@ -1392,6 +1323,62 @@ function updateStreamNavigationButtons(activeLessonId) {
     }
     btnToggleComplete.onclick = () => advanceToNextLesson(true);
   }
+}
+
+/**
+ * Confirmation Interceptor before advancing to next lesson (Revisi 90):
+ * If the current lesson is not yet marked complete, presents an elegant confirmation dialog.
+ */
+function handleNextLessonWithConfirm() {
+  const user = AppState.currentUser;
+  const currentLesson = AppState.lessons.find(l => l.id === AppState.currentLessonId);
+  if (!currentLesson) {
+    advanceToNextLesson(false);
+    return;
+  }
+
+  const userProgress = (user && AppState.progress[user.email]) ? AppState.progress[user.email] : [];
+  const isLessonCompleted = userProgress.includes(currentLesson.id);
+
+  if (!isLessonCompleted) {
+    openNextLessonConfirmModal(currentLesson);
+  } else {
+    advanceToNextLesson(false);
+  }
+}
+
+function openNextLessonConfirmModal(lesson) {
+  const modal = document.getElementById('modal-next-lesson-confirm');
+  if (!modal) {
+    if (typeof showCustomConfirm === 'function') {
+      showCustomConfirm({
+        title: 'Tandai Materi Selesai?',
+        message: `Apakah Anda ingin menandai materi "${lesson.title}" sebagai selesai sebelum lanjut ke episode berikutnya?`,
+        confirmText: 'Ya, Tandai Selesai & Lanjut',
+        cancelText: 'Lanjut Tanpa Menandai',
+        isDanger: false,
+        onConfirm: () => advanceToNextLesson(true)
+      });
+    } else {
+      advanceToNextLesson(false);
+    }
+    return;
+  }
+
+  const titleEl = document.getElementById('next-confirm-lesson-title');
+  if (titleEl) titleEl.textContent = lesson.title || 'Materi Saat Ini';
+
+  modal.classList.remove('hidden');
+}
+
+function closeNextLessonConfirmModal() {
+  const modal = document.getElementById('modal-next-lesson-confirm');
+  if (modal) modal.classList.add('hidden');
+}
+
+function confirmNextLessonAction(shouldMarkComplete) {
+  closeNextLessonConfirmModal();
+  advanceToNextLesson(shouldMarkComplete);
 }
 
 /**
@@ -1715,7 +1702,7 @@ function toggleLessonCompletion(lessonId) {
 // ==========================================
 
 function handleFloatingNextLesson() {
-  advanceToNextLesson(true);
+  handleNextLessonWithConfirm();
 }
 
 function setupFloatingPillScrollListener() {
@@ -2140,7 +2127,7 @@ function getGlobalSearchMenuItems() {
     {
       id: 'menu-home',
       category: 'Halaman Utama',
-      title: 'Home Kurikulum (Bento)',
+      title: 'Home',
       subtitle: 'Overview ekosistem silabus dan materi pembelajaran',
       icon: `<svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>`,
       badge: 'NAV',
@@ -2149,7 +2136,7 @@ function getGlobalSearchMenuItems() {
     {
       id: 'menu-dashboard',
       category: 'Halaman Utama',
-      title: 'Dashboard Siswa & Statistik',
+      title: 'Dashboard',
       subtitle: 'Pantau streak belajar, progress persentase & kalender aktif',
       icon: `<svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>`,
       badge: 'STATS',
@@ -2158,7 +2145,7 @@ function getGlobalSearchMenuItems() {
     {
       id: 'menu-learn',
       category: 'Halaman Utama',
-      title: 'Kurikulum & Modul Pembelajaran',
+      title: 'Modul Pembelajaran',
       subtitle: 'Akses ruang belajar video, catatan notion, dan silabus lengkap',
       icon: `<svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
       badge: 'BELAJAR',
@@ -2167,16 +2154,25 @@ function getGlobalSearchMenuItems() {
     {
       id: 'menu-resources',
       category: 'Halaman Utama',
-      title: 'Resource Hub & Dokumen',
+      title: 'ZettLink',
       subtitle: 'Download template code, cheatsheet AI, dan asset proyek',
-      icon: `<svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>`,
-      badge: 'DOKUMEN',
+      icon: `<svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>`,
+      badge: 'ZETTLINK',
       action: () => navigate('resources')
+    },
+    {
+      id: 'menu-showcase',
+      category: 'Halaman Utama',
+      title: 'ZettShowcase',
+      subtitle: 'Galeri karya web app full AI buatan seluruh member Zettbos',
+      icon: `<svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`,
+      badge: 'KARYA',
+      action: () => navigate('showcase')
     },
     {
       id: 'menu-favorites',
       category: 'Halaman Utama',
-      title: 'Item Favorit & Simpanan Kode',
+      title: 'Favorite & Simpan',
       subtitle: 'Kumpulan materi dan snippet codeblock yang Anda simpan',
       icon: `<svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>`,
       badge: 'FAVORIT',
@@ -2389,4 +2385,8 @@ window.handleGlobalSearchInput = handleGlobalSearchInput;
 window.renderGlobalSearchMenuList = renderGlobalSearchMenuList;
 window.executeGlobalSearchItem = executeGlobalSearchItem;
 window.applySquareContainFavicon = applySquareContainFavicon;
+window.handleNextLessonWithConfirm = handleNextLessonWithConfirm;
+window.openNextLessonConfirmModal = openNextLessonConfirmModal;
+window.closeNextLessonConfirmModal = closeNextLessonConfirmModal;
+window.confirmNextLessonAction = confirmNextLessonAction;
 

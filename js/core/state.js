@@ -28,7 +28,10 @@ const AppState = {
   activeAdminTab: 'curriculum',
   editorInstance: null,
   pendingEmailForOtp: null,
-  generatedOtpCode: null
+  generatedOtpCode: null,
+  showcaseProjects: [], // ZettShowcase: Galeri Karya Web App AI Member (Revisi 90)
+  activeShowcaseCategory: 'all',
+  showcaseSearchQuery: ''
 };
 
 window.AppState = AppState;
@@ -44,6 +47,7 @@ function initStorage() {
   let storedLandingCms = null;
   let storedActivity = null;
   let storedQuickActions = null;
+  let storedShowcaseProjects = null;
   let storedUser = null;
 
   try { storedWhitelist = JSON.parse(localStorage.getItem('zett_whitelist')); } catch (e) {}
@@ -56,6 +60,7 @@ function initStorage() {
   try { storedLandingCms = JSON.parse(localStorage.getItem('zett_landing_cms')); } catch (e) {}
   try { storedActivity = JSON.parse(localStorage.getItem('zett_activity')); } catch (e) {}
   try { storedQuickActions = JSON.parse(localStorage.getItem('zett_quick_actions')); } catch (e) {}
+  try { storedShowcaseProjects = JSON.parse(localStorage.getItem('zett_showcase_projects')); } catch (e) {}
   try { storedUser = JSON.parse(localStorage.getItem('zett_current_user')); } catch (e) {}
 
   const DATA_CLEAN_VERSION = 'v45_clean_zero_data';
@@ -162,6 +167,7 @@ function initStorage() {
 
   AppState.activity = (storedActivity && typeof storedActivity === 'object') ? storedActivity : { ...seedActivity };
   AppState.quickActions = (Array.isArray(storedQuickActions) && storedQuickActions.length > 0) ? storedQuickActions : [...seedQuickActions];
+  AppState.showcaseProjects = Array.isArray(storedShowcaseProjects) ? storedShowcaseProjects : [];
   AppState.brandLogoUrl = localStorage.getItem('zettbos_brand_logo_url') || AppState.landingCms?.brandLogoUrl || AppState.landingCms?.hero?.brandLogoUrl || '';
   AppState.currentUser = storedUser || null;
 
@@ -376,39 +382,16 @@ async function hashPassword(plainText) {
 }
 window.hashPassword = hashPassword;
 
-// Anti-Inspect & Anti-Tampering Protection
-(function initAntiInspect() {
-  // 1. Blokir Menu Klik Kanan
-  document.addEventListener('contextmenu', e => {
-    e.preventDefault();
-    return false;
-  });
-
-  // 2. Blokir Shortcut DevTools (F12, Ctrl+Shift+I/J/C, Ctrl+U)
-  document.addEventListener('keydown', e => {
-    if (e.key === 'F12' || e.keyCode === 123) {
-      e.preventDefault();
-      return false;
-    }
-    if (e.ctrlKey && e.shiftKey && ['I','i','J','j','C','c'].includes(e.key)) {
-      e.preventDefault();
-      return false;
-    }
-    if (e.ctrlKey && (e.key === 'U' || e.key === 'u')) {
-      e.preventDefault();
-      return false;
-    }
-  });
-
-  // 3. Security Warning di Console
+// Console Welcome & Engineering Notice (Re-enabled Right Click & F12 for Member Flexibility - Revisi 90)
+(function initConsoleNotice() {
   try {
     console.log(
-      '%c⛔ STOP! AREA DILINDUNGI SISTEM ZETTBOS LMS',
-      'color: #ef4444; font-size: 22px; font-weight: 900; -webkit-text-stroke: 1px black;'
+      '%c⚡ ZETTBOS LMS — AI WEB BUILDER PLATFORM',
+      'color: #10b981; font-size: 16px; font-weight: 800;'
     );
     console.log(
-      '%cSeluruh aktivitas, hak akses materi kurikulum, dan data di konsol ini diawasi secara ketat. Dilarang keras memodifikasi hak akses.',
-      'color: #94a3b8; font-size: 13px;'
+      '%cPlatform edukasi resmi Zettbos. Mode inspect & multitasking tab diaktifkan untuk kenyamanan belajar.',
+      'color: #94a3b8; font-size: 12px;'
     );
   } catch (err) {}
 })();
@@ -418,6 +401,7 @@ function saveState() {
   localStorage.setItem('zett_modules', JSON.stringify(AppState.modules));
   localStorage.setItem('zett_lessons', JSON.stringify(AppState.lessons));
   localStorage.setItem('zett_progress', JSON.stringify(AppState.progress));
+  localStorage.setItem('zett_showcase_projects', JSON.stringify(AppState.showcaseProjects || []));
   localStorage.setItem('zett_favorites', JSON.stringify(AppState.favorites));
   localStorage.setItem('zett_resources', JSON.stringify(AppState.resources));
   localStorage.setItem('zett_resource_categories', JSON.stringify(AppState.resourceCategories));

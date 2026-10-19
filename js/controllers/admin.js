@@ -23,7 +23,7 @@ function renderAdminPanel() {
 
 function switchAdminTab(tabName) {
   AppState.activeAdminTab = tabName;
-  ['curriculum', 'landing_cms', 'resources_cms', 'quickactions', 'whitelist', 'analytics'].forEach(t => {
+  ['curriculum', 'landing_cms', 'resources_cms', 'quickactions', 'showcase_cms', 'whitelist', 'analytics'].forEach(t => {
     const tabBtn = document.getElementById(`tab-btn-${t}`);
     const tabPane = document.getElementById(`tab-pane-${t}`);
     if (tabBtn) {
@@ -45,6 +45,8 @@ function switchAdminTab(tabName) {
     renderAdminLandingCms();
   } else if (tabName === 'resources_cms') {
     renderAdminResourcesCms();
+  } else if (tabName === 'showcase_cms') {
+    renderAdminShowcaseCms();
   } else if (tabName === 'whitelist') {
     renderAdminWhitelist();
     pullWhitelistFromSupabaseLive(true);
@@ -3352,6 +3354,180 @@ window.openEditCategoryModal = openEditCategoryModal;
 window.closeCategoryModal = closeCategoryModal;
 window.handleSaveCategorySubmit = handleSaveCategorySubmit;
 window.deleteCategory = deleteCategory;
+
+// ==========================================
+// ZETTSHOWCASE CMS MODERATION (Revisi 90)
+// ==========================================
+
+function renderAdminShowcaseCms() {
+  const tbody = document.getElementById('admin-showcase-table-body');
+  const countBadge = document.getElementById('admin-showcase-count-badge');
+  if (!tbody) return;
+
+  const projects = AppState.showcaseProjects || [];
+  if (countBadge) {
+    countBadge.textContent = `${projects.length} Proyek Terdaftar`;
+  }
+
+  tbody.innerHTML = '';
+  if (projects.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7" class="py-8 text-center text-slate-500 font-mono text-xs">
+          Belum ada karya siswa yang diajukan.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  projects.forEach((p, idx) => {
+    const tr = document.createElement('tr');
+    tr.className = 'border-b border-slate-800/80 hover:bg-slate-900/50 transition-colors text-xs';
+
+    const isApproved = p.status === 'approved';
+    const isFeatured = !!p.is_featured;
+
+    const statusBadge = isApproved
+      ? '<span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-500/40 font-mono text-[10px]">Tayang (Approved)</span>'
+      : '<span class="px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-500/40 font-mono text-[10px] animate-pulse">Menunggu Review</span>';
+
+    tr.innerHTML = `
+      <td class="py-3 px-3 text-center font-mono text-slate-500">${idx + 1}</td>
+      <td class="py-3 px-3">
+        <div class="font-bold text-white">${escapeHtml(p.title)}</div>
+        <div class="text-[11px] text-slate-400 font-mono">${escapeHtml(p.tech_stack || '-')}</div>
+      </td>
+      <td class="py-3 px-3">
+        <div class="font-semibold text-slate-200">${escapeHtml(p.user_name || 'Member')}</div>
+        <div class="text-[11px] text-slate-500 font-mono">${escapeHtml(p.user_email || '-')}</div>
+      </td>
+      <td class="py-3 px-3">${statusBadge}</td>
+      <td class="py-3 px-3">
+        <button onclick="toggleFeaturedShowcase('${p.id}')" class="px-2 py-0.5 rounded text-[10px] font-mono font-bold transition-colors ${
+          isFeatured 
+            ? 'bg-amber-500/20 text-amber-300 border border-amber-500/50' 
+            : 'bg-slate-900 text-slate-500 border border-slate-800 hover:text-slate-300'
+        }">
+          ${isFeatured ? '⭐ Unggulan' : '☆ Biasa'}
+        </button>
+      </td>
+      <td class="py-3 px-3">
+        <a href="${escapeHtml(p.demo_url)}" target="_blank" class="text-emerald-400 hover:underline inline-flex items-center gap-1 font-mono text-[11px]">
+          <span>Live Demo</span>
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+        </a>
+      </td>
+      <td class="py-3 px-3 text-right">
+        <div class="flex items-center justify-end gap-1.5">
+          ${!isApproved ? `
+            <button onclick="approveShowcaseProject('${p.id}')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-950 text-emerald-300 border border-emerald-500/50 hover:bg-emerald-900 transition-colors">
+              Approve
+            </button>
+          ` : `
+            <button onclick="rejectShowcaseProject('${p.id}')" class="px-2 py-1 rounded-lg text-xs font-semibold bg-slate-900 text-slate-400 border border-slate-800 hover:text-slate-200 transition-colors">
+              Unpublish
+            </button>
+          `}
+          <button onclick="deleteShowcaseProject('${p.id}')" class="p-1 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-slate-800 transition-colors" title="Hapus Karya">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+          </button>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+async function approveShowcaseProject(id) {
+  const p = (AppState.showcaseProjects || []).find(x => x.id === id);
+  if (!p) return;
+  p.status = 'approved';
+  p.approved_at = new Date().toISOString();
+  saveState();
+
+  if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+    try {
+      await ZettSupabase.client.from('member_showcase').update({
+        status: 'approved',
+        approved_at: p.approved_at
+      }).eq('id', id);
+    } catch (e) { console.warn(e); }
+  }
+
+  renderAdminShowcaseCms();
+  if (typeof renderShowcase === 'function') renderShowcase();
+  showToast('Karya siswa disetujui & live di ZettShowcase!', 'success');
+}
+
+async function rejectShowcaseProject(id) {
+  const p = (AppState.showcaseProjects || []).find(x => x.id === id);
+  if (!p) return;
+  p.status = 'pending';
+  saveState();
+
+  if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+    try {
+      await ZettSupabase.client.from('member_showcase').update({
+        status: 'pending'
+      }).eq('id', id);
+    } catch (e) { console.warn(e); }
+  }
+
+  renderAdminShowcaseCms();
+  if (typeof renderShowcase === 'function') renderShowcase();
+  showToast('Karya dikembalikan ke status pending.', 'info');
+}
+
+async function toggleFeaturedShowcase(id) {
+  const p = (AppState.showcaseProjects || []).find(x => x.id === id);
+  if (!p) return;
+  p.is_featured = !p.is_featured;
+  saveState();
+
+  if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+    try {
+      await ZettSupabase.client.from('member_showcase').update({
+        is_featured: p.is_featured
+      }).eq('id', id);
+    } catch (e) { console.warn(e); }
+  }
+
+  renderAdminShowcaseCms();
+  if (typeof renderShowcase === 'function') renderShowcase();
+  showToast(p.is_featured ? 'Ditandai sebagai Karya Pilihan!' : 'Dihapus dari status Unggulan.', 'info');
+}
+
+async function deleteShowcaseProject(id) {
+  showCustomConfirm({
+    title: 'Hapus Karya Siswa?',
+    message: 'Apakah Anda yakin ingin menghapus karya proyek ini secara permanen dari sistem?',
+    confirmText: 'Ya, Hapus Karya',
+    cancelText: 'Batal',
+    isDanger: true,
+    onConfirm: async () => {
+      AppState.showcaseProjects = (AppState.showcaseProjects || []).filter(x => x.id !== id);
+      saveState();
+
+      if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+        try {
+          await ZettSupabase.client.from('member_showcase').delete().eq('id', id);
+        } catch (e) { console.warn(e); }
+      }
+
+      renderAdminShowcaseCms();
+      if (typeof renderShowcase === 'function') renderShowcase();
+      showToast('Karya proyek berhasil dihapus.', 'info');
+    }
+  });
+}
+
+window.renderAdminShowcaseCms = renderAdminShowcaseCms;
+window.approveShowcaseProject = approveShowcaseProject;
+window.rejectShowcaseProject = rejectShowcaseProject;
+window.toggleFeaturedShowcase = toggleFeaturedShowcase;
+window.deleteShowcaseProject = deleteShowcaseProject;
+
 
 
 

@@ -54,7 +54,14 @@ function closeSidebarDrawer() {
   }
 }
 
-function handleDrawerNavClick(viewName) {
+function handleDrawerNavClick(viewName, event) {
+  if (event && (event.metaKey || event.ctrlKey || event.button === 1)) {
+    // Biarkan browser membuka tab baru secara native jika menekan Ctrl/Cmd atau Middle-Click
+    return;
+  }
+  if (event && typeof event.preventDefault === 'function') {
+    event.preventDefault();
+  }
   navigate(viewName);
   if (window.innerWidth < 1024) {
     closeSidebarDrawer();
@@ -87,6 +94,7 @@ function updateDrawerState() {
     'user-dashboard': 'drawer-btn-dashboard',
     'learn': 'drawer-btn-learn',
     'resources': 'drawer-btn-resources',
+    'showcase': 'drawer-btn-showcase',
     'favorites': 'drawer-btn-favorites',
     'admin': 'drawer-btn-admin'
   };
@@ -116,7 +124,7 @@ function navigate(viewName, params = {}) {
   if (viewName === 'dashboard') viewName = 'user-dashboard';
 
   // Hide all view containers
-  const views = ['view-landing', 'view-login', 'view-home', 'view-user-dashboard', 'view-learn', 'view-favorites', 'view-resources', 'view-admin'];
+  const views = ['view-landing', 'view-login', 'view-home', 'view-user-dashboard', 'view-learn', 'view-favorites', 'view-resources', 'view-showcase', 'view-admin'];
   views.forEach(v => {
     const el = document.getElementById(v);
     if (el) el.classList.add('hidden');
@@ -206,10 +214,23 @@ function navigate(viewName, params = {}) {
       if (typeof window.pullZettLinkFromCloudLive === 'function') {
         window.pullZettLinkFromCloudLive(true);
       }
+    } else if (viewName === 'showcase') {
+      if (window.renderShowcase) window.renderShowcase();
+      if (typeof window.pullShowcaseFromCloudLive === 'function') {
+        window.pullShowcaseFromCloudLive(true);
+      }
     } else if (viewName === 'favorites') {
       if (window.renderFavorites) window.renderFavorites();
     } else if (viewName === 'admin') {
       if (window.renderAdminPanel) window.renderAdminPanel();
+    }
+  }
+
+  // Sync browser URL hash for native Open in New Tab & bookmarks
+  if (viewName !== 'landing' && viewName !== 'login') {
+    const hashTarget = viewName === 'user-dashboard' ? 'dashboard' : viewName;
+    if (window.location.hash !== '#' + hashTarget) {
+      window.history.replaceState(null, '', '#' + hashTarget);
     }
   }
 }
@@ -239,6 +260,7 @@ function updateNavbarState(currentView) {
       'user-dashboard': 'Data Belajar',
       'learn': 'Modul Pembelajaran',
       'resources': 'ZettLink',
+      'showcase': 'Showcase Karya',
       'favorites': 'Koleksi Favorit',
       'admin': 'Admin Panel'
     };
@@ -274,7 +296,7 @@ function updateNavbarState(currentView) {
   else if (currentView === 'user-dashboard') setMobileActive(mDash, 'text-cyan-400');
   else if (currentView === 'learn') setMobileActive(mLearn, 'text-emerald-400');
   else if (currentView === 'resources') setMobileActive(mRes, 'text-blue-400');
-  else if (currentView === 'favorites' || currentView === 'admin') setMobileActive(mMenu, 'text-emerald-400');
+  else if (currentView === 'showcase' || currentView === 'favorites' || currentView === 'admin') setMobileActive(mMenu, 'text-emerald-400');
 
   // Update theme label inside mobile popover
   if (mTheme) {
@@ -352,3 +374,14 @@ window.updateNavbarState = updateNavbarState;
 window.toggleMobileMenuPopover = toggleMobileMenuPopover;
 window.closeMobileMenuPopover = closeMobileMenuPopover;
 window.handleMobilePopoverNav = handleMobilePopoverNav;
+
+// Hashchange listener for native new tabs and browser back/forward buttons (Revisi 90)
+window.addEventListener('hashchange', () => {
+  let hash = window.location.hash.replace('#', '').trim();
+  if (hash) {
+    if (hash === 'dashboard') hash = 'user-dashboard';
+    if (hash !== AppState.currentView && AppState.currentUser) {
+      navigate(hash);
+    }
+  }
+});

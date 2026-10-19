@@ -596,6 +596,36 @@ const ZettSupabase = {
         hasChanges = true;
       }
 
+      // 4b. Fetch Showcase Karya Siswa (Revisi 90)
+      try {
+        const { data: sCase, error: sCaseErr } = await this.client
+          .from('member_showcase')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (!sCaseErr && Array.isArray(sCase) && sCase.length > 0) {
+          AppState.showcaseProjects = sCase.map(p => ({
+            id: p.id,
+            user_email: p.user_email,
+            user_name: p.user_name || p.user_email?.split('@')[0] || 'Member Zettbos',
+            title: p.title,
+            description: p.description || '',
+            demo_url: p.demo_url,
+            repo_url: p.repo_url || '',
+            cover_image: p.cover_image || '',
+            tech_stack: p.tech_stack || '',
+            category: p.category || (p.tech_stack?.includes('Apps Script') ? 'Apps Script' : (p.tech_stack?.includes('Prompt') ? 'Prompting AI' : 'Full-Stack AI')),
+            status: p.status || 'approved',
+            is_featured: !!p.is_featured,
+            created_at: p.created_at || new Date().toISOString()
+          }));
+          localStorage.setItem('zett_showcase_projects', JSON.stringify(AppState.showcaseProjects));
+          hasChanges = true;
+        }
+      } catch (caseFetchErr) {
+        console.warn('[ZettSupabase Auto-Sync Showcase Warning]', caseFetchErr);
+      }
+
       // 5. Fetch Landing CMS for All Users & Public Visitors
       try {
         const { data: cms, error: cmsErr } = await this.client
@@ -975,6 +1005,105 @@ const ZettSupabase = {
       }
       return false;
     }
+  },
+
+  // ==========================================
+  // ZETTSHOWCASE CLOUD SYNC & AUTO-PULL (Revisi 90)
+  // ==========================================
+
+  async syncShowcaseToCloudLive(showNotification = true) {
+    if (!this.isConnected()) {
+      if (showNotification) showToast('Supabase belum terhubung. Periksa konfigurasi URL & Key.', 'warning');
+      return false;
+    }
+
+    try {
+      if (showNotification) showToast('Sedang mengunggah kurasi Showcase siswa ke Cloud...', 'info');
+
+      const projects = AppState.showcaseProjects || [];
+      if (projects.length > 0) {
+        const payload = projects.map(p => ({
+          id: p.id,
+          user_email: p.user_email,
+          user_name: p.user_name || p.user_email?.split('@')[0] || 'Member Zettbos',
+          title: p.title,
+          description: p.description || '',
+          demo_url: p.demo_url,
+          repo_url: p.repo_url || '',
+          cover_image: p.cover_image || '',
+          tech_stack: p.tech_stack || '',
+          status: p.status || 'approved',
+          is_featured: !!p.is_featured,
+          created_at: p.created_at || new Date().toISOString()
+        }));
+
+        const { error } = await this.client.from('member_showcase').upsert(payload, { onConflict: 'id' });
+        if (error) throw error;
+      }
+
+      if (showNotification) {
+        showToast(`Sukses! ${projects.length} karya Showcase siswa tersinkronisasi di Supabase!`, 'success');
+      }
+      return true;
+    } catch (e) {
+      console.error('[ZettSupabase Sync Showcase Error]', e);
+      if (showNotification) {
+        showToast('Gagal upload Showcase ke Cloud: ' + (e.message || 'Error Supabase'), 'error');
+      }
+      return false;
+    }
+  },
+
+  async pullShowcaseFromCloudLive(silent = false) {
+    if (!this.isConnected()) {
+      if (!silent) showToast('Supabase belum terhubung.', 'warning');
+      return false;
+    }
+
+    try {
+      if (!silent) showToast('Mengunduh karya Showcase terbaru dari Cloud...', 'info');
+
+      const { data, error } = await this.client
+        .from('member_showcase')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      if (Array.isArray(data) && data.length > 0) {
+        AppState.showcaseProjects = data.map(p => ({
+          id: p.id,
+          user_email: p.user_email,
+          user_name: p.user_name || p.user_email?.split('@')[0] || 'Member Zettbos',
+          title: p.title,
+          description: p.description || '',
+          demo_url: p.demo_url,
+          repo_url: p.repo_url || '',
+          cover_image: p.cover_image || '',
+          tech_stack: p.tech_stack || '',
+          category: p.category || (p.tech_stack?.includes('Apps Script') ? 'Apps Script' : (p.tech_stack?.includes('Prompt') ? 'Prompting AI' : 'Full-Stack AI')),
+          status: p.status || 'approved',
+          is_featured: !!p.is_featured,
+          created_at: p.created_at || new Date().toISOString()
+        }));
+        localStorage.setItem('zett_showcase_projects', JSON.stringify(AppState.showcaseProjects));
+        saveState();
+
+        if (typeof renderShowcase === 'function') renderShowcase();
+        if (typeof renderAdminShowcaseCms === 'function') renderAdminShowcaseCms();
+
+        if (!silent) {
+          showToast(`Berhasil! ${AppState.showcaseProjects.length} karya Showcase ditarik dari Cloud!`, 'success');
+        }
+      }
+      return true;
+    } catch (e) {
+      console.error('[ZettSupabase Pull Showcase Error]', e);
+      if (!silent) {
+        showToast('Gagal menarik data Showcase dari Cloud: ' + (e.message || 'Error'), 'error');
+      }
+      return false;
+    }
   }
 };
 
@@ -1022,6 +1151,8 @@ window.closeSupabaseSettingsModal = closeSupabaseSettingsModal;
 window.handleSaveSupabaseConfig = handleSaveSupabaseConfig;
 window.syncZettLinkToCloudLive = (showNotification) => ZettSupabase.syncZettLinkToCloudLive(showNotification);
 window.pullZettLinkFromCloudLive = (silent) => ZettSupabase.pullZettLinkFromCloudLive(silent);
+window.syncShowcaseToCloudLive = (showNotification) => ZettSupabase.syncShowcaseToCloudLive(showNotification);
+window.pullShowcaseFromCloudLive = (silent) => ZettSupabase.pullShowcaseFromCloudLive(silent);
 
 // Initialize on script load
 try {

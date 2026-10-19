@@ -44,10 +44,17 @@ document.addEventListener('DOMContentLoaded', () => {
     window.ZettParticleEngine.init();
   }
 
-  // 6. Initial Route Decision
+  // 6. Initial Route Decision (Hash-Aware for Open in New Tab - Revisi 90)
   if (typeof navigate === 'function') {
     if (window.AppState && window.AppState.currentUser) {
-      navigate('home');
+      let initialHash = window.location.hash.replace('#', '').trim();
+      if (initialHash === 'dashboard') initialHash = 'user-dashboard';
+      const validViews = ['home', 'user-dashboard', 'learn', 'resources', 'showcase', 'favorites', 'admin'];
+      if (initialHash && validViews.includes(initialHash)) {
+        navigate(initialHash);
+      } else {
+        navigate('home');
+      }
     } else {
       navigate('landing');
     }
