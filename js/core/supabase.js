@@ -1032,6 +1032,8 @@ const ZettSupabase = {
           repo_url: p.repo_url || '',
           cover_image: p.cover_image || '',
           tech_stack: p.tech_stack || '',
+          hosting: p.hosting || 'Vercel',
+          database: p.database || 'Supabase',
           status: p.status || 'approved',
           is_featured: !!p.is_featured,
           created_at: p.created_at || new Date().toISOString()
@@ -1042,13 +1044,13 @@ const ZettSupabase = {
       }
 
       if (showNotification) {
-        showToast(`Sukses! ${projects.length} karya Showcase siswa tersinkronisasi di Supabase!`, 'success');
+        showToast(`Sukses! ${projects.length} karya ZettGallery siswa tersinkronisasi di Supabase!`, 'success');
       }
       return true;
     } catch (e) {
       console.error('[ZettSupabase Sync Showcase Error]', e);
       if (showNotification) {
-        showToast('Gagal upload Showcase ke Cloud: ' + (e.message || 'Error Supabase'), 'error');
+        showToast('Gagal upload ZettGallery ke Cloud: ' + (e.message || 'Error Supabase'), 'error');
       }
       return false;
     }
@@ -1061,7 +1063,7 @@ const ZettSupabase = {
     }
 
     try {
-      if (!silent) showToast('Mengunduh karya Showcase terbaru dari Cloud...', 'info');
+      if (!silent) showToast('Mengunduh karya ZettGallery terbaru dari Cloud...', 'info');
 
       const { data, error } = await this.client
         .from('member_showcase')
@@ -1081,6 +1083,8 @@ const ZettSupabase = {
           repo_url: p.repo_url || '',
           cover_image: p.cover_image || '',
           tech_stack: p.tech_stack || '',
+          hosting: p.hosting || 'Vercel',
+          database: p.database || 'Supabase',
           category: p.category || (p.tech_stack?.includes('Apps Script') ? 'Apps Script' : (p.tech_stack?.includes('Prompt') ? 'Prompting AI' : 'Full-Stack AI')),
           status: p.status || 'approved',
           is_featured: !!p.is_featured,
@@ -1093,7 +1097,7 @@ const ZettSupabase = {
         if (typeof renderAdminShowcaseCms === 'function') renderAdminShowcaseCms();
 
         if (!silent) {
-          showToast(`Berhasil! ${AppState.showcaseProjects.length} karya Showcase ditarik dari Cloud!`, 'success');
+          showToast(`Berhasil! ${AppState.showcaseProjects.length} karya ZettGallery ditarik dari Cloud!`, 'success');
         }
       }
       return true;

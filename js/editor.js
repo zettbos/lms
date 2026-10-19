@@ -152,7 +152,7 @@ class NotionBlockEditor {
         { value: 'callout', label: 'Kotak Tips (Callout Box)' },
         { value: 'code', label: 'Blok Kode (Code Block)' },
         { value: 'image', label: 'Gambar (Image URL)' },
-        { value: 'video', label: 'Video YouTube Tambahan' }
+        { value: 'video', label: 'Video (YouTube / Google Drive)' }
       ];
       options.forEach(opt => {
         const o = document.createElement('option');
@@ -322,13 +322,13 @@ class NotionBlockEditor {
         const vidInput = document.createElement('input');
         vidInput.type = 'text';
         vidInput.value = block.url || '';
-        vidInput.placeholder = 'Masukkan Link Video YouTube (https://www.youtube.com/watch?v=...)';
+        vidInput.placeholder = 'Masukkan Link Video (YouTube atau Google Drive: https://drive.google.com/file/d/.../view)';
         vidInput.className = 'w-full bg-slate-950 text-xs text-emerald-400 font-mono border border-slate-800 rounded px-2.5 py-1.5 focus:ring-1 focus:ring-emerald-500 outline-none mb-2';
         vidInput.oninput = (e) => this.updateBlockMeta(index, 'url', e.target.value);
 
         const vidNote = document.createElement('p');
         vidNote.className = 'text-[11px] text-slate-500 italic mb-1';
-        vidNote.textContent = 'Tips: Anda bisa menyisipkan video tambahan ini di antara teks atau setelah pembahasan kode.';
+        vidNote.textContent = 'Tips: Mendukung YouTube maupun Google Drive (pastikan video GDrive di-set "Anyone with the link can view").';
 
         blockEl.appendChild(vidInput);
         blockEl.appendChild(vidNote);
@@ -359,7 +359,7 @@ class NotionBlockEditor {
       <button type="button" data-type="callout" class="btn-add-quick px-2.5 py-1 text-xs rounded-lg bg-emerald-950/40 hover:bg-emerald-900/40 text-emerald-300 border border-emerald-800/60">+ Callout Box</button>
       <button type="button" data-type="code" class="btn-add-quick px-2.5 py-1 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 font-mono">+ Code</button>
       <button type="button" data-type="image" class="btn-add-quick px-2.5 py-1 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700">+ Gambar</button>
-      <button type="button" data-type="video" class="btn-add-quick px-2.5 py-1 text-xs rounded-lg bg-emerald-950/60 hover:bg-emerald-900 text-emerald-300 border border-emerald-700">+ Video YouTube</button>
+      <button type="button" data-type="video" class="btn-add-quick px-2.5 py-1 text-xs rounded-lg bg-emerald-950/60 hover:bg-emerald-900 text-emerald-300 border border-emerald-700">+ Video (YT / GDrive)</button>
     `;
 
     bottomBar.querySelectorAll('.btn-add-quick').forEach(btn => {
@@ -434,17 +434,13 @@ function renderBlocksToHtml(blocks) {
         </div>
       `;
     } else if (block.type === 'video') {
-      let embedId = 'dQw4w9WgXcQ';
-      if (block.url) {
-        const match = block.url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
-        if (match) embedId = match[1];
-      }
+      const embedInfo = resolveVideoEmbedSource(block.url);
       html += `
         <div class="my-5">
           <div class="video-responsive-container">
             <iframe 
-              src="https://www.youtube-nocookie.com/embed/${embedId}?rel=0&modestbranding=1" 
-              title="Video Pembelajaran Tambahan" 
+              src="${escapeHtml(embedInfo.src)}" 
+              title="Video Pembelajaran" 
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
               allowfullscreen>
             </iframe>
@@ -457,6 +453,45 @@ function renderBlocksToHtml(blocks) {
   html += '</div>';
   return html;
 }
+
+/**
+ * Smart Video Embed URL Resolver (Revisi 91):
+ * Mendukung YouTube (youtu.be / youtube.com) dan Google Drive (drive.google.com/file/d/.../view).
+ */
+function resolveVideoEmbedSource(url) {
+  if (!url || typeof url !== 'string') {
+    return { type: 'youtube', src: 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1' };
+  }
+  const cleanUrl = url.trim();
+
+  // 1. Google Drive Video Parser
+  // Pola: drive.google.com/file/d/FILE_ID/... atau drive.google.com/open?id=FILE_ID
+  const driveMatch = cleanUrl.match(/drive\.google\.com\/(?:file\/d\/|open\?id=)([a-zA-Z0-9_-]+)/i);
+  if (driveMatch && driveMatch[1]) {
+    const fileId = driveMatch[1];
+    return {
+      type: 'gdrive',
+      src: `https://drive.google.com/file/d/${fileId}/preview`
+    };
+  }
+
+  // 2. YouTube Video Parser
+  const ytMatch = cleanUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/i);
+  if (ytMatch && ytMatch[1]) {
+    return {
+      type: 'youtube',
+      src: `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?rel=0&modestbranding=1`
+    };
+  }
+
+  // 3. Native Embed URL Fallback
+  if (cleanUrl.includes('/embed/') || cleanUrl.includes('/preview')) {
+    return { type: 'embed', src: cleanUrl };
+  }
+
+  return { type: 'youtube', src: `https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1` };
+}
+window.resolveVideoEmbedSource = resolveVideoEmbedSource;
 
 function formatRichText(text) {
   if (!text) return '';

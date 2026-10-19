@@ -260,7 +260,7 @@ function updateNavbarState(currentView) {
       'user-dashboard': 'Data Belajar',
       'learn': 'Modul Pembelajaran',
       'resources': 'ZettLink',
-      'showcase': 'Showcase Karya',
+      'showcase': 'ZettGallery',
       'favorites': 'Koleksi Favorit',
       'admin': 'Admin Panel'
     };

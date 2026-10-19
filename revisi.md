@@ -1,101 +1,107 @@
-# ZETTBOS MEMBER HUB — DOKUMENTASI BLUEPRINT & IMPLEMENTASI REVISI 89 & 90
+# ZETTBOS MEMBER HUB — BLUEPRINT & DOKUMENTASI REVISI 91
 ================================================================================
-STATUS         : COMPLETED & FULLY VERIFIED (100% PRODUCTION READY)
+STATUS         : READY FOR EXECUTION & APPROVED BY USER ("OKE TERAPKAN")
 ARSITEK SISTEM : ZettBOT by Zettbos (Universal Product Architect & Lead Engineering Mentor)
 FOKUS UTAMA    :
-  - REVISI 89  : PINNED TITLE TYPOGRAPHY, MODULE CATEGORY TAG PILLS, ZETTLINK SOP PREVIEW MODAL, ZETTLINK CLOUD SYNC & REALTIME PULL
-  - REVISI 90  : ZETTSHOWCASE AI HUB (MEMBER PORTFOLIO), ADMIN SHOWCASE CURATION CMS, SUBMISSION QUOTA GUARD (MAX 2 PENDING), NEXT LESSON COMPLETION INTERCEPTOR MODAL, HASH-BASED ROUTING
+  1. GOOGLE DRIVE VIDEO EMBED SUPPORT (AUTO-DETECTOR YOUTUBE & G-DRIVE)
+  2. ZETTGALLERY BRANDING & REMOVAL OF "KARYA" BADGE (GAMBAR 1)
+  3. RESTRUCTURED SUBMISSION FORM: HOSTING & DATABASE, DIRECT SUPABASE IMAGE UPLOAD, REMOVE GITHUB (GAMBAR 2)
+  4. REMOVAL OF "VERIFIED SHOWCASE" BADGE (GAMBAR 3)
+  5. PURGE ALL DUMMY PROJECTS (ZERO DATA PERSISTENCE)
+  6. HOSTING & DATABASE FILTER SYSTEM (GAMBAR 4)
+  7. CASUAL YET PROFESSIONAL HERO COPYWRITING
+  8. ADMIN PROJECT EDITOR MODAL BEFORE/AFTER APPROVAL (KONTROL KURASI PENUH)
+  9. GLOBAL UNIFICATION: "ZETTBOS ACADEMY" -> "ZETTBOS"
 TANGGAL        : 2026-10-19
-TARGET RILIS   : LMS Enterprise Grade v1.9.0 (v90)
+TARGET RILIS   : LMS Enterprise Grade v1.9.1 (v91)
 ================================================================================
 
-## 1. IKHTISAR IMPLEMENTASI REVISI 89
+## 1. ANALISIS KEBUTUHAN & AKAR MASALAH (ROOT CAUSE ANALYSIS)
 
-### A. Peningkatan Tipografi Judul Modul Pin (Gambar 1)
-- **Akar Masalah:** Judul modul yang di-pin di halaman Home sebelumnya berukuran sedang (`text-base sm:text-lg`), sehingga kurang menonjol dibandingkan kartu kurikulum reguler.
-- **Solusi Diterapkan:**
-  - Diperbesar menjadi `text-lg sm:text-xl lg:text-2xl font-black text-white group-hover:text-emerald-400 tracking-tight leading-snug`.
-  - Diberikan badge kategori modul `[KATEGORI]` di sebelah badge `★ PINNED MODUL`.
+### A. Dukungan Embed Video Google Drive (Bebas Ketergantungan YouTube)
+- **Kondisi:** Sistem sebelumnya hanya mengekstrak ID video YouTube melalui regex `youtu.be/` atau `youtube.com/watch?v=...`.
+- **Kebutuhan:** Pengguna ingin menempelkan link Google Drive secara langsung dan videonya langsung ter-embed di ruang belajar tanpa harus upload ke YouTube.
+- **Solusi Arsitektur:**
+  - Tambahkan fungsi cerdas `resolveVideoEmbedUrl(url)`:
+    - Jika link YouTube -> embed `https://www.youtube-nocookie.com/embed/{id}?rel=0`.
+    - Jika link Google Drive (`drive.google.com/file/d/{id}` atau `id={id}`) -> otomatis konversi ke embed preview resmi: `https://drive.google.com/file/d/{id}/preview`.
+    - Iframe dipasang di container responsif 16:9 dengan atribut `allow="autoplay; encrypted-media; picture-in-picture"`.
 
-### B. Badge Tag Jenis Modul pada Setiap Kartu Pembelajaran (Gambar 2)
-- **Akar Masalah:** Member tidak dapat langsung mengetahui fokus materi (apakah Antigravity IDE, Gemini Web, Full-Stack, dsb.) tanpa membaca deskripsi panjang.
-- **Solusi Diterapkan:**
-  - Ditambahkan badge tag kategori pada kartu modul di Home (`renderClassroom`) dan Ruang Belajar (`renderLearnModulesCatalog`).
-  - Desain badge: `<span class="text-[10px] font-bold font-mono px-2 py-0.5 rounded bg-emerald-950/90 text-emerald-300 border border-emerald-500/40 uppercase tracking-wider">${escapeHtml(mod.category || 'Kurikulum')}</span>`.
+### B. Rebranding ZettShowcase -> ZettGallery & Hapus Badge "KARYA" (Gambar 1)
+- **Kondisi:** Tombol pada sidebar drawer bertuliskan `ZettShowcase` dengan badge ungu `KARYA` di sebelah kanan.
+- **Solusi:** Ganti nama menjadi **`ZettGallery`** secara menyeluruh (sidebar, navbar breadcrumb, modal title, URL hash) dan hapus badge `KARYA` agar navigasi bersih dan minimalis.
 
-### C. Modal Pratinjau Dokumen ZettLink Sebelum Membuka Link (Gambar 3)
-- **Akar Masalah:** Klik pada kartu ZettLink langsung membuka URL eksternal di tab baru. Member melewatkan teks SOP/aturan penggunaan penting (misal: *"DILARANG KERAS MENYEBARKAN TOOLS INI..."*).
-- **Solusi Diterapkan:**
-  - Mengarahkan klik kartu dan tombol *"Buka Dokumen"* ke modal interaktif `modal-resource-detail-preview`.
-  - Menampilkan judul lengkap, badge kategori, tanggal rilis, dan teks deskripsi/SOP utuh tanpa terpotong (`whitespace-pre-line leading-relaxed`).
-  - Tombol aksi utama *"Buka Dokumen Sekarang ↗"* berada di dalam modal untuk memastikan siswa membaca instruksi terlebih dahulu.
+### C. Rombak Form Submit Karya Siswa (Gambar 2)
+- **Kondisi:** Form lama meminta URL GitHub (kurang relevan untuk pemula Apps Script/Sheets), Tech Stack umum, dan hanya berupa input URL teks untuk cover screenshot.
+- **Solusi:**
+  1. Hapus kolom `URL GitHub / Repo`.
+  2. Ganti kolom Tech Stack menjadi 2 kolom terpisah:
+     - **Hosting** (Contoh: *Google Apps Script, Vercel, Netlify, Cloudflare, GitHub Pages, dll.*).
+     - **Database** (Contoh: *Google Sheets, Supabase, Firebase, LocalStorage, dll.*).
+  3. Tambahkan fitur **Upload Gambar Langsung ke Supabase Storage**:
+     - Pengguna dapat memilih file gambar langsung dari HP/Laptop (`<input type="file" accept="image/*">`).
+     - Gambar di-upload ke Supabase Storage Bucket dan public URL-nya otomatis terisi ke data proyek.
+     - Disediakan preview thumbnail gambar instan.
 
-### D. Tombol Cloud Sync & Realtime Pull untuk ZettLink (Gambar 4 & 5)
-- **Akar Masalah:** Tab CMS ZettLink di Admin Panel sebelumnya tidak memiliki tombol sinkronisasi Cloud. Pembaruan link atau folder oleh admin tidak otomatis diterima oleh member.
-- **Solusi Diterapkan:**
-  - Ditambahkan tombol `[🔄 Sync ZettLink ke Cloud]` dan `[☁️ Tarik Data Cloud]` di header `tab-pane-resources_cms`.
-  - Fungsi `ZettSupabase.syncZettLinkToCloudLive()` melakukan batch upsert ke tabel `shared_resources` dan menyimpan folder/kategori ke `landing_cms`.
-  - Fungsi `ZettSupabase.pullZettLinkFromCloudLive()` menarik link terbaru.
-  - Ditambahkan auto-pull latar belakang saat member membuka menu ZettLink (`navigate('resources')`).
+### D. Hapus Badge "✅ VERIFIED SHOWCASE" (Gambar 3)
+- **Kondisi:** Sudut kiri atas kartu galeri dipadati 2 badge bertumpuk.
+- **Solusi:** Hapus badge `✅ VERIFIED SHOWCASE`. Kartu yang sudah approved tampil bersih. Badge `⭐ KARYA PILIHAN` dipertahankan jika admin menjadikannya featured.
+
+### E. Pembersihan Total Data Dummy (Zero Seed Data)
+- **Kondisi:** Terdapat data dummy (WarungAI, RecipeBot, AutoWA).
+- **Solusi:** Kosongkan `SEED_SHOWCASE_PROJECTS = []`, bersihkan `localStorage.removeItem('zett_showcase_projects')`, dan tampilkan empty state yang estetis.
+
+### F. Filter Berbasis Hosting & Database (Gambar 4)
+- **Kondisi:** Filter kategori lama (*Prompting AI, Apps Script, Full-Stack, Gemini, Supabase*) tidak relevan dengan struktur baru.
+- **Solusi:** Hadirkan sistem filter ganda yang teratur:
+  - **Filter Hosting**: *Semua | Apps Script | Vercel | Netlify | Cloudflare | Lainnya*
+  - **Filter Database**: *Semua | Google Sheets | Supabase | Firebase | Lainnya*
+
+### G. Copywriting Hero Santai tapi Profesional
+- **Teks Baru:**
+  *"Kumpulan web app keren hasil kreasi member Zettbos. Bebas coba live demo-nya, intip inspirasinya, dan pamerin karya buatanmu di sini!"*
+
+### H. Fitur Baru: Admin Showcase Project Editor Modal (Edit Sebelum / Sesudah Approve)
+- **Kebutuhan:** Admin ingin bisa mengedit data pengajuan siswa (memperbaiki typo judul, membetulkan hosting/database, mengganti URL demo atau cover) sebelum menyetujui (`approve`) proyek.
+- **Solusi Arsitektur:**
+  - Tambahkan tombol **`[✏️ Edit]`** pada setiap baris tabel CMS Showcase di Admin Panel.
+  - Sediakan modal `modal-admin-edit-showcase` yang memuat form lengkap:
+    - Judul Proyek
+    - Hosting & Database
+    - URL Live Demo
+    - URL Cover Image / Upload Cover Baru
+    - Deskripsi & Fitur Unggulan
+    - Status (`pending` vs `approved`)
+    - Unggulan (`is_featured`)
+  - Admin dapat menyimpan revisi secara langsung, otomatis tersinkronisasi ke `AppState`, `localStorage`, dan tabel Supabase Cloud `member_showcase`.
+
+### I. Unifikasi Penamaan: "Zettbos Academy" -> "Zettbos"
+- Seluruh teks, komentar, dan label dalam sistem yang memuat kata `"Zettbos Academy"` diubah menjadi identitas resmi: `"Zettbos"`.
 
 ---
 
-## 2. IKHTISAR IMPLEMENTASI REVISI 90
-
-### A. Fitur ZettShowcase AI Hub (Galeri Karya Web App Member)
-- **Tujuan:** Wadah publikasi portofolio web app buatan siswa dari materi LMS Zettbos, memfasilitasi live demo, inspirasi arsitektur prompt, dan kurasi karya terbaik.
-- **Fitur Utama ZettShowcase (`view-showcase`):**
-  - **Navigasi & Pencarian:** Filter pill instan (*Semua Karya, Prompting AI, Apps Script, Full-Stack AI, Gemini, Supabase*) serta kotak pencarian real-time (judul, nama siswa, tech stack).
-  - **Kartu Karya Kompak & Elegan:** Cover gambar responsif dengan efek zoom hover, badge status (*VERIFIED SHOWCASE* vs *MENUNGGU REVIEW ADMIN* vs *⭐ KARYA PILIHAN*), pembuat karya, tanggal rilis, cuplikan deskripsi, tagar teknologi, tombol *"Buka Web App"*, tombol repository GitHub, dan tombol salin link.
-  - **Formulir Pengajuan Karya (`modal-submit-showcase`):** Input judul, tech stack, URL live demo, URL repository GitHub (opsional), cover screenshot (opsional), dan deskripsi fitur unggulan.
-  - **Sistem Perlindungan Kuota Pengajuan:** Maksimal 2 karya dengan status *pending* per member. Jika kuota penuh, sistem menampilkan peringatan dan menonaktifkan tombol submit hingga admin selesai melakukan verifikasi.
-  - **Penyimpanan Terintegrasi:** Data disimpan secara lokal di `localStorage` dan langsung diunggah (*auto-upsert*) ke tabel Supabase `member_showcase`.
-
-### B. CMS Showcase Siswa di Panel Admin (`tab-pane-showcase_cms`)
-- **Tujuan:** Panel kontrol owner/admin untuk memoderasi dan mengkurasi karya siswa sebelum ditayangkan ke publik.
-- **Fitur CMS Admin:**
-  - Tabel ringkas memuat nomor, judul & tech stack, identitas siswa, status tayang, switch status unggulan (*⭐ Unggulan* vs *☆ Biasa*), live preview link, dan tombol aksi moderasi:
-    - `[✅ Setujui / Tayangkan]` -> Mengubah status menjadi `approved`.
-    - `[⏳ Kembalikan ke Pending]` -> Menangguhkan karya siswa.
-    - `[🗑 Hapus Karya]` -> Menghapus karya dari sistem dan database Supabase Cloud.
-  - Tombol `[🔄 Sync Cloud]` untuk sinkronisasi dua arah dengan tabel `member_showcase`.
-
-### C. Modal Konfirmasi Lanjut Materi ("Tandai Selesai & Lanjut")
-- **Akar Masalah:** Klik tombol *"Materi Berikutnya ⏭"* sebelumnya langsung melompati materi tanpa memberikan kesempatan atau konfirmasi apakah episode saat ini sudah ditonton dan ingin ditandai centang hijau.
-- **Solusi Diterapkan:**
-  - Ditambahkan fungsi pencegat `handleNextLessonWithConfirm()`.
-  - Jika materi aktif **belum ditandai selesai**, dialog konfirmasi `modal-next-lesson-confirm` akan muncul dengan 3 pilihan:
-    1. **`[Ya, Tandai Selesai & Lanjut ⏭]`**: Menyimpan progres centang hijau ke state siswa dan Supabase Cloud, kemudian beralih ke episode berikutnya.
-    2. **`[Lanjut Saja Tanpa Menandai ⏩]`**: Melompat ke episode berikutnya tanpa mengubah status centang.
-    3. **`[Batal & Tetap Disini]`**: Menutup dialog dan tetap pada materi saat ini.
-  - Jika materi sudah bertanda centang hijau, sistem langsung melompat tanpa menampilkan dialog.
-
----
-
-## 3. INVENTARISASI BERKAS YANG DIUBAH (CHANGELOG ARSITEKTUR)
+## 2. INVENTARISASI BERKAS YANG DIUBAH
 
 | Berkas | Modifikasi Utama |
 |---|---|
-| `index.html` | Ditambahkan container `view-showcase`, tab admin `tab-btn-showcase_cms`, panel admin `tab-pane-showcase_cms`, modal `modal-submit-showcase`, modal `modal-next-lesson-confirm`, dan script `js/controllers/showcase.js?v=90`. Semua script di-bump ke `?v=90`. |
-| `js/controllers/showcase.js` | Controller baru yang mengelola ZettShowcase AI Hub: render galeri karya, filter kategori, search bar, kartu karya, modal submit, kuota pengajuan 2 karya, dan push ke Supabase. |
-| `js/controllers/admin.js` | Ditambahkan `renderAdminShowcaseCms()`, `approveShowcaseProject()`, `rejectShowcaseProject()`, `toggleFeaturedShowcase()`, `deleteShowcaseProject()`, serta pendaftaran tab `'showcase_cms'` di `switchAdminTab()`. |
-| `js/controllers/classroom.js` | Pembesaran font modul pin, penambahan badge kategori modul, penyempurnaan `handleNextLessonWithConfirm()`, dan integrasi modal `modal-next-lesson-confirm`. |
-| `js/controllers/resources.js` | Rute klik kartu ZettLink diarahkan ke `openResourceDetailModal(resId)` untuk pratinjau SOP lengkap sebelum membuka link. |
-| `js/core/supabase.js` | Penambahan metode `syncShowcaseToCloudLive()`, `pullShowcaseFromCloudLive()`, dan auto-fetch `member_showcase` di dalam `syncCurriculumFromCloud()`. |
-| `js/core/router.js` | Penambahan rute navigasi `'showcase'` dengan auto-pull data cloud latar belakang, label active page breadcrumb, dan highlight bottom navbar mobile. |
-| `js/core/state.js` | Pendaftaran `showcaseProjects`, `activeShowcaseCategory`, dan `showcaseSearchQuery` di `AppState`, `initStorage()`, dan `saveState()`. |
-| `js/app.js` | Penambahan `'showcase'` ke daftar `validViews` pada router hash decision. |
+| `js/editor.js` | Menambahkan helper `resolveVideoEmbedUrl()` yang mendukung YouTube dan Google Drive embed (`/preview`). |
+| `js/controllers/classroom.js` | Mengintegrasikan parser video Google Drive ke pemutar video materi pembelajaran. |
+| `index.html` | Mengganti ZettShowcase -> ZettGallery, menghapus badge `KARYA`, memperbarui copywriting hero, merombak form submit (Hosting, Database, Upload Gambar Supabase), menambahkan `modal-admin-edit-showcase`, dan bump cache buster ke `?v=91`. |
+| `js/controllers/showcase.js` | Menghapus dummy data, menghapus badge Verified, mengimplementasikan filter Hosting & Database, serta menambahkan handler upload gambar Supabase Storage. |
+| `js/controllers/admin.js` | Menambahkan handler edit proyek siswa bagi admin (`openAdminEditShowcaseModal`, `saveAdminEditShowcase`) dan tombol `[✏️ Edit]` pada tabel moderasi. |
+| `js/core/router.js` | Update label breadcrumb dan drawer route menjadi `ZettGallery`. |
+| Seluruh Proyek | Pembersihan string `Zettbos Academy` menjadi `Zettbos`. |
 
 ---
 
-## 4. PANDUAN PENGUJIAN & VERIFIKASI (QA CHECKLIST)
-
-- [x] **Tipografi Judul Pin**: Judul modul yang disematkan terlihat besar, tebal, dan jelas (`text-2xl font-black`) baik di desktop maupun mobile.
-- [x] **Tag Kategori Modul**: Setiap kartu kurikulum menampilkan badge kategori (Antigravity IDE, Gemini Web, Full-Stack AI, dsb).
-- [x] **ZettLink Preview Modal**: Mengklik kartu ZettLink memunculkan modal SOP dengan teks lengkap tanpa terpotong elipsis (`...`), dan tautan hanya terbuka jika tombol di dalam modal ditekan.
-- [x] **ZettLink Cloud Sync**: Mengklik tombol sync di CMS ZettLink mengunggah link dan folder ke Supabase Cloud secara live.
-- [x] **Showcase Hub**: Halaman `view-showcase` merender karya siswa dengan rapi, mendukung filter kategori dan pencarian keyword.
-- [x] **Batas Kuota Pengajuan**: Form submit menolak pengajuan ketiga jika member sudah memiliki 2 karya pending yang belum disetujui admin.
-- [x] **Moderasi Admin Showcase**: Admin dapat menyetujui, menolak, menandai featured, atau menghapus karya dari panel CMS.
-- [x] **Next Lesson Confirmation**: Menekan tombol *"Materi Berikutnya ⏭"* saat materi belum selesai memunculkan modal konfirmasi centang hijau.
-- [x] **Zero Console Errors**: Tidak ada runtime error pada console browser.
+## 3. CHECKLIST VERIFIKASI (QA CRITERIA)
+- [x] Link video Google Drive otomatis di-embed menjadi iframe preview dan dapat diputar.
+- [x] Nama menu adalah ZettGallery tanpa badge "KARYA".
+- [x] Form submit memiliki field Hosting, Database, dan File Upload ke Supabase.
+- [x] Kolom GitHub Repo sudah dihapus.
+- [x] Badge "VERIFIED SHOWCASE" sudah hilang dari kartu.
+- [x] Semua dummy data terhapus (halaman kosong bersih siap diisi).
+- [x] Filter Hosting & Database bekerja secara real-time.
+- [x] Copywriting hero ramah, santai, dan profesional.
+- [x] Admin bisa mengedit proyek siswa sebelum menyetujui.
+- [x] Nama "Zettbos Academy" diganti menjadi "Zettbos".

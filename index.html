@@ -79,7 +79,7 @@
   </script>
 
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="css/style.css?v=78" />
+  <link rel="stylesheet" href="css/style.css?v=91" />
 </head>
 <body class="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--fg)] selection:bg-emerald-500/30 selection:text-emerald-300 transition-colors duration-150">
 
@@ -247,11 +247,10 @@
         <span class="flex-1 text-left">ZettLink</span>
       </a>
 
-      <!-- ZettShowcase (Galeri Karya Member - Revisi 90) -->
+      <!-- ZettGallery (Galeri Karya Member - Revisi 91) -->
       <a id="drawer-btn-showcase" href="#showcase" onclick="handleDrawerNavClick('showcase', event)" class="w-full px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-900 border border-transparent hover:border-slate-800 transition-all flex items-center gap-3">
         <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-        <span class="flex-1 text-left">ZettShowcase</span>
-        <span class="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-purple-950/80 text-purple-300 border border-purple-800/80">KARYA</span>
+        <span class="flex-1 text-left">ZettGallery</span>
       </a>
 
       <a id="drawer-btn-favorites" href="#favorites" onclick="handleDrawerNavClick('favorites', event)" class="w-full px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-900 border border-transparent hover:border-slate-800 transition-all flex items-center gap-3">
@@ -293,7 +292,7 @@
   </aside>
 
   <!-- ==========================================
-       VIEW 0: LANDING PORTAL (ZETTBOS ACADEMY PRE-LOGIN SHOWCASE)
+       VIEW 0: LANDING PORTAL (ZETTBOS PRE-LOGIN SHOWCASE)
        Inspirasi referensi.html: Floating Pill Nav, Hero, Overlap Banner,
        Bento Split Showcase, and Use-Case Cards.
        ========================================== -->
@@ -1338,7 +1337,7 @@
   </main>
 
   <!-- ==========================================
-       VIEW: ZETTSHOWCASE (GALERI KARYA MEMBER) (Revisi 90)
+       VIEW: ZETTGALLERY (PORTFOLIO KARYA MEMBER) (Revisi 91)
        ========================================== -->
   <main id="view-showcase" class="flex-1 max-w-[1440px] 2xl:max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 hidden pb-24 lg:pb-8">
     <!-- Showcase Header -->
@@ -1347,46 +1346,64 @@
         <div>
           <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded text-[11px] font-bold bg-purple-950/90 text-purple-300 border border-purple-800/80 mb-1.5">
             <span>✨</span>
-            <span>SHOWCASE KARYA SISWA</span>
+            <span>PORTFOLIO MEMBER</span>
           </div>
-          <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">ZettShowcase AI Hub</h1>
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">ZettGallery</h1>
           <p class="text-xs sm:text-sm text-slate-400 mt-1 max-w-2xl leading-relaxed">
-            Galeri karya web app AI buatan seluruh member Zettbos. Uji coba live demo, pelajari inspirasi arsitektur prompt-nya, atau pamerkan web app buatan Anda!
+            Kumpulan web app keren hasil kreasi member Zettbos. Bebas coba live demo-nya, intip inspirasinya, dan pamerin karya buatanmu di sini!
           </p>
         </div>
 
         <div class="flex items-center gap-2.5 flex-wrap">
           <button type="button" onclick="openSubmitShowcaseModal()" class="btn-primary-action px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 shadow-lg shadow-emerald-950/60">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-            <span>+ Submit Karya Saya</span>
+            <span>+ Submit Proyek Web App</span>
           </button>
         </div>
       </div>
 
-      <!-- Search & Filters -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
-        <!-- Category Filter Pills -->
-        <div id="showcase-category-pills" class="flex items-center gap-2 overflow-x-auto scrollbar-none pb-1">
-          <!-- Rendered dynamically -->
-        </div>
+      <!-- Search & Filters (Revisi 91: Dual Hosting & Database Filters) -->
+      <div class="space-y-3 pt-1">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+          <!-- Filters (Hosting & Database) -->
+          <div class="flex flex-col sm:flex-row sm:items-center gap-3 flex-1 overflow-x-auto scrollbar-none pb-1">
+            <!-- Hosting Filter -->
+            <div class="flex items-center gap-1.5 flex-nowrap">
+              <span class="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider flex-shrink-0 mr-1">Hosting:</span>
+              <div id="gallery-hosting-pills" class="flex items-center gap-1.5">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
 
-        <!-- Search Bar -->
-        <div class="relative w-full sm:w-72 flex-shrink-0">
-          <input 
-            type="text" 
-            id="showcase-search-input" 
-            placeholder="Cari karya, nama siswa, tech..." 
-            oninput="handleSearchShowcase()"
-            class="w-full bg-slate-900/90 border border-slate-800 text-xs rounded-xl pl-9 pr-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/60 transition-colors"
-          />
-          <svg class="w-4 h-4 text-slate-500 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <div class="hidden sm:block w-px h-5 bg-slate-800 flex-shrink-0"></div>
+
+            <!-- Database Filter -->
+            <div class="flex items-center gap-1.5 flex-nowrap">
+              <span class="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider flex-shrink-0 mr-1">Database:</span>
+              <div id="gallery-database-pills" class="flex items-center gap-1.5">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Search Bar -->
+          <div class="relative w-full sm:w-64 flex-shrink-0">
+            <input 
+              type="text" 
+              id="showcase-search-input" 
+              placeholder="Cari proyek, pembuat, tech..." 
+              oninput="handleSearchShowcase()"
+              class="w-full bg-slate-900/90 border border-slate-800 text-xs rounded-xl pl-9 pr-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/60 transition-colors"
+            />
+            <svg class="w-4 h-4 text-slate-500 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Active Count Counter -->
     <div class="flex items-center justify-between mb-4">
-      <span id="showcase-counter-badge" class="text-xs font-mono text-slate-400">0 Karya Siswa Ditampilkan</span>
+      <span id="showcase-counter-badge" class="text-xs font-mono text-slate-400">0 Proyek Ditampilkan</span>
     </div>
 
     <!-- Grid Container -->
@@ -1453,7 +1470,7 @@
         </button>
         <button id="tab-btn-showcase_cms" onclick="switchAdminTab('showcase_cms')" class="admin-tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-900 flex items-center gap-2 whitespace-nowrap transition-all border border-transparent">
           <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-          <span>CMS Showcase Siswa</span>
+          <span>CMS ZettGallery</span>
         </button>
         <button id="tab-btn-quickactions" onclick="switchAdminTab('quickactions')" class="admin-tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-900 flex items-center gap-2 whitespace-nowrap transition-all border border-transparent">
           <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
@@ -2302,8 +2319,8 @@
             <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded text-[11px] font-bold bg-purple-950 text-purple-300 border border-purple-800/80 mb-1">
               <span>KURASI KARYA MEMBER</span>
             </div>
-            <h2 class="text-lg font-bold text-white">Daftar Pengajuan Showcase Siswa</h2>
-            <p class="text-xs text-slate-400">Verifikasi live demo web app buatan siswa sebelum ditayangkan ke publik ZettShowcase.</p>
+            <h2 class="text-lg font-bold text-white">Daftar Pengajuan ZettGallery Siswa</h2>
+            <p class="text-xs text-slate-400">Verifikasi, edit langsung data siswa, dan kurasi live demo sebelum ditayangkan ke publik ZettGallery.</p>
           </div>
           <div class="flex items-center gap-2">
             <span id="admin-showcase-count-badge" class="px-3 py-1 rounded-lg text-xs font-mono font-bold bg-slate-950 text-slate-300 border border-slate-800">
@@ -2320,7 +2337,8 @@
             <thead>
               <tr class="border-b border-slate-800 text-[11px] font-mono text-slate-400 uppercase tracking-wider bg-slate-950/60">
                 <th class="py-3 px-3 text-center w-12">#</th>
-                <th class="py-3 px-3">Judul &amp; Tech Stack</th>
+                <th class="py-3 px-3">Judul Proyek</th>
+                <th class="py-3 px-3">Hosting &amp; DB</th>
                 <th class="py-3 px-3">Pembuat (Siswa)</th>
                 <th class="py-3 px-3">Status</th>
                 <th class="py-3 px-3">Unggulan</th>
@@ -2962,8 +2980,8 @@
             <input id="add-lesson-duration" type="number" min="1" value="15" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
           </div>
           <div class="sm:col-span-2">
-            <label for="add-lesson-youtube" class="block text-xs font-semibold text-slate-300 mb-1">Link URL YouTube (Opsional)</label>
-            <input id="add-lesson-youtube" type="text" placeholder="https://www.youtube.com/watch?v=..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-emerald-400 font-mono placeholder-slate-600 focus:outline-none focus:border-cyan-500">
+            <label for="add-lesson-youtube" class="block text-xs font-semibold text-slate-300 mb-1">Link URL Video (YouTube / Google Drive)</label>
+            <input id="add-lesson-youtube" type="text" placeholder="https://www.youtube.com/... atau https://drive.google.com/file/d/.../view" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-emerald-400 font-mono placeholder-slate-600 focus:outline-none focus:border-cyan-500">
           </div>
         </div>
 
@@ -3966,8 +3984,8 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
           </div>
           <div>
-            <h3 class="text-sm font-bold text-white">Submit Karya Web App AI</h3>
-            <p class="text-[11px] text-slate-400">Pamerkan proyek buatan Anda ke seluruh ekosistem Zettbos</p>
+            <h3 class="text-sm font-bold text-white">Submit Proyek ZettGallery</h3>
+            <p class="text-[11px] text-slate-400">Pamerkan web app buatanmu ke seluruh ekosistem Zettbos</p>
           </div>
         </div>
         <button onclick="closeSubmitShowcaseModal()" class="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800">
@@ -3982,6 +4000,36 @@
         <div>
           <label class="block text-xs font-bold text-slate-300 mb-1">Judul Proyek / Web App <span class="text-rose-400">*</span></label>
           <input type="text" id="showcase-input-title" required placeholder="Contoh: WarungAI — Aplikasi Kasir Cerdas UMKM" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/60" />
+        </div>
+
+        <!-- Revisi 91: Penyedia Hosting & Database Dropdowns -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1">Penyedia Hosting <span class="text-rose-400">*</span></label>
+            <select id="showcase-input-hosting" required class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-emerald-500/60">
+              <option value="Vercel">Vercel</option>
+              <option value="Netlify">Netlify</option>
+              <option value="Cloudflare">Cloudflare Pages</option>
+              <option value="GitHub Pages">GitHub Pages</option>
+              <option value="Render">Render</option>
+              <option value="Railway">Railway</option>
+              <option value="VPS / Self-Hosted">VPS / Self-Hosted</option>
+              <option value="Lainnya">Lainnya</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1">Database / Backend <span class="text-rose-400">*</span></label>
+            <select id="showcase-input-database" required class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-emerald-500/60">
+              <option value="Supabase">Supabase</option>
+              <option value="Firebase">Firebase</option>
+              <option value="PostgreSQL / Neon">PostgreSQL / Neon</option>
+              <option value="MySQL / PlanetScale">MySQL / PlanetScale</option>
+              <option value="MongoDB">MongoDB</option>
+              <option value="Local Storage / State">Local Storage / Mock</option>
+              <option value="None / Static">None (Static Site)</option>
+              <option value="Lainnya">Lainnya</option>
+            </select>
+          </div>
         </div>
 
         <div>
@@ -4016,8 +4064,129 @@
             Batal
           </button>
           <button type="submit" id="btn-submit-showcase-form" class="btn-primary-action px-5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md shadow-emerald-950/60">
-            <span>Kirim untuk Direview</span>
+            <span>Kirim Proyek untuk Dikurasi</span>
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL: ADMIN EDIT DATA PROYEK SISWA (Revisi 91)
+       ========================================== -->
+  <div id="modal-edit-showcase-admin" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm hidden animate-fade-in">
+    <div class="glass-card bg-slate-900 rounded-2xl border border-slate-800 p-6 w-full max-w-xl shadow-2xl relative overflow-hidden max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-white">Edit Data Proyek Siswa (Admin ZettGallery)</h3>
+            <p class="text-[11px] text-slate-400">Koreksi judul, hosting, database, URL demo, atau status karya siswa</p>
+          </div>
+        </div>
+        <button onclick="closeAdminEditShowcaseModal()" class="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <form id="form-admin-edit-showcase" onsubmit="handleSaveAdminEditShowcase(event)" class="space-y-4">
+        <input type="hidden" id="admin-edit-showcase-id" />
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1">Judul Proyek / Web App <span class="text-rose-400">*</span></label>
+            <input type="text" id="admin-edit-showcase-title" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-emerald-500/60" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1">Nama Pembuat (Siswa) <span class="text-rose-400">*</span></label>
+            <input type="text" id="admin-edit-showcase-maker" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-emerald-500/60" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1">Penyedia Hosting <span class="text-rose-400">*</span></label>
+            <select id="admin-edit-showcase-hosting" required class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-emerald-500/60">
+              <option value="Vercel">Vercel</option>
+              <option value="Netlify">Netlify</option>
+              <option value="Cloudflare">Cloudflare Pages</option>
+              <option value="GitHub Pages">GitHub Pages</option>
+              <option value="Render">Render</option>
+              <option value="Railway">Railway</option>
+              <option value="VPS / Self-Hosted">VPS / Self-Hosted</option>
+              <option value="Lainnya">Lainnya</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1">Database / Backend <span class="text-rose-400">*</span></label>
+            <select id="admin-edit-showcase-database" required class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-emerald-500/60">
+              <option value="Supabase">Supabase</option>
+              <option value="Firebase">Firebase</option>
+              <option value="PostgreSQL / Neon">PostgreSQL / Neon</option>
+              <option value="MySQL / PlanetScale">MySQL / PlanetScale</option>
+              <option value="MongoDB">MongoDB</option>
+              <option value="Local Storage / State">Local Storage / Mock</option>
+              <option value="None / Static">None (Static Site)</option>
+              <option value="Lainnya">Lainnya</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1">URL Live Demo <span class="text-rose-400">*</span></label>
+            <input type="url" id="admin-edit-showcase-demourl" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-emerald-500/60" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1">URL GitHub / Repo <span class="text-slate-500 font-normal">(Opsional)</span></label>
+            <input type="url" id="admin-edit-showcase-repourl" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-emerald-500/60" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1">Tech Stack &amp; Tools AI</label>
+            <input type="text" id="admin-edit-showcase-tech" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-emerald-500/60" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1">URL Cover / Screenshot</label>
+            <input type="url" id="admin-edit-showcase-cover" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-emerald-500/60" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1">Deskripsi Proyek</label>
+          <textarea id="admin-edit-showcase-desc" rows="3" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-emerald-500/60 resize-none"></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1">Status Publikasi</label>
+            <select id="admin-edit-showcase-status" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-emerald-500/60">
+              <option value="approved">Tayang (Approved)</option>
+              <option value="pending">Menunggu Review (Pending)</option>
+              <option value="rejected">Ditolak (Rejected)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1">Sematkan sebagai Unggulan</label>
+            <select id="admin-edit-showcase-featured" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-emerald-500/60">
+              <option value="true">⭐ Ya, Karya Unggulan</option>
+              <option value="false">Biasa (Non-Unggulan)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-slate-800 flex items-center justify-end gap-2.5">
+          <button type="button" onclick="closeAdminEditShowcaseModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors">
+            Batal
+          </button>
+          <button type="submit" class="btn-primary-action px-5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md shadow-emerald-950/60">
+            <span>Simpan Perubahan ke Cloud</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
           </button>
         </div>
       </form>
@@ -4063,18 +4232,18 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- Application Scripts (Modular Architecture with Cache Buster) -->
-  <script src="js/mock-data.js?v=90"></script>
-  <script src="js/editor.js?v=90"></script>
-  <script src="js/core/state.js?v=90"></script>
-  <script src="js/core/supabase.js?v=90"></script>
-  <script src="js/core/router.js?v=90"></script>
-  <script src="js/core/particles.js?v=90"></script>
-  <script src="js/controllers/auth.js?v=90"></script>
-  <script src="js/controllers/landing.js?v=90"></script>
-  <script src="js/controllers/classroom.js?v=90"></script>
-  <script src="js/controllers/resources.js?v=90"></script>
-  <script src="js/controllers/showcase.js?v=90"></script>
-  <script src="js/controllers/admin.js?v=90"></script>
-  <script src="js/app.js?v=90"></script>
+  <script src="js/mock-data.js?v=91"></script>
+  <script src="js/editor.js?v=91"></script>
+  <script src="js/core/state.js?v=91"></script>
+  <script src="js/core/supabase.js?v=91"></script>
+  <script src="js/core/router.js?v=91"></script>
+  <script src="js/core/particles.js?v=91"></script>
+  <script src="js/controllers/auth.js?v=91"></script>
+  <script src="js/controllers/landing.js?v=91"></script>
+  <script src="js/controllers/classroom.js?v=91"></script>
+  <script src="js/controllers/resources.js?v=91"></script>
+  <script src="js/controllers/showcase.js?v=91"></script>
+  <script src="js/controllers/admin.js?v=91"></script>
+  <script src="js/app.js?v=91"></script>
 </body>
 </html>

@@ -5,64 +5,36 @@
  * Mendukung kurasi admin dan pembatasan maksimal 2 proyek pending per member.
  */
 
-// Sample Seed Showcase Projects
-const SEED_SHOWCASE_PROJECTS = [
-  {
-    id: 'SHOW-01',
-    user_email: 'alvin.builder@gmail.com',
-    user_name: 'Alvin Pratama',
-    title: 'WarungAI — POS & Kasir Cerdas UMKM',
-    description: 'Aplikasi kasir web app berbasis AI dengan voice recognition untuk input pesanan kilat, cetak struk PDF, dan integrasi Google Sheets inventory real-time.',
-    demo_url: 'https://warung-ai-demo.vercel.app',
-    repo_url: 'https://github.com/alvinpratama/warung-ai',
-    cover_image: 'https://images.unsplash.com/photo-1556742049-0a67c5574f73?auto=format&fit=crop&w=800&q=80',
-    tech_stack: 'Vite, TailwindCSS, Gemini Flash 2.0, Supabase',
-    category: 'Full-Stack AI',
-    status: 'approved',
-    is_featured: true,
-    created_at: new Date(Date.now() - 86400000 * 3).toISOString()
-  },
-  {
-    id: 'SHOW-02',
-    user_email: 'dina.creative@gmail.com',
-    user_name: 'Dina Kusuma',
-    title: 'RecipeBot AI — Generator Menu Masakan Sehat',
-    description: 'Generator menu masakan harian otomatis berdasarkan bahan sisa di kulkas menggunakan prompting terstruktur Claude & Gemini dengan estimasi kalori presisi.',
-    demo_url: 'https://recipe-bot-ai.netlify.app',
-    repo_url: '',
-    cover_image: 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80',
-    tech_stack: 'HTML5, Vanilla CSS, Gemini API, Vercel',
-    category: 'Prompting AI',
-    status: 'approved',
-    is_featured: true,
-    created_at: new Date(Date.now() - 86400000 * 6).toISOString()
-  },
-  {
-    id: 'SHOW-03',
-    user_email: 'rendy.gas@gmail.com',
-    user_name: 'Rendy Syahputra',
-    title: 'AutoWA Invoice Generator via Apps Script',
-    description: 'Sistem pembuatan invoice otomatis yang langsung mengirimkan PDF tagihan ke WhatsApp pelanggan menggunakan Google Sheets & Apps Script headless webhook.',
-    demo_url: 'https://script.google.com/macros/s/AKfycbz_demo/exec',
-    repo_url: 'https://github.com/rendysyah/autowa-invoice',
-    cover_image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80',
-    tech_stack: 'Google Apps Script, SheetDB, Webhook WA',
-    category: 'Apps Script',
-    status: 'approved',
-    is_featured: false,
-    created_at: new Date(Date.now() - 86400000 * 10).toISOString()
-  }
-];
+// Sample Seed Showcase Projects (Kosong / Zero Dummy Data - Revisi 91)
+const SEED_SHOWCASE_PROJECTS = [];
 
 function initShowcaseDataIfEmpty() {
-  if (!Array.isArray(AppState.showcaseProjects) || AppState.showcaseProjects.length === 0) {
-    AppState.showcaseProjects = JSON.parse(JSON.stringify(SEED_SHOWCASE_PROJECTS));
+  if (!Array.isArray(AppState.showcaseProjects)) {
+    AppState.showcaseProjects = [];
     saveState();
+  } else {
+    // Purge legacy hardcoded dummy projects SHOW-01..SHOW-03
+    const hadDummies = AppState.showcaseProjects.some(p => ['SHOW-01', 'SHOW-02', 'SHOW-03'].includes(p.id));
+    if (hadDummies) {
+      AppState.showcaseProjects = AppState.showcaseProjects.filter(p => !['SHOW-01', 'SHOW-02', 'SHOW-03'].includes(p.id));
+      localStorage.setItem('zett_showcase_projects', JSON.stringify(AppState.showcaseProjects));
+      saveState();
+    }
   }
 }
 
 function filterShowcaseCategory(cat) {
   AppState.activeShowcaseCategory = cat;
+  renderShowcase();
+}
+
+function filterShowcaseHosting(hosting) {
+  AppState.activeShowcaseHosting = hosting;
+  renderShowcase();
+}
+
+function filterShowcaseDatabase(db) {
+  AppState.activeShowcaseDatabase = db;
   renderShowcase();
 }
 
@@ -91,7 +63,19 @@ function renderShowcase() {
     return false;
   });
 
-  // Filter Kategori
+  // Filter Hosting (Revisi 91)
+  if (AppState.activeShowcaseHosting && AppState.activeShowcaseHosting !== 'all') {
+    const activeH = AppState.activeShowcaseHosting.toLowerCase();
+    items = items.filter(p => (p.hosting || '').toLowerCase().includes(activeH));
+  }
+
+  // Filter Database (Revisi 91)
+  if (AppState.activeShowcaseDatabase && AppState.activeShowcaseDatabase !== 'all') {
+    const activeD = AppState.activeShowcaseDatabase.toLowerCase();
+    items = items.filter(p => (p.database || '').toLowerCase().includes(activeD));
+  }
+
+  // Filter Kategori (Legacy / Full-Stack / Prompting)
   if (AppState.activeShowcaseCategory && AppState.activeShowcaseCategory !== 'all') {
     const activeCat = AppState.activeShowcaseCategory.toLowerCase();
     items = items.filter(p => {
@@ -108,7 +92,9 @@ function renderShowcase() {
       return (p.title || '').toLowerCase().includes(q) ||
         (p.description || '').toLowerCase().includes(q) ||
         (p.user_name || '').toLowerCase().includes(q) ||
-        (p.tech_stack || '').toLowerCase().includes(q);
+        (p.tech_stack || '').toLowerCase().includes(q) ||
+        (p.hosting || '').toLowerCase().includes(q) ||
+        (p.database || '').toLowerCase().includes(q);
     });
   }
 
@@ -120,11 +106,11 @@ function renderShowcase() {
   });
 
   if (counterEl) {
-    counterEl.textContent = `${items.length} Karya Siswa Ditampilkan`;
+    counterEl.textContent = `${items.length} Proyek Siswa Ditampilkan`;
   }
 
-  // Update filter pills active state
-  renderShowcaseCategoryPills();
+  // Update filter pills active state (Hosting & Database)
+  renderShowcaseFilterPills();
 
   if (items.length === 0) {
     container.innerHTML = '';
@@ -141,37 +127,68 @@ function renderShowcase() {
   `;
 }
 
-function renderShowcaseCategoryPills() {
-  const container = document.getElementById('showcase-category-pills');
-  if (!container) return;
+function renderShowcaseFilterPills() {
+  const hostingContainer = document.getElementById('gallery-hosting-pills');
+  const dbContainer = document.getElementById('gallery-database-pills');
 
-  const categories = [
-    { id: 'all', label: 'Semua Karya' },
-    { id: 'prompting', label: 'Prompting AI' },
-    { id: 'apps script', label: 'Apps Script' },
-    { id: 'full-stack', label: 'Full-Stack AI' },
-    { id: 'gemini', label: 'Gemini' },
-    { id: 'supabase', label: 'Supabase' }
+  const hostingList = [
+    { id: 'all', label: 'Semua' },
+    { id: 'Vercel', label: 'Vercel' },
+    { id: 'Netlify', label: 'Netlify' },
+    { id: 'Cloudflare', label: 'Cloudflare' },
+    { id: 'GitHub Pages', label: 'GitHub Pages' },
+    { id: 'VPS / Self-Hosted', label: 'VPS' }
   ];
 
-  const current = AppState.activeShowcaseCategory || 'all';
+  const dbList = [
+    { id: 'all', label: 'Semua' },
+    { id: 'Supabase', label: 'Supabase' },
+    { id: 'Firebase', label: 'Firebase' },
+    { id: 'PostgreSQL / Neon', label: 'Postgres' },
+    { id: 'Local Storage / State', label: 'Local State' },
+    { id: 'None / Static', label: 'Static' }
+  ];
 
-  container.innerHTML = categories.map(cat => {
-    const isActive = current === cat.id;
-    return `
-      <button 
-        type="button"
-        onclick="filterShowcaseCategory('${cat.id}')"
-        class="px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
-          isActive
-            ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
-            : 'bg-slate-900/80 hover:bg-slate-800 text-slate-300 border border-slate-800 hover:border-slate-700'
-        }"
-      >
-        ${escapeHtml(cat.label)}
-      </button>
-    `;
-  }).join('');
+  const activeHosting = AppState.activeShowcaseHosting || 'all';
+  const activeDb = AppState.activeShowcaseDatabase || 'all';
+
+  if (hostingContainer) {
+    hostingContainer.innerHTML = hostingList.map(h => {
+      const isActive = activeHosting.toLowerCase() === h.id.toLowerCase();
+      return `
+        <button 
+          type="button"
+          onclick="filterShowcaseHosting('${h.id}')"
+          class="px-2.5 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+            isActive
+              ? 'bg-cyan-500 text-slate-950 font-bold shadow-md shadow-cyan-500/20'
+              : 'bg-slate-900/80 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-800'
+          }"
+        >
+          ${escapeHtml(h.label)}
+        </button>
+      `;
+    }).join('');
+  }
+
+  if (dbContainer) {
+    dbContainer.innerHTML = dbList.map(d => {
+      const isActive = activeDb.toLowerCase() === d.id.toLowerCase();
+      return `
+        <button 
+          type="button"
+          onclick="filterShowcaseDatabase('${d.id}')"
+          class="px-2.5 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+            isActive
+              ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
+              : 'bg-slate-900/80 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-800'
+          }"
+        >
+          ${escapeHtml(d.label)}
+        </button>
+      `;
+    }).join('');
+  }
 }
 
 function renderSingleShowcaseCardHtml(p, isSuperAdmin, currentUserEmail) {
@@ -251,6 +268,18 @@ function renderSingleShowcaseCardHtml(p, isSuperAdmin, currentUserEmail) {
             </div>
           </div>
 
+          <!-- Hosting & Database Provider Badges (Revisi 91) -->
+          <div class="flex items-center gap-2 mb-3">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-cyan-950/80 text-cyan-300 border border-cyan-500/40 inline-flex items-center gap-1 shadow-sm">
+              <span>🌐</span>
+              <span>${escapeHtml(p.hosting || 'Vercel')}</span>
+            </span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 inline-flex items-center gap-1 shadow-sm">
+              <span>🗄️</span>
+              <span>${escapeHtml(p.database || 'Supabase')}</span>
+            </span>
+          </div>
+
           <!-- Description -->
           <p class="text-xs text-slate-400 mb-3.5 leading-relaxed line-clamp-3">
             ${escapeHtml(p.description || 'Web app hasil bimbingan praktek AI di Zettbos LMS.')}
@@ -296,13 +325,26 @@ function renderSingleShowcaseCardHtml(p, isSuperAdmin, currentUserEmail) {
           ` : ''}
         </div>
 
-        <button 
-          onclick="navigator.clipboard.writeText('${escapeHtml(p.demo_url || window.location.href)}').then(() => showToast('Tautan web app disalin!', 'success'))"
-          title="Salin Tautan"
-          class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-        >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-        </button>
+        <div class="flex items-center gap-1.5">
+          ${isSuperAdmin ? `
+            <button 
+              onclick="openAdminEditShowcaseModal('${escapeHtml(p.id)}')" 
+              class="px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 transition-colors flex items-center gap-1"
+              title="Edit Data Proyek Siswa (Admin)"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+              <span>Edit</span>
+            </button>
+          ` : ''}
+
+          <button 
+            onclick="navigator.clipboard.writeText('${escapeHtml(p.demo_url || window.location.href)}').then(() => showToast('Tautan web app disalin!', 'success'))"
+            title="Salin Tautan"
+            class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+          </button>
+        </div>
       </div>
     </div>
   `;
@@ -374,6 +416,8 @@ async function handleSubmitShowcase(event) {
   }
 
   const title = document.getElementById('showcase-input-title')?.value.trim();
+  const hosting = document.getElementById('showcase-input-hosting')?.value || 'Vercel';
+  const database = document.getElementById('showcase-input-database')?.value || 'Supabase';
   const demoUrl = document.getElementById('showcase-input-demourl')?.value.trim();
   const repoUrl = document.getElementById('showcase-input-repourl')?.value.trim();
   const coverUrl = document.getElementById('showcase-input-cover')?.value.trim();
@@ -408,6 +452,8 @@ async function handleSubmitShowcase(event) {
     repo_url: repoUrl || '',
     cover_image: coverUrl || '',
     tech_stack: techStack,
+    hosting,
+    database,
     category: techStack.includes('Apps Script') ? 'Apps Script' : (techStack.includes('Prompt') ? 'Prompting AI' : 'Full-Stack AI'),
     status: isSuperAdmin ? 'approved' : 'pending',
     is_featured: false,
@@ -430,6 +476,8 @@ async function handleSubmitShowcase(event) {
         repo_url: newProject.repo_url,
         cover_image: newProject.cover_image,
         tech_stack: newProject.tech_stack,
+        hosting: newProject.hosting,
+        database: newProject.database,
         status: newProject.status,
         is_featured: newProject.is_featured,
         created_at: newProject.created_at
@@ -445,15 +493,18 @@ async function handleSubmitShowcase(event) {
   renderShowcase();
 
   if (isSuperAdmin) {
-    showToast('Proyek berhasil dipublikasikan langsung ke ZettShowcase!', 'success');
+    showToast('Proyek berhasil dipublikasikan langsung ke ZettGallery!', 'success');
   } else {
-    showToast('Karya berhasil diajukan! Menunggu peninjauan Admin sebelum tayang.', 'success');
+    showToast('Karya berhasil diajukan! Menunggu peninjauan Admin sebelum tayang di ZettGallery.', 'success');
   }
 }
 
 // Window bindings
 window.renderShowcase = renderShowcase;
 window.filterShowcaseCategory = filterShowcaseCategory;
+window.filterShowcaseHosting = filterShowcaseHosting;
+window.filterShowcaseDatabase = filterShowcaseDatabase;
+window.renderShowcaseFilterPills = renderShowcaseFilterPills;
 window.handleSearchShowcase = handleSearchShowcase;
 window.openSubmitShowcaseModal = openSubmitShowcaseModal;
 window.closeSubmitShowcaseModal = closeSubmitShowcaseModal;

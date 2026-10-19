@@ -3399,6 +3399,16 @@ function renderAdminShowcaseCms() {
         <div class="text-[11px] text-slate-400 font-mono">${escapeHtml(p.tech_stack || '-')}</div>
       </td>
       <td class="py-3 px-3">
+        <div class="flex flex-col gap-1">
+          <span class="inline-flex items-center gap-1 text-[11px] font-mono text-cyan-300 font-semibold">
+            <span>🌐</span> ${escapeHtml(p.hosting || 'Vercel')}
+          </span>
+          <span class="inline-flex items-center gap-1 text-[11px] font-mono text-emerald-300 font-semibold">
+            <span>🗄️</span> ${escapeHtml(p.database || 'Supabase')}
+          </span>
+        </div>
+      </td>
+      <td class="py-3 px-3">
         <div class="font-semibold text-slate-200">${escapeHtml(p.user_name || 'Member')}</div>
         <div class="text-[11px] text-slate-500 font-mono">${escapeHtml(p.user_email || '-')}</div>
       </td>
@@ -3420,6 +3430,10 @@ function renderAdminShowcaseCms() {
       </td>
       <td class="py-3 px-3 text-right">
         <div class="flex items-center justify-end gap-1.5">
+          <button onclick="openAdminEditShowcaseModal('${p.id}')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/25 transition-colors flex items-center gap-1" title="Edit Data Proyek Siswa">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+            <span>Edit</span>
+          </button>
           ${!isApproved ? `
             <button onclick="approveShowcaseProject('${p.id}')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-950 text-emerald-300 border border-emerald-500/50 hover:bg-emerald-900 transition-colors">
               Approve
@@ -3438,6 +3452,98 @@ function renderAdminShowcaseCms() {
     tbody.appendChild(tr);
   });
 }
+
+function openAdminEditShowcaseModal(id) {
+  const p = (AppState.showcaseProjects || []).find(x => x.id === id);
+  if (!p) return;
+
+  const idInput = document.getElementById('admin-edit-showcase-id');
+  const titleInput = document.getElementById('admin-edit-showcase-title');
+  const makerInput = document.getElementById('admin-edit-showcase-maker');
+  const hostingSelect = document.getElementById('admin-edit-showcase-hosting');
+  const dbSelect = document.getElementById('admin-edit-showcase-database');
+  const demoInput = document.getElementById('admin-edit-showcase-demourl');
+  const repoInput = document.getElementById('admin-edit-showcase-repourl');
+  const techInput = document.getElementById('admin-edit-showcase-tech');
+  const coverInput = document.getElementById('admin-edit-showcase-cover');
+  const descInput = document.getElementById('admin-edit-showcase-desc');
+  const statusSelect = document.getElementById('admin-edit-showcase-status');
+  const featuredSelect = document.getElementById('admin-edit-showcase-featured');
+
+  if (idInput) idInput.value = p.id;
+  if (titleInput) titleInput.value = p.title || '';
+  if (makerInput) makerInput.value = p.user_name || '';
+  if (hostingSelect) hostingSelect.value = p.hosting || 'Vercel';
+  if (dbSelect) dbSelect.value = p.database || 'Supabase';
+  if (demoInput) demoInput.value = p.demo_url || '';
+  if (repoInput) repoInput.value = p.repo_url || '';
+  if (techInput) techInput.value = p.tech_stack || '';
+  if (coverInput) coverInput.value = p.cover_image || '';
+  if (descInput) descInput.value = p.description || '';
+  if (statusSelect) statusSelect.value = p.status || 'approved';
+  if (featuredSelect) featuredSelect.value = p.is_featured ? 'true' : 'false';
+
+  const modal = document.getElementById('modal-edit-showcase-admin');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function closeAdminEditShowcaseModal() {
+  const modal = document.getElementById('modal-edit-showcase-admin');
+  if (modal) modal.classList.add('hidden');
+}
+
+async function handleSaveAdminEditShowcase(event) {
+  event.preventDefault();
+  const id = document.getElementById('admin-edit-showcase-id')?.value;
+  const p = (AppState.showcaseProjects || []).find(x => x.id === id);
+  if (!p) return;
+
+  p.title = document.getElementById('admin-edit-showcase-title')?.value.trim() || p.title;
+  p.user_name = document.getElementById('admin-edit-showcase-maker')?.value.trim() || p.user_name;
+  p.hosting = document.getElementById('admin-edit-showcase-hosting')?.value || 'Vercel';
+  p.database = document.getElementById('admin-edit-showcase-database')?.value || 'Supabase';
+  p.demo_url = document.getElementById('admin-edit-showcase-demourl')?.value.trim() || p.demo_url;
+  p.repo_url = document.getElementById('admin-edit-showcase-repourl')?.value.trim() || '';
+  p.tech_stack = document.getElementById('admin-edit-showcase-tech')?.value.trim() || p.tech_stack;
+  p.cover_image = document.getElementById('admin-edit-showcase-cover')?.value.trim() || '';
+  p.description = document.getElementById('admin-edit-showcase-desc')?.value.trim() || p.description;
+  p.status = document.getElementById('admin-edit-showcase-status')?.value || 'approved';
+  p.is_featured = document.getElementById('admin-edit-showcase-featured')?.value === 'true';
+
+  saveState();
+
+  if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+    try {
+      await ZettSupabase.client.from('member_showcase').upsert({
+        id: p.id,
+        user_email: p.user_email,
+        user_name: p.user_name,
+        title: p.title,
+        description: p.description,
+        demo_url: p.demo_url,
+        repo_url: p.repo_url,
+        cover_image: p.cover_image,
+        tech_stack: p.tech_stack,
+        hosting: p.hosting,
+        database: p.database,
+        status: p.status,
+        is_featured: p.is_featured,
+        created_at: p.created_at
+      }, { onConflict: 'id' });
+    } catch (err) {
+      console.warn('[Supabase Admin Edit Showcase Error]', err);
+    }
+  }
+
+  closeAdminEditShowcaseModal();
+  renderAdminShowcaseCms();
+  if (typeof renderShowcase === 'function') renderShowcase();
+  showToast('Perubahan data karya siswa berhasil disimpan ke Cloud!', 'success');
+}
+
+window.openAdminEditShowcaseModal = openAdminEditShowcaseModal;
+window.closeAdminEditShowcaseModal = closeAdminEditShowcaseModal;
+window.handleSaveAdminEditShowcase = handleSaveAdminEditShowcase;
 
 async function approveShowcaseProject(id) {
   const p = (AppState.showcaseProjects || []).find(x => x.id === id);
