@@ -1350,7 +1350,7 @@
           </div>
           <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">ZettGallery</h1>
           <p class="text-xs sm:text-sm text-slate-400 mt-1 max-w-2xl leading-relaxed">
-            Kumpulan web app keren hasil kreasi member Zettbos. Bebas coba live demo-nya, intip inspirasinya, dan pamerin karya buatanmu di sini!
+            Kumpulan web app keren hasil karya member Zettbos. Bebas cobain live demo-nya, intip inspirasinya, dan jangan ragu pamerin karya buatanmu di sini!
           </p>
         </div>
 
@@ -4002,14 +4002,15 @@
           <input type="text" id="showcase-input-title" required placeholder="Contoh: WarungAI — Aplikasi Kasir Cerdas UMKM" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/60" />
         </div>
 
-        <!-- Revisi 91: Penyedia Hosting & Database Dropdowns -->
+        <!-- Penyedia Hosting & Database Dropdowns (Revisi 91) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-bold text-slate-300 mb-1">Penyedia Hosting <span class="text-rose-400">*</span></label>
             <select id="showcase-input-hosting" required class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-emerald-500/60">
+              <option value="Google Apps Script">Google Apps Script</option>
               <option value="Vercel">Vercel</option>
               <option value="Netlify">Netlify</option>
-              <option value="Cloudflare">Cloudflare Pages</option>
+              <option value="Cloudflare Pages">Cloudflare Pages</option>
               <option value="GitHub Pages">GitHub Pages</option>
               <option value="Render">Render</option>
               <option value="Railway">Railway</option>
@@ -4020,6 +4021,7 @@
           <div>
             <label class="block text-xs font-bold text-slate-300 mb-1">Database / Backend <span class="text-rose-400">*</span></label>
             <select id="showcase-input-database" required class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-emerald-500/60">
+              <option value="Google Sheets">Google Sheets</option>
               <option value="Supabase">Supabase</option>
               <option value="Firebase">Firebase</option>
               <option value="PostgreSQL / Neon">PostgreSQL / Neon</option>
@@ -4033,25 +4035,43 @@
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1">Tech Stack &amp; Tools AI yang Digunakan <span class="text-rose-400">*</span></label>
-          <input type="text" id="showcase-input-tech" required placeholder="Contoh: Vite, TailwindCSS, Gemini Flash, Supabase" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/60" />
+          <label class="block text-xs font-bold text-slate-300 mb-1">URL Live Demo Web App <span class="text-rose-400">*</span></label>
+          <input type="url" id="showcase-input-demourl" required placeholder="https://my-app.vercel.app atau https://script.google.com/macros/s/.../exec" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/60" />
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-bold text-slate-300 mb-1">URL Live Demo Web App <span class="text-rose-400">*</span></label>
-            <input type="url" id="showcase-input-demourl" required placeholder="https://my-app.vercel.app" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/60" />
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-300 mb-1">URL GitHub / Repo <span class="text-slate-500 font-normal">(Opsional)</span></label>
-            <input type="url" id="showcase-input-repourl" placeholder="https://github.com/username/repo" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/60" />
-          </div>
-        </div>
-
+        <!-- Cover / Screenshot: Direct File Upload to Supabase Storage + Preview -->
         <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1">URL Cover / Screenshot Proyek <span class="text-slate-500 font-normal">(Opsional)</span></label>
-          <input type="url" id="showcase-input-cover" placeholder="https://.../screenshot.png" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/60" />
-          <span class="text-[10px] text-slate-500 mt-0.5 block">Kosongkan jika ingin menggunakan cover ilustrasi AI otomatis.</span>
+          <label class="block text-xs font-bold text-slate-300 mb-1">Cover / Screenshot Proyek <span class="text-slate-500 font-normal">(Opsional)</span></label>
+          
+          <!-- File Upload Dropzone -->
+          <div id="showcase-upload-zone" onclick="document.getElementById('showcase-input-cover-file').click()" class="border-2 border-dashed border-slate-800 hover:border-emerald-500/60 rounded-xl p-4 text-center cursor-pointer bg-slate-950/60 hover:bg-slate-950 transition-all group">
+            <input type="file" id="showcase-input-cover-file" accept="image/*" class="hidden" onchange="handleShowcaseCoverFileSelect(event)" />
+            <div id="showcase-upload-prompt" class="flex flex-col items-center justify-center gap-1.5 py-1">
+              <div class="w-9 h-9 rounded-xl bg-purple-500/10 text-purple-400 group-hover:text-emerald-400 group-hover:bg-emerald-500/10 border border-purple-500/20 group-hover:border-emerald-500/30 flex items-center justify-center transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              </div>
+              <span class="text-xs font-semibold text-slate-300 group-hover:text-emerald-300 transition-colors">Klik untuk Unggah Gambar (Upload ke Supabase)</span>
+              <span class="text-[10px] text-slate-500">Mendukung format PNG, JPG, WebP langsung dari HP atau Laptop</span>
+            </div>
+
+            <!-- Preview Container -->
+            <div id="showcase-upload-preview" class="hidden">
+              <div class="relative rounded-lg overflow-hidden border border-slate-700 max-h-40 bg-slate-900 mx-auto">
+                <img id="showcase-cover-preview-img" src="" alt="Cover Preview" class="w-full max-h-40 object-cover" />
+                <button type="button" onclick="clearShowcaseCoverFile(event)" class="absolute top-2 right-2 px-2 py-1 rounded-lg bg-slate-950/80 text-rose-400 hover:text-white hover:bg-rose-900 border border-rose-800/80 text-[10px] font-semibold flex items-center gap-1 backdrop-blur-sm">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                  <span>Ganti Gambar</span>
+                </button>
+              </div>
+              <p id="showcase-upload-filename" class="text-[10px] font-mono text-emerald-400 mt-1 truncate"></p>
+            </div>
+          </div>
+
+          <!-- Fallback URL Input -->
+          <div class="mt-2 flex items-center gap-2">
+            <span class="text-[10px] text-slate-500 whitespace-nowrap">Atau URL gambar:</span>
+            <input type="url" id="showcase-input-cover" placeholder="https://.../screenshot.png" class="flex-1 px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-800 text-[11px] text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500/60" />
+          </div>
         </div>
 
         <div>
@@ -4110,9 +4130,10 @@
           <div>
             <label class="block text-xs font-bold text-slate-300 mb-1">Penyedia Hosting <span class="text-rose-400">*</span></label>
             <select id="admin-edit-showcase-hosting" required class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-emerald-500/60">
+              <option value="Google Apps Script">Google Apps Script</option>
               <option value="Vercel">Vercel</option>
               <option value="Netlify">Netlify</option>
-              <option value="Cloudflare">Cloudflare Pages</option>
+              <option value="Cloudflare Pages">Cloudflare Pages</option>
               <option value="GitHub Pages">GitHub Pages</option>
               <option value="Render">Render</option>
               <option value="Railway">Railway</option>
@@ -4123,6 +4144,7 @@
           <div>
             <label class="block text-xs font-bold text-slate-300 mb-1">Database / Backend <span class="text-rose-400">*</span></label>
             <select id="admin-edit-showcase-database" required class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-emerald-500/60">
+              <option value="Google Sheets">Google Sheets</option>
               <option value="Supabase">Supabase</option>
               <option value="Firebase">Firebase</option>
               <option value="PostgreSQL / Neon">PostgreSQL / Neon</option>
@@ -4135,25 +4157,19 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-bold text-slate-300 mb-1">URL Live Demo <span class="text-rose-400">*</span></label>
-            <input type="url" id="admin-edit-showcase-demourl" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-emerald-500/60" />
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-300 mb-1">URL GitHub / Repo <span class="text-slate-500 font-normal">(Opsional)</span></label>
-            <input type="url" id="admin-edit-showcase-repourl" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-emerald-500/60" />
-          </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1">URL Live Demo Web App <span class="text-rose-400">*</span></label>
+          <input type="url" id="admin-edit-showcase-demourl" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-emerald-500/60" />
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-bold text-slate-300 mb-1">Tech Stack &amp; Tools AI</label>
-            <input type="text" id="admin-edit-showcase-tech" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-emerald-500/60" />
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-300 mb-1">URL Cover / Screenshot</label>
-            <input type="url" id="admin-edit-showcase-cover" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-emerald-500/60" />
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1">URL Cover / Screenshot Proyek</label>
+          <div class="flex items-center gap-2">
+            <input type="url" id="admin-edit-showcase-cover" placeholder="https://.../screenshot.png" class="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-emerald-500/60" />
+            <label class="px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold cursor-pointer border border-slate-700 whitespace-nowrap transition-colors">
+              <input type="file" accept="image/*" class="hidden" onchange="handleAdminEditCoverUpload(event)" />
+              <span>Upload Gambar</span>
+            </label>
           </div>
         </div>
 
@@ -4232,18 +4248,18 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- Application Scripts (Modular Architecture with Cache Buster) -->
-  <script src="js/mock-data.js?v=91"></script>
-  <script src="js/editor.js?v=91"></script>
-  <script src="js/core/state.js?v=91"></script>
-  <script src="js/core/supabase.js?v=91"></script>
-  <script src="js/core/router.js?v=91"></script>
-  <script src="js/core/particles.js?v=91"></script>
-  <script src="js/controllers/auth.js?v=91"></script>
-  <script src="js/controllers/landing.js?v=91"></script>
-  <script src="js/controllers/classroom.js?v=91"></script>
-  <script src="js/controllers/resources.js?v=91"></script>
-  <script src="js/controllers/showcase.js?v=91"></script>
-  <script src="js/controllers/admin.js?v=91"></script>
-  <script src="js/app.js?v=91"></script>
+  <script src="js/mock-data.js?v=92"></script>
+  <script src="js/editor.js?v=92"></script>
+  <script src="js/core/state.js?v=92"></script>
+  <script src="js/core/supabase.js?v=92"></script>
+  <script src="js/core/router.js?v=92"></script>
+  <script src="js/core/particles.js?v=92"></script>
+  <script src="js/controllers/auth.js?v=92"></script>
+  <script src="js/controllers/landing.js?v=92"></script>
+  <script src="js/controllers/classroom.js?v=92"></script>
+  <script src="js/controllers/resources.js?v=92"></script>
+  <script src="js/controllers/showcase.js?v=92"></script>
+  <script src="js/controllers/admin.js?v=92"></script>
+  <script src="js/app.js?v=92"></script>
 </body>
 </html>

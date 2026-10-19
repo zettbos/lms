@@ -465,8 +465,8 @@ function resolveVideoEmbedSource(url) {
   const cleanUrl = url.trim();
 
   // 1. Google Drive Video Parser
-  // Pola: drive.google.com/file/d/FILE_ID/... atau drive.google.com/open?id=FILE_ID
-  const driveMatch = cleanUrl.match(/drive\.google\.com\/(?:file\/d\/|open\?id=)([a-zA-Z0-9_-]+)/i);
+  // Pola: drive.google.com/file/d/FILE_ID/... atau drive.google.com/open?id=FILE_ID atau uc?id=FILE_ID
+  const driveMatch = cleanUrl.match(/drive\.google\.com\/(?:file\/d\/|(?:open|uc)\?(?:[a-zA-Z0-9_=&]*id=))([a-zA-Z0-9_-]+)/i);
   if (driveMatch && driveMatch[1]) {
     const fileId = driveMatch[1];
     return {

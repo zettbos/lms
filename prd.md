@@ -210,7 +210,7 @@ Menyimpan konfigurasi admin dan kontak darurat.
     - **DILARANG KERAS menggunakan emoticon/emoji** di seluruh antarmuka dan PRD.
     - **SELALU gunakan ikon SVG monoline murni** dengan stroke presisi 1.6–1.8px (`stroke-width="1.8"`, `currentColor`, `fill="none"`).
 - **Struktur Halaman Utama (Desain Yang Disepakati)**:
-  1. `/landing`: Zettbos Academy Welcome / Landing Portal (Inspirasi referensi.html: Floating Pill Header, Hero Section dengan One-Line Instant Email Input & Layered Floating Cards, Overlap Banner, Bento Split Curriculum Showcase 5-tab, dan Audience Use-Case 4-Column Grid dengan Micro-Tag Pills).
+  1. `/landing`: Zettbos Welcome / Landing Portal (Inspirasi referensi.html: Floating Pill Header, Hero Section dengan One-Line Instant Email Input & Layered Floating Cards, Overlap Banner, Bento Split Curriculum Showcase 5-tab, dan Audience Use-Case 4-Column Grid dengan Micro-Tag Pills).
   2. `/login`: Form email minimalis bersih, modal dialog login seamless dari landing page, 3 pill akun uji coba cepat (1-klik langsung masuk), tanpa tumpukan bottom nav.
   3. `/home`: Preservasi Hero Banner orisinil, Featured Lesson Card, 4 Quick Action Hub Cards (editable di Admin Panel), Live Search & Category Pills, kartu modul dengan daftar materi scrollable dan Micro-Tag Chips (`[⚡ GAS API]`, `[📊 Sheets DB]`, `[🤖 Vibe Code]`).
   4. `/dashboard`: Dashboard data belajar siswa, 2 kartu metrik ringkas, Kalender Belajar Bulanan interaktif, dan breakdown detail penyelesaian materi.
@@ -259,7 +259,7 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
   - [2026-10-12] Implementasi Revisi 12: Anti-AI Slop Overhaul. Penerapan palet Linear/Raycast Matte Carbon (#0D0E11 bg, #16181D card surface, #262933 border hairline, #101216 inner well), eliminasi total neon glow blur-3xl, dan transisi ke solid matte depth hierarchy.
   - [2026-10-12] Implementasi Revisi 13: Perapihan Total Navbar Atas di Layar HP. Pengaturan logo ringkas 1 baris [ZB] ZETTBOS (badge disembunyikan di HP), penguncian nav-mode-switch strictly desktop (#nav-mode-switch display: none di mobile), pemindahan mode switch mobile ke Sidebar Drawer, dan perataan spasi kanan avatar profil dan logout.
   - [2026-10-12] Implementasi Revisi 14: Dual Theme System (Dark Mode & Light Mode). Implementasi tema ganda dengan presisi tinggi: Dark Mode (Linear Matte Carbon) dan Light Mode (Linear/Apple Alabaster Studio), pencegahan flicker zero-FOUC di head, tombol switcher terpadu di desktop navbar, mobile drawer, dan login screen.
-  - [2026-10-13] Implementasi Revisi 15: Zettbos Academy Landing Portal & Integrasi Komponen Referensi.html. Pembangunan Landing Portal pra-login berkelas studio (Floating Pill Header, Hero Section dengan One-Line Email Input & 3D Layered Mockups, Floating Overlap Banner, Bento Split Curriculum Showcase 5-tab, dan Audience Use-Case Cards dengan micro-tag pills), serta injeksi micro-tag chips dan use-case style pada menu-menu internal LMS.
+  - [2026-10-13] Implementasi Revisi 15: Zettbos Landing Portal & Integrasi Komponen Referensi.html. Pembangunan Landing Portal pra-login berkelas studio (Floating Pill Header, Hero Section dengan One-Line Email Input & 3D Layered Mockups, Floating Overlap Banner, Bento Split Curriculum Showcase 5-tab, dan Audience Use-Case Cards dengan micro-tag pills), serta injeksi micro-tag chips dan use-case style pada menu-menu internal LMS.
   - [2026-10-13] Implementasi Revisi 16: Perbaikan Glitch Warna Light Mode Ruang Belajar, Optimalisasi Widescreen 1600px Display Fit, Ubin Akses Cepat Mikro Kompak, dan Translucent Glass Tinted Cards (Inspirasi referensi.html).
     1. Eliminasi total background keras `bg-[#060A12]` pada `#view-learn`, diganti variabel dinamis `bg-[var(--bg)]` dengan aturan kontras tinggi untuk Notion reading blocks, callouts, dark terminal pre/code, dan sidebar kurikulum (active state `#ECFDF5` + border `#059669`).
     2. Perluasan kontainer tampilan dari `max-w-6xl` (1152px) ke `max-w-[1440px] 2xl:max-w-[1600px]` di seluruh view agar fit natural dan tidak menyisakan ruang kosong di layar monitor lebar (100% zoom).
@@ -966,6 +966,33 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
          - Mengeliminasi retensi data lama di `localStorage` peramban untuk akun seperti `farhandi378@gmail.com` sehingga sinkron seketika dengan Table Editor Supabase.
       2. Cache Buster:
          - Menaikkan seluruh link script JavaScript di `index.html` ke versi `?v=83`.
+    - [2026-10-19] Implementasi Revisi 91: ZettGallery Rebranding, Google Drive Video Embed, Dual Hosting & DB Filters, Direct Supabase Image Upload, Purge Dummy Data, dan Admin Showcase Project Editor.
+       1. Dukungan Embed Video Google Drive (`js/editor.js` & `js/controllers/classroom.js`):
+          - Mengimplementasikan `resolveVideoEmbedSource(url)` yang mendeteksi link Google Drive dan mengonversinya otomatis ke `/preview` iframe player.
+          - Mengintegrasikan fallback video player di ruang belajar (`lesson.videoUrl || lesson.youtubeUrl`).
+       2. Rebranding ZettGallery & Eliminasi Badge "KARYA" (`index.html`):
+          - Mengganti seluruh branding `ZettShowcase` menjadi `ZettGallery`.
+          - Menghapus badge ungu `KARYA` pada sidebar drawer navigasi.
+       3. Rombak Form Submit Karya (`index.html` & `js/controllers/showcase.js`):
+          - Menghapus kolom input `URL GitHub / Repo (Opsional)`.
+          - Mengganti Tech Stack umum menjadi 2 dropdown terstruktur: `Hosting` (Google Apps Script, Vercel, Netlify, Cloudflare Pages, dll.) dan `Database` (Google Sheets, Supabase, Firebase, PostgreSQL, dll.).
+          - Menambahkan upload file gambar cover langsung ke Supabase Storage Bucket `showcase-covers` dengan preview thumbnail instan dan fallback dataURL offline.
+       4. Desain Kartu Galeri Bersih & Hapus Badge "VERIFIED SHOWCASE" (`js/controllers/showcase.js`):
+          - Menghapus badge `✅ VERIFIED SHOWCASE` dari thumbnail kartu proyek.
+          - Menampilkan badge Hosting dan Database yang rapi pada setiap kartu.
+       5. Pembersihan Total Data Dummy (`js/controllers/showcase.js` & `js/core/state.js`):
+          - Menghapus seed data dummy lama (`SHOW-01`, `SHOW-02`, `SHOW-03`) dan membersihkannya dari `localStorage`.
+          - Menampilkan *Empty State* yang ramah jika belum ada karya yang disubmit.
+       6. Dual Filter System: Hosting & Database (`index.html` & `js/controllers/showcase.js`):
+          - Menghapus filter kategori lama dan menggantikannya dengan 2 grup filter pills terpisah: Filter Hosting dan Filter Database.
+       7. Copywriting Hero Santai tapi Profesional (`index.html`):
+          - Memperbarui teks hero menjadi: *"Kumpulan web app keren hasil karya member Zettbos. Bebas cobain live demo-nya, intip inspirasinya, dan jangan ragu pamerin karya buatanmu di sini!"*.
+       8. Fitur Admin Edit Karya Siswa Sebelum/Sesudah Approve (`index.html` & `js/controllers/admin.js`):
+          - Menyediakan tombol aksi `[✏️ Edit]` pada tabel moderasi galeri admin dan modal `modal-edit-showcase-admin` lengkap.
+       9. Unifikasi Identitas Brand:
+          - Menyeragamkan seluruh sebutan "Zettbos Academy" menjadi identitas resmi tunggal: "Zettbos".
+       10. Cache Buster:
+          - Menaikkan seluruh script tag di `index.html` ke versi `?v=92`.
 
 
 

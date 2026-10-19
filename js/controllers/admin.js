@@ -3473,8 +3473,8 @@ function openAdminEditShowcaseModal(id) {
   if (idInput) idInput.value = p.id;
   if (titleInput) titleInput.value = p.title || '';
   if (makerInput) makerInput.value = p.user_name || '';
-  if (hostingSelect) hostingSelect.value = p.hosting || 'Vercel';
-  if (dbSelect) dbSelect.value = p.database || 'Supabase';
+  if (hostingSelect) hostingSelect.value = p.hosting || 'Google Apps Script';
+  if (dbSelect) dbSelect.value = p.database || 'Google Sheets';
   if (demoInput) demoInput.value = p.demo_url || '';
   if (repoInput) repoInput.value = p.repo_url || '';
   if (techInput) techInput.value = p.tech_stack || '';
@@ -3492,6 +3492,26 @@ function closeAdminEditShowcaseModal() {
   if (modal) modal.classList.add('hidden');
 }
 
+async function handleAdminEditCoverUpload(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  showToast('Mengunggah cover proyek ke Cloud Storage...', 'info');
+  try {
+    if (typeof ZettSupabase !== 'undefined' && typeof ZettSupabase.uploadShowcaseCover === 'function') {
+      const url = await ZettSupabase.uploadShowcaseCover(file);
+      if (url) {
+        const coverInput = document.getElementById('admin-edit-showcase-cover');
+        if (coverInput) coverInput.value = url;
+        showToast('Gambar cover berhasil diunggah!', 'success');
+      }
+    }
+  } catch (err) {
+    console.warn('[Admin Cover Upload Error]', err);
+    showToast('Gagal mengunggah cover: ' + err.message, 'error');
+  }
+}
+
 async function handleSaveAdminEditShowcase(event) {
   event.preventDefault();
   const id = document.getElementById('admin-edit-showcase-id')?.value;
@@ -3500,11 +3520,11 @@ async function handleSaveAdminEditShowcase(event) {
 
   p.title = document.getElementById('admin-edit-showcase-title')?.value.trim() || p.title;
   p.user_name = document.getElementById('admin-edit-showcase-maker')?.value.trim() || p.user_name;
-  p.hosting = document.getElementById('admin-edit-showcase-hosting')?.value || 'Vercel';
-  p.database = document.getElementById('admin-edit-showcase-database')?.value || 'Supabase';
+  p.hosting = document.getElementById('admin-edit-showcase-hosting')?.value || 'Google Apps Script';
+  p.database = document.getElementById('admin-edit-showcase-database')?.value || 'Google Sheets';
   p.demo_url = document.getElementById('admin-edit-showcase-demourl')?.value.trim() || p.demo_url;
   p.repo_url = document.getElementById('admin-edit-showcase-repourl')?.value.trim() || '';
-  p.tech_stack = document.getElementById('admin-edit-showcase-tech')?.value.trim() || p.tech_stack;
+  p.tech_stack = `${p.hosting}, ${p.database}`;
   p.cover_image = document.getElementById('admin-edit-showcase-cover')?.value.trim() || '';
   p.description = document.getElementById('admin-edit-showcase-desc')?.value.trim() || p.description;
   p.status = document.getElementById('admin-edit-showcase-status')?.value || 'approved';
@@ -3543,6 +3563,7 @@ async function handleSaveAdminEditShowcase(event) {
 
 window.openAdminEditShowcaseModal = openAdminEditShowcaseModal;
 window.closeAdminEditShowcaseModal = closeAdminEditShowcaseModal;
+window.handleAdminEditCoverUpload = handleAdminEditCoverUpload;
 window.handleSaveAdminEditShowcase = handleSaveAdminEditShowcase;
 
 async function approveShowcaseProject(id) {

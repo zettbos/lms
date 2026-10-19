@@ -1176,8 +1176,8 @@ function renderLearningRoom(lessonId) {
   if (contentContainer) {
     let blocksToRender = Array.isArray(lesson.blocks) ? [...lesson.blocks] : [];
     const hasVideoBlock = blocksToRender.some(b => b.type === 'video');
-    if (!hasVideoBlock && (lesson.youtubeUrl || lesson.youtubeEmbedId)) {
-      const url = lesson.youtubeUrl || `https://www.youtube.com/watch?v=${lesson.youtubeEmbedId}`;
+    if (!hasVideoBlock && (lesson.videoUrl || lesson.youtubeUrl || lesson.youtubeEmbedId)) {
+      const url = lesson.videoUrl || lesson.youtubeUrl || `https://www.youtube.com/watch?v=${lesson.youtubeEmbedId}`;
       blocksToRender = [{ type: 'video', url }, ...blocksToRender];
     }
     contentContainer.innerHTML = `
@@ -1443,8 +1443,8 @@ function advanceToNextLesson(isMarkComplete = false) {
 
       let blocksToRender = Array.isArray(nextLesson.blocks) ? [...nextLesson.blocks] : [];
       const hasVideoBlock = blocksToRender.some(b => b.type === 'video');
-      if (!hasVideoBlock && (nextLesson.youtubeUrl || nextLesson.youtubeEmbedId)) {
-        const url = nextLesson.youtubeUrl || `https://www.youtube.com/watch?v=${nextLesson.youtubeEmbedId}`;
+      if (!hasVideoBlock && (nextLesson.videoUrl || nextLesson.youtubeUrl || nextLesson.youtubeEmbedId)) {
+        const url = nextLesson.videoUrl || nextLesson.youtubeUrl || `https://www.youtube.com/watch?v=${nextLesson.youtubeEmbedId}`;
         blocksToRender = [{ type: 'video', url }, ...blocksToRender];
       }
 

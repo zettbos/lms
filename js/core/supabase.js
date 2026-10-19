@@ -613,8 +613,10 @@ const ZettSupabase = {
             demo_url: p.demo_url,
             repo_url: p.repo_url || '',
             cover_image: p.cover_image || '',
+            hosting: p.hosting || 'Google Apps Script',
+            database: p.database || 'Google Sheets',
             tech_stack: p.tech_stack || '',
-            category: p.category || (p.tech_stack?.includes('Apps Script') ? 'Apps Script' : (p.tech_stack?.includes('Prompt') ? 'Prompting AI' : 'Full-Stack AI')),
+            category: p.category || (p.hosting?.includes('Apps Script') ? 'Apps Script' : 'Web App AI'),
             status: p.status || 'approved',
             is_featured: !!p.is_featured,
             created_at: p.created_at || new Date().toISOString()
@@ -1108,6 +1110,46 @@ const ZettSupabase = {
       }
       return false;
     }
+  },
+
+  async uploadShowcaseCover(file) {
+    if (!file) return '';
+
+    // Jika Supabase terhubung, unggah ke Bucket Supabase Storage 'showcase-covers'
+    if (this.isConnected()) {
+      try {
+        const fileExt = (file.name ? file.name.split('.').pop() : 'png').toLowerCase();
+        const safeExt = ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(fileExt) ? fileExt : 'png';
+        const fileName = `cover_${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${safeExt}`;
+        const filePath = `showcase/${fileName}`;
+
+        const { data, error } = await this.client.storage
+          .from('showcase-covers')
+          .upload(filePath, file, { cacheControl: '3600', upsert: true });
+
+        if (!error && data) {
+          const { data: publicData } = this.client.storage
+            .from('showcase-covers')
+            .getPublicUrl(filePath);
+
+          if (publicData && publicData.publicUrl) {
+            return publicData.publicUrl;
+          }
+        } else {
+          console.warn('[ZettSupabase Storage Upload Warning - Fallback to DataURL]', error);
+        }
+      } catch (err) {
+        console.warn('[ZettSupabase Storage Upload Exception - Fallback to DataURL]', err);
+      }
+    }
+
+    // Fallback ramah jika offline atau bucket storage belum di-create
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result || '');
+      reader.onerror = () => resolve('');
+      reader.readAsDataURL(file);
+    });
   }
 };
 

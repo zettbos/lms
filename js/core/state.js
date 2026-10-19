@@ -29,7 +29,9 @@ const AppState = {
   editorInstance: null,
   pendingEmailForOtp: null,
   generatedOtpCode: null,
-  showcaseProjects: [], // ZettShowcase: Galeri Karya Web App AI Member (Revisi 90)
+  showcaseProjects: [], // ZettGallery: Galeri Karya Web App AI Member (Revisi 91)
+  activeShowcaseHosting: 'all',
+  activeShowcaseDatabase: 'all',
   activeShowcaseCategory: 'all',
   showcaseSearchQuery: ''
 };
@@ -167,6 +169,12 @@ function initStorage() {
 
   AppState.activity = (storedActivity && typeof storedActivity === 'object') ? storedActivity : { ...seedActivity };
   AppState.quickActions = (Array.isArray(storedQuickActions) && storedQuickActions.length > 0) ? storedQuickActions : [...seedQuickActions];
+  
+  // Pembersihan Total Dummy Showcase (SHOW-01, SHOW-02, SHOW-03)
+  if (Array.isArray(storedShowcaseProjects)) {
+    storedShowcaseProjects = storedShowcaseProjects.filter(p => !['SHOW-01', 'SHOW-02', 'SHOW-03'].includes(p.id));
+    localStorage.setItem('zett_showcase_projects', JSON.stringify(storedShowcaseProjects));
+  }
   AppState.showcaseProjects = Array.isArray(storedShowcaseProjects) ? storedShowcaseProjects : [];
   AppState.brandLogoUrl = localStorage.getItem('zettbos_brand_logo_url') || AppState.landingCms?.brandLogoUrl || AppState.landingCms?.hero?.brandLogoUrl || '';
   AppState.currentUser = storedUser || null;
