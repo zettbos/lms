@@ -2462,17 +2462,21 @@ async function handleSaveAddMemberSubmit(e) {
   AppState.whitelist.unshift(newMember);
   saveState();
 
-  // Simpan ke Supabase jika terhubung
+  // Simpan ke Supabase jika terhubung (Biarkan sequence Supabase membangkitkan ID resmi)
   if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
     try {
-      await ZettSupabase.client.from('whitelist_members').insert([{
-        id: newMember.id,
+      const { data: dbRows, error: insertErr } = await ZettSupabase.client.from('whitelist_members').insert([{
         email: newMember.email,
         full_name: newMember.fullName,
         role: newMember.role,
         is_active: true,
         password_hash: passHash
-      }]);
+      }]).select('id');
+      if (insertErr) throw insertErr;
+      if (dbRows && dbRows[0] && dbRows[0].id) {
+        newMember.id = dbRows[0].id;
+        saveState();
+      }
     } catch (err) {
       console.warn('[Supabase Insert Member Error]', err);
     }
@@ -2563,11 +2567,10 @@ async function handleBatchAddMembers() {
   AppState.whitelist.unshift(...newMembers);
   saveState();
 
-  // Sinkronkan ke Supabase jika terhubung (batching per 100 baris)
+  // Sinkronkan ke Supabase jika terhubung (Biarkan sequence Supabase membangkitkan ID resmi)
   if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
     try {
       const payload = newMembers.map(m => ({
-        id: m.id,
         email: m.email,
         full_name: m.fullName,
         role: m.role,
@@ -2578,8 +2581,19 @@ async function handleBatchAddMembers() {
       const batchSize = 100;
       for (let i = 0; i < payload.length; i += batchSize) {
         const chunk = payload.slice(i, i + batchSize);
-        await ZettSupabase.client.from('whitelist_members').upsert(chunk, { onConflict: 'email' });
+        const { data: dbRows, error: batchErr } = await ZettSupabase.client
+          .from('whitelist_members')
+          .upsert(chunk, { onConflict: 'email' })
+          .select('id, email');
+        if (batchErr) throw batchErr;
+        if (Array.isArray(dbRows)) {
+          dbRows.forEach(row => {
+            const match = newMembers.find(nm => nm.email === row.email);
+            if (match && row.id) match.id = row.id;
+          });
+        }
       }
+      saveState();
     } catch (err) {
       console.warn('[Supabase Batch Insert Error]', err);
     }
@@ -2805,10 +2819,10 @@ async function syncWhitelistToSupabaseLive() {
   showToast('Sedang memproteksi kata sandi dan menyinkronkan whitelist ke Supabase Cloud...', 'info', 10000);
 
   try {
-    // 1. Tarik dulu password_hash dan full_name dari cloud agar data siswa TIDAK terhapus/ter-overwrite null!
+    // 1. Tarik dulu id, password_hash, dan full_name dari cloud agar data siswa TIDAK terhapus/ter-overwrite null!
     const { data: cloudWl } = await ZettSupabase.client
       .from('whitelist_members')
-      .select('email, password_hash, full_name')
+      .select('id, email, password_hash, full_name')
       .limit(10000);
 
     const cloudMap = new Map();
@@ -2830,15 +2844,26 @@ async function syncWhitelistToSupabaseLive() {
       // Sinkronkan ke local state agar sinkron
       m.passwordHash = finalPass;
       m.fullName = finalName;
+      if (cloudItem && cloudItem.id) {
+        m.id = cloudItem.id;
+      }
 
-      return {
-        id: m.id,
+      const row = {
         email: cleanE,
         full_name: finalName,
         role: m.role || 'member',
         is_active: m.isActive !== false,
         password_hash: finalPass
       };
+
+      // KUNCI MULTI-DEVICE: Hanya kirimkan id jika email sudah terdaftar di Cloud!
+      // Jika email adalah member baru, JANGAN kirim id lokal agar sequence PostgreSQL
+      // Supabase membangkitkan ID unik resmi tanpa pernah memicu konflik whitelist_members_pkey.
+      if (cloudItem && cloudItem.id) {
+        row.id = cloudItem.id;
+      }
+
+      return row;
     });
 
     saveState();
@@ -2846,11 +2871,23 @@ async function syncWhitelistToSupabaseLive() {
     const batchSize = 100;
     for (let i = 0; i < payload.length; i += batchSize) {
       const chunk = payload.slice(i, i + batchSize);
-      const { error } = await ZettSupabase.client.from('whitelist_members').upsert(chunk, { onConflict: 'email' });
+      const { data: dbRows, error } = await ZettSupabase.client
+        .from('whitelist_members')
+        .upsert(chunk, { onConflict: 'email' })
+        .select('id, email');
       if (error) throw error;
+
+      if (Array.isArray(dbRows)) {
+        dbRows.forEach(u => {
+          const match = AppState.whitelist.find(m => (m.email || '').toLowerCase().trim() === u.email.toLowerCase().trim());
+          if (match && u.id) match.id = u.id;
+        });
+      }
     }
 
-    showToast(`Sukses menyinkronkan seluruh ${payload.length} akun whitelist ke Supabase Cloud (Anti-Overwrite Aktif)!`, 'success');
+    saveState();
+
+    showToast(`Sukses menyinkronkan seluruh ${payload.length} akun whitelist ke Supabase Cloud (Anti-Overwrite & Multi-Device Aman)!`, 'success');
     renderAdminWhitelist();
   } catch (err) {
     console.error('[Sync Whitelist Error]', err);

@@ -1,8 +1,8 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 # Projek: Zettbos LMS (Member Hub & Notion-Style Learning Management System)
 ================================================================================
-VERSI DOKUMEN : v1.7.0 (REVISI 97 - TESTIMONIAL EMPOWERMENT & CALM CLASSROOM)
-STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 97 SELESAI)
+VERSI DOKUMEN : v1.8.0 (REVISI 98 - MULTI-DEVICE WHITELIST SYNC & MOBILE SIGN-IN)
+STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 98 SELESAI)
 ARSITEK SISTEM: ZettBOT by Zettbos
 ENGINE STACK  : Next.js 14+ (App Router) + Supabase (Postgres & Auth OTP) + Vercel
 ================================================================================
@@ -1012,6 +1012,20 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
           - Menyediakan tombol aksi `[✅ Setujui]` (`approveTestimonial`) untuk menyetujui testimoni member ke publik landing page, serta tombol `[⏸️ Unapprove]` (`unapproveTestimonial`) untuk mengembalikan ke pending.
        6. Cache Buster:
           - Menaikkan seluruh referensi file CSS dan JavaScript ke versi `?v=97`.
+    - [2026-10-19] Implementasi Revisi 98: Multi-Device Whitelist Cloud Sync & Mobile Landing Sign-In.
+       1. Eliminasi Error Primary Key Whitelist (`whitelist_members_pkey`) pada Multi-Device Sync (`js/controllers/admin.js`):
+          - Memperbaiki `syncWhitelistToSupabaseLive()` dengan menyertakan kolom `id` pada query cloud (`select('id, email, password_hash, full_name')`).
+          - Untuk member yang sudah ada di Supabase (`cloudItem`), sistem selalu menggunakan `id` resmi dari cloud (`cloudItem.id`) agar `onConflict: 'email'` tidak memicu benturan Primary Key.
+          - Untuk member baru, sistem tidak lagi mengirimkan `id` buatan lokal yang berpotensi bentrok, melainkan membiarkan sequence PostgreSQL Supabase (`seq_whitelist_members`) menetapkan ID unik resmi secara otomatis.
+          - Hasil query `.select('id, email')` setelah upsert secara otomatis memperbarui `AppState.whitelist` lokal dengan ID resmi database.
+       2. Penanganan Idempotent Insert Member Baru (`js/controllers/admin.js`):
+          - Memperbarui `handleSaveAddMemberSubmit()` dan `handleBatchAddMembers()` agar tidak memaksa ID lokal ke Supabase, melainkan menangkap ID resmi yang dibangkitkan oleh Supabase.
+          - Menghilangkan total kegagalan sinkronisasi saat menambahkan member dari smartphone (HP) atau laptop admin baru.
+       3. Tombol Sign-In / Masuk Mobile Responsif (`index.html`):
+          - Menghapus class pembatas `hidden sm:flex` pada tombol `Masuk` di floating navbar landing page.
+          - Menyesuaikan padding (`px-2.5 sm:px-3.5 py-1.5 sm:py-2`) dan gap navbar agar tombol `Theme Toggle`, `Join Kelas`, dan `Masuk` tampil berdampingan secara proporsional dan ergonomis di seluruh layar ponsel/tablet.
+       4. Cache Buster:
+          - Menaikkan seluruh query string stylesheet CSS dan 13 script JavaScript di `index.html` ke versi `?v=98`.
 
 
 
