@@ -1,8 +1,8 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 # Projek: Zettbos LMS (Member Hub & Notion-Style Learning Management System)
 ================================================================================
-VERSI DOKUMEN : v1.9.0 (REVISI 99 - CLOUD-NATIVE STUDENT PROGRESS SYNC & REALTIME ANALYTICS MONITORING)
-STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 99 SELESAI)
+VERSI DOKUMEN : v1.9.1 (REVISI 100 - STANDARISASI ID WHITELIST: BARIS TERAKHIR + 1)
+STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 100 SELESAI)
 ARSITEK SISTEM: ZettBOT by Zettbos
 ENGINE STACK  : Next.js 14+ (App Router) + Supabase (Postgres & Auth OTP) + Vercel
 ================================================================================
@@ -1043,6 +1043,20 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
           - Menambahkan badge status animasi `[Live Realtime]` yang menyala sebagai indikator koneksi streaming websocket aktif.
        5. Cache Buster:
           - Menaikkan seluruh query string stylesheet CSS (`style.css?v=99`) dan 13 script JavaScript di `index.html` ke versi `?v=99`.
+    - [2026-10-19] Implementasi Revisi 100: Standarisasi Format ID Whitelist "Baris Terakhir + 1" (WL-XXXX).
+       1. Universal Sequential Whitelist ID Generator (`js/controllers/admin.js`):
+          - Menambahkan fungsi `getNextWhitelistIdFromCloudOrLocal()` yang secara cerdas memeriksa baris terakhir berawalan `WL-` di Supabase Cloud dan state lokal.
+          - Mengambil angka tertinggi (misal: `2458`), lalu menambahkan 1 (+1) menjadi format rapi 4 digit `WL-2459` (mengabaikan ID bertipe timestamp milidetik).
+       2. Input Satuan & Batch Terstandarisasi (`js/controllers/admin.js`):
+          - Memperbarui `handleSaveAddMemberSubmit()` agar saat admin menambah siswa, sistem langsung menetapkan `nextId` urut dan meng-upsert ke database Supabase dengan `onConflict: 'email'`, menjamin kolom `id` selalu terisi nilai non-null yang valid.
+          - Memperbarui `handleBatchAddMembers()` agar import banyak email sekaligus menghasilkan penomoran berurutan: `WL-2459`, `WL-2460`, `WL-2461`, dst.
+       3. Auto-Sanitasi & Migrasi ID Acak saat Sync (`js/controllers/admin.js`):
+          - Memperbarui `syncWhitelistToSupabaseLive()` sehingga jika ditemukan data member yang memiliki ID non-standar (seperti `wl-1792422485164`), sistem otomatis memigrasikannya menjadi `WL-` urut resmi berikutnya.
+       4. Eliminasi Total Fallback Timestamp (`js/controllers/auth.js`, `js/core/supabase.js`):
+          - Menghapus seluruh baris sisa `('wl-' + Date.now())` dari kode autentikasi dan sinkronisasi Supabase.
+       5. Cache Buster:
+          - Menaikkan seluruh query string stylesheet CSS (`style.css?v=100`) dan 13 script JavaScript di `index.html` ke versi `?v=100`.
+
 
 
 

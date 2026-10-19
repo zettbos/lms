@@ -198,7 +198,7 @@ const ZettSupabase = {
           // Tambahkan member cloud yang belum ada di lokal
           cloudMap.forEach((c, cleanE) => {
             AppState.whitelist.push({
-              id: c.id || ('wl-' + Date.now()),
+              id: c.id || ('WL-' + String(AppState.whitelist.length + 1).padStart(4, '0')),
               email: cleanE,
               fullName: c.full_name || cleanE.split('@')[0],
               role: c.role || 'member',

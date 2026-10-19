@@ -2457,8 +2457,88 @@ async function handleSaveAddMemberSubmit(e) {
     passHash = await hashPassword(rawPass);
   }
 
+/**
+ * Universal Sequential Whitelist ID Generator: "Baris Terakhir + 1" (WL-XXXX)
+ * Scans both Supabase Cloud and local state to find the maximum existing sequence number,
+ * ensuring no duplicate keys, no null values, and clean 4-digit formatting.
+ */
+async function getNextWhitelistIdFromCloudOrLocal() {
+  let maxNum = 0;
+
+  // 1. Cross-check langsung dari Supabase Cloud jika terhubung
+  if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+    try {
+      const { data } = await ZettSupabase.client
+        .from('whitelist_members')
+        .select('id')
+        .like('id', 'WL-%')
+        .order('id', { ascending: false })
+        .limit(100);
+
+      if (Array.isArray(data)) {
+        data.forEach(r => {
+          const match = String(r.id || '').toUpperCase().match(/^WL-(\d+)$/);
+          if (match && match[1]) {
+            const n = parseInt(match[1], 10);
+            if (!isNaN(n) && n > maxNum && n < 1000000) maxNum = n;
+          }
+        });
+      }
+    } catch (e) {
+      console.warn('[getNextWhitelistIdFromCloud Warning]', e);
+    }
+  }
+
+  // 2. Cross-check dengan local AppState.whitelist
+  (AppState.whitelist || []).forEach(m => {
+    const match = String(m.id || '').toUpperCase().match(/^WL-(\d+)$/);
+    if (match && match[1]) {
+      const n = parseInt(match[1], 10);
+      if (!isNaN(n) && n > maxNum && n < 1000000) maxNum = n;
+    }
+  });
+
+  const nextNum = maxNum + 1;
+  return `WL-${String(nextNum).padStart(4, '0')}`;
+}
+window.getNextWhitelistIdFromCloudOrLocal = getNextWhitelistIdFromCloudOrLocal;
+
+async function handleSaveAddMemberSubmit(event) {
+  if (event) event.preventDefault();
+  const emailInput = document.getElementById('add-member-email');
+  const nameInput = document.getElementById('add-member-name');
+  const roleInput = document.getElementById('add-member-role');
+  const passInput = document.getElementById('add-member-password');
+
+  const email = emailInput ? emailInput.value.trim().toLowerCase() : '';
+  const name = nameInput ? nameInput.value.trim() : '';
+  const role = roleInput ? roleInput.value : 'member';
+  const rawPass = passInput ? passInput.value.trim() : '';
+
+  if (!email || !email.includes('@')) {
+    showToast('Masukkan alamat email yang valid', 'error');
+    return;
+  }
+
+  if (AppState.whitelist.some(m => m.email.toLowerCase() === email)) {
+    showToast('Email ini sudah terdaftar di whitelist!', 'error');
+    return;
+  }
+
+  let passHash = null;
+  if (rawPass) {
+    if (rawPass.length < 6) {
+      showToast('Kata sandi minimal 6 karakter', 'error');
+      return;
+    }
+    passHash = await hashPassword(rawPass);
+  }
+
+  // Ambil ID urut berikutnya: Baris Terakhir + 1
+  const nextId = await getNextWhitelistIdFromCloudOrLocal();
+
   const newMember = {
-    id: generateFormattedId('WL', AppState.whitelist, 4),
+    id: nextId,
     email: email,
     fullName: name || email.split('@')[0],
     role: role || 'member',
@@ -2470,28 +2550,25 @@ async function handleSaveAddMemberSubmit(e) {
   AppState.whitelist.unshift(newMember);
   saveState();
 
-  // Simpan ke Supabase jika terhubung (Biarkan sequence Supabase membangkitkan ID resmi)
+  // Simpan ke Supabase jika terhubung (Kirim ID yang pasti unik & urut!)
   if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
     try {
-      const { data: dbRows, error: insertErr } = await ZettSupabase.client.from('whitelist_members').insert([{
+      const { error: insertErr } = await ZettSupabase.client.from('whitelist_members').upsert([{
+        id: nextId,
         email: newMember.email,
         full_name: newMember.fullName,
         role: newMember.role,
         is_active: true,
         password_hash: passHash
-      }]).select('id');
+      }], { onConflict: 'email' });
       if (insertErr) throw insertErr;
-      if (dbRows && dbRows[0] && dbRows[0].id) {
-        newMember.id = dbRows[0].id;
-        saveState();
-      }
     } catch (err) {
       console.warn('[Supabase Insert Member Error]', err);
     }
   }
 
   closeAddMemberModal();
-  showToast(`Siswa ${newMember.fullName} (${email}) berhasil ditambahkan ke whitelist${passHash ? ' dengan kata sandi aktif' : ''}!`, 'success');
+  showToast(`Siswa ${newMember.fullName} (${email}) berhasil ditambahkan sebagai ${nextId}!`, 'success');
   renderAdminWhitelist();
 }
 window.handleSaveAddMemberSubmit = handleSaveAddMemberSubmit;
@@ -2556,7 +2633,8 @@ async function handleBatchAddMembers() {
   showToast(`Mendaftarkan ${newEmails.length} member baru ke whitelist...`, 'info');
 
   const nowIso = new Date().toISOString();
-  let currentCounter = (AppState.whitelist || []).length + 1;
+  const startingIdStr = await getNextWhitelistIdFromCloudOrLocal();
+  let currentCounter = parseInt(startingIdStr.replace(/[^0-9]/g, ''), 10) || ((AppState.whitelist || []).length + 1);
 
   const newMembers = newEmails.map(email => {
     const id = 'WL-' + String(currentCounter++).padStart(4, '0');
@@ -2575,10 +2653,11 @@ async function handleBatchAddMembers() {
   AppState.whitelist.unshift(...newMembers);
   saveState();
 
-  // Sinkronkan ke Supabase jika terhubung (Biarkan sequence Supabase membangkitkan ID resmi)
+  // Sinkronkan ke Supabase jika terhubung (Kirim ID urut non-null)
   if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
     try {
       const payload = newMembers.map(m => ({
+        id: m.id,
         email: m.email,
         full_name: m.fullName,
         role: m.role,
@@ -2834,11 +2913,35 @@ async function syncWhitelistToSupabaseLive() {
       .limit(10000);
 
     const cloudMap = new Map();
+    const existingCloudIds = new Set();
+    let maxIdNumber = 0;
+
     if (Array.isArray(cloudWl)) {
       cloudWl.forEach(c => {
         if (c.email) cloudMap.set(c.email.toLowerCase().trim(), c);
+        if (c.id) {
+          existingCloudIds.add(c.id);
+          const match = String(c.id).toUpperCase().match(/^WL-(\d+)$/);
+          if (match && match[1]) {
+            const num = parseInt(match[1], 10);
+            if (!isNaN(num) && num > maxIdNumber && num < 1000000) {
+              maxIdNumber = num;
+            }
+          }
+        }
       });
     }
+
+    // Cross-check dengan local AppState.whitelist
+    AppState.whitelist.forEach(m => {
+      const match = String(m.id || '').toUpperCase().match(/^WL-(\d+)$/);
+      if (match && match[1]) {
+        const num = parseInt(match[1], 10);
+        if (!isNaN(num) && num > maxIdNumber && num < 1000000) {
+          maxIdNumber = num;
+        }
+      }
+    });
 
     const payload = AppState.whitelist.map(m => {
       const cleanE = (m.email || '').toLowerCase().trim();
@@ -2849,29 +2952,38 @@ async function syncWhitelistToSupabaseLive() {
         ? m.fullName
         : (cloudItem?.full_name || m.fullName || 'Siswa Zettbos');
 
-      // Sinkronkan ke local state agar sinkron
-      m.passwordHash = finalPass;
-      m.fullName = finalName;
-      if (cloudItem && cloudItem.id) {
-        m.id = cloudItem.id;
+      const isOwner = cleanE === 'zettbos2025@gmail.com' || m.role === 'admin';
+      let finalId = cloudItem?.id || m.id;
+
+      // Cek apakah ID sudah berformat rapi WL-XXXX (bukan timestamp wl-179...)
+      const matchWl = String(finalId || '').toUpperCase().match(/^WL-(\d+)$/);
+      const isCleanWl = matchWl && parseInt(matchWl[1], 10) < 1000000;
+
+      if (isOwner) {
+        finalId = finalId || 'owner-1';
+      } else if (!isCleanWl || (finalId && existingCloudIds.has(finalId) && cloudItem?.email?.toLowerCase().trim() !== cleanE)) {
+        // ID belum rapi atau bentrok dengan member lain: alokasikan nomor urut berikutnya!
+        maxIdNumber++;
+        finalId = 'WL-' + String(maxIdNumber).padStart(4, '0');
+        while (existingCloudIds.has(finalId)) {
+          maxIdNumber++;
+          finalId = 'WL-' + String(maxIdNumber).padStart(4, '0');
+        }
       }
 
-      const row = {
+      existingCloudIds.add(finalId);
+      m.id = finalId;
+      m.passwordHash = finalPass;
+      m.fullName = finalName;
+
+      return {
+        id: finalId,
         email: cleanE,
         full_name: finalName,
         role: m.role || 'member',
         is_active: m.isActive !== false,
         password_hash: finalPass
       };
-
-      // KUNCI MULTI-DEVICE: Hanya kirimkan id jika email sudah terdaftar di Cloud!
-      // Jika email adalah member baru, JANGAN kirim id lokal agar sequence PostgreSQL
-      // Supabase membangkitkan ID unik resmi tanpa pernah memicu konflik whitelist_members_pkey.
-      if (cloudItem && cloudItem.id) {
-        row.id = cloudItem.id;
-      }
-
-      return row;
     });
 
     saveState();
@@ -2997,7 +3109,7 @@ async function pullWhitelistFromSupabaseLive(isSilent = false) {
           if (modified) updatedCount++;
         } else {
           AppState.whitelist.push({
-            id: cloudM.id || ('wl-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5)),
+            id: cloudM.id || ('WL-' + String(AppState.whitelist.length + 1).padStart(4, '0')),
             email: cleanE,
             fullName: cloudM.full_name || cleanE.split('@')[0],
             role: cloudM.role || 'member',

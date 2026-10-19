@@ -78,7 +78,7 @@ async function fetchMemberWhitelistDirect(email) {
     const checkData = await res.json();
     if (checkData && checkData.success && checkData.isWhitelisted) {
       const memberObj = {
-        id: 'wl-' + Date.now(),
+        id: checkData.id || (typeof generateFormattedId === 'function' ? generateFormattedId('WL', AppState.whitelist, 4) : 'WL-' + String(AppState.whitelist.length + 1).padStart(4, '0')),
         email: cleanEmail,
         fullName: checkData.fullName || cleanEmail.split('@')[0],
         role: checkData.role || 'member',
@@ -444,7 +444,7 @@ async function verifyOtpCode() {
   let member = AppState.whitelist.find(m => m.email.toLowerCase() === targetEmail.toLowerCase());
   if (!member) {
     member = {
-      id: 'wl-' + Date.now(),
+      id: (typeof generateFormattedId === 'function' ? generateFormattedId('WL', AppState.whitelist, 4) : 'WL-' + String(AppState.whitelist.length + 1).padStart(4, '0')),
       email: targetEmail,
       fullName: targetEmail.split('@')[0],
       role: (member && member.role) || (targetEmail.toLowerCase() === 'zettbos2025@gmail.com' ? 'admin' : 'member'),
@@ -522,7 +522,7 @@ async function handleSetPasswordSubmit(event) {
   let member = AppState.whitelist.find(m => m.email.toLowerCase() === targetEmail.toLowerCase());
   if (!member) {
     member = {
-      id: 'wl-' + Date.now(),
+      id: (typeof generateFormattedId === 'function' ? generateFormattedId('WL', AppState.whitelist, 4) : 'WL-' + String(AppState.whitelist.length + 1).padStart(4, '0')),
       email: targetEmail,
       fullName: fullName,
       role: targetEmail.toLowerCase() === 'zettbos2025@gmail.com' ? 'admin' : 'member',
@@ -575,7 +575,7 @@ async function handleSetPasswordSubmit(event) {
       const { error: sbErr } = await ZettSupabase.client
         .from('whitelist_members')
         .upsert({ 
-          id: member.id || ('wl-' + Date.now()),
+          id: member.id || (typeof generateFormattedId === 'function' ? generateFormattedId('WL', AppState.whitelist, 4) : 'WL-' + String(AppState.whitelist.length + 1).padStart(4, '0')),
           email: member.email.toLowerCase().trim(),
           full_name: fullName,
           role: member.role || 'member',
