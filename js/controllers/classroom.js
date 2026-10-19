@@ -1445,6 +1445,23 @@ function updateStreamNavigationButtons(activeLessonId) {
     }
     btnToggleComplete.onclick = () => advanceToNextLesson(true);
   }
+
+  // Update Zen Focus Mode Top Floating Bar (Revisi 96)
+  const zenTitle = document.getElementById('zen-floating-title');
+  const zenMod = document.getElementById('zen-floating-module');
+  const zenPrev = document.getElementById('zen-floating-prev');
+  const zenNext = document.getElementById('zen-floating-next');
+
+  if (zenTitle) zenTitle.textContent = currentLesson.title;
+  if (zenMod) zenMod.textContent = parentModule ? parentModule.title : 'Modul Kursus';
+  if (zenPrev) {
+    zenPrev.disabled = !prevLesson;
+    zenPrev.onclick = () => goToAdjacentLesson(-1);
+    zenPrev.title = prevLesson ? `Sebelumnya: ${prevLesson.title}` : 'Materi pertama';
+  }
+  if (zenNext) {
+    zenNext.onclick = () => advanceToNextLesson(true);
+  }
 }
 
 /**
@@ -2501,8 +2518,43 @@ function executeGlobalSearchItem(itemId) {
   }
 }
 
-// Global Keyboard Shortcut: Ctrl + K / Cmd + K to open search, Escape to close
+// ==========================================
+// ZEN FOCUS MODE (Revisi 96 - Mode Bebas Distraksi)
+// ==========================================
+function toggleFocusMode(forceState) {
+  const isCurrent = document.body.classList.contains('zen-focus-mode');
+  const shouldBe = typeof forceState === 'boolean' ? forceState : !isCurrent;
+
+  const btnSubnavLabel = document.getElementById('focus-mode-btn-label');
+  const btnHeaderLabel = document.getElementById('header-focus-mode-label');
+
+  if (shouldBe) {
+    document.body.classList.add('zen-focus-mode');
+    if (btnSubnavLabel) btnSubnavLabel.textContent = 'Keluar Fokus (Esc)';
+    if (btnHeaderLabel) btnHeaderLabel.textContent = 'Keluar (Esc)';
+    if (typeof showToast === 'function') {
+      showToast('✨ Mode Fokus Aktif (Bebas Distraksi) • Tekan Esc atau F untuk keluar', 'info');
+    }
+  } else {
+    document.body.classList.remove('zen-focus-mode');
+    if (btnSubnavLabel) btnSubnavLabel.textContent = 'Mode Fokus (F)';
+    if (btnHeaderLabel) btnHeaderLabel.textContent = 'Fokus (F)';
+  }
+}
+
+// Global Keyboard Shortcut:
+// - Ctrl + K / Cmd + K: Open global search
+// - Escape: Close modals, or exit Zen Focus Mode if active
+// - F / f: Toggle Zen Focus Mode (hanya saat berada di view-learn dan bukan di input/textarea/contenteditable)
 window.addEventListener('keydown', (e) => {
+  const activeTag = document.activeElement ? document.activeElement.tagName.toUpperCase() : '';
+  const isEditable = document.activeElement && (
+    document.activeElement.isContentEditable || 
+    activeTag === 'INPUT' || 
+    activeTag === 'TEXTAREA' || 
+    activeTag === 'SELECT'
+  );
+
   if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
     e.preventDefault();
     const modal = document.getElementById('modal-global-search');
@@ -2512,13 +2564,37 @@ window.addEventListener('keydown', (e) => {
       openGlobalSearchModal();
     }
   } else if (e.key === 'Escape') {
-    const modal = document.getElementById('modal-global-search');
-    if (modal && !modal.classList.contains('hidden')) {
+    const searchModal = document.getElementById('modal-global-search');
+    if (searchModal && !searchModal.classList.contains('hidden')) {
       closeGlobalSearchModal();
+      return;
+    }
+    const nextModal = document.getElementById('modal-next-lesson-confirm');
+    if (nextModal && !nextModal.classList.contains('hidden')) {
+      closeNextLessonConfirmModal();
+      return;
+    }
+    const curriculumDrawer = document.getElementById('modal-mobile-curriculum');
+    if (curriculumDrawer && !curriculumDrawer.classList.contains('hidden')) {
+      closeMobileCurriculumDrawer();
+      return;
+    }
+    // Jika Zen Focus Mode aktif, keluar dengan tombol Escape
+    if (document.body.classList.contains('zen-focus-mode')) {
+      toggleFocusMode(false);
+    }
+  } else if ((e.key === 'f' || e.key === 'F') && !e.ctrlKey && !e.metaKey && !e.altKey) {
+    if (!isEditable && AppState && AppState.currentView === 'learn') {
+      const playerView = document.getElementById('learn-player-view');
+      if (playerView && !playerView.classList.contains('hidden')) {
+        e.preventDefault();
+        toggleFocusMode();
+      }
     }
   }
 });
 
+window.toggleFocusMode = toggleFocusMode;
 window.openGlobalSearchModal = openGlobalSearchModal;
 window.closeGlobalSearchModal = closeGlobalSearchModal;
 window.handleGlobalSearchInput = handleGlobalSearchInput;

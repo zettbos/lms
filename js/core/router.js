@@ -156,6 +156,15 @@ function navigate(viewName, params = {}) {
     pill.classList.add('hidden-pill');
   }
 
+  // Reset Zen Focus Mode jika berpindah ke halaman selain learn
+  if (viewName !== 'learn' && document.body.classList.contains('zen-focus-mode')) {
+    if (typeof window.toggleFocusMode === 'function') {
+      window.toggleFocusMode(false);
+    } else {
+      document.body.classList.remove('zen-focus-mode');
+    }
+  }
+
   // Navbar visibility & user badge update
   updateNavbarState(viewName);
   updateDrawerState();

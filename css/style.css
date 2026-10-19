@@ -271,6 +271,28 @@ pre, code, .font-mono, .font-numeric {
   box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
 }
 
+/* Learning Room Reading Canvas (Calm & Distraction-Free - Zero Hover Jump / Zero Hover Glare) */
+.learning-reading-canvas,
+#learn-notion-content-card,
+#learn-player-view .glass-card.learning-reading-canvas {
+  background: var(--surface) !important;
+  background-image: none !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-card) !important;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.05) !important;
+  transform: none !important;
+  transition: border-color var(--duration-fast) var(--ease-standard) !important;
+}
+
+.learning-reading-canvas:hover,
+#learn-notion-content-card:hover,
+#learn-player-view .glass-card.learning-reading-canvas:hover {
+  transform: none !important;
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.05) !important;
+}
+
 /* Sub-Surface / Inner Well (Law of Common Region) */
 .surface-well {
   background: var(--surface-subtle);
@@ -3951,5 +3973,87 @@ html.light .glass-card a.bg-slate-800:hover {
 .mobile-nav-pill-active span {
   color: #000F01 !important;
   font-weight: 900 !important;
+}
+
+/* ==========================================================================
+   ZEN FOCUS MODE (MODE FOKUS BELAJAR BEBAS DISTRAKSI)
+   ========================================================================== */
+body.zen-focus-mode {
+  overflow-x: hidden;
+}
+
+/* 1. Sembunyikan Sidebar Kiri & Push Layout */
+body.zen-focus-mode #sidebar-drawer {
+  transform: translateX(-100%) !important;
+  display: none !important;
+}
+
+body.zen-focus-mode main[id^="view-"] {
+  margin-left: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* 2. Sembunyikan Header Navigasi Utama, Navigasi Mobile, & Footer Bacaan */
+body.zen-focus-mode header#app-header,
+body.zen-focus-mode #mobile-bottom-nav,
+body.zen-focus-mode #learn-reading-footer-inner,
+body.zen-focus-mode #learn-player-subnav {
+  display: none !important;
+}
+
+/* 3. Sembunyikan Sidebar Kurikulum Kanan di Mode Fokus */
+body.zen-focus-mode #learn-curriculum-col {
+  display: none !important;
+}
+
+/* 4. Lebarkan Kontainer Materi ke Format Zen Optimal (940px) */
+body.zen-focus-mode #learn-content-col {
+  max-width: 940px !important;
+  width: 100% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  transition: max-width 300ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+body.zen-focus-mode #learn-player-view {
+  max-width: 1000px !important;
+  padding-top: 5rem !important;
+  justify-content: center !important;
+}
+
+/* 5. Tampilkan Floating Zen Top Bar Eksklusif di Mode Fokus */
+#zen-focus-floating-bar {
+  display: none;
+}
+
+body.zen-focus-mode #zen-focus-floating-bar {
+  display: flex !important;
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  background: rgba(0, 15, 1, 0.92);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--border-strong);
+  border-radius: 9999px;
+  box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.85), 0 0 25px rgba(0, 223, 129, 0.15);
+  padding: 6px 14px;
+  align-items: center;
+  gap: 10px;
+  animation: zenFadeDown 250ms ease-out forwards;
+}
+
+@keyframes zenFadeDown {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -14px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
 }
 
