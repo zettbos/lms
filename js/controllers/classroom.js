@@ -264,36 +264,43 @@ function renderWhatsAppContactCards() {
       { id: 'admin2', name: 'Admin Asep', phone: '0821-9527-7812', role: 'Pendaftaran & Konsultasi Member', status: 'Online' }
     ];
 
+  const palettes = [
+    { badge: 'text-emerald-400 bg-emerald-950/80 border-emerald-500/40', hoverBorder: 'hover:border-emerald-500/60', btn: 'bg-emerald-500/15 group-hover:bg-emerald-500 text-emerald-400 group-hover:text-slate-950', nameHover: 'group-hover:text-emerald-400' },
+    { badge: 'text-cyan-400 bg-cyan-950/80 border-cyan-500/40', hoverBorder: 'hover:border-cyan-500/60', btn: 'bg-cyan-500/15 group-hover:bg-cyan-500 text-cyan-400 group-hover:text-slate-950', nameHover: 'group-hover:text-cyan-400' },
+    { badge: 'text-purple-400 bg-purple-950/80 border-purple-500/40', hoverBorder: 'hover:border-purple-500/60', btn: 'bg-purple-500/15 group-hover:bg-purple-500 text-purple-400 group-hover:text-slate-950', nameHover: 'group-hover:text-purple-400' },
+    { badge: 'text-amber-400 bg-amber-950/80 border-amber-500/40', hoverBorder: 'hover:border-amber-500/60', btn: 'bg-amber-500/15 group-hover:bg-amber-500 text-amber-400 group-hover:text-slate-950', nameHover: 'group-hover:text-amber-400' }
+  ];
+
   listEl.innerHTML = contacts.map((admin, idx) => {
     const cleanPhone = (admin.phone || '').replace(/\D/g, '').replace(/^0/, '62');
     const initials = (admin.name || 'Admin').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'AD';
-    const isFirst = idx === 0;
-    const badgeColor = isFirst ? 'text-emerald-400 bg-emerald-950/80 border-emerald-500/40' : 'text-cyan-400 bg-cyan-950/80 border-cyan-500/40';
-    const hoverBorder = isFirst ? 'hover:border-emerald-500/60' : 'hover:border-cyan-500/60';
-    const btnHover = isFirst ? 'bg-emerald-500/15 group-hover:bg-emerald-500 text-emerald-400 group-hover:text-slate-950' : 'bg-cyan-500/15 group-hover:bg-cyan-500 text-cyan-400 group-hover:text-slate-950';
-    const nameHover = isFirst ? 'group-hover:text-emerald-400' : 'group-hover:text-cyan-400';
-    const roleText = admin.role || (isFirst ? 'Support & Operasional LMS' : 'Pendaftaran & Konsultasi Member');
+    const pal = palettes[idx % palettes.length];
+    const roleText = admin.role || 'Admin LMS Zettbos';
+
+    // Rule: Jika total kontak ganjil (>1) dan ini adalah item terakhir, letakkan di tengah baris bawah (col-span-2 centered)
+    const isLastOdd = (idx === contacts.length - 1) && (contacts.length % 2 !== 0) && (contacts.length > 1);
+    const oddCenteredClass = isLastOdd ? 'md:col-span-2 md:max-w-md md:mx-auto md:w-full' : 'w-full';
 
     return `
-      <a href="https://wa.me/${cleanPhone}?text=Halo%20${encodeURIComponent(admin.name || 'Admin')}%20Zettbos,%20saya%20ingin%20bertanya%20seputar%20LMS%20Zettbos" target="_blank" rel="noopener noreferrer" class="group block p-4 rounded-xl bg-slate-900/80 hover:bg-slate-850 border border-slate-800 ${hoverBorder} transition-all shadow-sm">
+      <a href="https://wa.me/${cleanPhone}?text=Halo%20${encodeURIComponent(admin.name || 'Admin')}%20Zettbos,%20saya%20ingin%20bertanya%20seputar%20LMS%20Zettbos" target="_blank" rel="noopener noreferrer" class="group block p-4 rounded-xl bg-slate-900/80 hover:bg-slate-850 border border-slate-800 ${pal.hoverBorder} transition-all shadow-sm ${oddCenteredClass}">
         <div class="flex items-center justify-between gap-3">
-          <div class="flex items-center gap-3">
-            <div class="relative">
-              <div class="w-10 h-10 rounded-full ${badgeColor} border flex items-center justify-center font-bold text-xs font-mono">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="relative shrink-0">
+              <div class="w-10 h-10 rounded-full ${pal.badge} border flex items-center justify-center font-bold text-xs font-mono">
                 ${escapeHtml(initials)}
               </div>
               <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-slate-900 absolute -bottom-0.5 -right-0.5"></span>
             </div>
-            <div>
-              <div class="flex items-center gap-2">
-                <span class="text-sm font-bold text-white ${nameHover} transition-colors">${escapeHtml(admin.name)}</span>
+            <div class="min-w-0">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="text-sm font-bold text-white ${pal.nameHover} transition-colors truncate">${escapeHtml(admin.name)}</span>
                 <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">${escapeHtml(admin.status || 'Online')}</span>
               </div>
-              <div class="text-xs text-slate-400 mt-0.5 font-mono">${escapeHtml(admin.phone)}</div>
-              <div class="text-[11px] text-slate-500 mt-0.5">${escapeHtml(roleText)}</div>
+              <div class="text-xs text-slate-400 mt-0.5 font-mono truncate">${escapeHtml(admin.phone)}</div>
+              <div class="text-[11px] text-slate-500 mt-0.5 truncate">${escapeHtml(roleText)}</div>
             </div>
           </div>
-          <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg ${btnHover} text-xs font-bold transition-all">
+          <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg ${pal.btn} text-xs font-bold transition-all shrink-0">
             <span>Chat WhatsApp</span>
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
           </div>

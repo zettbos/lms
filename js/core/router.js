@@ -274,6 +274,9 @@ function updateNavbarState(currentView) {
   const mDash = document.getElementById('mobile-nav-dashboard');
   const mLearn = document.getElementById('mobile-nav-learn');
   const mRes = document.getElementById('mobile-nav-resources');
+  const mShowcase = document.getElementById('mobile-nav-showcase');
+  const mFav = document.getElementById('mobile-nav-favorites');
+  const mAdmin = document.getElementById('mobile-nav-admin');
   const mMenu = document.getElementById('mobile-nav-menu');
   const mUser = document.getElementById('mobile-popover-user');
   const mTheme = document.getElementById('mobile-theme-label');
@@ -281,7 +284,7 @@ function updateNavbarState(currentView) {
 
   const resetMobileBtn = (el) => {
     if (!el) return;
-    el.className = 'flex flex-col items-center justify-center gap-0.5 py-1 px-2.5 rounded-full text-[#707D7D] hover:text-[#F1F7F6] transition-all';
+    el.className = 'flex flex-col items-center justify-center gap-0.5 py-1 px-1.5 rounded-lg text-slate-400 hover:text-white transition-all';
   };
   const setMobileActive = (el) => {
     if (!el) return;
@@ -292,14 +295,18 @@ function updateNavbarState(currentView) {
   resetMobileBtn(mDash);
   resetMobileBtn(mLearn);
   resetMobileBtn(mRes);
+  resetMobileBtn(mShowcase);
+  resetMobileBtn(mFav);
+  resetMobileBtn(mAdmin);
   resetMobileBtn(mMenu);
 
   if (currentView === 'home') setMobileActive(mHome);
   else if (currentView === 'user-dashboard') setMobileActive(mDash);
   else if (currentView === 'learn') setMobileActive(mLearn);
   else if (currentView === 'resources') setMobileActive(mRes);
-  else if (currentView === 'showcase' || currentView === 'favorites' || currentView === 'admin') setMobileActive(mMenu);
-
+  else if (currentView === 'showcase') setMobileActive(mShowcase);
+  else if (currentView === 'favorites') setMobileActive(mFav);
+  else if (currentView === 'admin') setMobileActive(mAdmin);
 
   // Update theme label inside mobile popover
   if (mTheme) {
@@ -317,6 +324,10 @@ function updateNavbarState(currentView) {
     if (mAdminBtn) {
       if (isAdmin) mAdminBtn.classList.remove('hidden');
       else mAdminBtn.classList.add('hidden');
+    }
+    if (mAdmin) {
+      if (isAdmin) mAdmin.classList.remove('hidden');
+      else mAdmin.classList.add('hidden');
     }
 
     if (isAdmin) {

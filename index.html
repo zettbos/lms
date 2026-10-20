@@ -156,8 +156,8 @@
       
       <!-- Left: Hamburger Button + Brand Logo -->
       <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
-        <!-- Hamburger Menu Button (Hidden on Mobile, Visible on Tablet/Desktop) -->
-        <button id="btn-sidebar-toggle" onclick="toggleSidebarDrawer()" title="Buka Menu Navigasi" class="hidden md:flex p-2 rounded-xl text-slate-300 hover:text-white hover:bg-[#1C1F26] border border-[#262933] transition-all items-center justify-center group focus:outline-none focus:border-emerald-500">
+        <!-- Hamburger Menu Button (Visible on Mobile, Tablet & Desktop) -->
+        <button id="btn-sidebar-toggle" onclick="toggleSidebarDrawer()" title="Buka Menu Navigasi" class="flex p-2 rounded-xl text-slate-300 hover:text-white hover:bg-[#1C1F26] border border-[#262933] transition-all items-center justify-center group focus:outline-none focus:border-emerald-500">
           <svg class="w-5 h-5 text-emerald-400 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
           </svg>
@@ -641,7 +641,7 @@
         <!-- Interactive Split Showcase: Left Cards in 2 Columns + Right Dynamic Preview Mockup -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch">
           <!-- Left Column: Interactive Feature Cards (2-Column Grid ala Lynk.id, 3 Rows Full Height) -->
-          <div class="lg:col-span-7 xl:col-span-8 grid grid-cols-1 sm:grid-cols-2 sm:grid-rows-3 gap-3.5 sm:gap-4 lg:gap-5 h-full" id="landing-facilities-container">
+          <div class="lg:col-span-7 xl:col-span-8 grid grid-cols-2 sm:grid-cols-2 sm:grid-rows-3 gap-2.5 sm:gap-4 lg:gap-5 h-full" id="landing-facilities-container">
             <!-- Rendered dynamically by js/controllers/landing.js from AppState.landingCms.facilities -->
           </div>
 
@@ -695,7 +695,7 @@
         </div>
 
         <!-- 4 Target Audiens Cards Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5" id="landing-usecases-container">
+        <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-5" id="landing-usecases-container">
           <!-- Rendered dynamically by js/controllers/landing.js from AppState.landingCms.useCases -->
         </div>
       </div>
@@ -725,17 +725,11 @@
         </div>
       </div>
 
-      <!-- Interactive Carousel Slider Navigation (Bisa Digeser Mouse Drag, Swipe Jari, & Tombol Panah) -->
+      <!-- Interactive Carousel Slider Navigation (Tombol Panah Geser Kiri / Kanan) -->
       <div class="flex items-center justify-center gap-3 mt-4 sm:mt-6 px-4">
         <button type="button" onclick="scrollTestimonials(-1)" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-900/90 hover:bg-emerald-500/20 text-slate-300 hover:text-emerald-400 border border-slate-800 hover:border-emerald-500/50 flex items-center justify-center transition-all shadow-md active:scale-95 cursor-pointer" title="Geser ke Kiri">
           <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
         </button>
-
-        <div class="text-[11px] font-mono text-slate-400 flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-slate-950/80 border border-slate-800/80 shadow-sm">
-          <svg class="w-3.5 h-3.5 text-emerald-400 animate-pulse shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
-          <span class="hidden sm:inline">Bisa digeser dengan mouse drag, swipe, atau tombol panah</span>
-          <span class="sm:hidden">Geser manual atau tap panah</span>
-        </div>
 
         <button type="button" onclick="scrollTestimonials(1)" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-900/90 hover:bg-emerald-500/20 text-slate-300 hover:text-emerald-400 border border-slate-800 hover:border-emerald-500/50 flex items-center justify-center transition-all shadow-md active:scale-95 cursor-pointer" title="Geser ke Kanan">
           <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
@@ -2240,11 +2234,15 @@
           <div>
             <h2 class="text-lg font-bold text-white flex items-center gap-2">
               <svg class="w-5 h-5 text-emerald-400" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
-              Pengelola Kontak Admin WhatsApp (Dual-Admin)
+              Pengelola Kontak Admin WhatsApp
             </h2>
-            <p class="text-xs text-slate-400 mt-0.5">Atur nama, nomor WhatsApp, dan posisi/jabatan 2 admin resmi Zettbos. Tampil di modal bantuan, modal penolakan email, dan footer login.</p>
+            <p class="text-xs text-slate-400 mt-0.5">Atur nama, nomor WhatsApp, dan posisi admin resmi Zettbos. Tampil di modal WhatsApp publik dengan 2 grid kolom sejajar (dan di tengah jika jumlah ganjil).</p>
           </div>
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 flex-wrap">
+            <button type="button" onclick="addAdminContactCms()" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/15 hover:bg-emerald-500 text-emerald-300 hover:text-slate-950 border border-emerald-500/40 flex items-center gap-1.5 transition-all shadow-sm">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              <span>+ Tambah Kontak Admin</span>
+            </button>
             <button type="button" onclick="resetAdminContactsToDefault()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 flex items-center gap-1.5 transition-colors">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
               <span>Reset Default</span>
@@ -2253,72 +2251,8 @@
         </div>
 
         <form onsubmit="handleSaveAdminContactsCms(event)" class="space-y-6">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
-            <!-- Admin 1 Card Box -->
-            <div class="p-5 rounded-xl bg-slate-950/70 border border-emerald-500/30 space-y-4">
-              <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-                <div class="flex items-center gap-2">
-                  <div class="w-8 h-8 rounded-full bg-emerald-950/80 border border-emerald-500/40 flex items-center justify-center text-emerald-400 font-mono font-bold text-xs">
-                    01
-                  </div>
-                  <div>
-                    <h4 class="text-sm font-bold text-white">Admin 1 (Operasional / Support)</h4>
-                    <p class="text-[10px] text-emerald-400 font-mono">Bantuan Teknis &amp; Akses LMS</p>
-                  </div>
-                </div>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">Admin Utama</span>
-              </div>
-
-              <div>
-                <label for="admin-contact-name-1" class="block text-xs font-semibold text-slate-300 mb-1">Nama Lengkap Admin 1</label>
-                <input id="admin-contact-name-1" type="text" required placeholder="Contoh: Admin Farhan" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors" />
-              </div>
-
-              <div>
-                <label for="admin-contact-phone-1" class="block text-xs font-semibold text-slate-300 mb-1">Nomor WhatsApp Admin 1</label>
-                <input id="admin-contact-phone-1" type="text" required placeholder="Contoh: 0851-1122-6452" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono transition-colors" />
-                <p class="text-[10px] text-slate-500 mt-1">Bisa format 08... atau 62..., sistem otomatis menyesuaikan.</p>
-              </div>
-
-              <div>
-                <label for="admin-contact-role-1" class="block text-xs font-semibold text-slate-300 mb-1">Posisi / Jabatan Admin 1</label>
-                <input id="admin-contact-role-1" type="text" required placeholder="Contoh: Support &amp; Operasional LMS" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors" />
-              </div>
-            </div>
-
-            <!-- Admin 2 Card Box -->
-            <div class="p-5 rounded-xl bg-slate-950/70 border border-cyan-500/30 space-y-4">
-              <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-                <div class="flex items-center gap-2">
-                  <div class="w-8 h-8 rounded-full bg-cyan-950/80 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-mono font-bold text-xs">
-                    02
-                  </div>
-                  <div>
-                    <h4 class="text-sm font-bold text-white">Admin 2 (Pendaftaran / Sales)</h4>
-                    <p class="text-[10px] text-cyan-400 font-mono">Pendaftaran &amp; Konsultasi Kelas</p>
-                  </div>
-                </div>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-cyan-500/15 text-cyan-400 border border-cyan-500/30">Admin Mitra</span>
-              </div>
-
-              <div>
-                <label for="admin-contact-name-2" class="block text-xs font-semibold text-slate-300 mb-1">Nama Lengkap Admin 2</label>
-                <input id="admin-contact-name-2" type="text" required placeholder="Contoh: Admin Asep" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors" />
-              </div>
-
-              <div>
-                <label for="admin-contact-phone-2" class="block text-xs font-semibold text-slate-300 mb-1">Nomor WhatsApp Admin 2</label>
-                <input id="admin-contact-phone-2" type="text" required placeholder="Contoh: 0821-9527-7812" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono transition-colors" />
-                <p class="text-[10px] text-slate-500 mt-1">Bisa format 08... atau 62..., sistem otomatis menyesuaikan.</p>
-              </div>
-
-              <div>
-                <label for="admin-contact-role-2" class="block text-xs font-semibold text-slate-300 mb-1">Posisi / Jabatan Admin 2</label>
-                <input id="admin-contact-role-2" type="text" required placeholder="Contoh: Pendaftaran &amp; Konsultasi Member" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors" />
-              </div>
-            </div>
-
+          <div id="admin-contacts-cms-list" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <!-- Rendered dynamically by renderAdminContactsCms() in js/controllers/admin.js -->
           </div>
 
           <div class="pt-2 flex justify-end">
@@ -2560,7 +2494,7 @@
        MODAL: DUAL-ADMIN WHATSAPP CONTACT SELECTOR
        ========================================== -->
   <div id="modal-whatsapp-contact" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md hidden animate-fade-in">
-    <div class="glass-card rounded-2xl p-6 sm:p-7 max-w-lg w-full relative border border-emerald-500/30 shadow-2xl">
+    <div class="glass-card rounded-2xl p-6 sm:p-7 max-w-2xl w-full relative border border-emerald-500/30 shadow-2xl">
       <!-- Close button -->
       <button onclick="closeWhatsAppContactModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -2577,62 +2511,12 @@
         </div>
       </div>
 
-      <!-- 2 Admin Cards -->
-      <div id="whatsapp-admin-cards-list" class="space-y-3.5">
-        
-        <!-- Admin 1: Farhan -->
-        <a href="https://wa.me/6285111226452?text=Halo%20Admin%20Farhan%20Zettbos,%20saya%20ingin%20bertanya%20seputar%20LMS%20Zettbos" target="_blank" rel="noopener noreferrer" class="group block p-4 rounded-xl bg-slate-900/80 hover:bg-slate-850 border border-slate-800 hover:border-emerald-500/60 transition-all shadow-sm">
-          <div class="flex items-center justify-between gap-3">
-            <div class="flex items-center gap-3">
-              <div class="relative">
-                <div class="w-10 h-10 rounded-full bg-emerald-950/80 border border-emerald-500/40 flex items-center justify-center text-emerald-400 font-bold text-xs font-mono">
-                  AF
-                </div>
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-slate-900 absolute -bottom-0.5 -right-0.5"></span>
-              </div>
-              <div>
-                <div class="flex items-center gap-2">
-                  <span class="text-sm font-bold text-white group-hover:text-emerald-400 transition-colors">Admin Farhan</span>
-                  <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">Online</span>
-                </div>
-                <div class="text-xs text-slate-400 mt-0.5 font-mono">0851-1122-6452</div>
-                <div class="text-[11px] text-slate-500 mt-0.5">Support &amp; Operasional LMS</div>
-              </div>
-            </div>
-            <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/15 group-hover:bg-emerald-500 text-emerald-400 group-hover:text-slate-950 text-xs font-bold transition-all">
-              <span>Chat WhatsApp</span>
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-            </div>
-          </div>
-        </a>
-
-        <!-- Admin 2: Asep -->
-        <a href="https://wa.me/6282195277812?text=Halo%20Admin%20Asep%20Zettbos,%20saya%20ingin%20bertanya%20seputar%20LMS%20Zettbos" target="_blank" rel="noopener noreferrer" class="group block p-4 rounded-xl bg-slate-900/80 hover:bg-slate-850 border border-slate-800 hover:border-cyan-500/60 transition-all shadow-sm">
-          <div class="flex items-center justify-between gap-3">
-            <div class="flex items-center gap-3">
-              <div class="relative">
-                <div class="w-10 h-10 rounded-full bg-cyan-950/80 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-bold text-xs font-mono">
-                  AA
-                </div>
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-slate-900 absolute -bottom-0.5 -right-0.5"></span>
-              </div>
-              <div>
-                <div class="flex items-center gap-2">
-                  <span class="text-sm font-bold text-white group-hover:text-cyan-400 transition-colors">Admin Asep</span>
-                  <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-400 border border-cyan-500/30">Online</span>
-                </div>
-                <div class="text-xs text-slate-400 mt-0.5 font-mono">0821-9527-7812</div>
-                <div class="text-[11px] text-slate-500 mt-0.5">Pendaftaran &amp; Konsultasi Member</div>
-              </div>
-            </div>
-            <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-500/15 group-hover:bg-cyan-500 text-cyan-400 group-hover:text-slate-950 text-xs font-bold transition-all">
-              <span>Chat WhatsApp</span>
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-            </div>
-          </div>
-        </a>
-
+      <!-- Admin Cards Grid: Horizontal 2 Kolom (Item Ganjil Terakhir Ditengah) -->
+      <div id="whatsapp-admin-cards-list" class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+        <!-- Injected dynamically by renderWhatsAppContactCards() in js/controllers/classroom.js -->
       </div>
+    </div>
+  </div>
 
 
     </div>
@@ -3955,27 +3839,48 @@
     </div>
   </div>
 
-  <!-- Mobile Bottom Navigation Bar (1-Thumb App UX - 5 Tabs) -->
+  <!-- Mobile Bottom Navigation Bar (1-Thumb App UX - Lengkap Revisi 101) -->
   <nav id="mobile-bottom-nav" class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-lg border-t border-slate-800/80 px-1 py-1.5 flex items-center justify-around hidden">
-    <button onclick="navigate('home')" id="mobile-nav-home" class="flex flex-col items-center gap-0.5 py-1 px-2 rounded-lg text-slate-400 hover:text-emerald-400 transition-colors">
+    <!-- 1. Home -->
+    <button onclick="navigate('home')" id="mobile-nav-home" class="flex flex-col items-center gap-0.5 py-1 px-1.5 rounded-lg text-slate-400 hover:text-emerald-400 transition-colors">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-      <span class="text-[9px] font-semibold">Home</span>
+      <span class="text-[8.5px] font-semibold">Home</span>
     </button>
-    <button onclick="navigate('user-dashboard')" id="mobile-nav-dashboard" class="flex flex-col items-center gap-0.5 py-1 px-2 rounded-lg text-slate-400 hover:text-cyan-400 transition-colors">
+
+    <!-- 2. Kalender -->
+    <button onclick="navigate('user-dashboard')" id="mobile-nav-dashboard" class="flex flex-col items-center gap-0.5 py-1 px-1.5 rounded-lg text-slate-400 hover:text-cyan-400 transition-colors">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-      <span class="text-[9px] font-semibold">Kalender</span>
+      <span class="text-[8.5px] font-semibold">Kalender</span>
     </button>
-    <button onclick="navigate('learn')" id="mobile-nav-learn" class="flex flex-col items-center gap-0.5 py-1 px-2 rounded-lg text-slate-400 hover:text-emerald-400 transition-colors">
+
+    <!-- 3. Belajar -->
+    <button onclick="navigate('learn')" id="mobile-nav-learn" class="flex flex-col items-center gap-0.5 py-1 px-1.5 rounded-lg text-slate-400 hover:text-emerald-400 transition-colors">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-      <span class="text-[9px] font-semibold">Belajar</span>
+      <span class="text-[8.5px] font-semibold">Belajar</span>
     </button>
-    <button onclick="navigate('resources')" id="mobile-nav-resources" class="flex flex-col items-center gap-0.5 py-1 px-2 rounded-lg text-slate-400 hover:text-emerald-400 transition-colors">
+
+    <!-- 4. ZettLink -->
+    <button onclick="navigate('resources')" id="mobile-nav-resources" class="flex flex-col items-center gap-0.5 py-1 px-1.5 rounded-lg text-slate-400 hover:text-emerald-400 transition-colors">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
-      <span class="text-[9px] font-semibold">ZettLink</span>
+      <span class="text-[8.5px] font-semibold">ZettLink</span>
     </button>
-    <button onclick="navigate('favorites')" id="mobile-nav-favorites" class="flex flex-col items-center gap-0.5 py-1 px-2 rounded-lg text-slate-400 hover:text-amber-400 transition-colors">
+
+    <!-- 5. ZettGallery (Showcase) -->
+    <button onclick="navigate('showcase')" id="mobile-nav-showcase" class="flex flex-col items-center gap-0.5 py-1 px-1.5 rounded-lg text-slate-400 hover:text-purple-400 transition-colors">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+      <span class="text-[8.5px] font-semibold">Galeri</span>
+    </button>
+
+    <!-- 6. Favorit -->
+    <button onclick="navigate('favorites')" id="mobile-nav-favorites" class="flex flex-col items-center gap-0.5 py-1 px-1.5 rounded-lg text-slate-400 hover:text-amber-400 transition-colors">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
-      <span class="text-[9px] font-semibold">Favorit</span>
+      <span class="text-[8.5px] font-semibold">Favorit</span>
+    </button>
+
+    <!-- 7. Admin Panel (Dinamis Khusus Admin/Owner) -->
+    <button onclick="navigate('admin')" id="mobile-nav-admin" class="flex flex-col items-center gap-0.5 py-1 px-1.5 rounded-lg text-rose-400 hover:text-rose-300 transition-colors hidden">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      <span class="text-[8.5px] font-semibold">Admin</span>
     </button>
   </nav>
 
@@ -4151,38 +4056,7 @@
     </div>
   </div>
 
-  <!-- Floating Glass Capsule Bottom Navigation (Gambar 2 Tactility) -->
-  <nav id="mobile-bottom-nav" class="fixed bottom-3 inset-x-3 sm:inset-x-6 z-40 h-14 bg-[#000F01]/85 backdrop-blur-xl border border-[#03624C]/60 md:hidden px-2 rounded-full flex items-center justify-around shadow-[0_12px_36px_rgba(0,0,0,0.7)] hidden">
-    <!-- 1. Home -->
-    <button id="mobile-nav-home" onclick="navigate('home')" class="flex flex-col items-center justify-center gap-0.5 py-1 px-3 rounded-full text-slate-400 hover:text-white transition-all">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-      <span class="text-[9px] font-bold tracking-tight">HOME</span>
-    </button>
 
-    <!-- 2. Dashboard -->
-    <button id="mobile-nav-dashboard" onclick="navigate('user-dashboard')" class="flex flex-col items-center justify-center gap-0.5 py-1 px-3 rounded-full text-slate-400 hover:text-white transition-all">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-      <span class="text-[9px] font-bold tracking-tight">DASH</span>
-    </button>
-
-    <!-- 3. Belajar (Video Room) -->
-    <button id="mobile-nav-learn" onclick="navigate('learn')" class="flex flex-col items-center justify-center gap-0.5 py-1 px-3 rounded-full text-slate-400 hover:text-white transition-all">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-      <span class="text-[9px] font-bold tracking-tight">BELAJAR</span>
-    </button>
-
-    <!-- 4. ZettLink -->
-    <button id="mobile-nav-resources" onclick="navigate('resources')" class="flex flex-col items-center justify-center gap-0.5 py-1 px-3 rounded-full text-slate-400 hover:text-white transition-all">
-      <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
-      <span class="text-[9px] font-bold tracking-tight">ZETTLINK</span>
-    </button>
-
-    <!-- 5. Menu (Opens Elevated Popover Sheet) -->
-    <button id="mobile-nav-menu" onclick="toggleMobileMenuPopover()" class="flex flex-col items-center justify-center gap-0.5 py-1 px-3 rounded-full text-slate-400 hover:text-white transition-all">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-      <span class="text-[9px] font-bold tracking-tight">MENU</span>
-    </button>
-  </nav>
 
   <!-- ==========================================
        GLOBAL SEARCH & MENU PALETTE MODAL (Revisi 68 - Poin 5)
@@ -4509,18 +4383,18 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- Application Scripts (Modular Architecture with Cache Buster) -->
-  <script src="js/mock-data.js?v=101"></script>
-  <script src="js/editor.js?v=101"></script>
-  <script src="js/core/state.js?v=101"></script>
-  <script src="js/core/supabase.js?v=101"></script>
-  <script src="js/core/router.js?v=101"></script>
-  <script src="js/core/particles.js?v=101"></script>
-  <script src="js/controllers/auth.js?v=101"></script>
-  <script src="js/controllers/landing.js?v=101"></script>
-  <script src="js/controllers/classroom.js?v=101"></script>
-  <script src="js/controllers/resources.js?v=101"></script>
-  <script src="js/controllers/showcase.js?v=101"></script>
-  <script src="js/controllers/admin.js?v=101"></script>
-  <script src="js/app.js?v=101"></script>
+  <script src="js/mock-data.js?v=102"></script>
+  <script src="js/editor.js?v=102"></script>
+  <script src="js/core/state.js?v=102"></script>
+  <script src="js/core/supabase.js?v=102"></script>
+  <script src="js/core/router.js?v=102"></script>
+  <script src="js/core/particles.js?v=102"></script>
+  <script src="js/controllers/auth.js?v=102"></script>
+  <script src="js/controllers/landing.js?v=102"></script>
+  <script src="js/controllers/classroom.js?v=102"></script>
+  <script src="js/controllers/resources.js?v=102"></script>
+  <script src="js/controllers/showcase.js?v=102"></script>
+  <script src="js/controllers/admin.js?v=102"></script>
+  <script src="js/app.js?v=102"></script>
 </body>
 </html>

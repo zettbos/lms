@@ -327,52 +327,152 @@ function resetLandingHeroToDefault() {
 }
 
 // ==========================================
-// PENGATURAN KONTAK WHATSAPP DUAL-ADMIN (CMS)
+// ==========================================
+// PENGATURAN KONTAK WHATSAPP MULTI-ADMIN (CMS DINAMIS - REVISI 101)
 // ==========================================
 
+function getAdminContactsCmsList() {
+  if (AppState.landingCms?.adminContacts && Array.isArray(AppState.landingCms.adminContacts) && AppState.landingCms.adminContacts.length > 0) {
+    return AppState.landingCms.adminContacts;
+  }
+  return [
+    { id: 'admin1', name: 'Admin Farhan', phone: '0851-1122-6452', role: 'Support & Operasional LMS', status: 'Online' },
+    { id: 'admin2', name: 'Admin Asep', phone: '0821-9527-7812', role: 'Pendaftaran & Konsultasi Member', status: 'Online' }
+  ];
+}
+
 function renderAdminContactsCms() {
-  const contacts = (AppState.landingCms?.adminContacts && Array.isArray(AppState.landingCms.adminContacts) && AppState.landingCms.adminContacts.length > 0)
-    ? AppState.landingCms.adminContacts
-    : [
-        { id: 'admin1', name: 'Admin Farhan', phone: '0851-1122-6452', role: 'Support & Operasional LMS', status: 'Online' },
-        { id: 'admin2', name: 'Admin Asep', phone: '0821-9527-7812', role: 'Pendaftaran & Konsultasi Member', status: 'Online' }
-      ];
+  const container = document.getElementById('admin-contacts-cms-list');
+  if (!container) return;
 
-  const admin1 = contacts[0] || { name: 'Admin Farhan', phone: '0851-1122-6452', role: 'Support & Operasional LMS' };
-  const admin2 = contacts[1] || { name: 'Admin Asep', phone: '0821-9527-7812', role: 'Pendaftaran & Konsultasi Member' };
+  const contacts = getAdminContactsCmsList();
+  if (!AppState.landingCms) AppState.landingCms = {};
+  AppState.landingCms.adminContacts = contacts;
 
-  const n1 = document.getElementById('admin-contact-name-1');
-  const p1 = document.getElementById('admin-contact-phone-1');
-  const r1 = document.getElementById('admin-contact-role-1');
-  const n2 = document.getElementById('admin-contact-name-2');
-  const p2 = document.getElementById('admin-contact-phone-2');
-  const r2 = document.getElementById('admin-contact-role-2');
+  const palettes = [
+    { border: 'border-emerald-500/40', box: 'bg-emerald-950/80 border-emerald-500/40 text-emerald-400', badge: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30' },
+    { border: 'border-cyan-500/40', box: 'bg-cyan-950/80 border-cyan-500/40 text-cyan-400', badge: 'bg-cyan-500/15 text-cyan-400 border-cyan-500/30' },
+    { border: 'border-purple-500/40', box: 'bg-purple-950/80 border-purple-500/40 text-purple-400', badge: 'bg-purple-500/15 text-purple-400 border-purple-500/30' },
+    { border: 'border-amber-500/40', box: 'bg-amber-950/80 border-amber-500/40 text-amber-400', badge: 'bg-amber-500/15 text-amber-400 border-amber-500/30' }
+  ];
 
-  if (n1) n1.value = admin1.name || '';
-  if (p1) p1.value = admin1.phone || '';
-  if (r1) r1.value = admin1.role || '';
+  container.innerHTML = contacts.map((admin, idx) => {
+    const pal = palettes[idx % palettes.length];
+    return `
+      <div class="admin-contact-item p-5 rounded-xl bg-slate-950/70 border ${pal.border} space-y-4 relative group" data-contact-id="${escapeHtml(admin.id)}">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-full ${pal.box} border flex items-center justify-center font-mono font-bold text-xs">
+              ${String(idx + 1).padStart(2, '0')}
+            </div>
+            <div>
+              <h4 class="text-sm font-bold text-white">${escapeHtml(admin.name || 'Kontak Admin')}</h4>
+              <p class="text-[10px] text-slate-400 font-mono">${escapeHtml(admin.role || 'Admin LMS')}</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${pal.badge} border">Kontak #${idx + 1}</span>
+            ${contacts.length > 1 ? `
+              <button type="button" onclick="removeAdminContactCms('${escapeHtml(admin.id)}')" class="p-1 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-950/40 transition-colors" title="Hapus Kontak Ini">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              </button>
+            ` : ''}
+          </div>
+        </div>
 
-  if (n2) n2.value = admin2.name || '';
-  if (p2) p2.value = admin2.phone || '';
-  if (r2) r2.value = admin2.role || '';
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Nama Lengkap Admin</label>
+            <input type="text" data-field="name" value="${escapeHtml(admin.name || '')}" required placeholder="Contoh: Admin Farhan" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Nomor WhatsApp Admin</label>
+            <input type="text" data-field="phone" value="${escapeHtml(admin.phone || '')}" required placeholder="Contoh: 0851-1122-6452" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono transition-colors" />
+            <p class="text-[10px] text-slate-500 mt-1">Bisa format 08... atau 62..., sistem otomatis menyesuaikan.</p>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Posisi / Jabatan Admin</label>
+            <input type="text" data-field="role" value="${escapeHtml(admin.role || '')}" required placeholder="Contoh: Support &amp; Operasional LMS" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors" />
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function addAdminContactCms() {
+  const contacts = getAdminContactsCmsList();
+  const nextIdx = contacts.length + 1;
+  const newContact = {
+    id: 'admin_' + Date.now(),
+    name: `Admin ${nextIdx}`,
+    phone: '0812-3456-7890',
+    role: 'Konsultasi & Support LMS',
+    status: 'Online'
+  };
+
+  contacts.push(newContact);
+  if (!AppState.landingCms) AppState.landingCms = {};
+  AppState.landingCms.adminContacts = contacts;
+
+  renderAdminContactsCms();
+  showToast(`Kontak Admin ${nextIdx} berhasil ditambahkan! Jangan lupa klik Simpan.`, 'info');
+}
+
+function removeAdminContactCms(contactId) {
+  const contacts = getAdminContactsCmsList();
+  if (contacts.length <= 1) {
+    showToast('Minimal harus ada 1 kontak admin WhatsApp!', 'warning');
+    return;
+  }
+
+  showCustomConfirm({
+    title: 'Hapus Kontak Admin?',
+    message: 'Apakah Anda yakin ingin menghapus kontak admin ini dari daftar kontak WhatsApp LMS?',
+    confirmText: 'Ya, Hapus',
+    cancelText: 'Batal',
+    isDanger: true,
+    onConfirm: () => {
+      const filtered = contacts.filter(c => c.id !== contactId);
+      if (!AppState.landingCms) AppState.landingCms = {};
+      AppState.landingCms.adminContacts = filtered;
+      if (!AppState.landingCms.hero) AppState.landingCms.hero = {};
+      AppState.landingCms.hero.adminContacts = filtered;
+      AppState.landingCms.hero._adminContacts = filtered;
+
+      renderAdminContactsCms();
+      showToast('Kontak admin berhasil dihapus. Klik Simpan untuk mempublikasikan.', 'info');
+    }
+  });
 }
 
 function handleSaveAdminContactsCms(e) {
   if (e) e.preventDefault();
   if (!AppState.landingCms) AppState.landingCms = {};
 
-  const name1 = document.getElementById('admin-contact-name-1')?.value.trim() || 'Admin Farhan';
-  const phone1 = document.getElementById('admin-contact-phone-1')?.value.trim() || '0851-1122-6452';
-  const role1 = document.getElementById('admin-contact-role-1')?.value.trim() || 'Support & Operasional LMS';
+  const items = document.querySelectorAll('#admin-contacts-cms-list .admin-contact-item');
+  if (!items || items.length === 0) {
+    showToast('Tidak ada data kontak untuk disimpan!', 'warning');
+    return;
+  }
 
-  const name2 = document.getElementById('admin-contact-name-2')?.value.trim() || 'Admin Asep';
-  const phone2 = document.getElementById('admin-contact-phone-2')?.value.trim() || '0821-9527-7812';
-  const role2 = document.getElementById('admin-contact-role-2')?.value.trim() || 'Pendaftaran & Konsultasi Member';
+  const updatedContacts = [];
+  items.forEach((item, idx) => {
+    const id = item.getAttribute('data-contact-id') || ('admin_' + (idx + 1));
+    const name = item.querySelector('[data-field="name"]')?.value.trim() || `Admin ${idx + 1}`;
+    const phone = item.querySelector('[data-field="phone"]')?.value.trim() || '0851-1122-6452';
+    const role = item.querySelector('[data-field="role"]')?.value.trim() || 'Operasional LMS';
 
-  const updatedContacts = [
-    { id: 'admin1', name: name1, phone: phone1, role: role1, status: 'Online' },
-    { id: 'admin2', name: name2, phone: phone2, role: role2, status: 'Online' }
-  ];
+    updatedContacts.push({
+      id: id,
+      name: name,
+      phone: phone,
+      role: role,
+      status: 'Online'
+    });
+  });
 
   AppState.landingCms.adminContacts = updatedContacts;
   if (!AppState.landingCms.hero) AppState.landingCms.hero = {};
@@ -3436,6 +3536,8 @@ window.toggleQuickActionTargetType = toggleQuickActionTargetType;
 window.handleSaveQuickActionSubmit = handleSaveQuickActionSubmit;
 window.resetQuickActionsToDefault = resetQuickActionsToDefault;
 window.renderAdminContactsCms = renderAdminContactsCms;
+window.addAdminContactCms = addAdminContactCms;
+window.removeAdminContactCms = removeAdminContactCms;
 window.handleSaveAdminContactsCms = handleSaveAdminContactsCms;
 window.resetAdminContactsToDefault = resetAdminContactsToDefault;
 

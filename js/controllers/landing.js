@@ -624,20 +624,20 @@ function renderLandingFacilitiesShowcase(cms) {
       <div 
         data-facility-id="${uc.id}" 
         onclick="selectLandingFacilityPreview('${uc.id}')"
-        class="feature-interactive-card card-elevated-highlight rounded-2xl p-5 sm:p-6 lg:p-7 border bg-[#0D1322]/90 transition-all duration-300 group cursor-pointer flex flex-col justify-center min-h-[140px] sm:min-h-[155px] lg:min-h-[170px] ${activeClass}"
+        class="feature-interactive-card card-elevated-highlight rounded-xl sm:rounded-2xl p-3 sm:p-5 lg:p-6 border bg-[#0D1322]/90 transition-all duration-300 group cursor-pointer flex flex-col justify-center min-h-[120px] sm:min-h-[155px] lg:min-h-[170px] ${activeClass}"
       >
-        <div class="flex items-start gap-4 sm:gap-5">
-          <div class="feature-icon-box w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all border ${isActive ? theme.boxActive : theme.box}">
-            ${getMonolineSvgIcon(uc.icon || 'bot', 'w-7 h-7 sm:w-8 sm:h-8')}
+        <div class="flex flex-col sm:flex-row items-start gap-2.5 sm:gap-4">
+          <div class="feature-icon-box w-9 h-9 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-lg sm:rounded-2xl flex items-center justify-center flex-shrink-0 transition-all border ${isActive ? theme.boxActive : theme.box}">
+            ${getMonolineSvgIcon(uc.icon || 'bot', 'w-5 h-5 sm:w-7 sm:h-7 lg:w-8 lg:h-8')}
           </div>
           <div class="min-w-0 flex-1">
-            <div class="flex items-center justify-between gap-1.5 mb-1.5">
-              <h3 class="text-base sm:text-lg lg:text-xl font-extrabold text-white group-hover:text-emerald-300 transition-colors leading-snug tracking-tight">
+            <div class="flex items-center justify-between gap-1.5 mb-1">
+              <h3 class="text-xs sm:text-base lg:text-xl font-bold sm:font-extrabold text-white group-hover:text-emerald-300 transition-colors leading-snug tracking-tight">
                 ${escapeHtml(uc.title)}
               </h3>
-              <span class="facility-active-dot w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-400 shadow-[0_0_10px_#10B981] animate-pulse shrink-0 ${isActive ? '' : 'hidden'}"></span>
+              <span class="facility-active-dot w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-emerald-400 shadow-[0_0_10px_#10B981] animate-pulse shrink-0 ${isActive ? '' : 'hidden'}"></span>
             </div>
-            <p class="text-xs sm:text-sm lg:text-[14.5px] text-slate-200 leading-relaxed font-normal">
+            <p class="text-[10.5px] sm:text-xs lg:text-[14.5px] text-slate-200 leading-snug sm:leading-relaxed font-normal line-clamp-3 sm:line-clamp-none">
               ${escapeHtml(uc.description || uc.desc || '')}
             </p>
           </div>
@@ -651,22 +651,22 @@ function renderLandingFacilitiesShowcase(cms) {
       href="https://lynk.id/zettbos/50nxdkpjmowm" 
       target="_blank" 
       rel="noopener noreferrer" 
-      class="feature-action-card rounded-2xl p-5 sm:p-6 lg:p-7 border-2 border-emerald-400 bg-gradient-to-br from-emerald-600 via-emerald-700 to-emerald-900 hover:from-emerald-500 hover:via-emerald-600 hover:to-emerald-800 transition-all duration-300 flex flex-col justify-center min-h-[140px] sm:min-h-[155px] lg:min-h-[170px] group cursor-pointer shadow-[0_10px_30px_rgba(16,185,129,0.35)] hover:shadow-[0_15px_40px_rgba(16,185,129,0.5)] transform hover:-translate-y-1"
+      class="feature-action-card rounded-xl sm:rounded-2xl p-3 sm:p-5 lg:p-6 border-2 border-emerald-400 bg-gradient-to-br from-emerald-600 via-emerald-700 to-emerald-900 hover:from-emerald-500 hover:via-emerald-600 hover:to-emerald-800 transition-all duration-300 flex flex-col justify-center min-h-[120px] sm:min-h-[155px] lg:min-h-[170px] group cursor-pointer shadow-[0_10px_30px_rgba(16,185,129,0.35)] hover:shadow-[0_15px_40px_rgba(16,185,129,0.5)] transform hover:-translate-y-1"
     >
-      <div class="flex items-start gap-4 sm:gap-5">
-        <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/20 border border-white/40 flex items-center justify-center shrink-0 text-white shadow-inner group-hover:scale-105 group-hover:bg-white/30 transition-all">
-          <svg class="w-7 h-7 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+      <div class="flex flex-col sm:flex-row items-start gap-2.5 sm:gap-4">
+        <div class="w-9 h-9 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-lg sm:rounded-2xl bg-white/20 border border-white/40 flex items-center justify-center shrink-0 text-white shadow-inner group-hover:scale-105 group-hover:bg-white/30 transition-all">
+          <svg class="w-5 h-5 sm:w-7 sm:h-7 lg:w-8 lg:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
         </div>
         <div class="min-w-0 flex-1">
-          <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-950/60 text-emerald-200 border border-emerald-300/40 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider mb-1.5 shadow-sm">
+          <div class="inline-flex items-center gap-1 px-1.5 sm:px-2.5 py-0.5 rounded-full bg-emerald-950/60 text-emerald-200 border border-emerald-300/40 text-[8.5px] sm:text-[11px] font-bold uppercase tracking-wider mb-1 shadow-sm">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-ping"></span>
             SLOT TERBATAS
           </div>
-          <h3 class="text-base sm:text-lg lg:text-xl font-extrabold text-white transition-colors leading-snug tracking-tight drop-shadow-sm">
+          <h3 class="text-xs sm:text-base lg:text-xl font-bold sm:font-extrabold text-white transition-colors leading-snug tracking-tight drop-shadow-sm">
             Daftar &amp; Join Kelas Sekarang
           </h3>
-          <p class="text-xs sm:text-sm lg:text-[14px] text-emerald-100 mt-1 leading-relaxed font-medium">
-            Amankan slot bimbingan intensif 1-on-1 &amp; akses ZettBOT sekarang &rarr;
+          <p class="text-[10px] sm:text-xs lg:text-[14px] text-emerald-100 mt-0.5 leading-snug sm:leading-relaxed font-medium line-clamp-2 sm:line-clamp-none">
+            Amankan slot bimbingan intensif 1-on-1 &amp; akses ZettBOT &rarr;
           </p>
         </div>
       </div>
@@ -736,23 +736,23 @@ function renderLandingUseCases(cms) {
     const style = tintStylesMap[uc.tint] || tintStylesMap.emerald;
     const tags = Array.isArray(uc.tags) ? uc.tags : [];
     return `
-      <div class="bg-[#0C111D]/95 card-usecase-item card-elevated-highlight rounded-2xl p-5 sm:p-6 flex flex-col justify-between border ${style.border} ${style.hoverGlow} transition-all duration-300 group hover:-translate-y-1.5 shadow-lg">
+      <div class="bg-[#0C111D]/95 card-usecase-item card-elevated-highlight rounded-xl sm:rounded-2xl p-3.5 sm:p-5 lg:p-6 flex flex-col justify-between border ${style.border} ${style.hoverGlow} transition-all duration-300 group hover:-translate-y-1.5 shadow-lg">
         <div>
-          <div class="flex items-center justify-between mb-3.5">
-            <div class="w-10 h-10 rounded-xl ${style.iconBox} border flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform shadow-sm">
-              ${getMonolineSvgIcon(uc.icon || 'briefcase', 'w-5 h-5')}
+          <div class="flex items-center justify-between mb-2 sm:mb-3.5">
+            <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl ${style.iconBox} border flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform shadow-sm">
+              ${getMonolineSvgIcon(uc.icon || 'briefcase', 'w-4 h-4 sm:w-5 sm:h-5')}
             </div>
-            <span class="text-[10px] font-mono tracking-caps uppercase px-2 py-0.5 rounded bg-slate-900/90 border border-slate-800 ${style.badge}">TARGET AUDIENS</span>
+            <span class="text-[8.5px] sm:text-[10px] font-mono tracking-caps uppercase px-1.5 sm:px-2 py-0.5 rounded bg-slate-900/90 border border-slate-800 ${style.badge}">TARGET AUDIENS</span>
           </div>
-          <h3 class="text-sm sm:text-base font-extrabold text-white mb-2 leading-snug group-hover:text-emerald-300 transition-colors">
+          <h3 class="text-xs sm:text-sm lg:text-base font-bold sm:font-extrabold text-white mb-1.5 leading-snug group-hover:text-emerald-300 transition-colors">
             ${escapeHtml(uc.title)}
           </h3>
-          <p class="text-xs sm:text-[13px] text-slate-200 leading-relaxed mb-4 font-normal">
+          <p class="text-[10.5px] sm:text-xs lg:text-[13px] text-slate-200 leading-snug sm:leading-relaxed mb-3 sm:mb-4 font-normal line-clamp-3 sm:line-clamp-none">
             ${escapeHtml(uc.description || uc.desc || '')}
           </p>
         </div>
-        <div class="flex flex-wrap gap-1.5 pt-3 border-t border-slate-800/80">
-          ${tags.map(t => `<span class="px-2 py-0.5 rounded-md text-[10.5px] font-semibold border ${style.pill}">${escapeHtml(t)}</span>`).join('')}
+        <div class="flex flex-wrap gap-1 sm:gap-1.5 pt-2 sm:pt-3 border-t border-slate-800/80">
+          ${tags.map(t => `<span class="px-1.5 sm:px-2 py-0.5 rounded-md text-[9px] sm:text-[10.5px] font-semibold border ${style.pill}">${escapeHtml(t)}</span>`).join('')}
         </div>
       </div>
     `;
@@ -864,7 +864,7 @@ function renderLandingFromCms() {
             <!-- Tombol Lihat Testimoni (Jika ada Bukti Foto dari CMS) -->
             ${t.proofPhotoUrl ? `
               <div class="mt-3.5">
-                <button type="button" onclick="openTestimonialProofModal('${escapeHtml(t.proofPhotoUrl)}', '${escapeHtml(t.name)}', '${escapeHtml(t.outcomeBadge || 'Testimoni Member')}', '${escapeHtml(t.quote)}')" class="w-full py-2 px-3.5 rounded-full text-xs font-bold bg-emerald-500/15 hover:bg-emerald-500 text-emerald-300 hover:text-slate-950 border border-emerald-500/40 hover:border-emerald-400 flex items-center justify-center gap-2 transition-all shadow-sm group/proof cursor-pointer">
+                <button type="button" onclick="event.stopPropagation(); openTestimonialProofModalById('${escapeHtml(t.id)}')" class="w-full py-2 px-3.5 rounded-full text-xs font-bold bg-emerald-500/15 hover:bg-emerald-500 text-emerald-300 hover:text-slate-950 border border-emerald-500/40 hover:border-emerald-400 flex items-center justify-center gap-2 transition-all shadow-sm group/proof cursor-pointer relative z-10">
                   <svg class="w-4 h-4 text-emerald-400 group-hover/proof:scale-110 group-hover/proof:text-slate-950 transition-all shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                   <span>Lihat Testimoni</span>
                 </button>
@@ -1250,8 +1250,17 @@ function closeTestimonialProofModal() {
 window.openTestimonialProofModal = openTestimonialProofModal;
 window.closeTestimonialProofModal = closeTestimonialProofModal;
 
+function openTestimonialProofModalById(testiId) {
+  const list = AppState.landingCms?.testimonials || [];
+  const t = list.find(item => item.id === testiId);
+  if (!t) return;
+  const photoUrl = t.proofPhotoUrl || '';
+  openTestimonialProofModal(photoUrl, t.name, t.outcomeBadge || 'Testimoni Member', t.quote);
+}
+window.openTestimonialProofModalById = openTestimonialProofModalById;
+
 // ==========================================
-// INTERACTIVE TESTIMONIALS CAROUSEL CONTROLLER (Revisi 97)
+// INTERACTIVE TESTIMONIALS CAROUSEL CONTROLLER (Revisi 97 & Revisi 101)
 // Manual Drag, Touch Swipe, Smooth Auto-Glide & Button Navigation
 // ==========================================
 let testiCarouselState = {
@@ -1301,6 +1310,8 @@ function initInteractiveTestimonialsCarousel() {
 
   // Pointer & Drag handling (Supports mouse drag and touch swipe seamlessly)
   container.addEventListener('pointerdown', (e) => {
+    // Abaikan jika pointer mengenai tombol atau tautan (misal tombol "Lihat Testimoni")
+    if (e.target.closest('button, a')) return;
     if (e.button && e.button !== 0) return; // Only left-click
     testiCarouselState.isDragging = true;
     testiCarouselState.hasDragged = false;

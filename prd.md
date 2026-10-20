@@ -1,8 +1,8 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 # Projek: Zettbos LMS (Member Hub & Notion-Style Learning Management System)
 ================================================================================
-VERSI DOKUMEN : v1.9.1 (REVISI 100 - STANDARISASI ID WHITELIST: BARIS TERAKHIR + 1)
-STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 100 SELESAI)
+VERSI DOKUMEN : v1.9.2 (REVISI 101 - POLISHING LANDING PORTAL, CMS KONTAK WA & MOBILE UX)
+STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 101 SELESAI)
 ARSITEK SISTEM: ZettBOT by Zettbos
 ENGINE STACK  : Next.js 14+ (App Router) + Supabase (Postgres & Auth OTP) + Vercel
 ================================================================================
@@ -1056,6 +1056,30 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
           - Menghapus seluruh baris sisa `('wl-' + Date.now())` dari kode autentikasi dan sinkronisasi Supabase.
        5. Cache Buster:
           - Menaikkan seluruh query string stylesheet CSS (`style.css?v=101`) dan 13 script JavaScript di `index.html` ke versi `?v=101`.
+    - [2026-10-20] Implementasi Revisi 101: Polishing Landing Portal, CMS Kontak WhatsApp Dinamis, Mobile 2-Column Grid, & Carousel Repair.
+       1. Modal WhatsApp Publik 2 Kolom & Centering Ganjil (`index.html`, `js/controllers/classroom.js`):
+          - Memperlebar modal menjadi `max-w-2xl` dengan layout 2 grid kolom (`grid-cols-1 md:grid-cols-2 gap-3.5`).
+          - Menerapkan aturan layout: jika terdapat 3 kontak (atau jumlah ganjil >1), kontak terakhir otomatis diletakkan di tengah baris kedua (`md:col-span-2 md:max-w-md md:mx-auto md:w-full`).
+          - Menambahkan palette rotasi warna badge, avatar, dan tombol yang dinamis.
+       2. CMS Multi-Kontak WhatsApp Dinamis (`index.html`, `js/controllers/admin.js`):
+          - Mengganti form statis 2 admin menjadi repeater dinamis dengan tombol `[+ Tambah Kontak Admin]`, input Nama, Nomor WA, Posisi, dan tombol `[Hapus Kontak]`.
+          - Sinkronisasi real-time ke Supabase Cloud dan auto-render ke modal WhatsApp publik saat disimpan.
+       3. Kelengkapan Menu Mobile Navigation Bar (`index.html`, `js/core/router.js`):
+          - Mengaktifkan tombol hamburger di header top navbar mobile (`flex` bukan `hidden md:flex`).
+          - Melengkapi `#mobile-bottom-nav` dengan tab: `Home`, `Kalender`, `Belajar`, `ZettLink`, `Galeri` (ZettGallery), `Favorit`, dan `Admin` (dinamis khusus admin/owner).
+          - Menghapus duplikasi elemen markup `#mobile-bottom-nav` yang tidak terpakai di baris bawah.
+          - Menyelaraskan active class di `router.js` (`updateNavbarState`).
+       4. Mobile 2 Grid Kolom untuk Fasilitas & Target Siswa (`index.html`, `js/controllers/landing.js`):
+          - Mengubah container `#landing-facilities-container` menjadi `grid-cols-2 sm:grid-cols-2 gap-2.5 sm:gap-4` dengan formasi simetris 3 baris x 2 kolom (6 kartu).
+          - Mengubah container `#landing-usecases-container` menjadi `grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-5` dengan formasi 2 baris x 2 kolom (4 kartu).
+          - Mengoptimasi tipografi, icon box, dan padding kartu untuk kenyamanan baca di layar smartphone tanpa scroll panjang.
+       5. Pembersihan Teks Geser & Perbaikan Tombol "Lihat Testimoni" (`index.html`, `js/controllers/landing.js`):
+          - Menghapus div teks petunjuk *"Bisa digeser dengan mouse drag, swipe, atau tombol panah"*, menyisakan tombol panah kiri-kanan minimalis.
+          - Menambahkan proteksi `if (e.target.closest('button, a')) return;` pada listener drag `pointerdown` carousel.
+          - Menambahkan fungsi pemanggil aman berbasis ID: `openTestimonialProofModalById(testiId)`.
+          - Menambahkan `event.stopPropagation()` pada tombol *"Lihat Testimoni"*, menjamin tombol 100% responsif membuka modal bukti foto.
+       6. Cache Buster:
+          - Menaikkan seluruh query string script JavaScript di `index.html` ke versi `?v=102`.
 
 
 
