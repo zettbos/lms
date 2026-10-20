@@ -1,231 +1,185 @@
-# MASTER BLUEPRINT: REVISI 101 - POLISHING LANDING PORTAL, CMS KONTAK WA & MOBILE UX
+# MASTER BLUEPRINT: REVISI 102 - SUPABASE CLOUD AUTO-SYNC (AKTIVITAS & FAVORIT) + REDESIGN KARTU WHATSAPP GENDUT & RAPI
 ====================================================================================================
 STATUS DOKUMEN   : SELESAI DITERAPKAN (IMPLEMENTED & FULLY VERIFIED)
 ARSITEK SISTEM   : ZettBOT by Zettbos (Universal Product Architect & Lead Engineering Mentor)
-KODE REVISI      : REV-20261020-LANDING-CMS-MOBILE-POLISH-101
+KODE REVISI      : REV-20261020-SUPABASE-SYNC-FAV-ACT-WA-CARD-102
 TANGGAL DRAF     : 20 Oktober 2026
-LANDASAN TEORI   : Responsive Grid Architecture, Dynamic CMS Multi-Contact, Mobile-First 1-Thumb UX, Event Propagation Decoupling
+LANDASAN TEORI   : Cloud Database Dual-Sync, Idempotent Upsert, Resilient Local-First Architecture, Mobile Card Hierarchy & Anti-Truncation UI
 ====================================================================================================
 
 ---
 
-## 1. DAFTAR PERMASALAHAN & AKAR MASALAH (ROOT CAUSE ANALYSIS)
+## 1. PENELUSURAN & AKAR MASALAH (ROOT CAUSE ANALYSIS)
 
-Berdasarkan 5 tangkapan layar (Gambar 1 - Gambar 5) dan instruksi spesifik pengguna, berikut adalah diagnosa teknis mendalam:
+Berdasarkan 3 tangkapan layar pengguna (Gambar 1, Gambar 2, dan Gambar 3) dan investigasi menyeluruh pada basis kode LMS, berikut diagnosa teknisnya:
 
-### 🔴 MASALAH 1 (Gambar 1): Modal Kontak WhatsApp Vertikal & CMS Kontak Terbatas 2 Orang
-- **Kondisi Saat Ini:**
-  - Layout modal `#modal-whatsapp-contact` tersusun vertikal menumpuk dari atas ke bawah (`space-y-3.5`).
-  - Akibat psikologis UX: Pengunjung website cenderung selalu memilih kontak teratas (Admin Farhan) dan jarang sekali mengontak admin bawah (Admin Asep).
-  - Di panel Admin CMS (`admin.js` dan form `index.html`), data kontak admin di-hardcode kaku hanya untuk 2 orang (Admin 1 dan Admin 2), tidak ada fitur tambah kontak baru, edit dinamis, maupun hapus kontak.
+---
+
+### 🔴 MASALAH 1 & 2 (Gambar 1 & Gambar 2): Tabel `member_activity` & `member_favorites` Masih Kosong (0 Records) di Supabase
+
+#### 1. Temuan pada Tabel `member_activity` (Gambar 1):
+- **Kondisi di Supabase Cloud:**
+  - Tabel `public.member_activity` sudah dibuat dengan skema:
+    `id (UUID)`, `user_email (TEXT)`, `study_date (DATE)`, `lessons_completed_count (INT4)`, `created_at (TIMESTAMPTZ)`, dengan `UNIQUE(user_email, study_date)`.
+  - Tabel ini saat ini masih **0 records / Empty**.
+- **Akar Masalah (Root Cause):**
+  - Pada berkas `js/controllers/classroom.js` (baris 1541), ketika siswa menyelesaikan materi pelajaran, sistem hanya memasukkan tanggal belajar (`YYYY-MM-DD`) ke state lokal:
+    ```javascript
+    AppState.activity[user.email].studiedDates.push(todayStr);
+    saveState(); // HANYA disimpan ke localStorage: 'zett_activity'
+    ```
+  - Bahkan pada fungsi `toggleLessonComplete()` di baris 1853, `AppState.activity` sama sekali tidak dimutakhirkan jika dicentang di luar alur `advanceToNextLesson`.
+  - Di dalam berkas `js/core/supabase.js`, **TIDAK ADA SATUPUN** fungsi pengiriman atau penarikan data untuk tabel `member_activity` (tidak ada `pushMemberActivity`, tidak ada `pullMemberActivity`).
+  - Akibatnya: seluruh catatan riwayat belajar siswa hanya tersimpan di browser lokal perangkat yang sedang digunakan dan **tidak pernah diunggah ke Supabase Cloud**.
+
+#### 2. Temuan pada Tabel `member_favorites` (Gambar 2):
+- **Kondisi di Supabase Cloud:**
+  - Tabel `public.member_favorites` sudah dibuat dengan skema:
+    `id (TEXT)`, `user_email (TEXT)`, `type (TEXT)`, `target_id (TEXT)`, `title (TEXT)`, `subtitle (TEXT)`, `content (TEXT)`, `language (TEXT)`, `created_at (TIMESTAMPTZ)`.
+  - Tabel ini saat ini masih **0 records / Empty**.
+- **Akar Masalah (Root Cause):**
+  - Pada berkas `js/controllers/classroom.js` (baris 1930 s/d 2050):
+    - `toggleCurrentLessonFavorite()` (simpan materi ke favorit)
+    - `toggleModuleFavorite()` (simpan modul ke favorit)
+    - `saveSnippetToFavorites()` (simpan snippet kode ke favorit)
+    - `removeFavorite()` (hapus favorit)
+    Semua fungsi di atas hanya memanipulasi memori array `AppState.favorites[user.email]` lalu memanggil `saveState()`, yang hanya menyimpannya ke `localStorage.setItem('zett_favorites', ...)`.
+  - Di dalam `js/core/supabase.js`, fungsi `pullAllData()` dan `pushAllLocalDataToSupabase()` **sama sekali tidak memproses tabel `member_favorites`**.
+  - Tidak ada fungsi `pushMemberFavorite()`, `removeMemberFavorite()`, maupun `pullMemberFavorites()`.
+  - Akibatnya: item favorit yang disimpan siswa hanya ada di laptop/HP saat ini dan tidak pernah tersinkron ke cloud Supabase.
+
+---
+
+### 🔴 MASALAH 3 (Gambar 3): Desain Kartu Kontak WhatsApp Terpotong (*Truncated*)
+
+- **Kondisi Tampilan Saat Ini:**
+  - Modal kontak WhatsApp menggunakan grid 2 kolom horizontal (`grid-cols-1 md:grid-cols-2`) di dalam modal berukuran `max-w-2xl` (~672px).
+  - Lebar satu kolom kartu hanya berkisar ~305px.
+  - Di dalam ruang selebar 305px tersebut, kartu dipaksa menampilkan tata letak **horizontal 1 baris sebaris**:
+    - Avatar bulat di kiri (`w-10 h-10` + margin = 52px).
+    - Tombol "Chat WhatsApp ->" di kanan yang lebar (`px-3 py-1.5`, ikon, teks = ~125px).
+    - Sisa ruang untuk blok teks di tengah (Nama Admin + Badge Online + Nomor HP + Jabatan/Peran) **hanya tersisa sekitar ~84px**!
+  - Akibatnya, kelas CSS `truncate` memotong seluruh teks penting:
+    - Nama "Admin Farhan" terpotong menjadi `"Admin ..."`.
+    - Nomor telepon terpotong menjadi `"0821-9527..."`.
+    - Jabatan "Project Manager" terpotong menjadi `"Project Ma..."`.
+    - Tampilan tampak terjepit, sesak, dan kurang profesional.
+
 - **Kebutuhan Pengguna:**
-  - Layout modal diubah menjadi **horizontal 2 grid kolom**.
-  - Jika jumlah kontak ganjil (misal 3 kontak), kontak terakhir (kontak ke-3 di baris bawah) harus berada tepat di **posisi tengah**.
-  - Di CMS Admin, pengguna bisa menambah kontak lebih dari 2 orang secara dinamis, dan perubahan otomatis tampil di modal kontak WhatsApp publik.
-
----
-
-### 🔴 MASALAH 2 (Gambar 2): Menu Mobile Navigation Bar Bawah Tidak Lengkap
-- **Kondisi Saat Ini:**
-  - Menu navigasi bawah mobile (`#mobile-bottom-nav`) saat ini hanya memiliki 5 tombol: `Home`, `Kalender`, `Belajar`, `ZettLink`, dan `Favorit`.
-  - Halaman showcase karya member (`ZettGallery` / `showcase`) hilang total dari navigasi mobile.
-  - Untuk pengguna dengan peran Admin/Owner, tidak tersedia jalan pintas cepat ke `Admin Panel` di perangkat mobile.
-  - Tombol hamburger di header top navbar mobile (`#btn-sidebar-toggle`) disembunyikan dengan kelas `hidden md:flex`, sehingga pengguna mobile terisolasi dan tidak bisa membuka drawer menu utama lengkap.
-  - Terdapat duplikasi elemen markup dengan ID `#mobile-bottom-nav` di `index.html` (baris 3959 dan baris 4155).
-
----
-
-### 🔴 MASALAH 3 & 4 (Gambar 3 & Gambar 4): Tampilan Mobile Fasilitas & Target Siswa Terlalu Panjang
-- **Kondisi Saat Ini:**
-  - Bagian Fasilitas Kelas ("Lebih Dari Sekadar Kelas Video Biasa") dan Target Siswa ("Siapa Saja yang Butuh Bikin Web App Pakai AI?") diatur dengan kelas `grid-cols-1` pada breakpoint mobile.
-  - Karena terdapat 6 kartu fasilitas (5 fitur + 1 CTA daftar) dan 4 kartu target audiens dengan padding besar, pengguna harus melakukan scroll vertikal yang sangat panjang (*infinite vertical fatigue*).
-- **Kebutuhan Pengguna:**
-  - Tampilan mobile untuk kedua section tersebut diubah menjadi **2 grid kolom (`grid-cols-2`)** agar compact, simetris, dan hemat ruang layar.
-
----
-
-### 🔴 MASALAH 5 (Gambar 5): Teks Petunjuk Drag Testimoni & Tombol "Lihat Testimoni" Macet
-- **Kondisi Saat Ini:**
-  - Di bawah track testimoni terdapat badge teks: *"Bisa digeser dengan mouse drag, swipe, atau tombol panah"* yang ingin dihilangkan agar tampilan lebih bersih dan profesional.
-  - Tombol *"Lihat Testimoni"* di kartu testimoni alumni (misal pada testimoni M Adriansyah) sama sekali tidak merespons klik (*unclickable*).
-- **Akar Masalah (Root Cause) Tombol Testimoni Tidak Bisa Diklik:**
-  1. **Interferensi Pointer Capture:** Controller carousel (`landing.js` baris 1303) memasang `pointerdown` pada container dan memanggil `container.setPointerCapture(e.pointerId)`. Ini mengalihkan seluruh event pointer dan event `click` ke container, sehingga tombol anak kehilangan event kliknya.
-  2. **Event Cancellation:** Handler klik di level capture (`useCapture: true`) membatalkan klik dengan `e.preventDefault()` jika ada pergeseran micro-jitter dari auto-scroll glide.
-  3. **Inline Escaping Hazard:** Parameter pemanggilan fungsi `openTestimonialProofModal` disuntikkan langsung ke string atribut HTML `onclick` dengan tanda petik tunggal, yang rentan memicu `SyntaxError` di parser browser jika teks quote mengandung tanda petik atau karakter khusus.
+  - Desain kartu diperbaiki agar teks **tidak terpotong**.
+  - Diperbolehkan dan disarankan dibuat **"agak gendut"** (kartu berorientasi profil/stacked yang lebih tinggi dan lapang) dengan desain yang rapi, modern, dan bernuansa premium.
 
 ---
 
 ## 2. ARSITEKTUR SOLUSI DEFINITIF (ENGINEERING BLUEPRINT)
 
 ```
-┌──────────────────────────────────────────────────────────────────────────────────┐
-│                             MASTER BLUEPRINT REVISI 101                          │
-├──────────────────────────────────────────────────────────────────────────────────┤
-│ 1. MODAL WHATSAPP & CMS MULTI-KONTAK                                             │
-│    • Container Modal: max-w-2xl, Grid: grid-cols-1 md:grid-cols-2 gap-3.5        │
-│    • Odd Centering Rule: Jika ganjil (3 kontak), item terakhir dapat kelas:     │
-│      [ md:col-span-2 md:max-w-md md:mx-auto md:w-full ]                          │
-│    • CMS Admin Dinamis: [+ Tambah Kontak], input Nama, WA, Peran, Hapus Kontak   │
-│    • Real-time Sync ke Supabase & Auto-render ke Modal Publik                    │
-├──────────────────────────────────────────────────────────────────────────────────┤
-│ 2. MOBILE BOTTOM NAVIGATION BAR                                                  │
-│    • Eliminasi duplikasi ID markup di index.html                                 │
-│    • Menu Lengkap: Home, Kalender, Belajar, ZettLink, Galeri (ZettGallery),      │
-│      Favorit, dan Admin Panel (dinamis khusus admin/owner)                       │
-│    • Aktifkan tombol Hamburger di header mobile (hapus 'hidden md:flex')         │
-├──────────────────────────────────────────────────────────────────────────────────┤
-│ 3 & 4. MOBILE 2 GRID KOLOM (FASILITAS & TARGET SISWA)                            │
-│    • Fasilitas: grid-cols-2 sm:grid-cols-2 (3 baris x 2 kolom = 6 kartu pas)     │
-│    • Target Siswa: grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 (2 baris x 2 kolom)│
-│    • Optimasi Typography & Padding: p-3 mobile, icon w-8 s/d w-9, line-clamp-3   │
-├──────────────────────────────────────────────────────────────────────────────────┤
-│ 5. TESTIMONIAL CAROUSEL CLEANUP & TOMBOL BUKTI KLIK                              │
-│    • Hapus elemen div teks 'Bisa digeser dengan mouse drag...'                   │
-│    • Bypass pointer capture: if (e.target.closest('button, a')) return;          │
-│    • Fungsi Baru: openTestimonialProofModalById(testiId) bebas syntax error      │
-│    • Tombol Card: onclick="event.stopPropagation(); openTestimonialProofModal..."│
-└──────────────────────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                          BLUEPRINT REVISI 102 (ZettBOT by Zettbos)                     │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│ 1. OTOMATISASI SINKRONISASI SUPABASE: member_activity                                   │
+│    • Buat ZettSupabase.pushMemberActivity(email, dateStr)                              │
+│      -> Upsert ke public.member_activity onConflict (user_email, study_date).          │
+│    • Buat ZettSupabase.pullMemberActivity(email)                                       │
+│      -> Mengambil riwayat belajar cloud & merge dengan AppState.activity.              │
+│    • Panggil otomatis saat:                                                            │
+│      - advanceToNextLesson (klik Lanjut & Selesai)                                     │
+│      - toggleLessonComplete (centang materi selesai)                                   │
+│      - Retroactive Auto-Sync (unggah riwayat lama yang ada di localStorage saat buka)  │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│ 2. OTOMATISASI SINKRONISASI SUPABASE: member_favorites                                  │
+│    • Buat ZettSupabase.pushMemberFavorite(email, favItem)                              │
+│      -> Upsert ke public.member_favorites onConflict (id).                             │
+│    • Buat ZettSupabase.deleteMemberFavorite(email, favId)                              │
+│      -> Hapus baris dari public.member_favorites where id = favId.                     │
+│    • Buat ZettSupabase.pullMemberFavorites(email)                                      │
+│      -> Tarik favorit cloud saat login / buka menu favorit.                           │
+│    • Panggil otomatis saat:                                                            │
+│      - toggleCurrentLessonFavorite()                                                   │
+│      - toggleModuleFavorite()                                                          │
+│      - saveSnippetToFavorites()                                                        │
+│      - removeFavorite()                                                                │
+│      - Retroactive Auto-Sync (unggah favorit lokal yang belum ada di cloud)            │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│ 3. REDESIGN KARTU WHATSAPP "GENDUT" & RAPI (ANTI-TRUNCATION UI)                        │
+│    • Modal Container: Lebarkan ke max-w-3xl agar lebih proporsional & gagah.           │
+│    • Struktur Kartu Stacked / Gendut:                                                  │
+│      [1] HEADER KARTU: Avatar Profil 12x12 (48px) + Indikator Online Pulsing            │
+│          + Nama Admin (text-base font-bold, NO TRUNCATE) + Badge Role Spesifik         │
+│      [2] BODY KARTU: Nomor WhatsApp dalam Badge Monospace Emerald dengan Ikon Telepon  │
+│          + Deskripsi Singkat / Jam Layanan Admin (terbaca tuntas, tanpa kepotong)      │
+│      [3] FOOTER KARTU: Full-Width Primary Action Button:                               │
+│          [ 💬 Chat via WhatsApp -> ] membentang dari kiri ke kanan dengan gradien rapi  │
+│    • Centering Otomatis: Kontak ke-3 (ganjil) tetap di tengah baris kedua.             │
+│    • Bersihkan duplikasi penutup </div> liar di index.html baris 2522.                 │
+└────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-### DETAIL IMPLEMENTASI PER ITEM:
+## 3. RENCANA PERUBAHAN BERKAS KODE (SURGICAL IMPLEMENTATION PLAN)
 
-### 🛠️ SOLUSI ITEM 1: Modal WhatsApp Horizontal & CMS Dinamis
-1. **Modal Publik (`#modal-whatsapp-contact` & `renderWhatsAppContactCards`):**
-   - Di `index.html`, ubah kontainer modal menjadi `max-w-2xl w-full`.
-   - Ubah elemen list kartu menjadi:
-     `<div id="whatsapp-admin-cards-list" class="grid grid-cols-1 md:grid-cols-2 gap-3.5"></div>`
-   - Pada fungsi `renderWhatsAppContactCards()` di `classroom.js`:
-     ```javascript
-     const isLastOdd = (idx === contacts.length - 1) && (contacts.length % 2 !== 0);
-     const colSpanClass = isLastOdd ? 'md:col-span-2 md:max-w-md md:mx-auto md:w-full' : '';
-     ```
-   - Dengan formula ini:
-     - Jika 2 kontak: 2 kartu berdampingan (1 baris, 2 kolom).
-     - Jika 3 kontak: Kontak 1 & 2 di baris atas, Kontak 3 tepat di tengah baris kedua.
-     - Jika 4 kontak: 2 baris seimbang (2x2).
-2. **CMS Admin Pengelola Kontak Dinamis (`admin.js` & `index.html`):**
-   - Mengganti form statis input 2 orang menjadi panel repeater kontak dinamis dengan tombol `[+ Tambah Kontak Admin]`.
-   - Setiap kartu kontak di CMS memiliki:
-     - Input Nama Lengkap
-     - Input Nomor WhatsApp (dengan auto-formatting `08...` atau `62...`)
-     - Input Posisi / Jabatan
-     - Tombol `[Hapus]` (dengan konfirmasi dan proteksi minimal tersisa 1 admin)
-   - Tombol Simpan menyimpan seluruh array `AppState.landingCms.adminContacts` ke Supabase Cloud secara instan dan langsung me-refresh modal publik.
+### 📁 Berkas 1: `js/core/supabase.js`
+1. **Tambahkan Modul Sinkronisasi `member_activity`:**
+   - `pushMemberActivity(userEmail, studyDate)`: Melakukan upsert ke tabel `member_activity` dengan parameter `user_email`, `study_date`, `lessons_completed_count`, dan `created_at`.
+   - `pullMemberActivity(userEmail)`: Menarik seluruh `study_date` dari tabel `member_activity`, lalu menyatukan (*merge*) ke dalam `AppState.activity[userEmail].studiedDates`.
+   - `syncAllLocalActivityToCloud(userEmail)`: Secara otomatis membaca tanggal belajar dari `localStorage` yang belum ada di cloud, lalu mengunggahnya secara batch (*retroactive sync*).
+2. **Tambahkan Modul Sinkronisasi `member_favorites`:**
+   - `pushMemberFavorite(userEmail, item)`: Mengirimkan data favorit (`id`, `user_email`, `type`, `target_id`, `title`, `subtitle`, `content`, `language`) ke tabel `member_favorites`.
+   - `deleteMemberFavorite(favId)`: Menghapus baris favorit dari tabel Supabase ketika siswa membatalkan bookmark.
+   - `pullMemberFavorites(userEmail)`: Menarik seluruh baris favorit milik user dari cloud dan memutakhirkan `AppState.favorites[userEmail]`.
+   - `syncAllLocalFavoritesToCloud(userEmail)`: Secara otomatis mengunggah seluruh favorit yang ada di `localStorage` saat ini ke cloud (*retroactive sync*).
+3. **Integrasikan ke Alur Utama Sinkronisasi:**
+   - Masukkan `pullMemberActivity()` dan `pullMemberFavorites()` ke dalam `pullAllData()` saat pengguna login.
+   - Masukkan `syncAllLocalActivityToCloud()` dan `syncAllLocalFavoritesToCloud()` ke dalam `pushAllLocalDataToSupabase()`.
+   - Daftarkan method ke `window` (`window.pushMemberActivity`, `window.pushMemberFavorite`, dll).
 
 ---
 
-### 🛠️ SOLUSI ITEM 2: Melengkapi Menu Mobile Navigation Bar
-1. **Eliminasi Duplikasi Markup:**
-   - Menghapus blok navbar kedua di baris 4155 yang tidak terpakai sehingga ID `#mobile-bottom-nav` bersifat tunggal dan valid di W3C DOM.
-2. **Penambahan Menu ZettGallery & Admin Panel:**
-   - Menyusun navigasi mobile 1-Thumb UX yang mencakup:
-     1. `Home` (`navigate('home')`)
-     2. `Kalender` (`navigate('user-dashboard')`)
-     3. `Belajar` (`navigate('learn')`)
-     4. `ZettLink` (`navigate('resources')`)
-     5. `Galeri` (`navigate('showcase')` - **ZettGallery**)
-     6. `Favorit` (`navigate('favorites')`)
-     7. `Admin` (`navigate('admin')` - otomatis tampil jika role === `admin` atau email owner)
-3. **Akses Drawer Mobile:**
-   - Mengubah tombol hamburger navbar atas `#btn-sidebar-toggle` menjadi terlihat di mobile (`flex` bukan `hidden md:flex`), sehingga user mobile dapat membuka sidebar drawer lengkap kapan pun dibutuhkan.
-4. **Router State Sync (`router.js`):**
-   - Menambahkan binding active class untuk tab `showcase` dan `admin` di `updateNavbarState()`.
+### 📁 Berkas 2: `js/controllers/classroom.js`
+1. **Otomatisasi `member_activity` pada Event Belajar Siswa:**
+   - Di dalam `advanceToNextLesson(isMarkComplete = true)`: Panggil `pushMemberActivity(user.email, todayStr)`.
+   - Di dalam `toggleLessonComplete(lessonId)`: Tambahkan pemutakhiran `AppState.activity[user.email].studiedDates` jika materi dicentang selesai, lalu panggil `pushMemberActivity(user.email, todayStr)`.
+2. **Otomatisasi `member_favorites` pada Event Bookmark:**
+   - Di dalam `toggleCurrentLessonFavorite()`: Saat item ditambahkan, panggil `pushMemberFavorite(user.email, newItem)`. Saat dihapus, panggil `deleteMemberFavorite(user.email, existingItem.id)`.
+   - Di dalam `toggleModuleFavorite(moduleId)`: Lakukan hal serupa untuk item bertipe `module`.
+   - Di dalam `saveSnippetToFavorites(codeId, language)`: Panggil `pushMemberFavorite(user.email, snippetItem)`.
+   - Di dalam `removeFavorite(favId)`: Panggil `deleteMemberFavorite(user.email, favId)`.
+3. **Redesign `renderWhatsAppContactCards()` Menjadi Kartu Gendut & Rapi:**
+   - Ubah markup kartu dari format sebaris (*single-line horizontal*) menjadi format **kartu profil berjenjang (*stacked card*)**:
+     - **Header:** Avatar lingkaran `w-12 h-12` (lebih besar) dengan inisial dan badge status `Online` pulsing + Nama Admin tebal tanpa truncate (`text-sm sm:text-base font-extrabold text-white break-words`).
+     - **Badge & Peran:** Label peran admin ditampilkan dalam badge warna yang kontras dan deskripsi tugas yang jelas (`text-xs text-slate-300 leading-snug`).
+     - **Kontak:** Nomor WhatsApp dengan ikon telepon mini dan font monospace hijau emerald.
+     - **Footer:** Tombol hijau WhatsApp `w-full` (membentang penuh di dasar kartu) dengan teks `Hubungi via WhatsApp` + ikon panah, memberikan area klik (*touch target*) yang sangat nyaman.
+   - Tetap pertahankan aturan penempatan kartu ganjil terakhir (`md:col-span-2 md:max-w-md md:mx-auto md:w-full`).
 
 ---
 
-### 🛠️ SOLUSI ITEM 3 & 4: Mobile 2 Grid Kolom untuk Fasilitas & Target Siswa
-1. **Fasilitas & Ekosistem Belajar (`#landing-facilities-container`):**
-   - Ubah grid container menjadi:
-     `grid grid-cols-2 sm:grid-cols-2 sm:grid-rows-3 gap-2.5 sm:gap-4 lg:gap-5`
-   - Di `landing.js` (`renderLandingFacilitiesShowcase`):
-     - Ubah kartu fasilitas menjadi fleksibel di mobile: `p-3 sm:p-6 rounded-xl sm:rounded-2xl min-h-[120px] sm:min-h-[155px]`.
-     - Icon box proporsional: `w-9 h-9 sm:w-16 sm:h-16 rounded-xl`.
-     - Judul: `text-xs sm:text-lg font-bold sm:font-extrabold`.
-     - Deskripsi: `text-[10px] sm:text-sm text-slate-300 line-clamp-3 sm:line-clamp-none`.
-     - Kartu CTA ("Daftar & Join Kelas Sekarang"): Diatur compact sehingga membentuk formasi sempurna 3 baris x 2 kolom (6 kartu total).
-2. **Target Siswa (`#landing-usecases-container`):**
-   - Ubah grid container menjadi:
-     `grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-5`
-   - Di `landing.js` (`renderLandingUseCases`):
-     - Padding kartu: `p-3 sm:p-6 rounded-xl sm:rounded-2xl`.
-     - Icon box: `w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl`.
-     - Judul: `text-xs sm:text-base font-bold`.
-     - Deskripsi: `text-[10.5px] sm:text-[13px] leading-snug line-clamp-3 sm:line-clamp-none`.
-     - Tag pills: `text-[9px] sm:text-[10.5px] px-1.5 py-0.5`.
-     - Menghasilkan tata letak 2x2 kartu simetris di layar HP tanpa perlu scroll panjang.
+### 📁 Berkas 3: `index.html`
+1. **Lebarkan Modal WhatsApp:**
+   - Ubah container `#modal-whatsapp-contact .glass-card` dari `max-w-2xl` menjadi `max-w-3xl` agar kartu 2 kolom tampil lapang dan bernapas lega.
+2. **Bersihkan Tag Penutup Liar:**
+   - Hapus dua tag `</div>` penutup berlebih pada baris 2522–2523.
+3. **Naikkan Versi Cache Buster:**
+   - Naikkan cache buster script JS ke `?v=103` agar browser pengguna segera mengeksekusi kode sinkronisasi terbaru.
 
 ---
 
-### 🛠️ SOLUSI ITEM 5: Pembersihan Teks Geser & Perbaikan Tombol "Lihat Testimoni"
-1. **Hapus Teks Petunjuk Geser:**
-   - Di `index.html` baris 734–738: Hapus blok `<div class="text-[11px] font-mono ...">...Bisa digeser dengan mouse drag...</div>`.
-   - Navigasi slider hanya menampilkan tombol panah bundar kiri dan kanan yang elegan dan modern.
-2. **Perbaikan Tombol "Lihat Testimoni":**
-   - Di `landing.js` (`initInteractiveTestimonialsCarousel`):
-     ```javascript
-     container.addEventListener('pointerdown', (e) => {
-       // Abaikan drag jika user menekan tombol atau link (seperti tombol Lihat Testimoni)
-       if (e.target.closest('button, a')) return;
-       ...
-     });
-     ```
-   - Buat fungsi resolusi modal berbasis ID:
-     ```javascript
-     function openTestimonialProofModalById(testiId) {
-       const list = AppState.landingCms?.testimonials || [];
-       const t = list.find(item => item.id === testiId);
-       if (!t || !t.proofPhotoUrl) return;
-       openTestimonialProofModal(t.proofPhotoUrl, t.name, t.outcomeBadge, t.quote);
-     }
-     window.openTestimonialProofModalById = openTestimonialProofModalById;
-     ```
-   - Pada render kartu testimoni (`renderTestiCard`):
-     ```html
-     <button type="button" onclick="event.stopPropagation(); openTestimonialProofModalById('${escapeHtml(t.id)}')" class="... cursor-pointer">
-       <span>Lihat Testimoni</span>
-     </button>
-     ```
-   - Menjamin 100% tombol dapat diklik dengan mulus, lightbox bukti foto muncul instan, dan terbebas dari kesalahan syntax kutipan/karakter khusus.
+### 📁 Berkas 4: `prd.md`
+- Perbarui dokumentasi PRD ke versi `v1.9.3 (REVISI 102 - AUTO-SYNC ACTIVITY & FAVORITES + WHATSAPP CARD POLISH)` pada zona master context.
 
 ---
 
-## 3. BERKAS-BERKAS YANG AKAN DIMODIFIKASI
+## 4. CHECKLIST VERIFIKASI PENGUJIAN
 
-1. `revisi.md`: Master Blueprint Revisi 101 (Dokumen ini).
-2. `index.html`:
-   - Penyesuaian modal WhatsApp (lebar `max-w-2xl`, container grid 2 kolom).
-   - Pembaruan form CMS kontak WhatsApp di tab CMS Landing Portal.
-   - Perapihan navigasi bawah mobile (`#mobile-bottom-nav`) & aktivasi hamburger mobile.
-   - Grid 2 kolom mobile pada kontainer Fasilitas (`#landing-facilities-container`) dan Target Siswa (`#landing-usecases-container`).
-   - Penghapusan teks *"Bisa digeser dengan mouse drag, swipe, atau tombol panah"*.
-   - Cache buster script ke `?v=102`.
-3. `js/controllers/landing.js`:
-   - Update `renderLandingFacilitiesShowcase` untuk layout compact 2 kolom mobile.
-   - Update `renderLandingUseCases` untuk layout compact 2 kolom mobile.
-   - Bypass pointer capture pada klik tombol di `initInteractiveTestimonialsCarousel`.
-   - Penambahan `openTestimonialProofModalById()` dan penyesuaian event click pada tombol *"Lihat Testimoni"*.
-4. `js/controllers/classroom.js`:
-   - Update `renderWhatsAppContactCards()` dengan CSS grid 2 kolom dan aturan centering item ganjil (`md:col-span-2 md:max-w-md md:mx-auto md:w-full`).
-5. `js/controllers/admin.js`:
-   - Implementasi CMS Multi-Kontak Admin (tambah, edit, hapus kontak admin dinamis).
-   - Sinkronisasi real-time ke Supabase dan pemanggilan re-render modal WhatsApp.
-6. `js/core/router.js`:
-   - Penanganan tab aktif navigasi mobile untuk `showcase` dan `admin`.
-7. `prd.md`:
-   - Update dokumentasi versi ke `v1.9.2 (REVISI 101 - POLISHING LANDING PORTAL, CMS KONTAK WA & MOBILE UX)`.
-
----
-
-## 4. STATUS PENGERJAAN
-- [x] Analisis mendalam 5 tangkapan layar (Gambar 1 - Gambar 5).
-- [x] Formulasi arsitektur solusi di `revisi.md`.
-- [x] Persetujuan pengguna diterima ("OKE TERAPKAN").
-- [x] Eksekusi implementasi ke seluruh berkas kode terkait:
-  - [x] `index.html` (Modal WA 2 kolom, CMS repeater list, hamburger mobile flex, bottom nav lengkap, grid-cols-2 fasilitas & usecases, hapus petunjuk drag, cache buster ?v=102)
-  - [x] `js/controllers/classroom.js` (renderWhatsAppContactCards grid 2 kolom & centering odd item terakhir)
-  - [x] `js/controllers/admin.js` (renderAdminContactsCms, addAdminContactCms, removeAdminContactCms, handleSaveAdminContactsCms, resetAdminContactsToDefault)
-  - [x] `js/controllers/landing.js` (renderLandingFacilitiesShowcase & renderLandingUseCases compact mobile 2 kolom, event pointerdown bypass & openTestimonialProofModalById)
-  - [x] `js/core/router.js` (update active bottom nav tabs: showcase, favorites, admin)
-- [x] Validasi sintaksis bebas galat (`node --check` lolos 100%).
+Setelah Anda menyetujui dengan mengetik **"OKE TERAPKAN"**, berikut parameter keberhasilannya:
+- [x] Buka aplikasi dan tandai selesai satu materi pembelajaran:
+  - Cek tabel `member_activity` di dashboard Supabase: Baris baru otomatis muncul dengan `user_email`, `study_date`, dan `lessons_completed_count`!
+- [x] Buka materi atau modul, klik ikon favorit / simpan snippet:
+  - Cek tabel `member_favorites` di dashboard Supabase: Baris baru otomatis muncul lengkap dengan `type`, `target_id`, `title`, dan `user_email`!
+- [x] Buka modal WhatsApp ("Hubungi Admin Zettbos"):
+  - Kartu kini tampil "gendut" (tinggi, lapang, dan proporsional).
+  - Nama "Admin Farhan" dan "Admin Asep" tampil utuh tanpa ada titik-titik `...`.
+  - Nomor HP dan jabatan admin terbaca tuntas dan bersih.
+  - Tombol chat WhatsApp membentang rapi di bagian bawah kartu dengan efek hover interaktif.
+- [x] Validasi sintaksis kode dan struktur tag HTML bersih 100%.

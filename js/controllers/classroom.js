@@ -282,30 +282,47 @@ function renderWhatsAppContactCards() {
     const oddCenteredClass = isLastOdd ? 'md:col-span-2 md:max-w-md md:mx-auto md:w-full' : 'w-full';
 
     return `
-      <a href="https://wa.me/${cleanPhone}?text=Halo%20${encodeURIComponent(admin.name || 'Admin')}%20Zettbos,%20saya%20ingin%20bertanya%20seputar%20LMS%20Zettbos" target="_blank" rel="noopener noreferrer" class="group block p-4 rounded-xl bg-slate-900/80 hover:bg-slate-850 border border-slate-800 ${pal.hoverBorder} transition-all shadow-sm ${oddCenteredClass}">
-        <div class="flex items-center justify-between gap-3">
-          <div class="flex items-center gap-3 min-w-0">
-            <div class="relative shrink-0">
-              <div class="w-10 h-10 rounded-full ${pal.badge} border flex items-center justify-center font-bold text-xs font-mono">
-                ${escapeHtml(initials)}
+      <div class="group relative flex flex-col justify-between p-5 rounded-2xl bg-slate-900/90 hover:bg-slate-850 border border-slate-800 ${pal.hoverBorder} transition-all duration-200 shadow-lg hover:shadow-emerald-950/20 ${oddCenteredClass}">
+        <!-- Top Section: Header Profil Admin -->
+        <div>
+          <div class="flex items-start justify-between gap-3 mb-3">
+            <div class="flex items-center gap-3">
+              <div class="relative shrink-0">
+                <div class="w-12 h-12 rounded-2xl ${pal.badge} border flex items-center justify-center font-black text-sm font-mono shadow-inner">
+                  ${escapeHtml(initials)}
+                </div>
+                <span class="w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-slate-900 absolute -bottom-1 -right-1 animate-pulse" title="Online"></span>
               </div>
-              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-slate-900 absolute -bottom-0.5 -right-0.5"></span>
-            </div>
-            <div class="min-w-0">
-              <div class="flex items-center gap-1.5 flex-wrap">
-                <span class="text-sm font-bold text-white ${pal.nameHover} transition-colors truncate">${escapeHtml(admin.name)}</span>
-                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">${escapeHtml(admin.status || 'Online')}</span>
+              <div class="min-w-0">
+                <h4 class="text-base font-extrabold text-white ${pal.nameHover} transition-colors tracking-tight leading-snug whitespace-normal">
+                  ${escapeHtml(admin.name)}
+                </h4>
+                <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold mt-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                  <span>${escapeHtml(admin.status || 'Online')}</span>
+                </div>
               </div>
-              <div class="text-xs text-slate-400 mt-0.5 font-mono truncate">${escapeHtml(admin.phone)}</div>
-              <div class="text-[11px] text-slate-500 mt-0.5 truncate">${escapeHtml(roleText)}</div>
             </div>
           </div>
-          <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg ${pal.btn} text-xs font-bold transition-all shrink-0">
-            <span>Chat WhatsApp</span>
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+
+          <!-- Role / Deskripsi Tugas (Tampil Utuh, Tanpa Terpotong) -->
+          <div class="text-xs text-slate-300 font-medium leading-relaxed mb-3 whitespace-normal">
+            ${escapeHtml(roleText)}
+          </div>
+
+          <!-- Nomor WhatsApp Badge Monospace -->
+          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-950/90 border border-slate-800/80 text-xs font-mono text-emerald-400 mb-4">
+            <svg class="w-3.5 h-3.5 text-emerald-400 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
+            <span class="tracking-wider font-semibold">${escapeHtml(admin.phone)}</span>
           </div>
         </div>
-      </a>
+
+        <!-- Bottom Section: Tombol Chat Full-Width -->
+        <a href="https://wa.me/${cleanPhone}?text=Halo%20${encodeURIComponent(admin.name || 'Admin')}%20Zettbos,%20saya%20ingin%20bertanya%20seputar%20LMS%20Zettbos" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-4 rounded-xl ${pal.btn} font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all hover:scale-[1.01] active:scale-[0.99] border border-emerald-500/30">
+          <span>Chat via WhatsApp</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </a>
+      </div>
     `;
   }).join('');
 }
@@ -1554,6 +1571,13 @@ function advanceToNextLesson(isMarkComplete = false) {
         ZettSupabase.pushMemberLessonProgress(user.email, currentLesson.id);
       }
 
+      // Push study activity to Supabase Cloud (Gambar 1 - Revisi 102)
+      if (typeof window.pushMemberActivity === 'function') {
+        window.pushMemberActivity(user.email, todayStr);
+      } else if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+        ZettSupabase.pushMemberActivity(user.email, todayStr);
+      }
+
       // Dopamine Micro-Reward Animation (Gambar 2 & Neuro-Pedagogy)
       const actionBtn = document.getElementById('btn-next-lesson') || document.getElementById('btn-footer-next-lesson') || document.getElementById('btn-toggle-complete-lesson');
       if (actionBtn) {
@@ -1851,6 +1875,16 @@ function toggleLessonCompletion(lessonId) {
       advanceToNextLesson(true);
     } else {
       list.push(lessonId);
+
+      // Record activity for today (Gambar 1 - Revisi 102)
+      const now = new Date();
+      const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      if (!AppState.activity) AppState.activity = {};
+      if (!AppState.activity[user.email]) AppState.activity[user.email] = { studiedDates: [] };
+      if (!Array.isArray(AppState.activity[user.email].studiedDates)) AppState.activity[user.email].studiedDates = [];
+      if (!AppState.activity[user.email].studiedDates.includes(todayStr)) {
+        AppState.activity[user.email].studiedDates.push(todayStr);
+      }
       saveState();
 
       // Push progress to Supabase Cloud asynchronously
@@ -1858,6 +1892,13 @@ function toggleLessonCompletion(lessonId) {
         window.pushMemberLessonProgress(user.email, lessonId);
       } else if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
         ZettSupabase.pushMemberLessonProgress(user.email, lessonId);
+      }
+
+      // Push study activity to Supabase Cloud
+      if (typeof window.pushMemberActivity === 'function') {
+        window.pushMemberActivity(user.email, todayStr);
+      } else if (typeof ZettSupabase !== 'undefined' && ZettSupabase.isConnected()) {
+        ZettSupabase.pushMemberActivity(user.email, todayStr);
       }
 
       showToast('🎉 Hebat! Materi berhasil diselesaikan!', 'success');
@@ -1951,20 +1992,29 @@ function toggleCurrentLessonFavorite() {
   const parentModule = AppState.modules.find(m => m.id === lesson.moduleId);
 
   if (existingIndex > -1) {
+    const removedFav = userFavs[existingIndex];
     userFavs.splice(existingIndex, 1);
     saveState();
+    if (typeof window.deleteMemberFavorite === 'function') {
+      window.deleteMemberFavorite(user.email, removedFav.id);
+    }
     showToast('Materi dihapus dari Favorit', 'info');
   } else {
-    userFavs.unshift({
+    const newFav = {
       id: generateFormattedId('FAV', userFavs, 2),
       type: 'lesson',
       targetId: lesson.id,
       title: lesson.title,
       subtitle: parentModule ? parentModule.title : 'Modul Pembelajaran',
       durationMinutes: lesson.durationMinutes || 15,
-      date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
-    });
+      date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+      createdAt: new Date().toISOString()
+    };
+    userFavs.unshift(newFav);
     saveState();
+    if (typeof window.pushMemberFavorite === 'function') {
+      window.pushMemberFavorite(user.email, newFav);
+    }
     showToast('Materi berhasil disimpan ke Favorit', 'success');
   }
 
@@ -1985,20 +2035,29 @@ function toggleModuleFavorite(moduleId) {
   const existingIndex = userFavs.findIndex(f => f.type === 'module' && f.targetId === mod.id);
 
   if (existingIndex > -1) {
+    const removedFav = userFavs[existingIndex];
     userFavs.splice(existingIndex, 1);
     saveState();
+    if (typeof window.deleteMemberFavorite === 'function') {
+      window.deleteMemberFavorite(user.email, removedFav.id);
+    }
     showToast(`Modul "${mod.title.slice(0, 20)}..." dihapus dari Favorit`, 'info');
   } else {
-    userFavs.unshift({
+    const newFav = {
       id: generateFormattedId('FAV', userFavs, 2),
       type: 'module',
       targetId: mod.id,
       title: mod.title,
       subtitle: `${AppState.lessons.filter(l => l.moduleId === mod.id).length} Video Tutorial`,
       coverImage: mod.coverImage,
-      date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
-    });
+      date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+      createdAt: new Date().toISOString()
+    };
+    userFavs.unshift(newFav);
     saveState();
+    if (typeof window.pushMemberFavorite === 'function') {
+      window.pushMemberFavorite(user.email, newFav);
+    }
     showToast(`Modul "${mod.title.slice(0, 20)}..." disimpan ke Favorit`, 'success');
   }
 
@@ -2024,7 +2083,7 @@ function saveSnippetToFavorites(codeId, language) {
   const parentModule = currentLesson ? AppState.modules.find(m => m.id === currentLesson.moduleId) : null;
 
   const userFavs = getUserFavorites();
-  userFavs.unshift({
+  const newFav = {
     id: generateFormattedId('FAV', userFavs, 2),
     type: 'snippet',
     targetId: AppState.currentLessonId,
@@ -2032,19 +2091,29 @@ function saveSnippetToFavorites(codeId, language) {
     subtitle: parentModule ? parentModule.title : 'Materi Pembelajaran',
     language: language || 'javascript',
     content: codeContent,
-    date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
-  });
+    date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+    createdAt: new Date().toISOString()
+  };
+  userFavs.unshift(newFav);
 
   saveState();
+  if (typeof window.pushMemberFavorite === 'function') {
+    window.pushMemberFavorite(user.email, newFav);
+  }
   showToast('Snippet kode berhasil disimpan ke Favorit', 'success');
 }
 
 function removeFavorite(favId) {
+  const user = AppState.currentUser;
   const userFavs = getUserFavorites();
   const idx = userFavs.findIndex(f => f.id === favId);
   if (idx > -1) {
+    const removedFav = userFavs[idx];
     userFavs.splice(idx, 1);
     saveState();
+    if (user && typeof window.deleteMemberFavorite === 'function') {
+      window.deleteMemberFavorite(user.email, removedFav.id);
+    }
     showToast('Item favorit telah dihapus', 'info');
     renderFavorites();
     if (AppState.currentView === 'learn') {

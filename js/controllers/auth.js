@@ -182,6 +182,32 @@ function syncUserCloudProgressOnLogin(userEmail) {
       if (typeof updateHomeProgressCard === 'function') updateHomeProgressCard();
     }).catch(e => console.warn('[Cloud Progress Login Sync Warning]', e));
   }
+
+  // Pull Activity & Heatmap
+  if (typeof window.pullMemberActivity === 'function') {
+    window.pullMemberActivity(cleanEmail).then(() => {
+      if (typeof renderMonthlyLearningCalendar === 'function' && AppState.currentView === 'user-dashboard') {
+        renderMonthlyLearningCalendar();
+      }
+    }).catch(e => console.warn('[Cloud Activity Login Sync Warning]', e));
+  }
+
+  // Pull Favorites Collection
+  if (typeof window.pullMemberFavorites === 'function') {
+    window.pullMemberFavorites(cleanEmail).then(() => {
+      if (typeof renderFavorites === 'function' && AppState.currentView === 'favorites') {
+        renderFavorites();
+      }
+    }).catch(e => console.warn('[Cloud Favorites Login Sync Warning]', e));
+  }
+
+  // Retroactive Auto-Sync: unggah data lokal yang belum ada di Cloud
+  if (typeof window.syncAllLocalActivityToCloud === 'function') {
+    window.syncAllLocalActivityToCloud(cleanEmail).catch(e => {});
+  }
+  if (typeof window.syncAllLocalFavoritesToCloud === 'function') {
+    window.syncAllLocalFavoritesToCloud(cleanEmail).catch(e => {});
+  }
 }
 
 async function handleLoginSubmit(event) {

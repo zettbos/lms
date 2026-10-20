@@ -27,6 +27,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (isReady && typeof window.ZettSupabase.syncCurriculumFromCloud === 'function') {
       window.ZettSupabase.syncCurriculumFromCloud(true);
     }
+    // Auto-sync logged-in user data (Progress, Activity & Favorites)
+    if (isReady && window.AppState && window.AppState.currentUser && window.AppState.currentUser.email) {
+      if (typeof syncUserCloudProgressOnLogin === 'function') {
+        syncUserCloudProgressOnLogin(window.AppState.currentUser.email);
+      }
+    }
   }
 
   // 3. Setup OTP Modal listeners

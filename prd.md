@@ -1,8 +1,8 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 # Projek: Zettbos LMS (Member Hub & Notion-Style Learning Management System)
 ================================================================================
-VERSI DOKUMEN : v1.9.2 (REVISI 101 - POLISHING LANDING PORTAL, CMS KONTAK WA & MOBILE UX)
-STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 101 SELESAI)
+VERSI DOKUMEN : v1.9.3 (REVISI 102 - SUPABASE CLOUD AUTO-SYNC AKTIVITAS & FAVORIT + REDESIGN KARTU WA)
+STATUS DOKUMEN: APPROVED & IMPLEMENTED (REVISI 102 SELESAI)
 ARSITEK SISTEM: ZettBOT by Zettbos
 ENGINE STACK  : Next.js 14+ (App Router) + Supabase (Postgres & Auth OTP) + Vercel
 ================================================================================
@@ -1056,6 +1056,27 @@ ZONA BAWAH: MASTER CONTEXT & LOGIKA SISTEM TERKINI (LIVING CONTEXT)
           - Menghapus seluruh baris sisa `('wl-' + Date.now())` dari kode autentikasi dan sinkronisasi Supabase.
        5. Cache Buster:
           - Menaikkan seluruh query string stylesheet CSS (`style.css?v=101`) dan 13 script JavaScript di `index.html` ke versi `?v=101`.
+    - [2026-10-20] Implementasi Revisi 102: Supabase Cloud Auto-Sync Aktivitas & Favorit serta Redesign Kartu WhatsApp "Gendut" & Rapi.
+        1. Cloud Dual-Sync untuk Tabel `member_activity` (`js/core/supabase.js`, `js/controllers/classroom.js`, `js/controllers/auth.js`):
+           - Menambahkan fungsi `pushMemberActivity(userEmail, studyDate)` dengan upsert idempotent pada conflict `(user_email, study_date)`.
+           - Menambahkan `pullMemberActivity(userEmail)` untuk sinkronisasi riwayat hari belajar cloud ke `AppState.activity[email].studiedDates` dan penyimpanan lokal `localStorage`.
+           - Menambahkan `syncAllLocalActivityToCloud(userEmail)` untuk batch upload riwayat lokal lama secara otomatis (*retroactive sync*).
+           - Menghubungkan trigger otomatis saat siswa klik `advanceToNextLesson` (tombol lanjut & selesai) dan saat mencentang materi di `toggleLessonComplete`.
+           - Menghubungkan penarikan otomatis saat siswa login di `auth.js` dan saat inisialisasi boot di `app.js`.
+        2. Cloud Dual-Sync untuk Tabel `member_favorites` (`js/core/supabase.js`, `js/controllers/classroom.js`, `js/controllers/auth.js`):
+           - Menambahkan fungsi `pushMemberFavorite(userEmail, item)` dengan upsert idempotent ke tabel `public.member_favorites`.
+           - Menambahkan `deleteMemberFavorite(userEmail, favId)` untuk menghapus bookmark dari cloud saat siswa membatalkan favorit.
+           - Menambahkan `pullMemberFavorites(userEmail)` dan `syncAllLocalFavoritesToCloud(userEmail)` untuk sinkronisasi dua arah multi-perangkat.
+           - Menghubungkan trigger ke seluruh aksi favorit: `toggleCurrentLessonFavorite`, `toggleModuleFavorite`, `saveSnippetToFavorites`, dan `removeFavorite`.
+        3. Redesign Kartu Kontak WhatsApp Gendut & Rapi Anti-Truncate (`index.html`, `js/controllers/classroom.js`):
+           - Mengubah modal `#modal-whatsapp-contact` menjadi `max-w-3xl` dan membersihkan tag div penutup liar.
+           - Mengubah tata letak kartu kontak dari formasi horizontal sebaris sempit menjadi format **Stacked Profile Card ("Gendut" & Lapang)**.
+           - Header profil: Avatar lingkaran besar 48px (`w-12 h-12`) dengan inisial dan lampu pulsing `Online`, Nama Admin tebal tanpa truncate (`text-base font-extrabold text-white whitespace-normal`).
+           - Body info: Deskripsi peran/tugas admin tampil utuh, nomor WhatsApp dalam badge monospace emerald berikon telepon resmi.
+           - Footer action: Tombol `[ 💬 Chat via WhatsApp -> ]` membentang penuh (*full-width*) di dasar kartu dengan touch target yang empuk di mobile maupun desktop.
+           - Mempertahankan aturan penempatan kartu ganjil terakhir tetap di tengah baris kedua.
+        4. Cache Buster:
+           - Menaikkan seluruh query string script JavaScript di `index.html` ke versi `?v=103`.
     - [2026-10-20] Implementasi Revisi 101: Polishing Landing Portal, CMS Kontak WhatsApp Dinamis, Mobile 2-Column Grid, & Carousel Repair.
        1. Modal WhatsApp Publik 2 Kolom & Centering Ganjil (`index.html`, `js/controllers/classroom.js`):
           - Memperlebar modal menjadi `max-w-2xl` dengan layout 2 grid kolom (`grid-cols-1 md:grid-cols-2 gap-3.5`).

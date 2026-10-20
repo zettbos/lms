@@ -272,9 +272,14 @@ const ZettSupabase = {
         }
       }
 
-      // 6. Pull Progress from Cloud (Multi-device student & admin monitoring sync)
+      // 6. Pull Progress, Activity & Favorites from Cloud (Multi-device student & admin monitoring sync)
       if (AppState.currentUser && AppState.currentUser.email) {
         await this.pullMemberProgress(AppState.currentUser.email);
+        await this.pullMemberActivity(AppState.currentUser.email);
+        await this.pullMemberFavorites(AppState.currentUser.email);
+        // Retroactive auto-sync if local data has un-synced items
+        this.syncAllLocalActivityToCloud(AppState.currentUser.email);
+        this.syncAllLocalFavoritesToCloud(AppState.currentUser.email);
       }
       if (AppState.currentUser && AppState.currentUser.role === 'admin') {
         await this.pullAllMembersProgressForAdmin(true);
@@ -414,6 +419,12 @@ const ZettSupabase = {
           order_index: idx + 1
         }));
         await this.client.from('quick_actions').upsert(payloadQa, { onConflict: 'id' });
+      }
+
+      // 7. Push Current User Activity & Favorites to Cloud
+      if (AppState.currentUser && AppState.currentUser.email) {
+        await this.syncAllLocalActivityToCloud(AppState.currentUser.email);
+        await this.syncAllLocalFavoritesToCloud(AppState.currentUser.email);
       }
 
       showToast('Seluruh data berhasil tersinkron ke tabel Supabase!', 'success');
@@ -1394,6 +1405,243 @@ const ZettSupabase = {
       console.warn('[ZettSupabase subscribeToMemberProgressRealtime Exception]', err);
       return null;
     }
+  },
+
+  // ==========================================
+  // MEMBER ACTIVITY CLOUD SYNC (Gambar 1 - Revisi 102)
+  // ==========================================
+
+  /**
+   * Pushes daily study activity to Supabase Cloud ('member_activity' table).
+   * Idempotent upsert on conflict (user_email, study_date).
+   */
+  async pushMemberActivity(userEmail, studyDate = null) {
+    if (!userEmail || !this.isConnected()) return false;
+    const cleanEmail = userEmail.toLowerCase().trim();
+    const dateStr = studyDate || new Date().toISOString().split('T')[0];
+
+    try {
+      const { error } = await this.client
+        .from('member_activity')
+        .upsert({
+          user_email: cleanEmail,
+          study_date: dateStr,
+          lessons_completed_count: 1
+        }, { onConflict: 'user_email,study_date' });
+
+      if (error) {
+        console.warn('[ZettSupabase pushMemberActivity Warning]', error);
+        return false;
+      }
+      return true;
+    } catch (err) {
+      console.warn('[ZettSupabase pushMemberActivity Exception]', err);
+      return false;
+    }
+  },
+
+  /**
+   * Pulls all study activity dates for specific member from Cloud upon login.
+   * Merges with local AppState.activity to ensure cross-device heatmap accuracy.
+   */
+  async pullMemberActivity(userEmail) {
+    if (!userEmail) return [];
+    const cleanEmail = userEmail.toLowerCase().trim();
+    if (!this.isConnected()) return (AppState.activity && AppState.activity[cleanEmail]?.studiedDates) || [];
+
+    try {
+      const { data, error } = await this.client
+        .from('member_activity')
+        .select('study_date')
+        .eq('user_email', cleanEmail);
+
+      if (!error && Array.isArray(data)) {
+        if (!AppState.activity) AppState.activity = {};
+        if (!AppState.activity[cleanEmail]) AppState.activity[cleanEmail] = { studiedDates: [] };
+        const cloudDates = data.map(r => r.study_date).filter(Boolean);
+        const localDates = AppState.activity[cleanEmail].studiedDates || [];
+        const merged = Array.from(new Set([...localDates, ...cloudDates]));
+        AppState.activity[cleanEmail].studiedDates = merged;
+        localStorage.setItem('zett_activity', JSON.stringify(AppState.activity));
+        return merged;
+      }
+    } catch (err) {
+      console.warn('[ZettSupabase pullMemberActivity Exception]', err);
+    }
+    return (AppState.activity && AppState.activity[cleanEmail]?.studiedDates) || [];
+  },
+
+  /**
+   * Retroactive bulk push of local studied dates to Supabase Cloud.
+   */
+  async syncAllLocalActivityToCloud(userEmail) {
+    if (!userEmail || !this.isConnected()) return false;
+    const cleanEmail = userEmail.toLowerCase().trim();
+    const localDates = AppState.activity && AppState.activity[cleanEmail]?.studiedDates;
+    if (!Array.isArray(localDates) || localDates.length === 0) return true;
+
+    try {
+      const payload = localDates.map(d => ({
+        user_email: cleanEmail,
+        study_date: d,
+        lessons_completed_count: 1
+      }));
+      for (let i = 0; i < payload.length; i += 50) {
+        const chunk = payload.slice(i, i + 50);
+        await this.client.from('member_activity').upsert(chunk, { onConflict: 'user_email,study_date' });
+      }
+      return true;
+    } catch (err) {
+      console.warn('[ZettSupabase syncAllLocalActivityToCloud Exception]', err);
+      return false;
+    }
+  },
+
+  // ==========================================
+  // MEMBER FAVORITES CLOUD SYNC (Gambar 2 - Revisi 102)
+  // ==========================================
+
+  /**
+   * Pushes a single favorite item to Supabase Cloud ('member_favorites' table).
+   * Idempotent upsert on conflict (id).
+   */
+  async pushMemberFavorite(userEmail, item) {
+    if (!userEmail || !item || !this.isConnected()) return false;
+    const cleanEmail = userEmail.toLowerCase().trim();
+
+    try {
+      const payload = {
+        id: item.id || ('FAV-' + Date.now().toString(36).toUpperCase()),
+        user_email: cleanEmail,
+        type: item.type || 'lesson',
+        target_id: item.targetId || item.target_id || null,
+        title: item.title || 'Item Favorit',
+        subtitle: item.subtitle || null,
+        content: item.content || null,
+        language: item.language || null,
+        created_at: item.createdAt || new Date().toISOString()
+      };
+
+      const { error } = await this.client
+        .from('member_favorites')
+        .upsert(payload, { onConflict: 'id' });
+
+      if (error) {
+        console.warn('[ZettSupabase pushMemberFavorite Warning]', error);
+        return false;
+      }
+      return true;
+    } catch (err) {
+      console.warn('[ZettSupabase pushMemberFavorite Exception]', err);
+      return false;
+    }
+  },
+
+  /**
+   * Deletes a favorite item from Supabase Cloud ('member_favorites' table).
+   */
+  async deleteMemberFavorite(userEmail, favId) {
+    if (!favId || !this.isConnected()) return false;
+    const cleanEmail = (userEmail || '').toLowerCase().trim();
+
+    try {
+      let query = this.client.from('member_favorites').delete().eq('id', favId);
+      if (cleanEmail) {
+        query = query.eq('user_email', cleanEmail);
+      }
+      const { error } = await query;
+      if (error) {
+        console.warn('[ZettSupabase deleteMemberFavorite Warning]', error);
+        return false;
+      }
+      return true;
+    } catch (err) {
+      console.warn('[ZettSupabase deleteMemberFavorite Exception]', err);
+      return false;
+    }
+  },
+
+  /**
+   * Pulls all favorite items for specific member from Cloud upon login or viewing favorites.
+   * Merges seamlessly with local AppState.favorites.
+   */
+  async pullMemberFavorites(userEmail) {
+    if (!userEmail) return [];
+    const cleanEmail = userEmail.toLowerCase().trim();
+    if (!this.isConnected()) return (AppState.favorites && AppState.favorites[cleanEmail]) || [];
+
+    try {
+      const { data, error } = await this.client
+        .from('member_favorites')
+        .select('*')
+        .eq('user_email', cleanEmail)
+        .order('created_at', { ascending: false });
+
+      if (!error && Array.isArray(data)) {
+        if (!AppState.favorites) AppState.favorites = {};
+        const cloudFavs = data.map(r => ({
+          id: r.id,
+          type: r.type,
+          targetId: r.target_id,
+          title: r.title,
+          subtitle: r.subtitle || '',
+          content: r.content || null,
+          language: r.language || null,
+          date: r.created_at ? new Date(r.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Baru',
+          createdAt: r.created_at
+        }));
+
+        const localFavs = AppState.favorites[cleanEmail] || [];
+        const mergedMap = new Map();
+        cloudFavs.forEach(f => mergedMap.set(f.id, f));
+        localFavs.forEach(f => {
+          if (!mergedMap.has(f.id)) {
+            mergedMap.set(f.id, f);
+          }
+        });
+
+        const mergedList = Array.from(mergedMap.values());
+        AppState.favorites[cleanEmail] = mergedList;
+        localStorage.setItem('zett_favorites', JSON.stringify(AppState.favorites));
+        return mergedList;
+      }
+    } catch (err) {
+      console.warn('[ZettSupabase pullMemberFavorites Exception]', err);
+    }
+    return (AppState.favorites && AppState.favorites[cleanEmail]) || [];
+  },
+
+  /**
+   * Retroactive bulk push of local favorites to Supabase Cloud.
+   */
+  async syncAllLocalFavoritesToCloud(userEmail) {
+    if (!userEmail || !this.isConnected()) return false;
+    const cleanEmail = userEmail.toLowerCase().trim();
+    const localFavs = AppState.favorites && AppState.favorites[cleanEmail];
+    if (!Array.isArray(localFavs) || localFavs.length === 0) return true;
+
+    try {
+      const payload = localFavs.map(f => ({
+        id: f.id,
+        user_email: cleanEmail,
+        type: f.type || 'lesson',
+        target_id: f.targetId || f.target_id || null,
+        title: f.title || 'Item Favorit',
+        subtitle: f.subtitle || null,
+        content: f.content || null,
+        language: f.language || null,
+        created_at: f.createdAt || new Date().toISOString()
+      }));
+
+      for (let i = 0; i < payload.length; i += 50) {
+        const chunk = payload.slice(i, i + 50);
+        await this.client.from('member_favorites').upsert(chunk, { onConflict: 'id' });
+      }
+      return true;
+    } catch (err) {
+      console.warn('[ZettSupabase syncAllLocalFavoritesToCloud Exception]', err);
+      return false;
+    }
   }
 };
 
@@ -1448,6 +1696,13 @@ window.removeMemberLessonProgress = (userEmail, lessonId) => ZettSupabase.remove
 window.pullMemberProgress = (userEmail) => ZettSupabase.pullMemberProgress(userEmail);
 window.pullAllMembersProgressForAdmin = (silent) => ZettSupabase.pullAllMembersProgressForAdmin(silent);
 window.subscribeToMemberProgressRealtime = (cb) => ZettSupabase.subscribeToMemberProgressRealtime(cb);
+window.pushMemberActivity = (userEmail, studyDate) => ZettSupabase.pushMemberActivity(userEmail, studyDate);
+window.pullMemberActivity = (userEmail) => ZettSupabase.pullMemberActivity(userEmail);
+window.syncAllLocalActivityToCloud = (userEmail) => ZettSupabase.syncAllLocalActivityToCloud(userEmail);
+window.pushMemberFavorite = (userEmail, item) => ZettSupabase.pushMemberFavorite(userEmail, item);
+window.deleteMemberFavorite = (userEmail, favId) => ZettSupabase.deleteMemberFavorite(userEmail, favId);
+window.pullMemberFavorites = (userEmail) => ZettSupabase.pullMemberFavorites(userEmail);
+window.syncAllLocalFavoritesToCloud = (userEmail) => ZettSupabase.syncAllLocalFavoritesToCloud(userEmail);
 
 // Initialize on script load
 try {
